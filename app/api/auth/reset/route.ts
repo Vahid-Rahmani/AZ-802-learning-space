@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { passwordResetTokens, users } from "@/db/schema";
 import { hashOpaqueToken, hashPassword, signSession } from "@/lib/session";
+import { deliverResetEmail } from "@/lib/reset-delivery";
 
 // The request path deliberately stays generic. In production, the returned
 // reset token must be delivered by the deployment's mail provider; local
@@ -31,7 +32,9 @@ export async function POST(request: Request) {
     const rawToken = crypto.randomUUID().replaceAll("-", "") + crypto.randomUUID().replaceAll("-", "");
     const now = new Date();
     await db.insert(passwordResetTokens).values({ id: crypto.randomUUID(), userId: user.id, tokenHash: await hashOpaqueToken(rawToken), expiresAt: new Date(Date.now() + 30 * 60 * 1000), createdAt: now });
+    const delivered = await deliverResetEmail(email, rawToken);
     if (process.env.NODE_ENV !== "production") debugToken = rawToken;
+    if (process.env.NODE_ENV === "production" && !delivered) console.error("Password reset delivery is not configured");
   }
   return NextResponse.json({ ok: true, message: "If the account exists, recovery instructions will be sent.", ...(debugToken ? { debugToken } : {}) }, { status: 202 });
 }
