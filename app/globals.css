@@ -1,5 +1,6 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+/* Use explicit package files so Nitro/Vite's PostCSS import resolver works on Vercel. */
+@import "../node_modules/tailwindcss/index.css";
+@import "../node_modules/tw-animate-css/dist/tw-animate.css";
 @import "../vendor/shadcn-tailwind-4.13.0.css";
 :root { --background:#0b1018; --foreground:#e8edf5; }
 * { box-sizing:border-box; }
