@@ -34,7 +34,7 @@ export function PracticalExam({ t, userId, onComplete }: { t: Copy; userId: stri
   const [lastScore, setLastScore] = useState<number | null>(null);
   const scenario = practicalScenarios[selected];
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || userId === "local-guest") return;
     void fetch("/api/lab-submissions").then(async (response) => {
       if (!response.ok) return;
       const data = await response.json() as { submissions?: Array<{ labId?: string; score?: number | null }> };
@@ -43,7 +43,7 @@ export function PracticalExam({ t, userId, onComplete }: { t: Copy; userId: stri
     }).catch(() => undefined);
   }, [userId, scenario.id]);
   const submit = async () => {
-    if (userId) {
+    if (userId && userId !== "local-guest") {
       const response = await fetch("/api/lab-submissions", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ labId: scenario.id, evidenceText: evidence || "Practical attempt submitted", completed: false }) });
       const data = await response.json() as { score?: number | null };
       const score = typeof data.score === "number" ? data.score : 50;
@@ -77,7 +77,7 @@ export function Cards({ t, known, userId, questionId, onReview }: { t: Copy; kno
   const localizedCard = card as typeof card & { textFa?: string; optionsFa?: string[] };
   const stage = trainingStageForQuestion(card.id);
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || userId === "local-guest") return;
     void fetch("/api/flashcards").then(async (response) => {
       if (!response.ok) return;
       const data = await response.json() as { flashcards?: Array<{ questionId?: string; box?: number }> };
@@ -88,7 +88,7 @@ export function Cards({ t, known, userId, questionId, onReview }: { t: Copy; kno
   }, [userId, questionId]);
   const box = serverBox ?? (known ? 2 : 1);
   const review = async (quality: "again" | "got-it") => {
-    if (userId) {
+    if (userId && userId !== "local-guest") {
       const response = await fetch("/api/flashcards", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ questionId, quality }) });
       if (response.ok) { const data = await response.json() as { box?: number }; if (data.box) setServerBox(data.box); }
     }

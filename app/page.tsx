@@ -9,12 +9,13 @@ import { ExamResult } from "@/app/components/exam-result";
 type Language = "fa" | "en" | "de";
 type View = "home" | "lesson" | "graph" | "quiz" | "practical" | "labs" | "cards";
 const TRANSLATION_VERSION = 2;
+const GUEST_ID = "local-guest";
 
 export default function Home() {
   const [language, setLanguage] = useState<Language>("fa");
   const [view, setView] = useState<View>("home");
   const [authOpen, setAuthOpen] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(GUEST_ID);
   const [selectedLessonId, setSelectedLessonId] = useState(lessons[0].id);
   const [selectedSkillId, setSelectedSkillId] = useState<string | null>(null);
   const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
@@ -60,8 +61,7 @@ export default function Home() {
     if (userId && new URLSearchParams(window.location.search).has("google_error")) setAuthOpen(true);
   }, [userId]);
 
-  // User data is namespaced by the authenticated account. The old shared key
-  // is intentionally ignored so a shared browser cannot leak one person's work.
+  // Guest progress stays on this browser, separate from any account data.
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!userId) { setLoadedUserId(null); return; }
@@ -90,7 +90,7 @@ export default function Home() {
   }, [language, userId, loadedUserId, totalProgress, selectedLessonId, selectedStageId, completedLab, labEvidence, cardKnown, cardBox, cardQuestionId, fontScale, showTranslations]);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || userId === GUEST_ID) return;
     let cancelled = false;
     void (async () => {
       try {
@@ -116,7 +116,7 @@ export default function Home() {
     return () => { cancelled = true; };
   }, [userId, selectedLessonId]);
 
-  useEffect(() => { if (userId) void fetch("/api/progress", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ lessonId: selectedLessonId, completionPercent: totalProgress }) }); }, [userId, selectedLessonId, totalProgress]);
+  useEffect(() => { if (userId && userId !== GUEST_ID) void fetch("/api/progress", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ lessonId: selectedLessonId, completionPercent: totalProgress }) }); }, [userId, selectedLessonId, totalProgress]);
 
   const startQuiz = (scope: { skillId?: string | null; domain?: string | null } | null = null) => {
     setSelectedSkillId(scope?.skillId ?? null);
@@ -138,7 +138,7 @@ export default function Home() {
     setAnswerStats((current) => ({ correct: current.correct + (correct ? 1 : 0), total: current.total + 1 }));
     setSkillStats((current) => { const next = { ...current, [question.skillId]: { ...(current[question.skillId] ?? { correct: 0, total: 0 }), total: (current[question.skillId]?.total ?? 0) + 1, correct: (current[question.skillId]?.correct ?? 0) + (correct ? 1 : 0) } }; setSkillProgress((progress) => ({ ...progress, [question.skillId]: Math.round((next[question.skillId].correct / next[question.skillId].total) * 100) })); return next; });
     setDomainStats((current) => { const previous = current[question.domain] ?? { correct: 0, total: 0 }; return { ...current, [question.domain]: { total: previous.total + 1, correct: previous.correct + (correct ? 1 : 0) } }; });
-    if (userId) {
+    if (userId && userId !== GUEST_ID) {
       void fetch("/api/attempts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ questionId: question.id, selectedAnswer: value, isCorrect: value === question.correct }) });
       if (value !== question.correct) void fetch("/api/flashcards", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ questionId: question.id, box: 1 }) });
     }
@@ -147,7 +147,7 @@ export default function Home() {
   const submitLab = async () => {
     setCompletedLab(true);
     setTotalProgress((current) => Math.min(100, current + 5));
-    if (!userId) return;
+    if (!userId || userId === GUEST_ID) return;
     let evidenceUrl: string | undefined;
     if (evidenceFile) { const form = new FormData(); form.set("labId", "harden-two-server-domain"); form.set("file", evidenceFile); const upload = await fetch("/api/evidence", { method: "POST", body: form }); if (upload.ok) evidenceUrl = (await upload.json() as { key?: string }).key; }
     await fetch("/api/lab-submissions", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ labId: "harden-two-server-domain", evidenceText: labEvidence, evidenceUrl, completed: true }) });
