@@ -9,3 +9,4 @@ button, textarea { font:inherit; } button { cursor:pointer; }
 button:focus-visible, a:focus-visible, textarea:focus-visible { outline:2px solid #67e8f9; outline-offset:3px; }
 .font-scale-content { zoom: var(--wincraft-font-scale, 1); width: calc(100% / var(--wincraft-font-scale, 1)); max-width: 100%; overflow-x: clip; }
 html, body { overflow-x: hidden; }
+.auth-required [aria-label="بستن"] { display: none; }
