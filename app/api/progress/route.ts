@@ -8,8 +8,8 @@ import { verifySession } from "@/lib/session";
 export async function GET() {
   const sessionUserId = await verifySession((await cookies()).get("wincraft_session")?.value, process.env.SESSION_SECRET ?? "local-development-session-secret");
   if (!sessionUserId) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
-  const row = (await getDb().select().from(progress).where(eq(progress.userId, sessionUserId)).limit(1))[0] ?? null;
-  return NextResponse.json({ progress: row });
+  const rows = await getDb().select().from(progress).where(eq(progress.userId, sessionUserId));
+  return NextResponse.json({ progress: rows });
 }
 
 export async function PUT(request: Request) {
@@ -18,6 +18,6 @@ export async function PUT(request: Request) {
   const sessionUserId = await verifySession((await cookies()).get("wincraft_session")?.value, process.env.SESSION_SECRET ?? "local-development-session-secret");
   if (!sessionUserId) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
   const now = new Date();
-  await getDb().insert(progress).values({ userId: sessionUserId, lessonId: body.lessonId, completionPercent: Math.max(0, Math.min(100, Number(body.completionPercent) || 0)), createdAt: now, updatedAt: now }).onConflictDoUpdate({ target: progress.userId, set: { lessonId: body.lessonId, completionPercent: Math.max(0, Math.min(100, Number(body.completionPercent) || 0)), updatedAt: now } });
+  await getDb().insert(progress).values({ userId: sessionUserId, lessonId: body.lessonId, completionPercent: Math.max(0, Math.min(100, Number(body.completionPercent) || 0)), createdAt: now, updatedAt: now }).onConflictDoUpdate({ target: [progress.userId, progress.lessonId], set: { completionPercent: Math.max(0, Math.min(100, Number(body.completionPercent) || 0)), updatedAt: now } });
   return NextResponse.json({ ok: true });
 }

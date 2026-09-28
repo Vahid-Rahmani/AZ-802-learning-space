@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 const audit = { createdAt: integer("created_at", { mode: "timestamp" }).notNull(), updatedAt: integer("updated_at", { mode: "timestamp" }).notNull() };
 export const users = sqliteTable("users", { id: text("id").primaryKey(), email: text("email").notNull().unique(), passwordHash: text("password_hash").notNull(), preferredLanguage: text("preferred_language").notNull().default("fa"), ...audit });
@@ -10,4 +10,4 @@ export const attempts = sqliteTable("attempts", { id: text("id").primaryKey(), u
 export const flashcards = sqliteTable("flashcards", { id: text("id").primaryKey(), userId: text("user_id").notNull(), questionId: text("question_id").notNull(), box: integer("box").notNull().default(1), dueAt: integer("due_at", { mode: "timestamp" }).notNull(), ...audit });
 export const labs = sqliteTable("labs", { id: text("id").primaryKey(), skillId: text("skill_id").notNull(), contentKey: text("content_key").notNull(), sourceUrl: text("source_url").notNull(), ...audit });
 export const labSubmissions = sqliteTable("lab_submissions", { id: text("id").primaryKey(), labId: text("lab_id").notNull(), userId: text("user_id").notNull(), evidenceText: text("evidence_text").notNull(), evidenceUrl: text("evidence_url"), score: integer("score"), completedAt: integer("completed_at", { mode: "timestamp" }), ...audit });
-export const progress = sqliteTable("progress", { userId: text("user_id").primaryKey(), lessonId: text("lesson_id").notNull(), completionPercent: integer("completion_percent").notNull().default(0), ...audit });
+export const progress = sqliteTable("progress", { userId: text("user_id").notNull(), lessonId: text("lesson_id").notNull(), completionPercent: integer("completion_percent").notNull().default(0), ...audit }, (table) => ({ primaryKey: primaryKey({ columns: [table.userId, table.lessonId] }) }));

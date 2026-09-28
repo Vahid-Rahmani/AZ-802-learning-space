@@ -22,7 +22,12 @@ export async function POST(request: Request) {
   const knownLab = labId === "harden-two-server-domain" || practicalScenarios.some((scenario) => scenario.id === labId);
   if (!knownLab || evidenceText.trim().length < 8) return NextResponse.json({ error: "Evidence is required for a known lab" }, { status: 400 });
   const now = new Date();
-  const score = typeof body.score === "number" ? Math.max(0, Math.min(100, Math.round(body.score))) : null;
-  await getDb().insert(labSubmissions).values({ id: crypto.randomUUID(), labId, userId, evidenceText: evidenceText.trim(), evidenceUrl: typeof body.evidenceUrl === "string" ? body.evidenceUrl : null, score, completedAt: body.completed ? now : null, createdAt: now, updatedAt: now });
-  return NextResponse.json({ ok: true }, { status: 201 });
+  const practical = practicalScenarios.find((scenario) => scenario.id === labId);
+  const normalizedEvidence = evidenceText.toLowerCase();
+  const independentlyGradedScore = practical ? (practical.id === "practical-hardening"
+    ? (/firewall|netfirewallprofile|inbound|domain/.test(normalizedEvidence) && /timestamp|output|verify|ثبت|nachweis/.test(normalizedEvidence) ? 100 : 50)
+    : (/restore|recovery|backup|recovery point/.test(normalizedEvidence) && /timestamp|output|verify|زمان|nachweis/.test(normalizedEvidence) ? 100 : 50)) : null;
+  const score = independentlyGradedScore ?? null;
+  await getDb().insert(labSubmissions).values({ id: crypto.randomUUID(), labId, userId, evidenceText: evidenceText.trim(), evidenceUrl: typeof body.evidenceUrl === "string" ? body.evidenceUrl : null, score, completedAt: body.completed === true || (score !== null && score >= 70) ? now : null, createdAt: now, updatedAt: now });
+  return NextResponse.json({ ok: true, score }, { status: 201 });
 }
