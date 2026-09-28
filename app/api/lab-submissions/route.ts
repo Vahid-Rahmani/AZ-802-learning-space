@@ -28,6 +28,7 @@ export async function POST(request: Request) {
     ? (/firewall|netfirewallprofile|inbound|domain/.test(normalizedEvidence) && /timestamp|output|verify|ثبت|nachweis/.test(normalizedEvidence) ? 100 : 50)
     : (/restore|recovery|backup|recovery point/.test(normalizedEvidence) && /timestamp|output|verify|زمان|nachweis/.test(normalizedEvidence) ? 100 : 50)) : null;
   const score = independentlyGradedScore ?? null;
-  await getDb().insert(labSubmissions).values({ id: crypto.randomUUID(), labId, userId, evidenceText: evidenceText.trim(), evidenceUrl: typeof body.evidenceUrl === "string" ? body.evidenceUrl : null, score, completedAt: body.completed === true || (score !== null && score >= 70) ? now : null, createdAt: now, updatedAt: now });
+  const completed = practical ? score !== null && score >= 70 : body.completed === true;
+  await getDb().insert(labSubmissions).values({ id: crypto.randomUUID(), labId, userId, evidenceText: evidenceText.trim(), evidenceUrl: typeof body.evidenceUrl === "string" ? body.evidenceUrl : null, score, completedAt: completed ? now : null, createdAt: now, updatedAt: now });
   return NextResponse.json({ ok: true, score }, { status: 201 });
 }
