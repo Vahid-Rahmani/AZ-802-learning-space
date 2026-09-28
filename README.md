@@ -50,19 +50,27 @@ Registration and login are server-backed and require a Cloudflare D1 database. T
 CLOUDFLARE_ACCOUNT_ID=your-cloudflare-account-id
 CLOUDFLARE_D1_DATABASE_ID=your-d1-database-id
 CLOUDFLARE_API_TOKEN=token-with-d1-edit-access
-SESSION_SECRET=a-long-random-string
+SESSION_SECRET=a-random-secret-of-at-least-32-characters
 
-# Optional Google/Gmail sign-in
+# Google sign-in
 GOOGLE_CLIENT_ID=your-google-oauth-client-id
 GOOGLE_CLIENT_SECRET=your-google-oauth-client-secret
-GOOGLE_REDIRECT_URI=https://your-domain.example/api/auth/google/callback
+GOOGLE_REDIRECT_URI=https://az-802-eosin.vercel.app/api/auth/google/callback
+
+# Email recovery: choose Resend or a trusted delivery webhook
+APP_ORIGIN=https://az-802-eosin.vercel.app
+RESEND_API_KEY=your-resend-key
+RESET_FROM_EMAIL=verified-sender@example.com
+# RESET_EMAIL_WEBHOOK_URL=https://your-mail-worker.example/reset
 ```
 
-After saving them, redeploy the project. The password must contain at least 10 characters. If the variables are missing, the app now reports that the account database is not configured instead of failing silently. Never expose the API token with a `NEXT_PUBLIC_` prefix.
+Set the D1 variables and `SESSION_SECRET` for every Vercel environment that should support accounts: **Production**, **Preview**, and **Development**. The secret must be at least 32 characters and must remain the same across deployments in an environment so existing sessions survive redeployment. Redeploy after changing variables. Passwords must contain 10–1024 characters. Keep all credentials server-only; never use a `NEXT_PUBLIC_` prefix.
 
-The D1 database must contain the migration files in `drizzle/` before the first account is created. With Wrangler authenticated, apply them once with `npx wrangler d1 migrations apply <database-name> --remote`.
+The D1 database must contain the tables in `drizzle/`. For a **new** database, apply `0001` through `0006` once, in numeric order, using `npx wrangler d1 execute <database-name> --remote --file ./drizzle/<filename>.sql`. For a database where `0001`–`0005` are already applied, apply **only** `0006_google_accounts.sql`. Do not rerun `0004`: it rebuilds the progress table. The repository does not maintain a Wrangler migration journal, so `wrangler d1 migrations apply` is not appropriate here. Back up a live D1 database before applying a migration.
 
-Google sign-in is optional. To enable the English **Continue with Google** button, create a Google Cloud OAuth **Web application** credential and add the exact callback URL shown above under **Authorized redirect URIs**. Google accounts are linked by their verified email address; the app does not receive or store the Google password.
+To enable **Continue with Google**, create a Google Cloud OAuth **Web application** credential. In Google Cloud, add `https://az-802-eosin.vercel.app` as an **Authorized JavaScript origin** and `https://az-802-eosin.vercel.app/api/auth/google/callback` as an **Authorized redirect URI**, provided that is the actual production hostname. The redirect must match `GOOGLE_REDIRECT_URI` exactly, including scheme, hostname, path, and trailing slash. Add the deployed test-user email to the OAuth consent screen while the Google app is in Testing mode. Configure both Google credentials and the redirect in Vercel **Production**. A Preview deployment needs its **own stable Preview/branch hostname** registered in Google Cloud and set as `GOOGLE_REDIRECT_URI` in Vercel **Preview**; use a separate branch-specific Preview scope if different branches have different hosts. Do not use a changing per-commit URL as a fixed callback. Development needs its own registered local callback, for example `http://localhost:3000/api/auth/google/callback`, and a local `GOOGLE_REDIRECT_URI`. The app checks that the configured callback belongs to the active request origin, preventing a Preview deployment from silently redirecting to Production.
+
+Google's stable subject ID (`sub`) is stored in `google_accounts`. A verified Google email that already belongs to an email/password account is **not** silently merged. The user signs in with the password and selects **Link Google account** in the account panel. The app does not receive or store the Google password. The account panel also provides working sign-out. For password recovery in production, configure `APP_ORIGIN` plus either `RESEND_API_KEY`/`RESET_FROM_EMAIL` or a trusted `RESET_EMAIL_WEBHOOK_URL`. Without a delivery provider, the app reports a configuration error instead of claiming a reset email was sent.
 
 The generated bank lives in [lib/content/questions.ts](lib/content/questions.ts); all 300 Persian question, option, and rationale fields in that file were refreshed through Google Translate. The stage map lives in [lib/content/training.ts](lib/content/training.ts). The older `scripts/localize-question-bank.mjs` file is retained as a legacy offline fallback and should not overwrite the Google-translated bank.
 

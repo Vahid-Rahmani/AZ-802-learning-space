@@ -2,12 +2,18 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { users } from "@/db/schema";
 import { hashPassword, signSession } from "@/lib/session";
+import { sessionSecret } from "@/lib/auth-config";
+import { sessionConfigurationError } from "@/lib/auth-server";
+
+const validEmail = (email: string) => email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({})) as Record<string, unknown>;
   const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
   const password = typeof body.password === "string" ? body.password : "";
-  if (!email || password.length < 10) return NextResponse.json({ error: "Use a valid email and a password of at least 10 characters." }, { status: 400 });
+  if (!validEmail(email) || password.length < 10 || password.length > 1024) return NextResponse.json({ code: "INVALID_INPUT", error: "Use a valid email and a password of 10–1024 characters." }, { status: 400 });
+  const secret = sessionSecret();
+  if (!secret) return sessionConfigurationError();
   const now = new Date();
   const id = crypto.randomUUID();
   try {
@@ -16,11 +22,10 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("registration failed", error);
     const message = String(error).toLowerCase();
-    if (message.includes("unique") || message.includes("constraint")) return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
-    if (message.includes("d1 binding") || message.includes("database") || message.includes("cloudflare:workers")) return NextResponse.json({ code: "DATABASE_UNAVAILABLE", error: "Account database is not configured on this deployment." }, { status: 503 });
-    return NextResponse.json({ error: "Unable to create the account right now." }, { status: 503 });
+    if (message.includes("unique constraint failed: users.email")) return NextResponse.json({ code: "EMAIL_EXISTS", error: "An account with this email already exists." }, { status: 409 });
+    return NextResponse.json({ code: "DATABASE_UNAVAILABLE", error: "The account database is unavailable or not initialized." }, { status: 503 });
   }
   const response = NextResponse.json({ user: { id, email } }, { status: 201 });
-  response.cookies.set("wincraft_session", await signSession(id, process.env.SESSION_SECRET ?? "local-development-session-secret"), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24 * 30, path: "/" });
+  response.cookies.set("wincraft_session", await signSession(id, secret), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24 * 30, path: "/" });
   return response;
 }

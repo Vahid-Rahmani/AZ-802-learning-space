@@ -1,21 +1,24 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { attempts } from "@/db/schema";
 import { getDb } from "@/db";
-import { verifySession } from "@/lib/session";
+import { currentUser, signInRequired } from "@/lib/auth-server";
 import { questions } from "@/lib/course-data";
 
 export async function GET() {
-  const userId = await verifySession((await cookies()).get("wincraft_session")?.value, process.env.SESSION_SECRET ?? "local-development-session-secret");
-  if (!userId) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
+  const auth = await currentUser();
+  if (auth.error) return auth.error;
+  const userId = auth.userId;
+  if (!userId) return signInRequired();
   const rows = await getDb().select().from(attempts).where(eq(attempts.userId, userId));
   return NextResponse.json({ attempts: rows });
 }
 
 export async function POST(request: Request) {
-  const userId = await verifySession((await cookies()).get("wincraft_session")?.value, process.env.SESSION_SECRET ?? "local-development-session-secret");
-  if (!userId) return NextResponse.json({ error: "Sign in required" }, { status: 401 });
+  const auth = await currentUser();
+  if (auth.error) return auth.error;
+  const userId = auth.userId;
+  if (!userId) return signInRequired();
   const body = await request.json().catch(() => ({})) as Record<string, unknown>;
   const questionId = typeof body.questionId === "string" ? body.questionId : "";
   const selectedAnswer = typeof body.selectedAnswer === "number" ? body.selectedAnswer : -1;

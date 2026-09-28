@@ -101,14 +101,24 @@ export function AuthPanel({ onClose, onAuthenticated }: { onClose: () => void; o
   const firstInput = useRef<HTMLInputElement>(null);
   useEffect(() => { firstInput.current?.focus(); }, [mode]);
   useEffect(() => {
-    const reason = new URLSearchParams(window.location.search).get("google_error");
-    if (reason) {
+    const params = new URLSearchParams(window.location.search);
+    const reason = params.get("google_error");
+    const resetToken = params.get("reset_token");
+    if (resetToken) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setMessage(reason === "not_configured" ? "Google sign-in is not configured on this deployment." : "Google sign-in could not be completed. Please try again.");
+      setToken(resetToken);
+      setMode("reset-confirm");
+    }
+    if (reason) {
+      setMessage(reason === "not_configured" ? "Google sign-in is not configured on this deployment. Contact the site owner."
+        : reason === "account_exists" ? "An account already uses this email. Sign in with its password, then link Google from your account."
+          : reason === "email_mismatch" ? "The Google email must match the email on your account."
+            : reason === "sign_in_required" ? "Sign in with your password before linking Google."
+              : "Google sign-in could not be completed. Please try again.");
     }
   }, []);
 
-  const labels = { title: "WinCraft account", email: "Email", password: "Password", newPassword: "New password", token: "Recovery token", login: "Sign in", register: "Create account", reset: "Send recovery instructions", confirm: "Change password", forgot: "Forgot password?", back: "Back", close: "Close", sent: "If the account exists, recovery instructions will be sent.", passwordHint: "Password must be at least 10 characters.", networkError: "Could not reach the server. Please try again.", databaseError: "The account database is not configured on the server.", invalidCredentials: "Email or password is incorrect.", accountExists: "An account with this email already exists.", google: "Continue with Google", divider: "or" };
+  const labels = { title: "WinCraft account", email: "Email", password: "Password", newPassword: "New password", token: "Recovery token", login: "Sign in", register: "Create account", reset: "Send recovery instructions", confirm: "Change password", forgot: "Forgot password?", back: "Back", close: "Close", sent: "If the account exists, recovery instructions will be sent.", passwordHint: "Password must be at least 10 characters.", networkError: "Could not reach the server. Please try again.", databaseError: "The account database is unavailable. Contact the site owner.", configurationError: "Authentication is not configured on this deployment. Contact the site owner.", invalidCredentials: "Email or password is incorrect.", accountExists: "An account with this email already exists.", google: "Continue with Google", divider: "or" };
 
   const readResponse = async (response: Response) => {
     const data = await response.json().catch(() => ({})) as { user?: { id?: string }; debugToken?: string; error?: string; code?: string };
@@ -140,6 +150,7 @@ export function AuthPanel({ onClose, onAuthenticated }: { onClose: () => void; o
       const endpoint = mode === "login" ? "/api/auth/login" : "/api/auth/register";
       const result = await readResponse(await fetch(endpoint, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email, password }) }));
       if (result.response.ok && result.data.user?.id) onAuthenticated(result.data.user.id);
+      else if (result.data.code === "AUTH_NOT_CONFIGURED") setMessage(labels.configurationError);
       else if (result.data.code === "DATABASE_UNAVAILABLE") setMessage(labels.databaseError);
       else if (result.response.status === 401) setMessage(labels.invalidCredentials);
       else if (result.response.status === 409) setMessage(labels.accountExists);
@@ -153,6 +164,18 @@ export function AuthPanel({ onClose, onAuthenticated }: { onClose: () => void; o
 
   const recovery = mode === "reset" || mode === "reset-confirm";
   return <div dir="ltr" className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="account-title"><div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#111a28] p-6 text-left shadow-2xl"><div className="flex items-center justify-between"><h2 id="account-title" className="text-xl font-bold">{labels.title}</h2><button type="button" onClick={onClose} aria-label={labels.close} className="rounded-lg px-2 py-1 text-slate-400 hover:bg-white/5">×</button></div><form onSubmit={submit} className="mt-6 space-y-4">{mode !== "reset-confirm" && <label className="block text-sm text-slate-300">{labels.email}<input ref={firstInput} required type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 p-3 outline-none focus:border-cyan-300" /></label>}{mode === "reset-confirm" && <label className="block text-sm text-slate-300">{labels.token}<input ref={firstInput} required value={token} onChange={(event) => setToken(event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 p-3 font-mono text-xs outline-none focus:border-cyan-300" /></label>}{(!recovery || mode === "reset-confirm") && <label className="block text-sm text-slate-300">{mode === "reset-confirm" ? labels.newPassword : labels.password}<input required minLength={10} aria-describedby="password-hint" type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 p-3 outline-none focus:border-cyan-300" /><span id="password-hint" className="mt-1 block text-xs text-slate-500">{labels.passwordHint}</span></label>}<button type="submit" disabled={busy} className="w-full rounded-xl bg-cyan-300 px-4 py-3 text-sm font-bold text-[#071016] disabled:cursor-wait disabled:opacity-60">{busy ? "…" : mode === "login" ? labels.login : mode === "register" ? labels.register : mode === "reset" ? labels.reset : labels.confirm}</button></form>{mode === "login" && <><div className="my-4 flex items-center gap-3 text-xs text-slate-500"><span className="h-px flex-1 bg-white/10" />{labels.divider}<span className="h-px flex-1 bg-white/10" /></div><a href="/api/auth/google/start" className="block w-full rounded-xl border border-white/15 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-white/5">{labels.google}</a></>}{message && <p role="alert" className="mt-4 rounded-xl bg-white/5 p-3 text-sm text-cyan-100">{message}</p>}<div className="mt-5 flex flex-wrap gap-3 text-sm text-cyan-200">{recovery ? <button type="button" onClick={() => { setMessage(""); setMode("login"); }}>{labels.back}</button> : <><button type="button" onClick={() => { setMessage(""); setMode(mode === "login" ? "register" : "login"); }}>{mode === "login" ? labels.register : labels.login}</button><button type="button" onClick={() => { setMessage(""); setMode("reset"); }}>{labels.forgot}</button></>}</div></div></div>;
+}
+
+export function AccountPanel({ onClose, onSignOut }: { onClose: () => void; onSignOut: () => Promise<boolean> }) {
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const signOut = async () => {
+    setBusy(true);
+    setError("");
+    if (!(await onSignOut())) setError("Could not sign out. Please try again.");
+    setBusy(false);
+  };
+  return <div dir="ltr" className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="account-title"><div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#111a28] p-6 text-left shadow-2xl"><div className="flex items-center justify-between"><h2 id="account-title" className="text-xl font-bold">Your account</h2><button type="button" onClick={onClose} aria-label="Close" className="rounded-lg px-2 py-1 text-slate-400 hover:bg-white/5">×</button></div><p className="mt-4 text-sm text-slate-300">Your learning progress is saved to this account.</p><a href="/api/auth/google/start?intent=link" className="mt-6 block rounded-xl border border-white/15 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-white/5">Link Google account</a><button type="button" disabled={busy} onClick={() => void signOut()} className="mt-3 w-full rounded-xl bg-cyan-300 px-4 py-3 text-sm font-bold text-[#071016] disabled:opacity-60">{busy ? "Signing out…" : "Sign out"}</button>{error && <p role="alert" className="mt-4 text-sm text-rose-300">{error}</p>}</div></div>;
 }
 
 
