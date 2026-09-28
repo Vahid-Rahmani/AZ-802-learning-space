@@ -1,4 +1,4 @@
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, gt, isNull } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { passwordResetTokens, users } from "@/db/schema";
@@ -19,13 +19,14 @@ export async function POST(request: Request) {
     const newPassword = typeof body.newPassword === "string" ? body.newPassword : "";
     if (newPassword.length < 10 || newPassword.length > 1024) return NextResponse.json({ error: "Use a password of 10–1024 characters." }, { status: 400 });
     const tokenHash = await hashOpaqueToken(body.token);
-    const token = (await db.select().from(passwordResetTokens).where(and(eq(passwordResetTokens.tokenHash, tokenHash), isNull(passwordResetTokens.usedAt))).limit(1))[0];
-    if (!token || token.expiresAt.getTime() <= Date.now()) return NextResponse.json({ error: "This reset link is invalid or expired." }, { status: 400 });
     const now = new Date();
-    await db.update(users).set({ passwordHash: await hashPassword(newPassword), updatedAt: now }).where(eq(users.id, token.userId));
-    await db.update(passwordResetTokens).set({ usedAt: now }).where(eq(passwordResetTokens.id, token.id));
-    const response = NextResponse.json({ ok: true, user: { id: token.userId } });
-    response.cookies.set("wincraft_session", await signSession(token.userId, secret), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24 * 30, path: "/" });
+    const passwordHash = await hashPassword(newPassword);
+    const consumed = await db.update(passwordResetTokens).set({ usedAt: now }).where(and(eq(passwordResetTokens.tokenHash, tokenHash), isNull(passwordResetTokens.usedAt), gt(passwordResetTokens.expiresAt, now))).returning({ userId: passwordResetTokens.userId });
+    const userId = consumed[0]?.userId;
+    if (!userId) return NextResponse.json({ error: "This reset link is invalid or expired." }, { status: 400 });
+    await db.update(users).set({ passwordHash, updatedAt: now }).where(eq(users.id, userId));
+    const response = NextResponse.json({ ok: true, user: { id: userId } });
+    response.cookies.set("wincraft_session", await signSession(userId, secret), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24 * 30, path: "/" });
     return response;
   }
   const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
@@ -41,8 +42,8 @@ export async function POST(request: Request) {
     else if (!(await deliverResetEmail(email, rawToken))) return NextResponse.json({ code: "RESET_DELIVERY_FAILED", error: "Recovery email could not be sent. Please try again later." }, { status: 503 });
   }
   return NextResponse.json({ ok: true, message: "If the account exists, recovery instructions will be sent.", ...(debugToken ? { debugToken } : {}) }, { status: 202 });
-  } catch (error) {
-    console.error("Password recovery failed", error);
+  } catch {
+    console.error("Password recovery database operation failed");
     return NextResponse.json({ code: "DATABASE_UNAVAILABLE", error: "The account database is unavailable." }, { status: 503 });
   }
 }

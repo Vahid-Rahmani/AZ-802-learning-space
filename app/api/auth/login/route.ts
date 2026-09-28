@@ -16,8 +16,8 @@ export async function POST(request: Request) {
   let user: typeof users.$inferSelect | undefined;
   try {
     user = (await getDb().select().from(users).where(eq(users.email, email)).limit(1))[0];
-  } catch (error) {
-    console.error("login failed", error);
+  } catch {
+    console.error("Login database operation failed");
     return NextResponse.json({ code: "DATABASE_UNAVAILABLE", error: "The account database is unavailable or not initialized." }, { status: 503 });
   }
   if (!user || !(await verifyPassword(password, user.passwordHash))) return NextResponse.json({ code: "INVALID_CREDENTIALS", error: "Email or password is incorrect." }, { status: 401 });

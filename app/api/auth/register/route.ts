@@ -6,6 +6,14 @@ import { sessionSecret } from "@/lib/auth-config";
 import { sessionConfigurationError } from "@/lib/auth-server";
 
 const validEmail = (email: string) => email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+function isDuplicateEmail(error: unknown) {
+  let current: unknown = error;
+  for (let depth = 0; depth < 5 && current instanceof Error; depth += 1) {
+    if (/unique constraint failed:\s*users\.email/i.test(current.message)) return true;
+    current = current.cause;
+  }
+  return false;
+}
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({})) as Record<string, unknown>;
@@ -20,9 +28,8 @@ export async function POST(request: Request) {
     const db = getDb();
     await db.insert(users).values({ id, email, passwordHash: await hashPassword(password), preferredLanguage: "fa", createdAt: now, updatedAt: now });
   } catch (error) {
-    console.error("registration failed", error);
-    const message = String(error).toLowerCase();
-    if (message.includes("unique constraint failed: users.email")) return NextResponse.json({ code: "EMAIL_EXISTS", error: "An account with this email already exists." }, { status: 409 });
+    if (isDuplicateEmail(error)) return NextResponse.json({ code: "EMAIL_EXISTS", error: "An account with this email already exists." }, { status: 409 });
+    console.error("Registration database operation failed");
     return NextResponse.json({ code: "DATABASE_UNAVAILABLE", error: "The account database is unavailable or not initialized." }, { status: 503 });
   }
   const response = NextResponse.json({ user: { id, email } }, { status: 201 });

@@ -15,8 +15,8 @@ export async function GET(request: NextRequest) {
     const user = (await getDb().select({ id: users.id, email: users.email }).from(users).where(eq(users.id, userId)).limit(1))[0];
     if (!user) return NextResponse.json({ user: null }, { status: 401 });
     return NextResponse.json({ user }, { headers: { "cache-control": "no-store" } });
-  } catch (error) {
-    console.error("session lookup failed", error);
+  } catch {
+    console.error("Session database operation failed");
     return NextResponse.json({ code: "DATABASE_UNAVAILABLE", error: "The account database is unavailable or not initialized." }, { status: 503 });
   }
 }

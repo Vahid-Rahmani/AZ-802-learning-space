@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
       try {
         await db.insert(googleAccounts).values({ googleSub: profile.sub, userId, email, createdAt: now });
       } catch (error) {
-        await db.delete(users).where(eq(users.id, userId)).catch((cleanupError) => console.error("Google account cleanup failed", cleanupError));
+        await db.delete(users).where(eq(users.id, userId)).catch(() => console.error("Google account cleanup failed"));
         throw error;
       }
     }
@@ -77,8 +77,8 @@ export async function GET(request: NextRequest) {
     const response = finish(request);
     response.cookies.set("wincraft_session", await signSession(userId, secret), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24 * 30, path: "/" });
     return response;
-  } catch (error) {
-    console.error("Google sign-in failed", error);
+  } catch {
+    console.error("Google sign-in failed");
     return finish(request, "server_error");
   }
 }
