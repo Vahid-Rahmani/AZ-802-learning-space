@@ -1,5 +1,10 @@
 import fs from "node:fs";
 
+if (process.env.ALLOW_LEGACY_LOCALIZATION !== "1") {
+  console.error("The question bank already contains Google Translate output. Set ALLOW_LEGACY_LOCALIZATION=1 only to run the legacy offline fallback.");
+  process.exit(1);
+}
+
 const path = "lib/content/questions.ts";
 const source = fs.readFileSync(path, "utf8");
 const words = {
