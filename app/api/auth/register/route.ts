@@ -11,8 +11,12 @@ export async function POST(request: Request) {
   const db = getDb();
   const now = new Date();
   const id = crypto.randomUUID();
-  await db.insert(users).values({ id, email, passwordHash: await hashPassword(password), preferredLanguage: "fa", createdAt: now, updatedAt: now });
+  try {
+    await db.insert(users).values({ id, email, passwordHash: await hashPassword(password), preferredLanguage: "fa", createdAt: now, updatedAt: now });
+  } catch {
+    return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
+  }
   const response = NextResponse.json({ user: { id, email } }, { status: 201 });
-  response.cookies.set("wincraft_session", await signSession(id, process.env.SESSION_SECRET ?? "local-development-session-secret"), { httpOnly: true, sameSite: "lax", secure: true, maxAge: 60 * 60 * 24 * 30, path: "/" });
+  response.cookies.set("wincraft_session", await signSession(id, process.env.SESSION_SECRET ?? "local-development-session-secret"), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24 * 30, path: "/" });
   return response;
 }
