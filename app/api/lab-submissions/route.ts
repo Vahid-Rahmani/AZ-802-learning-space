@@ -22,6 +22,7 @@ export async function POST(request: Request) {
   const knownLab = labId === "harden-two-server-domain" || practicalScenarios.some((scenario) => scenario.id === labId);
   if (!knownLab || evidenceText.trim().length < 8) return NextResponse.json({ error: "Evidence is required for a known lab" }, { status: 400 });
   const now = new Date();
-  await getDb().insert(labSubmissions).values({ id: crypto.randomUUID(), labId, userId, evidenceText: evidenceText.trim(), evidenceUrl: typeof body.evidenceUrl === "string" ? body.evidenceUrl : null, completedAt: body.completed ? now : null, createdAt: now, updatedAt: now });
+  const score = typeof body.score === "number" ? Math.max(0, Math.min(100, Math.round(body.score))) : null;
+  await getDb().insert(labSubmissions).values({ id: crypto.randomUUID(), labId, userId, evidenceText: evidenceText.trim(), evidenceUrl: typeof body.evidenceUrl === "string" ? body.evidenceUrl : null, score, completedAt: body.completed ? now : null, createdAt: now, updatedAt: now });
   return NextResponse.json({ ok: true }, { status: 201 });
 }

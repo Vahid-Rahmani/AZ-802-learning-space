@@ -110,6 +110,10 @@ Replace the filename with the pending migration and `DB` with your D1 binding na
 
 ## Diagnostic Commands
 
+### Production account recovery and evidence
+
+Password recovery uses the deployment-owned `RESET_EMAIL_WEBHOOK_URL`, or the Resend provider when `RESEND_API_KEY` and `RESET_FROM_EMAIL` are configured. The raw reset token is never returned in production. Set `APP_ORIGIN` to the public Site origin so email links are usable. Lab evidence uploads use the `EVIDENCE` R2 binding and are referenced from the D1 submission record; apply every SQL file in `drizzle/` in order before publishing.
+
 - `npm run install:ci`: perform the one locked dependency install
 - `npm run dev`: start the Vite/Vinext development server
 - `npm run build`: build the deployable Sites artifact
