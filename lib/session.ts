@@ -7,6 +7,11 @@ function toBase64Url(bytes: Uint8Array) {
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 
+export async function hashOpaqueToken(token: string) {
+  const digest = await crypto.subtle.digest("SHA-256", encoder.encode(token));
+  return toBase64Url(new Uint8Array(digest));
+}
+
 export async function hashPassword(password: string, salt = crypto.getRandomValues(new Uint8Array(16))) {
   const key = await crypto.subtle.importKey("raw", encoder.encode(password), "PBKDF2", false, ["deriveBits"]);
   const bits = await crypto.subtle.deriveBits({ name:"PBKDF2", salt, iterations:PASSWORD_ITERATIONS, hash:"SHA-256" }, key, 256);
