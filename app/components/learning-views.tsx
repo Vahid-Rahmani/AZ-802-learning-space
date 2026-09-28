@@ -8,6 +8,17 @@ type Copy = typeof copy.en;
 export const text = (t: Copy, key: string, fallback: string) => (t as unknown as Record<string, string>)[key] ?? fallback;
 const localized = (lang: Language, fa: string, en: string, de: string) => lang === "fa" ? fa : lang === "de" ? de : en;
 type TrilingualText = { fa: string; en: string; de: string };
+function googleErrorMessage(reason: string | null) {
+  if (!reason) return "";
+  const messages: Record<string, string> = {
+    not_configured: "Google sign-in is not configured on this deployment. Contact the site owner.",
+    account_exists: "An account already uses this email. Sign in with its password, then link Google from your account.",
+    email_mismatch: "The Google email must match the email on your account.",
+    sign_in_required: "Sign in with your password before linking Google.",
+    already_linked: "A different Google account is already linked to this account.",
+  };
+  return messages[reason] ?? "Google sign-in could not be completed. Please try again.";
+}
 export function BilingualText({ lang, value, className = "" }: { lang: Language; value: TrilingualText; className?: string }) { return lang === "fa" ? <span className={`inline-flex flex-col gap-0.5 ${className}`}><span dir="ltr">{value.en}</span><span dir="rtl" className="text-right text-sm font-normal text-cyan-100">{value.fa}</span></span> : <span dir="ltr" className={className}>{value[lang]}</span>; }
 const skillLabels: Record<string, TrilingualText> = { security: { fa: "سخت‌سازی امنیتی", en: "Security hardening", de: "Sicherheitshärtung" }, ha: { fa: "دسترس‌پذیری بالا", en: "High availability", de: "Hohe Verfügbarkeit" }, dr: { fa: "بازیابی فاجعه", en: "Disaster recovery", de: "Notfallwiederherstellung" }, migration: { fa: "مهاجرت", en: "Migration", de: "Migration" }, monitoring: { fa: "مانیتورینگ و عیب‌یابی", en: "Monitoring & troubleshooting", de: "Überwachung und Fehlerbehebung" } };
 const skillText = (skill: { id: string; name: string }): TrilingualText => skillLabels[skill.id] ?? { fa: skill.name, en: skill.name, de: skill.name };
@@ -110,11 +121,7 @@ export function AuthPanel({ onClose, onAuthenticated }: { onClose: () => void; o
       setMode("reset-confirm");
     }
     if (reason) {
-      setMessage(reason === "not_configured" ? "Google sign-in is not configured on this deployment. Contact the site owner."
-        : reason === "account_exists" ? "An account already uses this email. Sign in with its password, then link Google from your account."
-          : reason === "email_mismatch" ? "The Google email must match the email on your account."
-            : reason === "sign_in_required" ? "Sign in with your password before linking Google."
-              : "Google sign-in could not be completed. Please try again.");
+      setMessage(googleErrorMessage(reason));
     }
   }, []);
 
@@ -167,7 +174,7 @@ export function AuthPanel({ onClose, onAuthenticated }: { onClose: () => void; o
 }
 
 export function AccountPanel({ onClose, onSignOut }: { onClose: () => void; onSignOut: () => Promise<boolean> }) {
-  const [error, setError] = useState("");
+  const [error, setError] = useState(() => typeof window === "undefined" ? "" : googleErrorMessage(new URLSearchParams(window.location.search).get("google_error")));
   const [busy, setBusy] = useState(false);
   const signOut = async () => {
     setBusy(true);
