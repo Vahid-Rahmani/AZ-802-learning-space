@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { copy, lessons, questions } from "@/lib/course-data";
-import { AuthPanel, Cards, Dashboard, ExamResult, Labs, Lesson, PracticalExam, Quiz, SkillGraph, text } from "@/app/components/learning-views";
+import { AuthPanel, Cards, Dashboard, Labs, Lesson, PracticalExam, Quiz, SkillGraph, text } from "@/app/components/learning-views";
+import { ExamResult } from "@/app/components/exam-result";
 
 type Language = "fa" | "en" | "de";
 type View = "home" | "lesson" | "graph" | "quiz" | "practical" | "labs" | "cards";
