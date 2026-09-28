@@ -51,11 +51,18 @@ CLOUDFLARE_ACCOUNT_ID=your-cloudflare-account-id
 CLOUDFLARE_D1_DATABASE_ID=your-d1-database-id
 CLOUDFLARE_API_TOKEN=token-with-d1-edit-access
 SESSION_SECRET=a-long-random-string
+
+# Optional Google/Gmail sign-in
+GOOGLE_CLIENT_ID=your-google-oauth-client-id
+GOOGLE_CLIENT_SECRET=your-google-oauth-client-secret
+GOOGLE_REDIRECT_URI=https://your-domain.example/api/auth/google/callback
 ```
 
 After saving them, redeploy the project. The password must contain at least 10 characters. If the variables are missing, the app now reports that the account database is not configured instead of failing silently. Never expose the API token with a `NEXT_PUBLIC_` prefix.
 
 The D1 database must contain the migration files in `drizzle/` before the first account is created. With Wrangler authenticated, apply them once with `npx wrangler d1 migrations apply <database-name> --remote`.
+
+Google sign-in is optional. To enable the English **Continue with Google** button, create a Google Cloud OAuth **Web application** credential and add the exact callback URL shown above under **Authorized redirect URIs**. Google accounts are linked by their verified email address; the app does not receive or store the Google password.
 
 The generated bank lives in [lib/content/questions.ts](lib/content/questions.ts); all 300 Persian question, option, and rationale fields in that file were refreshed through Google Translate. The stage map lives in [lib/content/training.ts](lib/content/training.ts). The older `scripts/localize-question-bank.mjs` file is retained as a legacy offline fallback and should not overwrite the Google-translated bank.
 
