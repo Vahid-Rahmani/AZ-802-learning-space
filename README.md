@@ -42,6 +42,21 @@ npm run lint
 npm run build
 ```
 
+## Vercel account setup
+
+Registration and login are server-backed and require a Cloudflare D1 database. The built-in `cloudflare:workers` binding is provided automatically by the configured Sites runtime; a manually created Vercel project must instead add these server-only environment variables in **Project Settings → Environment Variables**:
+
+```text
+CLOUDFLARE_ACCOUNT_ID=your-cloudflare-account-id
+CLOUDFLARE_D1_DATABASE_ID=your-d1-database-id
+CLOUDFLARE_API_TOKEN=token-with-d1-edit-access
+SESSION_SECRET=a-long-random-string
+```
+
+After saving them, redeploy the project. The password must contain at least 10 characters. If the variables are missing, the app now reports that the account database is not configured instead of failing silently. Never expose the API token with a `NEXT_PUBLIC_` prefix.
+
+The D1 database must contain the migration files in `drizzle/` before the first account is created. With Wrangler authenticated, apply them once with `npx wrangler d1 migrations apply <database-name> --remote`.
+
 The generated bank lives in [lib/content/questions.ts](lib/content/questions.ts); all 300 Persian question, option, and rationale fields in that file were refreshed through Google Translate. The stage map lives in [lib/content/training.ts](lib/content/training.ts). The older `scripts/localize-question-bank.mjs` file is retained as a legacy offline fallback and should not overwrite the Google-translated bank.
 
 ## Complete 300-question bank
