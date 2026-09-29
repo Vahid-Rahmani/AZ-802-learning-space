@@ -59,10 +59,11 @@ export async function GET(request: NextRequest) {
     } else if (existingLink) {
       // Older rows can contain a stale/missing user id after a migration. Use
       // the verified Google email as a safe recovery key and repair the link.
+      const userByEmail = (await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1))[0];
       const existingUser = existingLink.userId
         ? (await db.select({ id: users.id }).from(users).where(eq(users.id, existingLink.userId)).limit(1))[0]
         : undefined;
-      const recoveredUser = existingUser ?? (await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1))[0];
+      const recoveredUser = userByEmail ?? existingUser;
       if (!recoveredUser) return finish(request, "linked_user_missing");
       if (recoveredUser.id !== existingLink.userId) {
         await db.update(googleAccounts).set({ userId: recoveredUser.id, email }).where(eq(googleAccounts.googleSub, profile.sub));
