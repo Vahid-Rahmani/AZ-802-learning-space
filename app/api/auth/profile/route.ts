@@ -9,22 +9,15 @@ const maxNameLength = 80;
 const validName = (value: string) => value.length <= maxNameLength && !/[\u0000-\u001F\u007F]/.test(value);
 
 async function accountData(userId: string) {
-  let stage = "get-db";
   const db = getDb();
   // Keep deployments that predate account profiles self-healing. The formal
   // migration is still checked in, while this idempotent guard prevents an
   // existing deployment from returning a database error before it is applied.
-  stage = "ensure-profile-table";
-  console.error("Profile query stage", stage);
   await db.run(sql`CREATE TABLE IF NOT EXISTS user_profiles (user_id TEXT PRIMARY KEY NOT NULL, first_name TEXT NOT NULL DEFAULT '', last_name TEXT NOT NULL DEFAULT '', created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)`);
-  stage = "select-user";
-  console.error("Profile query stage", stage);
   const user = (await db.select({ id: users.id, email: users.email }).from(users).where(eq(users.id, userId)).limit(1))[0];
   if (!user) return null;
   // Read the small profile row as a raw result. This keeps the endpoint
   // compatible with both the native D1 driver and the REST-backed D1 adapter.
-  stage = "select-profile";
-  console.error("Profile query stage", stage);
   const profileRows = await db.all(sql`SELECT first_name AS firstName, last_name AS lastName FROM user_profiles WHERE user_id = ${userId} LIMIT 1`) as Array<{ firstName?: unknown; lastName?: unknown }>;
   const profile = profileRows[0];
   return { user: { ...user, firstName: profile?.firstName ?? "", lastName: profile?.lastName ?? "" }, db };
@@ -37,7 +30,7 @@ export async function GET() {
   try {
     const account = await accountData(userId);
     if (!account) return NextResponse.json({ user: null }, { status: 401 });
-    return NextResponse.json(account, { headers: { "cache-control": "no-store" } });
+    return NextResponse.json({ user: account.user }, { headers: { "cache-control": "no-store" } });
   } catch (caught) {
     console.error("Profile database operation failed", caught instanceof Error ? caught.message : String(caught));
     return NextResponse.json({ code: "DATABASE_UNAVAILABLE", error: "The account database is unavailable or not initialized." }, { status: 503 });
