@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   const db = getDb();
   if (typeof body.token === "string") {
     const newPassword = typeof body.newPassword === "string" ? body.newPassword : "";
-    if (newPassword.length < 10 || newPassword.length > 1024) return NextResponse.json({ error: "Use a password of 10–1024 characters." }, { status: 400 });
+    if (newPassword.length < 8 || newPassword.length > 1024) return NextResponse.json({ error: "Use a password of 8–1024 characters." }, { status: 400 });
     const tokenHash = await hashOpaqueToken(body.token);
     const now = new Date();
     const passwordHash = await hashPassword(newPassword);

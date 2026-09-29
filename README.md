@@ -64,7 +64,7 @@ RESET_FROM_EMAIL=verified-sender@example.com
 # RESET_EMAIL_WEBHOOK_URL=https://your-mail-worker.example/reset
 ```
 
-Set the D1 variables and `SESSION_SECRET` for every Vercel environment that should support accounts: **Production**, **Preview**, and **Development**. The secret must be at least 32 characters and must remain the same across deployments in an environment so existing sessions survive redeployment. Redeploy after changing variables. Passwords must contain 10–1024 characters. Keep all credentials server-only; never use a `NEXT_PUBLIC_` prefix.
+Set the D1 variables and `SESSION_SECRET` for every Vercel environment that should support accounts: **Production**, **Preview**, and **Development**. The secret must be at least 32 characters and must remain the same across deployments in an environment so existing sessions survive redeployment. Redeploy after changing variables. Passwords must contain 8–1024 characters. Keep all credentials server-only; never use a `NEXT_PUBLIC_` prefix.
 
 The D1 database must contain the tables in `drizzle/`. For a **new** database, apply `0001` through `0006` once, in numeric order, using `npx wrangler d1 execute <database-name> --remote --file ./drizzle/<filename>.sql`. For a database where `0001`–`0005` are already applied, apply **only** `0006_google_accounts.sql`. Do not rerun `0004`: it rebuilds the progress table. The repository does not maintain a Wrangler migration journal, so `wrangler d1 migrations apply` is not appropriate here. Back up a live D1 database before applying a migration.
 

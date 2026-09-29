@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => ({})) as Record<string, unknown>;
   const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
   const password = typeof body.password === "string" ? body.password : "";
-  if (!validEmail(email) || password.length < 10 || password.length > 1024) return NextResponse.json({ code: "INVALID_INPUT", error: "Use a valid email and a password of 10–1024 characters." }, { status: 400 });
+  if (!validEmail(email) || password.length < 8 || password.length > 1024) return NextResponse.json({ code: "INVALID_INPUT", error: "Use a valid email and a password of 8–1024 characters." }, { status: 400 });
   const secret = sessionSecret();
   if (!secret) return sessionConfigurationError();
   const now = new Date();

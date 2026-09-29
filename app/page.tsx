@@ -39,10 +39,10 @@ function buildQuizQuestions(scope: { skillId?: string | null; domain?: string | 
 }
 
 export default function Home() {
-  const [language, setLanguage] = useState<Language>("fa");
+  const [language, setLanguage] = useState<Language>("en");
   const [view, setViewState] = useState<View>("home");
   const [authOpen, setAuthOpen] = useState(false);
-  const [userId, setUserId] = useState<string | null>(GUEST_ID);
+  const [userId, setUserId] = useState<string | null>(null);
   const [selectedLessonId, setSelectedLessonId] = useState(lessons[0].id);
   const [selectedSkillId, setSelectedSkillId] = useState<string | null>(null);
   const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
