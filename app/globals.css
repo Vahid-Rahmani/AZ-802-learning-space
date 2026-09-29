@@ -2,12 +2,60 @@
 @import "../node_modules/tailwindcss/index.css";
 @import "../node_modules/tw-animate-css/dist/tw-animate.css";
 @import "../vendor/shadcn-tailwind-4.13.0.css";
-:root { --background:#0b1018; --foreground:#e8edf5; }
+:root { --background:#0e1726; --foreground:#f1f5f9; color-scheme:dark; }
 * { box-sizing:border-box; }
-body { margin:0; background:var(--background); color:var(--foreground); font-family:Arial, "Segoe UI", sans-serif; }
-button, textarea { font:inherit; } button { cursor:pointer; }
+body { margin:0; background:var(--background); color:var(--foreground); font-family:"Segoe UI", Tahoma, Arial, sans-serif; line-height:1.7; -webkit-font-smoothing:antialiased; }
+button, textarea, input { font-family:inherit; } button { cursor:pointer; }
 button:focus-visible, a:focus-visible, textarea:focus-visible { outline:2px solid #67e8f9; outline-offset:3px; }
-.font-scale-content { zoom: var(--wincraft-font-scale, 1); width: calc(100% / var(--wincraft-font-scale, 1)); max-width: 100%; overflow-x: clip; }
-html, body { overflow-x: hidden; }
+.font-scale-content { min-width:0; --text-xs:calc(.875rem * var(--wincraft-font-scale, 1)); --text-sm:calc(1rem * var(--wincraft-font-scale, 1)); --text-base:calc(1.125rem * var(--wincraft-font-scale, 1)); --text-lg:calc(1.25rem * var(--wincraft-font-scale, 1)); --text-xl:calc(1.5rem * var(--wincraft-font-scale, 1)); --text-2xl:calc(1.75rem * var(--wincraft-font-scale, 1)); --text-3xl:calc(2rem * var(--wincraft-font-scale, 1)); }
+.study-app { background:radial-gradient(ellipse at 85% 0, #1b3444 0, transparent 42%), var(--background); color:var(--foreground); }
+.study-app aside { background:#101d2f; border-color:#304157; }
+.study-app .bg-\[\#111a28\] { background:#18273a; }
+.study-app .bg-\[\#0b1018\] { background:#111d2e; }
+.study-app .text-slate-500 { color:#a9bacd; }
+.study-app .text-slate-400 { color:#b8c7d8; }
+.study-app .text-slate-300 { color:#d5dfeb; }
+.study-app .border-white\/10 { border-color:#35455b; }
+.study-app .rounded-3xl { border-radius:1.25rem; }
+.study-app h1, .study-app h2, .study-app h3 { line-height:1.45; text-wrap:balance; }
+.study-app p, .study-app button, .study-app dd { overflow-wrap:anywhere; }
+.study-app button { min-height:44px; }
+.study-app button:disabled { cursor:default; }
+.study-app button:focus-visible, .study-app a:focus-visible { outline:3px solid #99f6e4; outline-offset:4px; }
+.study-app pre { font-size:1rem; line-height:1.8; }
+.bilingual-copy { display:inline-flex; flex-direction:column; gap:.65em; max-width:100%; }
+.bilingual-copy > [dir="rtl"] { font-family:Tahoma, "Segoe UI", Arial, sans-serif; font-size:1em; font-weight:400; line-height:2; color:#c3dedf; letter-spacing:normal; text-transform:none; }
+.study-app [dir="rtl"] { letter-spacing:normal; text-transform:none; line-height:2; }
+.study-header { align-items:flex-start; }
+.study-context { margin-bottom:1.5rem; padding:.8rem 1rem; display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; border-left:3px solid #5eead4; border-radius:0 .75rem .75rem 0; background:#172b3b; color:#c9dfeb; font-size:1rem; }
+.study-context strong { color:#f1f5f9; }
+.reading-panel { box-shadow:0 12px 40px #030b1820; border-top:3px solid #5eead4; }
+.reading-panel h2 { font-size:calc(1.5rem * var(--wincraft-font-scale, 1)); line-height:1.75; }
+.reading-panel h2 [dir="rtl"] { font-size:calc(1.125rem * var(--wincraft-font-scale, 1)); margin-top:1rem; padding-top:1rem; border-top:1px solid #3b5066; color:#d9edeb; }
+.reading-panel button.w-full { font-size:calc(1.125rem * var(--wincraft-font-scale, 1)); line-height:1.8; padding:1.1rem 1.25rem; background-color:#1d3046; border-width:2px; }
+.reading-panel button.w-full [dir="rtl"] { font-size:1em; color:#d5e5e9; margin-top:.5rem; }
+.reading-panel button.w-full[class*="border-emerald"] { background:#153f38; border-color:#6ee7b7; }
+.reading-panel button.w-full[class*="border-rose"] { background:#492b3a; border-color:#fda4af; }
+.study-app button.opacity-50 { opacity:.8; }
+.study-app .lesson-panel { max-width:76ch; margin-inline:auto; }
+.study-app .lesson-panel p { line-height:1.9; }
+.study-app .lesson-panel pre { max-width:100%; }
+.study-app .lesson-tabs { flex-wrap:wrap; overflow:visible; }
+.study-app .lesson-tabs button { flex:1 1 240px; white-space:normal; }
+.study-app nav button { font-size:1rem; }
+.study-app nav[aria-label="Mobile navigation"] { background:#14253af5; padding-bottom:max(.4rem, env(safe-area-inset-bottom)); }
+.study-app nav[aria-label="Mobile navigation"] button { min-height:56px; }
+.study-app nav[aria-label="Mobile navigation"] button span:last-child { font-size:.75rem; line-height:1.5; white-space:normal; overflow:visible; }
+@media (max-width:639px) {
+  .study-header { position:static; flex-wrap:wrap; gap:1rem; padding-block:1rem; }
+  .study-header > div:first-child { flex-basis:100%; }
+  .study-header h1 { white-space:normal; overflow:visible; font-size:1.4rem; }
+  .study-header > div:last-child { width:100%; justify-content:space-between; }
+  .reading-panel { padding:1.25rem; }
+  .reading-panel h2 { font-size:calc(1.25rem * var(--wincraft-font-scale, 1)); }
+  .study-app .font-scale-content { padding-bottom:7rem; }
+  .study-app .lesson-panel { padding:1.25rem; }
+  .study-app .lesson-panel h2 { font-size:calc(1.5rem * var(--wincraft-font-scale, 1)); }
+}
 .auth-required [aria-label="بستن"] { display: none; }
 button[aria-label="Open account"] { display: none; }
