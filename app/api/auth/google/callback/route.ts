@@ -57,9 +57,17 @@ export async function GET(request: NextRequest) {
       if (!existingLink && !otherLink) await db.insert(googleAccounts).values({ googleSub: profile.sub, userId: signedInId, email, createdAt: new Date() });
       userId = signedInId;
     } else if (existingLink) {
-      const existingUser = (await db.select({ id: users.id }).from(users).where(eq(users.id, existingLink.userId)).limit(1))[0];
-      if (!existingUser) return finish(request, "linked_user_missing");
-      userId = existingUser.id;
+      // Older rows can contain a stale/missing user id after a migration. Use
+      // the verified Google email as a safe recovery key and repair the link.
+      const existingUser = existingLink.userId
+        ? (await db.select({ id: users.id }).from(users).where(eq(users.id, existingLink.userId)).limit(1))[0]
+        : undefined;
+      const recoveredUser = existingUser ?? (await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1))[0];
+      if (!recoveredUser) return finish(request, "linked_user_missing");
+      if (recoveredUser.id !== existingLink.userId) {
+        await db.update(googleAccounts).set({ userId: recoveredUser.id, email }).where(eq(googleAccounts.googleSub, profile.sub));
+      }
+      userId = recoveredUser.id;
     } else {
       const existingEmail = (await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1))[0];
       if (existingEmail) {
