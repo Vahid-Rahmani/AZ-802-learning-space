@@ -86,8 +86,8 @@ export async function GET(request: NextRequest) {
     const response = finish(request);
     response.cookies.set("wincraft_session", await signSession(userId, secret), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24 * 30, path: "/" });
     return response;
-  } catch {
-    console.error("Google sign-in failed");
+  } catch (error) {
+    console.error("Google sign-in failed", error instanceof Error ? error.message : String(error));
     return finish(request, "server_error");
   }
 }
