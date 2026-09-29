@@ -44,3 +44,5 @@ next-env.d.ts
 /.codex/
 /outputs/
 /work/
+# Graphify's local code graph is generated and should stay out of deployments.
+/graphify-out/
