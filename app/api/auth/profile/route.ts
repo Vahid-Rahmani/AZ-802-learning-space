@@ -1,7 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { googleAccounts, userProfiles, users } from "@/db/schema";
+import { googleAccounts, users } from "@/db/schema";
 import { currentUser, signInRequired } from "@/lib/auth-server";
 import { hashPassword, verifyPassword } from "@/lib/session";
 
@@ -16,7 +16,10 @@ async function accountData(userId: string) {
   await db.run(sql`CREATE TABLE IF NOT EXISTS user_profiles (user_id TEXT PRIMARY KEY NOT NULL, first_name TEXT NOT NULL DEFAULT '', last_name TEXT NOT NULL DEFAULT '', created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)`);
   const user = (await db.select({ id: users.id, email: users.email }).from(users).where(eq(users.id, userId)).limit(1))[0];
   if (!user) return null;
-  const profile = (await db.select({ firstName: userProfiles.firstName, lastName: userProfiles.lastName }).from(userProfiles).where(eq(userProfiles.userId, userId)).limit(1))[0];
+  // Read the small profile row as a raw result. This keeps the endpoint
+  // compatible with both the native D1 driver and the REST-backed D1 adapter.
+  const profileRows = await db.all(sql`SELECT first_name AS firstName, last_name AS lastName FROM user_profiles WHERE user_id = ${userId} LIMIT 1`) as Array<{ firstName?: unknown; lastName?: unknown }>;
+  const profile = profileRows[0];
   return { user: { ...user, firstName: profile?.firstName ?? "", lastName: profile?.lastName ?? "" }, db };
 }
 
@@ -55,9 +58,10 @@ export async function PUT(request: Request) {
     const account = await accountData(userId);
     if (!account) return NextResponse.json({ user: null }, { status: 401 });
     const db = account.db;
-    const existing = (await db.select({ firstName: userProfiles.firstName, lastName: userProfiles.lastName }).from(userProfiles).where(eq(userProfiles.userId, userId)).limit(1))[0];
-    const nextFirstName = firstName ?? existing?.firstName ?? "";
-    const nextLastName = lastName ?? existing?.lastName ?? "";
+    const existingRows = await db.all(sql`SELECT first_name AS firstName, last_name AS lastName FROM user_profiles WHERE user_id = ${userId} LIMIT 1`) as Array<{ firstName?: unknown; lastName?: unknown }>;
+    const existing = existingRows[0];
+    const nextFirstName = firstName ?? (typeof existing?.firstName === "string" ? existing.firstName : "");
+    const nextLastName = lastName ?? (typeof existing?.lastName === "string" ? existing.lastName : "");
     const now = new Date();
 
     if (newPassword) {
@@ -73,7 +77,7 @@ export async function PUT(request: Request) {
       await db.update(users).set({ passwordHash: await hashPassword(newPassword), updatedAt: now }).where(eq(users.id, userId));
     }
 
-    await db.insert(userProfiles).values({ userId, firstName: nextFirstName, lastName: nextLastName, createdAt: now, updatedAt: now }).onConflictDoUpdate({ target: userProfiles.userId, set: { firstName: nextFirstName, lastName: nextLastName, updatedAt: now } });
+    await db.run(sql`INSERT INTO user_profiles (user_id, first_name, last_name, created_at, updated_at) VALUES (${userId}, ${nextFirstName}, ${nextLastName}, ${now.getTime()}, ${now.getTime()}) ON CONFLICT(user_id) DO UPDATE SET first_name = excluded.first_name, last_name = excluded.last_name, updated_at = excluded.updated_at`);
     return NextResponse.json({ user: { ...account.user, firstName: nextFirstName, lastName: nextLastName } }, { headers: { "cache-control": "no-store" } });
   } catch (caught) {
     console.error("Profile update database operation failed", caught instanceof Error ? caught.message : String(caught));
