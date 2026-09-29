@@ -8,16 +8,16 @@ import { hashPassword, signSession, verifySession } from "@/lib/session";
 function finish(request: Request, reason?: string, session?: string, clearOAuth = true) {
   const url = new URL("/", request.url);
   if (reason) url.searchParams.set("google_error", reason);
+  if (session) {
+    const cookieParts = [`wincraft_session=${session}`, "Path=/", "HttpOnly", "SameSite=Lax", `Max-Age=${60 * 60 * 24 * 30}`];
+    if (process.env.NODE_ENV === "production") cookieParts.push("Secure");
+    return new Response(null, { status: 307, headers: { Location: url.toString(), "Set-Cookie": cookieParts.join("; ") } });
+  }
   const response = NextResponse.redirect(url);
   if (clearOAuth) {
     response.cookies.delete("google_oauth_state");
     response.cookies.delete("google_oauth_verifier");
     response.cookies.delete("google_oauth_intent");
-  }
-  if (session) {
-    const cookieParts = [`wincraft_session=${session}`, "Path=/", "HttpOnly", "SameSite=Lax", `Max-Age=${60 * 60 * 24 * 30}`];
-    if (process.env.NODE_ENV === "production") cookieParts.push("Secure");
-    response.headers.append("Set-Cookie", cookieParts.join("; "));
   }
   return response;
 }
