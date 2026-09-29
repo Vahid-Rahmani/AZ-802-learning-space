@@ -58,4 +58,3 @@ button:focus-visible, a:focus-visible, textarea:focus-visible { outline:2px soli
   .study-app .lesson-panel h2 { font-size:calc(1.5rem * var(--wincraft-font-scale, 1)); }
 }
 .auth-required [aria-label="بستن"] { display: none; }
-button[aria-label="Open account"] { display: none; }
