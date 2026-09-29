@@ -9,7 +9,9 @@ function finish(request: Request, reason?: string, session?: string, clearOAuth 
   const url = new URL("/", request.url);
   if (reason) url.searchParams.set("google_error", reason);
   if (session) {
-    const cookieParts = [`wincraft_session=${session}`, "Path=/", "HttpOnly", "SameSite=Lax", `Max-Age=${60 * 60 * 24 * 30}`];
+    // OAuth returns from a different site; SameSite=None keeps the session
+    // through strict browser tracking protection while Secure is enforced.
+    const cookieParts = [`wincraft_session=${session}`, "Path=/", "HttpOnly", "SameSite=None", `Max-Age=${60 * 60 * 24 * 30}`];
     if (process.env.NODE_ENV === "production") cookieParts.push("Secure");
     return new Response(null, { status: 307, headers: { Location: url.toString(), "Set-Cookie": cookieParts.join("; ") } });
   }
