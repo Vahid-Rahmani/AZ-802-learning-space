@@ -56,7 +56,13 @@ function remoteD1() {
         },
         async raw() {
           const result = await execute(sql, params);
-          return result.results ?? [];
+          const rows = result.results ?? [];
+          if (!rows.length) return [];
+          // Drizzle's D1 mapper expects raw() rows as value arrays. The
+          // Cloudflare REST API returns keyed objects, so preserve the SQL
+          // column order while converting each result row.
+          const columns = Object.keys(rows[0]);
+          return rows.map((row) => columns.map((column) => row[column]));
         },
       };
       return statement;
