@@ -5,13 +5,14 @@ import { googleAccounts, users } from "@/db/schema";
 import { googleOAuthConfig, sessionSecret } from "@/lib/auth-config";
 import { hashPassword, signSession, verifySession } from "@/lib/session";
 
-function finish(request: Request, reason?: string) {
+function finish(request: Request, reason?: string, session?: string) {
   const url = new URL("/", request.url);
   if (reason) url.searchParams.set("google_error", reason);
   const response = NextResponse.redirect(url);
   response.cookies.delete("google_oauth_state");
   response.cookies.delete("google_oauth_verifier");
   response.cookies.delete("google_oauth_intent");
+  if (session) response.cookies.set("wincraft_session", session, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24 * 30, path: "/" });
   return response;
 }
 
@@ -92,9 +93,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const response = finish(request);
-    response.cookies.set("wincraft_session", await signSession(userId, secret), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24 * 30, path: "/" });
-    return response;
+    return finish(request, undefined, await signSession(userId, secret));
   } catch (error) {
     console.error("Google sign-in failed", error instanceof Error ? error.message : String(error));
     return finish(request, "callback_exception");
