@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
       userId = signedInId;
     } else if (existingLink) {
       const existingUser = (await db.select({ id: users.id }).from(users).where(eq(users.id, existingLink.userId)).limit(1))[0];
-      if (!existingUser) return finish(request, "server_error");
+      if (!existingUser) return finish(request, "linked_user_missing");
       userId = existingUser.id;
     } else {
       const existingEmail = (await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1))[0];
@@ -88,6 +88,6 @@ export async function GET(request: NextRequest) {
     return response;
   } catch (error) {
     console.error("Google sign-in failed", error instanceof Error ? error.message : String(error));
-    return finish(request, "server_error");
+    return finish(request, "callback_exception");
   }
 }
