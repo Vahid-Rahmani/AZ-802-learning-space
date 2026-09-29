@@ -62,15 +62,22 @@ export async function GET(request: NextRequest) {
       userId = existingUser.id;
     } else {
       const existingEmail = (await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1))[0];
-      if (existingEmail) return finish(request, "account_exists");
-      const now = new Date();
-      userId = crypto.randomUUID();
-      await db.insert(users).values({ id: userId, email, passwordHash: await hashPassword(`${crypto.randomUUID()}-${crypto.randomUUID()}`), preferredLanguage: "fa", createdAt: now, updatedAt: now });
-      try {
-        await db.insert(googleAccounts).values({ googleSub: profile.sub, userId, email, createdAt: now });
-      } catch (error) {
-        await db.delete(users).where(eq(users.id, userId)).catch(() => console.error("Google account cleanup failed"));
-        throw error;
+      if (existingEmail) {
+        // Google has already verified ownership of this email. Link it to the
+        // existing account so “Continue with Google” also works for users who
+        // originally registered with a password.
+        await db.insert(googleAccounts).values({ googleSub: profile.sub, userId: existingEmail.id, email, createdAt: new Date() });
+        userId = existingEmail.id;
+      } else {
+        const now = new Date();
+        userId = crypto.randomUUID();
+        await db.insert(users).values({ id: userId, email, passwordHash: await hashPassword(`${crypto.randomUUID()}-${crypto.randomUUID()}`), preferredLanguage: "fa", createdAt: now, updatedAt: now });
+        try {
+          await db.insert(googleAccounts).values({ googleSub: profile.sub, userId, email, createdAt: now });
+        } catch (error) {
+          await db.delete(users).where(eq(users.id, userId)).catch(() => console.error("Google account cleanup failed"));
+          throw error;
+        }
       }
     }
 
