@@ -28,8 +28,8 @@ export async function GET() {
     const account = await accountData(userId);
     if (!account) return NextResponse.json({ user: null }, { status: 401 });
     return NextResponse.json(account, { headers: { "cache-control": "no-store" } });
-  } catch {
-    console.error("Profile database operation failed");
+  } catch (caught) {
+    console.error("Profile database operation failed", caught instanceof Error ? caught.message : String(caught));
     return NextResponse.json({ code: "DATABASE_UNAVAILABLE", error: "The account database is unavailable or not initialized." }, { status: 503 });
   }
 }
@@ -75,8 +75,8 @@ export async function PUT(request: Request) {
 
     await db.insert(userProfiles).values({ userId, firstName: nextFirstName, lastName: nextLastName, createdAt: now, updatedAt: now }).onConflictDoUpdate({ target: userProfiles.userId, set: { firstName: nextFirstName, lastName: nextLastName, updatedAt: now } });
     return NextResponse.json({ user: { ...account.user, firstName: nextFirstName, lastName: nextLastName } }, { headers: { "cache-control": "no-store" } });
-  } catch {
-    console.error("Profile update database operation failed");
+  } catch (caught) {
+    console.error("Profile update database operation failed", caught instanceof Error ? caught.message : String(caught));
     return NextResponse.json({ code: "DATABASE_UNAVAILABLE", error: "The account database is unavailable or not initialized." }, { status: 503 });
   }
 }
