@@ -176,14 +176,46 @@ export function AuthPanel({ onClose, onAuthenticated }: { onClose: () => void; o
 
 export function AccountPanel({ onClose, onSignOut }: { onClose: () => void; onSignOut: () => Promise<boolean> }) {
   const [error, setError] = useState(() => typeof window === "undefined" ? "" : googleErrorMessage(new URLSearchParams(window.location.search).get("google_error")));
+  const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetch("/api/auth/profile", { cache: "no-store" }).then(async (response) => {
+      const data = await response.json().catch(() => ({})) as { user?: { email?: string; firstName?: string; lastName?: string }; error?: string };
+      if (cancelled) return;
+      if (!response.ok) setError(data.error ?? "Could not load account details.");
+      if (data.user) { setEmail(data.user.email ?? ""); setFirstName(data.user.firstName ?? ""); setLastName(data.user.lastName ?? ""); }
+    }).catch(() => { if (!cancelled) setError("Could not load account details."); }).finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+
+  const saveProfile = async () => {
+    if (newPassword && newPassword !== confirmPassword) { setError("New passwords do not match."); setMessage(""); return; }
+    setBusy(true); setError(""); setMessage("");
+    try {
+      const response = await fetch("/api/auth/profile", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ firstName, lastName, currentPassword: currentPassword || undefined, newPassword: newPassword || undefined }) });
+      const data = await response.json().catch(() => ({})) as { user?: { email?: string; firstName?: string; lastName?: string }; error?: string };
+      if (!response.ok) { setError(data.error ?? "Could not save account settings."); return; }
+      if (data.user) { setEmail(data.user.email ?? email); setFirstName(data.user.firstName ?? firstName); setLastName(data.user.lastName ?? lastName); }
+      setCurrentPassword(""); setNewPassword(""); setConfirmPassword(""); setMessage("Account settings saved.");
+    } catch { setError("Could not save account settings. Please try again."); } finally { setBusy(false); }
+  };
+
   const signOut = async () => {
     setBusy(true);
     setError("");
     if (!(await onSignOut())) setError("Could not sign out. Please try again.");
     setBusy(false);
   };
-  return <div dir="ltr" className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="account-title"><div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#111a28] p-6 text-left shadow-2xl"><div className="flex items-center justify-between"><h2 id="account-title" className="text-xl font-bold">Your account</h2><button type="button" onClick={onClose} aria-label="Close" className="rounded-lg px-2 py-1 text-slate-400 hover:bg-white/5">×</button></div><p className="mt-4 text-sm text-slate-300">Your learning progress is saved to this account.</p><a href="/api/auth/google/start?intent=link" className="mt-6 block rounded-xl border border-white/15 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-white/5">Link Google account</a><button type="button" disabled={busy} onClick={() => void signOut()} className="mt-3 w-full rounded-xl bg-cyan-300 px-4 py-3 text-sm font-bold text-[#071016] disabled:opacity-60">{busy ? "Signing out…" : "Sign out"}</button>{error && <p role="alert" className="mt-4 text-sm text-rose-300">{error}</p>}</div></div>;
+  return <div dir="ltr" className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="account-title"><div className="my-4 w-full max-w-lg rounded-3xl border border-white/10 bg-[#111a28] p-6 text-left shadow-2xl sm:p-7"><div className="flex items-center justify-between"><h2 id="account-title" className="text-xl font-bold">Account settings</h2><button type="button" onClick={onClose} aria-label="Close" className="rounded-lg px-2 py-1 text-slate-400 hover:bg-white/5">×</button></div><p className="mt-2 text-sm text-slate-300">Manage your profile and keep your learning progress on this account.</p><div className="mt-6 space-y-4"><label className="block text-sm text-slate-300">Email<input value={email} readOnly disabled className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-slate-400" /></label><div className="grid gap-4 sm:grid-cols-2"><label className="block text-sm text-slate-300">First name<input value={firstName} onChange={(event) => setFirstName(event.target.value)} disabled={loading || busy} maxLength={80} autoComplete="given-name" className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-white" /></label><label className="block text-sm text-slate-300">Last name<input value={lastName} onChange={(event) => setLastName(event.target.value)} disabled={loading || busy} maxLength={80} autoComplete="family-name" className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-white" /></label></div><div className="border-t border-white/10 pt-5"><h3 className="font-semibold text-white">Change password</h3><p className="mt-1 text-xs leading-5 text-slate-400">Password accounts must enter the current password. Google-linked accounts can set a password without one.</p><div className="mt-3 space-y-3"><label className="block text-sm text-slate-300">Current password<input type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} disabled={busy} autoComplete="current-password" className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-white" /></label><div className="grid gap-4 sm:grid-cols-2"><label className="block text-sm text-slate-300">New password<input type="password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} disabled={busy} minLength={8} autoComplete="new-password" className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-white" /></label><label className="block text-sm text-slate-300">Confirm new password<input type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} disabled={busy} minLength={8} autoComplete="new-password" className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-white" /></label></div></div></div><button type="button" disabled={busy || loading} onClick={() => void saveProfile()} className="w-full rounded-xl bg-cyan-300 px-4 py-3 text-sm font-bold text-[#071016] disabled:opacity-60">{busy ? "Saving…" : "Save account settings"}</button>{message && <p role="status" className="text-sm text-emerald-300">{message}</p>}{error && <p role="alert" className="text-sm text-rose-300">{error}</p>}<a href="/api/auth/google/start?intent=link" className="block rounded-xl border border-white/15 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-white/5">Link Google account</a><button type="button" disabled={busy} onClick={() => void signOut()} className="w-full rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-slate-200 hover:bg-white/5 disabled:opacity-60">{busy ? "Signing out…" : "Sign out"}</button></div></div></div>;
 }
 
 
