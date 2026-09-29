@@ -13,7 +13,12 @@ function finish(request: Request, reason?: string, session?: string, clearOAuth 
     // through strict browser tracking protection while Secure is enforced.
     const cookieParts = [`wincraft_session=${session}`, "Path=/", "HttpOnly", "SameSite=None", `Max-Age=${60 * 60 * 24 * 30}`];
     if (process.env.NODE_ENV === "production") cookieParts.push("Secure");
-    return new Response(null, { status: 307, headers: { Location: url.toString(), "Set-Cookie": cookieParts.join("; ") } });
+    const headers = new Headers({ Location: url.toString() });
+    headers.append("Set-Cookie", cookieParts.join("; "));
+    for (const name of ["google_oauth_state", "google_oauth_verifier", "google_oauth_intent"]) {
+      headers.append("Set-Cookie", `${name}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${process.env.NODE_ENV === "production" ? "; Secure" : ""}`);
+    }
+    return new Response(null, { status: 307, headers });
   }
   const response = NextResponse.redirect(url);
   if (clearOAuth) {
