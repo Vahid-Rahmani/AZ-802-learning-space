@@ -66,6 +66,8 @@ export async function GET(request: NextRequest) {
         // Google has already verified ownership of this email. Link it to the
         // existing account so “Continue with Google” also works for users who
         // originally registered with a password.
+        const otherLink = (await db.select({ googleSub: googleAccounts.googleSub }).from(googleAccounts).where(eq(googleAccounts.userId, existingEmail.id)).limit(1))[0];
+        if (otherLink) return finish(request, "already_linked");
         await db.insert(googleAccounts).values({ googleSub: profile.sub, userId: existingEmail.id, email, createdAt: new Date() });
         userId = existingEmail.id;
       } else {
