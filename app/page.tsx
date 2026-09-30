@@ -194,6 +194,12 @@ export default function Home() {
   }, [language, translationLanguage, userId, loadedUserId, quizStarted, quizMode, quizFinished, examSessionId, examExpiresAt, selectedSkillId, selectedDomain, quizQuestions, questionIndex, answersByQuestion, totalProgress, selectedLessonId, selectedStageId, completedLab, labEvidence, cardKnown, cardBox, cardQuestionId, cardQuestionIds, answerStats, skillStats, domainStats, skillProgress, fontScale, showTranslations]);
 
   useEffect(() => {
+    const openLabs = () => setViewState("labs");
+    window.addEventListener("wincraft:open-labs", openLabs);
+    return () => window.removeEventListener("wincraft:open-labs", openLabs);
+  }, []);
+
+  useEffect(() => {
     if (!userId || userId === GUEST_ID) return;
     let cancelled = false;
     void (async () => {
