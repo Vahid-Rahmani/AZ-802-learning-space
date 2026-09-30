@@ -29,7 +29,7 @@ export type DistractorExplanation = {
 export type StructuredQuestionExplanation = {
   questionId: string;
   locale: ExplanationLocale;
-  provider: "local" | "gemini";
+  provider: "local";
   summary: string;
   whyCorrect: string;
   distractors: DistractorExplanation[];
@@ -58,9 +58,9 @@ function domainLabel(question: CanonicalQuestion) {
 
 /**
  * A compact, deterministic visual model for every question. This intentionally
- * stays local and predictable so the practice flow remains useful when an AI
- * provider is unavailable. Gemini can refine the labels, but never controls
- * the graph shape returned to the browser.
+ * stays local and predictable. A browser-mode hand-off can optionally ask a
+ * user's signed-in Google AI Mode session for a second explanation, but it
+ * never changes the deterministic graph shape returned to the browser.
  */
 export function schematicForQuestion(question: CanonicalQuestion): QuestionSchematic {
   const answer = question.options[question.correct] ?? "Correct answer";
