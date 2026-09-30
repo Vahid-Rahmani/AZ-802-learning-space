@@ -11,12 +11,14 @@ function parseJson<T>(value: string, fallback: T): T {
   try { return JSON.parse(value) as T; } catch { return fallback; }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const auth = await currentUser();
   if (auth.error) return auth.error;
   if (!auth.userId) return signInRequired();
   const rows = await getDb().select().from(examSessions).where(eq(examSessions.userId, auth.userId)).orderBy(desc(examSessions.startedAt));
-  return NextResponse.json({ sessions: rows.map((row) => ({ ...row, questionOrder: parseJson(row.questionOrder, []), answers: parseJson(row.answers, {}) })) });
+  const activeOnly = new URL(request.url).searchParams.get("active") === "1";
+  const sessions = rows.filter((row) => !activeOnly || (!row.completedAt && row.expiresAt.getTime() > Date.now()));
+  return NextResponse.json({ sessions: sessions.slice(0, activeOnly ? 1 : sessions.length).map((row) => ({ ...row, questionOrder: parseJson(row.questionOrder, []), answers: parseJson(row.answers, {}) })) }, { headers: { "cache-control": "no-store" } });
 }
 
 export async function POST(request: Request) {

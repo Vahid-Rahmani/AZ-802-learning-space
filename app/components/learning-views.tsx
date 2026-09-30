@@ -119,12 +119,12 @@ export function SkillGraph({ t, selectedStageId, progress, onSelectStage, onPrac
   </section>;
 }
 
-export function Quiz({ t, question, selected, totalQuestions, answer, setAnswer, showTranslations, mode, previous, next, onTimeout }: { t: Copy; question: typeof questions[number]; selected: number; totalQuestions: number; answer: number | null; setAnswer: (value: number) => void; showTranslations: boolean; mode: "exam" | "practice" | ExamMode; previous: () => void; next: () => void; onTimeout: () => void }) {
+export function Quiz({ t, question, selected, totalQuestions, answer, setAnswer, showTranslations, mode, expiresAt, previous, next, onTimeout }: { t: Copy; question: typeof questions[number]; selected: number; totalQuestions: number; answer: number | null; setAnswer: (value: number) => void; showTranslations: boolean; mode: "exam" | "practice" | ExamMode; expiresAt?: string | null; previous: () => void; next: () => void; onTimeout: () => void }) {
   const timed = mode !== "practice";
   const duration = mode === "practice" ? 0 : (examBlueprints.find((blueprint) => blueprint.mode === (mode === "exam" ? "quick" : mode))?.durationMinutes ?? 18) * 60;
   const [timeLeft, setTimeLeft] = useState(duration);
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { setTimeLeft(duration); }, [duration]);
+  useEffect(() => { setTimeLeft(expiresAt ? Math.max(0, Math.ceil((Date.parse(expiresAt) - Date.now()) / 1000)) : duration); }, [duration, expiresAt]);
   useEffect(() => { if (!timed || timeLeft <= 0) return; const timer = window.setInterval(() => setTimeLeft((value) => Math.max(0, value - 1)), 1000); return () => window.clearInterval(timer); }, [timed, timeLeft]);
   useEffect(() => { if (timed && timeLeft === 0) onTimeout(); }, [timed, timeLeft, onTimeout]);
   const answered = answer !== null;

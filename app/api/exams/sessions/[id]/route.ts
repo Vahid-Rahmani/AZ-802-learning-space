@@ -36,14 +36,33 @@ export async function PUT(request: Request, { params }: Params) {
   if (session.completedAt) return NextResponse.json({ error: "Exam session is already complete" }, { status: 409 });
   const body = await request.json().catch(() => ({})) as Record<string, unknown>;
   const questionId = typeof body.questionId === "string" ? body.questionId : "";
-  const selectedAnswers = Array.isArray(body.selectedAnswers) ? body.selectedAnswers.filter((value): value is number => Number.isInteger(value)) : typeof body.selectedAnswer === "number" ? [body.selectedAnswer] : [];
+  // The browser submits the index in the displayed (shuffled) option list.
+  // Store the canonical source index so a refresh/resume and completion use
+  // the same answer even when option order changes in the UI.
+  const displayedAnswers = Array.isArray(body.selectedAnswers) ? body.selectedAnswers.filter((value): value is number => Number.isInteger(value)) : typeof body.selectedAnswer === "number" ? [body.selectedAnswer] : [];
   const order = parseJson<ExamQuestionOrder[]>(session.questionOrder, []);
+  const requestedIndex = typeof body.currentIndex === "number" ? Math.max(0, Math.min(Math.max(0, order.length - 1), Math.floor(body.currentIndex))) : null;
+  if (!questionId && requestedIndex !== null) {
+    if (Date.now() > session.expiresAt.getTime()) return NextResponse.json({ error: "Exam session has expired", code: "EXPIRED" }, { status: 409 });
+    await getDb().update(examSessions).set({ currentIndex: requestedIndex }).where(eq(examSessions.id, session.id));
+    return NextResponse.json({ ok: true, currentIndex: requestedIndex });
+  }
   const ordered = order.find((item) => item.questionId === questionId);
   const question = questions.find((item) => item.id === questionId);
-  if (!ordered || !question || !selectedAnswers.length || selectedAnswers.some((value) => value < 0 || value >= question.options.length)) return NextResponse.json({ error: "Invalid exam answer" }, { status: 400 });
+  if (!ordered || !question || !displayedAnswers.length || displayedAnswers.some((value) => value < 0 || value >= ordered.optionOrder.length)) return NextResponse.json({ error: "Invalid exam answer" }, { status: 400 });
   if (Date.now() > session.expiresAt.getTime()) return NextResponse.json({ error: "Exam session has expired", code: "EXPIRED" }, { status: 409 });
   const answers = parseJson<Record<string, number[]>>(session.answers, {});
-  answers[questionId] = Array.from(new Set(selectedAnswers)).sort((a, b) => a - b);
+  const selectedAnswers = Array.from(new Set(displayedAnswers.map((value) => ordered.optionOrder[value]))).sort((a, b) => a - b);
+  const previousAnswer = answers[questionId];
+  if (previousAnswer) {
+    if (sameAnswers(previousAnswer, selectedAnswers)) {
+      const currentIndex = requestedIndex ?? session.currentIndex;
+      if (currentIndex !== session.currentIndex) await getDb().update(examSessions).set({ currentIndex }).where(eq(examSessions.id, session.id));
+      return NextResponse.json({ ok: true, duplicate: true, answers, currentIndex });
+    }
+    return NextResponse.json({ error: "This question already has a different answer", code: "ANSWER_ALREADY_RECORDED" }, { status: 409 });
+  }
+  answers[questionId] = selectedAnswers;
   const currentIndex = typeof body.currentIndex === "number" ? Math.max(0, Math.min(order.length - 1, Math.floor(body.currentIndex))) : session.currentIndex;
   await getDb().update(examSessions).set({ answers: JSON.stringify(answers), currentIndex }).where(eq(examSessions.id, session.id));
   return NextResponse.json({ ok: true, answers, currentIndex });
