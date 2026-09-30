@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { attempts } from "@/db/schema";
 import { getDb } from "@/db";
 import { currentUser, signInRequired } from "@/lib/auth-server";
-import { questions } from "@/lib/course-data";
+import { allQuestions } from "@/lib/course-data";
 
 const sameAnswers = (left: number[], right: number[]) => [...left].sort((a, b) => a - b).join(",") === [...right].sort((a, b) => a - b).join(",");
 
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   const selectedAnswer = selectedAnswers[0] ?? -1;
   const isCorrect = typeof body.isCorrect === "boolean" ? body.isCorrect : false;
   const sessionId = typeof body.sessionId === "string" ? body.sessionId : null;
-  const question = questions.find((item) => item.id === questionId);
+  const question = allQuestions.find((item) => item.id === questionId);
   if (!question || !selectedAnswers.length || selectedAnswers.some((value) => value < 0 || value >= question.options.length) || isCorrect !== sameAnswers(selectedAnswers, [question.correct])) return NextResponse.json({ error: "Invalid attempt" }, { status: 400 });
   const now = new Date();
   if (sessionId) {

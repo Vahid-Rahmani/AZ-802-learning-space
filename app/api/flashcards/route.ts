@@ -3,7 +3,7 @@ import { flashcards } from "@/db/schema";
 import { getDb } from "@/db";
 import { currentUser, signInRequired } from "@/lib/auth-server";
 import { desc, eq } from "drizzle-orm";
-import { questions } from "@/lib/course-data";
+import { allQuestions } from "@/lib/course-data";
 
 const intervals = [1, 3, 7, 14, 30];
 const normalizeQuestionId = (questionId: string) => questionId === "ipsec-connection-rule" ? "az802-q-216" : questionId;
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
   if (!userId) return signInRequired();
   const body = await request.json().catch(() => ({})) as Record<string, unknown>;
   const questionId = typeof body.questionId === "string" ? normalizeQuestionId(body.questionId) : "";
-  if (!questions.some((question) => question.id === questionId)) return NextResponse.json({ error: "A valid questionId is required" }, { status: 400 });
+  if (!allQuestions.some((question) => question.id === questionId)) return NextResponse.json({ error: "A valid questionId is required" }, { status: 400 });
   const box = Math.max(1, Math.min(intervals.length, Number(body.box) || 1));
   const dueAt = new Date(Date.now() + intervals[box - 1] * 86400000);
   const now = new Date();
@@ -44,7 +44,7 @@ export async function PATCH(request: Request) {
   const body = await request.json().catch(() => ({})) as Record<string, unknown>;
   const questionId = typeof body.questionId === "string" ? normalizeQuestionId(body.questionId) : "";
   const quality = body.quality === "got-it" ? "got-it" : body.quality === "again" ? "again" : "";
-  if (!questions.some((question) => question.id === questionId) || !quality) return NextResponse.json({ error: "questionId and quality are required" }, { status: 400 });
+  if (!allQuestions.some((question) => question.id === questionId) || !quality) return NextResponse.json({ error: "questionId and quality are required" }, { status: 400 });
   const db = getDb();
   const existing = (await db.select().from(flashcards).where(eq(flashcards.userId, userId)).orderBy(desc(flashcards.updatedAt))).find((card) => card.questionId === questionId || (questionId === "az802-q-216" && card.questionId === "ipsec-connection-rule"));
   const currentBox = existing?.box ?? 1;

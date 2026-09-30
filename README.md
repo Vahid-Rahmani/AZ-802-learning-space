@@ -1,6 +1,12 @@
 # AZ-802 Learning Space
 
-A responsive, trilingual Windows Server learning workspace for AZ-802 preparation. The exam-facing question text remains English; Persian and German support the learning experience. The Persian mode shows English first and the Persian translation directly below it.
+A responsive, multilingual certification workspace for AZ-802 Windows Server and AZ-900 Microsoft Azure Fundamentals preparation. The exam-facing question text remains English and Google-powered subtitles can be displayed directly below it.
+
+## Certification tracks
+
+- **AZ-802** keeps the existing 300-question Windows Server learning, exam, graph, lab, search, and Leitner experience.
+- **AZ-900** adds 180 original Microsoft Learn-sourced questions across all 57 objectives in the July 20, 2026 blueprint, distributed 50/68/62 across the three official domains. It includes 11 lessons, 11 stages, four review modes, smart search, a course graph, three guided labs, translations, session resume, and Leitner review.
+- No Microsoft exam or Practice Assessment question is copied into the repository. Official Practice Assessment and Exam Sandbox experiences are linked separately.
 
 ## What is included
 

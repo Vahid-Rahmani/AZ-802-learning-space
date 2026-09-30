@@ -3,7 +3,7 @@ import { labSubmissions } from "@/db/schema";
 import { getDb } from "@/db";
 import { currentUser, signInRequired } from "@/lib/auth-server";
 import { eq } from "drizzle-orm";
-import { practicalScenarios } from "@/lib/course-data";
+import { allPracticalScenarios, practicalScenarios } from "@/lib/course-data";
 
 export async function GET() {
   const auth = await currentUser();
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => ({})) as Record<string, unknown>;
   const labId = typeof body.labId === "string" ? body.labId : "";
   const evidenceText = typeof body.evidenceText === "string" ? body.evidenceText : "";
-  const knownLab = labId === "harden-two-server-domain" || practicalScenarios.some((scenario) => scenario.id === labId);
+  const knownLab = labId === "harden-two-server-domain" || allPracticalScenarios.some((scenario) => scenario.id === labId);
   if (!knownLab || evidenceText.trim().length < 8) return NextResponse.json({ error: "Evidence is required for a known lab" }, { status: 400 });
   const now = new Date();
   const practical = practicalScenarios.find((scenario) => scenario.id === labId);
