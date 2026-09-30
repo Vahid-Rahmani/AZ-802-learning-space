@@ -13,7 +13,7 @@
 }
 * { box-sizing:border-box; }
 html { background:#000; }
-body { margin:0; min-width:320px; background:#000; color:var(--foreground); font-family:"Segoe UI", Tahoma, Arial, sans-serif; line-height:1.7; -webkit-font-smoothing:antialiased; }
+body { margin:0; min-width:0; overflow-x:hidden; background:#000; color:var(--foreground); font-family:"Segoe UI", Tahoma, Arial, sans-serif; line-height:1.7; -webkit-font-smoothing:antialiased; }
 button, textarea, input { font-family:inherit; } button { cursor:pointer; }
 button:focus-visible, a:focus-visible, textarea:focus-visible { outline:2px solid #67e8f9; outline-offset:3px; }
 .font-scale-content { min-width:0; --text-xs:calc(.875rem * var(--wincraft-font-scale, 1)); --text-sm:calc(1rem * var(--wincraft-font-scale, 1)); --text-base:calc(1.125rem * var(--wincraft-font-scale, 1)); --text-lg:calc(1.25rem * var(--wincraft-font-scale, 1)); --text-xl:calc(1.5rem * var(--wincraft-font-scale, 1)); --text-2xl:calc(1.75rem * var(--wincraft-font-scale, 1)); --text-3xl:calc(2rem * var(--wincraft-font-scale, 1)); }
