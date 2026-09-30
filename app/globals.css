@@ -61,6 +61,10 @@ button:focus-visible, a:focus-visible, textarea:focus-visible { outline:2px soli
 .study-context { margin-bottom:1.5rem; padding:.8rem 1rem; display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; border-left:3px solid #22d3ee; border-radius:0 .85rem .85rem 0; background:rgba(10,16,23,.72); color:#c9dfeb; font-size:1rem; box-shadow:inset 0 1px 0 rgba(255,255,255,.04); backdrop-filter:blur(16px); }
 .study-context strong { color:#f1f5f9; }
 .reading-panel { box-shadow:0 12px 40px #030b1820; border-top:3px solid #5eead4; }
+.quiz-workspace { width:100%; }
+.quiz-workspace .quiz-options > button { min-height:5.75rem; }
+.quiz-actions button { width:100%; }
+@media (min-width:640px) { .quiz-actions button { width:auto; } }
 .reading-panel h2 { font-size:calc(1.5rem * var(--wincraft-font-scale, 1)); line-height:1.75; }
 .reading-panel h2 [dir="rtl"] { font-size:calc(1.125rem * var(--wincraft-font-scale, 1)); margin-top:1rem; padding-top:1rem; border-top:1px solid #3b5066; color:#d9edeb; }
 .reading-panel button.w-full { font-size:calc(1.125rem * var(--wincraft-font-scale, 1)); line-height:1.8; padding:1.1rem 1.25rem; background-color:#1d3046; border-width:2px; }
@@ -84,9 +88,11 @@ button:focus-visible, a:focus-visible, textarea:focus-visible { outline:2px soli
   .study-header h1 { white-space:normal; overflow:visible; font-size:1.4rem; }
   .study-header > div:last-child { width:100%; justify-content:flex-end; gap:.45rem; }
   .study-header > div:last-child > button { min-height:40px; }
-  .reading-panel { padding:1.25rem; }
+  .reading-panel { width:100%; padding:1rem; border-radius:1rem; }
   .reading-panel h2 { font-size:calc(1.25rem * var(--wincraft-font-scale, 1)); }
-  .study-app .font-scale-content { padding-bottom:7rem; }
+  .quiz-workspace .quiz-options > button { min-height:0; padding:1rem; }
+  .quiz-actions button { min-width:0; padding-inline:.75rem; }
+  .study-app .study-content { padding-bottom:11rem; }
   .study-app .lesson-panel { padding:1.25rem; }
   .study-app .lesson-panel h2 { font-size:calc(1.5rem * var(--wincraft-font-scale, 1)); }
 }
