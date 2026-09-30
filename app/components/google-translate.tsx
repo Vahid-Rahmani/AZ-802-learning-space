@@ -13,6 +13,7 @@ const languages = [
   { code: "ar", label: "العربية / Arabic" },
   { code: "de", label: "Deutsch" },
 ];
+const rtlLanguages = new Set(["fa", "ur", "ar"]);
 
 type GoogleTranslateWindow = Window & {
   google?: {
@@ -25,6 +26,14 @@ type GoogleTranslateWindow = Window & {
 
 function engineSelect() {
   return document.querySelector("select.goog-te-combo") as unknown as HTMLSelectElement | null;
+}
+
+function applyDirection(language: string) {
+  const direction = rtlLanguages.has(language) ? "rtl" : "ltr";
+  document.documentElement.lang = language || "en";
+  document.documentElement.dir = direction;
+  const appRoots = document.querySelectorAll(".study-app") as unknown as NodeListOf<HTMLElement>;
+  appRoots.forEach((root) => { root.dir = direction; });
 }
 
 /**
@@ -40,6 +49,7 @@ export function GoogleTranslateControl() {
 
   useEffect(() => {
     let cancelled = false;
+    applyDirection("");
     const applyPending = () => {
       const combo = engineSelect();
       if (!combo) return false;
@@ -98,6 +108,7 @@ export function GoogleTranslateControl() {
   const changeLanguage = (code: string) => {
     pendingLanguage.current = code;
     setSelected(code);
+    applyDirection(code);
     const combo = engineSelect();
     if (!combo) {
       setMessage("Loading Google Translate…");
