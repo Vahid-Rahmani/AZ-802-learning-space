@@ -13,6 +13,7 @@ A responsive, trilingual Windows Server learning workspace for AZ-802 preparatio
 - Leitner intervals of 1, 3, 7, 14, and 30 days, including compatibility with the legacy `ipsec-connection-rule` card ID.
 - Persistent text-size control from 85% to 130%, responsive mobile layout, practical lab evidence, authentication, and progress synchronization APIs.
 - Every practice question has a deterministic, source-linked explanation, a domain-specific decision schematic, and (where useful) an attributed Microsoft Learn visual reference. The optional **Copy & open Google AI Mode** action copies a safe, question-only prompt to the browser and opens Google's web UI; the learner pastes the returned explanation back into WinCraft. No Google AI API key, server proxy, or paid AI quota is used. An installed browser extension may also return the response through the documented bridge event.
+- For a fully automated browser flow, the repository includes the independent `browser-bridge/` Chrome MV3 extension. It follows the Zova-style page → service-worker → Google AI Mode → response bridge pattern without modifying Zova. Load it unpacked in Chrome to submit the prompt and return the captured response automatically.
 - The redesigned Skill Graph connects `AZ-802 → domain → objective → lesson → question → source/lab/Leitner` and remains keyboard- and mobile-friendly.
 
 ## Eight stages

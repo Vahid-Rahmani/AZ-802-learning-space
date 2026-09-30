@@ -128,13 +128,35 @@ export function QuestionExplanation({ question, showTranslations }: Props) {
       channel.postMessage({ type: "WINCRAFT_GOOGLE_AI_MODE_REQUEST", requestId, prompt, questionId: question.id });
       channel.close();
     }
-    const popup = window.open(GOOGLE_AI_MODE_URL, "wincraft-google-ai-mode", "popup,width=1100,height=820,resizable=yes,scrollbars=yes");
+    // A separately installed browser bridge (modelled after Zova's
+    // extension architecture) can receive the request without requiring a
+    // Google API key. The page still works without that bridge: it opens the
+    // web UI and keeps the prompt/response paste flow available.
+    window.postMessage({ type: "WINCRAFT_GOOGLE_AI_MODE_REQUEST", requestId, prompt, questionId: question.id }, "*");
+    const bridgeReady = await new Promise<boolean>((resolve) => {
+      let settled = false;
+      const finish = (value: boolean) => {
+        if (settled) return;
+        settled = true;
+        window.removeEventListener("message", onReady);
+        resolve(value);
+      };
+      const onReady = (event: MessageEvent) => {
+        if (event.source === window && event.data?.type === "WINCRAFT_GOOGLE_AI_MODE_BRIDGE_READY") finish(true);
+      };
+      window.addEventListener("message", onReady);
+      window.postMessage({ type: "WINCRAFT_GOOGLE_AI_MODE_PING" }, "*");
+      window.setTimeout(() => finish(false), 150);
+    });
+    const popup = bridgeReady ? null : window.open(GOOGLE_AI_MODE_URL, "wincraft-google-ai-mode", "popup,width=1100,height=820,resizable=yes,scrollbars=yes");
     setHandoff({
       requestId,
       prompt,
       copied,
-      opened: Boolean(popup),
-      status: popup ? "Google AI Mode opened. Paste and send the copied prompt there." : "The browser blocked the popup. Use the link below to open Google AI Mode.",
+      opened: bridgeReady || Boolean(popup),
+      status: bridgeReady
+        ? "Automatic browser bridge is active. Google AI Mode is being handled automatically."
+        : popup ? "Google AI Mode opened. Paste and send the copied prompt there." : "The browser blocked the popup. Use the link below to open Google AI Mode.",
     });
   };
 
@@ -160,7 +182,7 @@ export function QuestionExplanation({ question, showTranslations }: Props) {
       <div>
         <p className="question-learning-tools-kicker">Learning aid</p>
         <h3>Understand this question</h3>
-        <p className="question-learning-tools-copy">Get a source-linked explanation without an API key. You can also open the free Google AI Mode web app for a second explanation.</p>
+        <p className="question-learning-tools-copy">Get a source-linked explanation without an API key. With the optional browser bridge, Google AI Mode is submitted and captured automatically; without it, the same flow remains available with copy and paste.</p>
       </div>
       <div className="question-learning-tools-actions">
         <button type="button" onClick={() => void loadExplanation()} disabled={loading} className="question-explain-button">

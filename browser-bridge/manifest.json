@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "WinCraft Google AI Mode Bridge",
+  "version": "0.1.0",
+  "description": "Runs the optional, keyless WinCraft question explanation flow through the user's Google AI Mode browser session.",
+  "permissions": ["tabs", "windows"],
+  "host_permissions": [
+    "https://www.google.com/ai*",
+    "https://gemini.google.com/*",
+    "http://localhost:5173/*",
+    "https://az-802-eosin.vercel.app/*",
+    "https://wincraft-az802.vahid-rahmani.chatgpt.site/*"
+  ],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost:5173/*",
+        "https://az-802-eosin.vercel.app/*",
+        "https://wincraft-az802.vahid-rahmani.chatgpt.site/*"
+      ],
+      "js": ["app-bridge.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://www.google.com/ai*", "https://gemini.google.com/*"],
+      "js": ["google-bridge.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
