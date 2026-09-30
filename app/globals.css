@@ -94,3 +94,16 @@ button:focus-visible, a:focus-visible, textarea:focus-visible { outline:2px soli
 .font-scale-control button { min-height:36px !important; min-width:36px; }
 .font-scale-control output { min-width:3.2rem; text-align:center; }
 .auth-required [aria-label="بستن"] { display: none; }
+.google-translate-control { display:flex; align-items:center; gap:.45rem; min-width:0; }
+.google-translate-label { color:#c6d6e3; font-size:.75rem; font-weight:700; letter-spacing:.02em; white-space:nowrap; }
+.google-translate-control select { min-height:36px; max-width:12rem; border:1px solid rgba(34,211,238,.28); border-radius:.7rem; background:rgba(4,8,13,.78); color:#e6f7ff; padding:.4rem 2rem .4rem .65rem; font-size:.75rem; font-weight:600; outline:none; }
+.google-translate-control select:focus-visible { outline:3px solid #99f6e4; outline-offset:3px; }
+.google-translate-status { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+.google-translate-engine { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; pointer-events:none; }
+.goog-te-banner-frame.skiptranslate { display:none !important; }
+body { top:0 !important; }
+.goog-te-gadget { font-size:0 !important; }
+@media (max-width:639px) {
+  .google-translate-label { display:none; }
+  .google-translate-control select { max-width:8.5rem; min-height:40px; font-size:.7rem; }
+}
