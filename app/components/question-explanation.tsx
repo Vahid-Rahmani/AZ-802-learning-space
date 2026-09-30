@@ -71,20 +71,13 @@ export function QuestionExplanation({ question, selectedAnswer, showTranslations
       </div>
 
       <div className="question-explanation-section">
-        <h4>How to reason through it</h4>
-        <ol>
-          <li><span>1</span><GoogleSubtitle text={`Identify the exact requirement in: ${question.text}`} enabled={showTranslations} /></li>
-          <li><span>2</span><GoogleSubtitle text={`Map that requirement to the AZ-802 domain: ${question.domain}.`} enabled={showTranslations} /></li>
-          <li><span>3</span><GoogleSubtitle text={`Choose ${correctAnswer}, then confirm it with the linked Microsoft Learn source.`} enabled={showTranslations} /></li>
-        </ol>
-      </div>
-
-      <div className="question-explanation-section">
         <h4>Why the other options do not fit</h4>
-        <div className="question-distractor-list">{distractors.map((item) => <div key={item.optionIndex} className="question-distractor">
+        <div className="question-distractor-list">{distractors.map((item) => <article key={item.optionIndex} className="question-distractor">
           <strong>{item.option}</strong>
-          <GoogleSubtitle text={`${item.option} does not satisfy the exact requirement in this question. The reviewed rationale supports ${correctAnswer}: ${question.rationale.en}`} enabled={showTranslations} />
-        </div>)}</div>
+          <p className="question-distractor-reason">
+            <GoogleSubtitle text={`${item.option} does not meet the requirement in this scenario. The reviewed answer is ${correctAnswer}. ${question.rationale.en}`} enabled={showTranslations} />
+          </p>
+        </article>)}</div>
       </div>
 
       <QuestionSchematic domain={question.domain} questionText={question.text} />

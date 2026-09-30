@@ -143,12 +143,13 @@ body { top:0 !important; }
 .question-explanation-summary { display:grid; gap:.45rem; }
 .question-explanation-provider { color:#99f6e4; font-size:.7rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
 .question-explanation-section h4 { margin:0 0 .45rem; color:#e0f2fe; font-size:.9rem; }
-.question-explanation-section ol { display:grid; gap:.55rem; margin:0; padding:0; list-style:none; }
-.question-explanation-section ol li { display:grid; grid-template-columns:1.5rem minmax(0,1fr); align-items:start; gap:.55rem; color:#cbd5e1; font-size:.84rem; line-height:1.6; }
-.question-explanation-section ol li > span { display:grid; width:1.4rem; height:1.4rem; place-items:center; border-radius:999px; color:#06131a; font-size:.7rem; font-weight:900; background:#67e8f9; }
-.question-distractor-list { display:grid; gap:.5rem; }
-.question-distractor { display:grid; gap:.2rem; border-left:2px solid rgba(251,191,36,.55); padding:.45rem .6rem; color:#cbd5e1; font-size:.8rem; line-height:1.55; }
-.question-distractor strong { color:#fde68a; font-size:.78rem; }
+.question-distractor-list { display:grid; gap:.75rem; }
+.question-distractor { display:flex; min-width:0; flex-direction:column; align-items:stretch; gap:.6rem; overflow:hidden; border-left:2px solid rgba(251,191,36,.55); border-radius:0 .65rem .65rem 0; padding:.7rem .8rem; color:#cbd5e1; background:rgba(15,23,42,.28); font-size:.8rem; line-height:1.65; }
+.question-distractor strong { display:block; color:#fde68a; font-size:.8rem; line-height:1.5; overflow-wrap:anywhere; }
+.question-distractor-reason { min-width:0; margin:0; }
+.question-distractor .google-subtitle { display:flex; min-width:0; flex-direction:column; gap:.55rem; }
+.question-distractor .google-subtitle-original, .question-distractor .google-subtitle-translation { min-width:0; overflow-wrap:anywhere; word-break:normal; }
+.question-distractor .google-subtitle-translation { margin-top:0; border-top:1px solid rgba(103,232,249,.18); padding-top:.55rem; line-height:1.75; }
 .question-explanation-source { color:#67e8f9; font-size:.78rem; font-weight:800; }
 .question-explanation-choice { display:grid; gap:.35rem; border:1px solid rgba(148,163,184,.2); border-radius:.8rem; padding:.8rem; background:rgba(3,7,12,.55); }
 .question-explanation-choice h4 { margin:0; font-size:.82rem; }
