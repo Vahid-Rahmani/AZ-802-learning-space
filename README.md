@@ -13,6 +13,7 @@ A responsive, trilingual Windows Server learning workspace for AZ-802 preparatio
 - Leitner intervals of 1, 3, 7, 14, and 30 days, including compatibility with the legacy `ipsec-connection-rule` card ID.
 - Persistent text-size control from 85% to 130%, responsive mobile layout, practical lab evidence, authentication, and progress synchronization APIs.
 - Every answered practice question exposes an internal, question-specific Explain panel built from that question's reviewed answer, rationale, options, domain, decision schematic, official visual reference (where useful), and Microsoft Learn source. It requires no popup, copy/paste flow, browser extension, or external AI service.
+- The **Ask** workspace performs typo-tolerant English/Persian search across all 300 questions, correct answers, rationales, domains, and options. It answers only from matched bank evidence, links the Microsoft Learn source, opens the exact question for practice, and refuses unsupported queries instead of inventing a response.
 - The redesigned Skill Graph connects `AZ-802 → domain → objective → lesson → question → source/lab/Leitner` and remains keyboard- and mobile-friendly.
 
 ## Eight stages
