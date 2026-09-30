@@ -1,4 +1,9 @@
-export type GoogleLanguage = { code: string; label: string };
+export type GoogleLanguage = {
+  code: string;
+  label: string;
+  googleCode?: string;
+  romanize?: boolean;
+};
 
 // Google Translate language codes. Keeping this list in one shared module lets
 // the client picker and server-side validation support the same languages.
@@ -24,7 +29,10 @@ export const GOOGLE_TRANSLATE_LANGUAGES: GoogleLanguage[] = [
   { code: "ro", label: "Romanian" }, { code: "ru", label: "Russian" },
   { code: "sm", label: "Samoan" }, { code: "sa", label: "Sanskrit" }, { code: "gd", label: "Scots Gaelic" }, { code: "nso", label: "Sepedi" }, { code: "sr", label: "Serbian" }, { code: "st", label: "Sesotho" }, { code: "sn", label: "Shona" }, { code: "sd", label: "Sindhi" }, { code: "si", label: "Sinhala" }, { code: "sk", label: "Slovak" }, { code: "sl", label: "Slovenian" }, { code: "so", label: "Somali" }, { code: "es", label: "Spanish" }, { code: "su", label: "Sundanese" }, { code: "sw", label: "Swahili" }, { code: "sv", label: "Swedish" },
   { code: "tg", label: "Tajik" }, { code: "ta", label: "Tamil" }, { code: "tt", label: "Tatar" }, { code: "te", label: "Telugu" }, { code: "th", label: "Thai" }, { code: "ti", label: "Tigrinya" }, { code: "ts", label: "Tsonga" }, { code: "tr", label: "Turkish" }, { code: "tk", label: "Turkmen" },
-  { code: "uk", label: "Ukrainian" }, { code: "ur", label: "Urdu" }, { code: "ug", label: "Uyghur" }, { code: "uz", label: "Uzbek" },
+  { code: "uk", label: "Ukrainian" },
+  { code: "ur", label: "Urdu" },
+  { code: "ur-Latn", label: "Urdu (Roman)", googleCode: "ur", romanize: true },
+  { code: "ug", label: "Uyghur" }, { code: "uz", label: "Uzbek" },
   { code: "vi", label: "Vietnamese" },
   { code: "cy", label: "Welsh" }, { code: "xh", label: "Xhosa" },
   { code: "yi", label: "Yiddish" }, { code: "yo", label: "Yoruba" },
@@ -32,3 +40,5 @@ export const GOOGLE_TRANSLATE_LANGUAGES: GoogleLanguage[] = [
 ];
 
 export const isGoogleTranslateLanguage = (code: string) => GOOGLE_TRANSLATE_LANGUAGES.some((language) => language.code === code);
+
+export const getGoogleTranslateLanguage = (code: string) => GOOGLE_TRANSLATE_LANGUAGES.find((language) => language.code === code);
