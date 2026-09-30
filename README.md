@@ -12,8 +12,7 @@ A responsive, trilingual Windows Server learning workspace for AZ-802 preparatio
 - Positive/negative answer feedback, source links, skill mapping, and automatic Leitner cards for incorrect answers.
 - Leitner intervals of 1, 3, 7, 14, and 30 days, including compatibility with the legacy `ipsec-connection-rule` card ID.
 - Persistent text-size control from 85% to 130%, responsive mobile layout, practical lab evidence, authentication, and progress synchronization APIs.
-- Every practice question has a deterministic, source-linked explanation, a domain-specific decision schematic, and (where useful) an attributed Microsoft Learn visual reference. The optional **Copy & open Google AI Mode** action copies a safe, question-only prompt to the browser and opens Google's web UI; the learner pastes the returned explanation back into WinCraft. No Google AI API key, server proxy, or paid AI quota is used. An installed browser extension may also return the response through the documented bridge event.
-- For a fully automated browser flow, the repository includes the independent `browser-bridge/` Chrome MV3 extension. It follows the Zova-style page → service-worker → Google AI Mode → response bridge pattern without modifying Zova. Load it unpacked in Chrome to submit the prompt and return the captured response automatically.
+- Every answered practice question exposes an internal, question-specific Explain panel built from that question's reviewed answer, rationale, options, domain, decision schematic, official visual reference (where useful), and Microsoft Learn source. It requires no popup, copy/paste flow, browser extension, or external AI service.
 - The redesigned Skill Graph connects `AZ-802 → domain → objective → lesson → question → source/lab/Leitner` and remains keyboard- and mobile-friendly.
 
 ## Eight stages
@@ -30,20 +29,6 @@ A responsive, trilingual Windows Server learning workspace for AZ-802 preparatio
 | 8 | Capstone (cross-domain) | 281–300 | 20 |
 
 The official weighting remains the seven assessed AZ-802 domains. Capstone questions are assigned a `primaryDomain` for weighting and do not create an eighth weighted domain.
-
-### Optional Google AI Mode browser bridge
-
-The app does not call a Google AI API and does not require a key. When the learner selects **Copy & open Google AI Mode**, it broadcasts a question-only request on `BroadcastChannel("wincraft-google-ai-mode")` and opens `https://www.google.com/ai`. A compatible browser extension may return a response with either `BroadcastChannel` or `window.postMessage` using this shape:
-
-```js
-{
-  type: "WINCRAFT_GOOGLE_AI_MODE_RESPONSE",
-  requestId: "the-request-id-from-the-request",
-  responseText: "the explanation returned by the user's browser session"
-}
-```
-
-The response is accepted only from the app origin, `www.google.com`, or `gemini.google.com`, and is displayed locally beside the deterministic Microsoft Learn explanation. The current Zova project was inspected read-only; it was not edited.
 
 ## Run locally
 
@@ -84,8 +69,7 @@ RESEND_API_KEY=your-resend-key
 RESET_FROM_EMAIL=verified-sender@example.com
 # RESET_EMAIL_WEBHOOK_URL=https://your-mail-worker.example/reset
 
-# No AI key is required. Explanations are generated locally and the browser-only
-# Google AI Mode hand-off is optional. Never add a Google AI/Gemini API key here.
+# Question explanations are built into the app and require no AI service.
 ```
 
 Set the D1 variables and `SESSION_SECRET` for every Vercel environment that should support accounts: **Production**, **Preview**, and **Development**. The secret must be at least 32 characters and must remain the same across deployments in an environment so existing sessions survive redeployment. Redeploy after changing variables. Passwords must contain 8–1024 characters. Keep all credentials server-only; never use a `NEXT_PUBLIC_` prefix.
