@@ -167,14 +167,14 @@ export function QuestionExplanation({ question, showTranslations }: Props) {
           {loading ? "Building explanation…" : explanation ? "Refresh source explanation" : "Show explanation"}
         </button>
         <button type="button" onClick={() => void openGoogleAiMode()} className="question-google-ai-button">
-          Open free Google AI Mode
+          Copy &amp; open Google AI Mode
         </button>
       </div>
     </div>
     {error && <p role="alert" className="question-explanation-error">{error}</p>}
     {handoff && <section className="question-ai-handoff" aria-label="Google AI Mode hand-off">
       <div className="question-ai-handoff-heading">
-        <div><strong>Free browser mode</strong><p>{handoff.status}</p></div>
+        <div><strong>Copy → paste workflow</strong><p>{handoff.status}</p></div>
         <button type="button" onClick={() => void copyPrompt()}>{handoff.copied ? "Prompt copied" : "Copy prompt"}</button>
       </div>
       <textarea className="question-ai-prompt" value={handoff.prompt} readOnly aria-label="Prompt for Google AI Mode" rows={7} />
