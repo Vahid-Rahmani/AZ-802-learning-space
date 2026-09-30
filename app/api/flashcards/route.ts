@@ -27,6 +27,11 @@ export async function POST(request: Request) {
   const box = Math.max(1, Math.min(intervals.length, Number(body.box) || 1));
   const dueAt = new Date(Date.now() + intervals[box - 1] * 86400000);
   const now = new Date();
+  const existing = (await getDb().select().from(flashcards).where(eq(flashcards.userId, userId))).find((card) => card.questionId === questionId || (questionId === "az802-q-216" && card.questionId === "ipsec-connection-rule"));
+  if (existing) {
+    await getDb().update(flashcards).set({ box: Math.min(existing.box, box), dueAt, updatedAt: now }).where(eq(flashcards.id, existing.id));
+    return NextResponse.json({ ok: true, duplicate: true, box: Math.min(existing.box, box), dueAt });
+  }
   await getDb().insert(flashcards).values({ id: crypto.randomUUID(), userId, questionId, box, dueAt, createdAt: now, updatedAt: now });
   return NextResponse.json({ ok: true, box, dueAt }, { status: 201 });
 }

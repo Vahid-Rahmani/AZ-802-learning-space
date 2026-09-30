@@ -11,6 +11,46 @@ export const trainingStages = [
   { id: "security", stage: 6, domain: "Secure Windows Server infrastructure", skillId: "security", lessonId: "network-security", title: { fa: "امن‌سازی زیرساخت Windows Server", en: "Secure Windows Server infrastructure", de: "Windows-Server-Infrastruktur absichern" }, body: { fa: "Firewall، IPsec، hardening، credential protection و policy را در سناریوهای واقعی تمرین کنید.", en: "Practice firewall, IPsec, hardening, credential protection, and policy in realistic scenarios.", de: "Firewall, IPsec, Härtung, Anmeldeschutz und Richtlinien in realistischen Szenarien üben." }, objective: { fa: "سطح حمله را کم و کنترل‌های امنیتی را قابل اثبات کنید.", en: "Reduce the attack surface and prove security controls.", de: "Die Angriffsfläche reduzieren und Sicherheitskontrollen nachweisen." }, source: "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-802" },
   { id: "monitoring", stage: 7, domain: "Monitor and troubleshoot Windows Server environments", skillId: "monitoring", lessonId: "monitoring", title: { fa: "مانیتورینگ و عیب‌یابی", en: "Monitor and troubleshoot Windows Server", de: "Windows Server überwachen und Fehler beheben" }, body: { fa: "Event، performance، Azure Monitor و روش تغییر کنترل‌شده را تمرین کنید.", en: "Practice events, performance, Azure Monitor, and controlled-change troubleshooting.", de: "Ereignisse, Leistung, Azure Monitor und Fehlerbehebung mit kontrollierten Änderungen üben." }, objective: { fa: "از شواهد قابل تکرار به علت ریشه‌ای برسید.", en: "Move from reproducible evidence to root cause.", de: "Von reproduzierbaren Nachweisen zur Grundursache gelangen." }, source: "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-802" },
   { id: "recovery", stage: 8, domain: "Backup, recovery, high availability, and migration crossover", skillId: "dr", lessonId: "backup", title: { fa: "Backup، Recovery، HA و Migration", en: "Backup, recovery, HA, and migration", de: "Backup, Recovery, HA und Migration" }, body: { fa: "RPO، RTO، restore، quorum، failover و migration را در یک مسیر عملی جمع‌بندی کنید.", en: "Bring RPO, RTO, restore, quorum, failover, and migration together in one practical path.", de: "RPO, RTO, Wiederherstellung, Quorum, Failover und Migration praktisch verbinden." }, objective: { fa: "یک طرح بازیابی و مهاجرت قابل آزمون تحویل دهید.", en: "Deliver a testable recovery and migration plan.", de: "Einen testbaren Recovery- und Migrationsplan erstellen." }, source: "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-802" },
-].map((stage) => ({ ...stage, questionIds: questions.filter((question) => question.domain === stage.domain).map((question) => question.id) }));
+].map((stage) => ({
+  ...stage,
+  ...(stage.id === "recovery" ? {
+    title: { fa: "Capstone: بازیابی، دسترس‌پذیری و مهاجرت", en: "Capstone: recovery, high availability, and migration", de: "Capstone: Recovery, Hochverfügbarkeit und Migration" },
+    body: { fa: "دانش هفت دامنه را در یک سناریوی کامل طراحی، اجرا و مستندسازی کنید.", en: "Bring the seven assessed domains together in one design, implementation, and evidence scenario.", de: "Die sieben geprüften Domänen in einem vollständigen Design-, Umsetzungs- und Nachweisszenario verbinden." },
+    objective: { fa: "یک طرح قابل آزمون برای backup، recovery، HA و migration تحویل دهید.", en: "Deliver a testable plan for backup, recovery, high availability, and migration.", de: "Einen testbaren Plan für Backup, Recovery, Hochverfügbarkeit und Migration liefern." },
+  } : {}),
+  questionIds: questions.filter((question) => question.domain === stage.domain).map((question) => question.id),
+}));
+
+/**
+ * The learner-facing graph keeps the seven assessed domains linear and adds a
+ * final capstone. The existing `trainingStages` shape remains intact for
+ * progress and legacy links; the capstone reuses the crossover question set
+ * from stage 8 without creating a second copy of the content.
+ */
+export const learningGraphStages = [
+  ...trainingStages.slice(0, 7),
+  {
+    ...trainingStages[7],
+    id: "capstone",
+    title: {
+      fa: "Capstone: بازیابی، دسترس‌پذیری و مهاجرت",
+      en: "Capstone: recovery, high availability, and migration",
+      de: "Capstone: Recovery, Hochverfügbarkeit und Migration",
+    },
+    body: {
+      fa: "دانش هفت دامنه را در یک سناریوی کامل طراحی، اجرا و مستندسازی کنید.",
+      en: "Bring the seven assessed domains together in one design, implementation, and evidence scenario.",
+      de: "Die sieben geprüften Domänen in einem vollständigen Design-, Umsetzungs- und Nachweisszenario verbinden.",
+    },
+    objective: {
+      fa: "یک طرح قابل آزمون برای backup، recovery، HA و migration تحویل دهید.",
+      en: "Deliver a testable plan for backup, recovery, high availability, and migration.",
+      de: "Einen testbaren Plan für Backup, Recovery, Hochverfügbarkeit und Migration liefern.",
+    },
+  },
+].map((stage) => ({
+  ...stage,
+  skillIds: Array.from(new Set(stage.questionIds.map((questionId) => questions.find((question) => question.id === questionId)?.skillId).filter((skillId): skillId is string => Boolean(skillId)))),
+}));
 
 export const trainingStageForQuestion = (questionId: string) => trainingStages.find((stage) => stage.questionIds.includes(questionId));

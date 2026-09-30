@@ -7,7 +7,8 @@ A responsive, trilingual Windows Server learning workspace for AZ-802 preparatio
 - Eight staged learning domains with lesson, practice, progress, and lock/unlock flow.
 - A 300-question original, scenario-based practice bank. Questions are aligned to the official Microsoft Learn AZ-802 study guide; they are not copied exam questions.
 - English, فارسی, and Deutsch interface support. The application shell stays left-to-right; Persian content uses RTL spans where needed.
-- Eight-question timed practice exams from the selected stage or the complete bank.
+- Four exam modes: Quick Check (8 questions/18 minutes), Stage Assessment (up to 40), Mixed Mock (60), and Full Endurance & Comprehensive Review (120/120 minutes). Full is explicitly an internal endurance review, not the official Microsoft exam format.
+- Every question starts as `draft` until its objective, Microsoft Learn source, answer, distractors, translations, and originality review are complete. The tracked audit manifest is `content/question-audit.manifest.json` and is regenerated with `npm run audit:questions`.
 - Positive/negative answer feedback, source links, skill mapping, and automatic Leitner cards for incorrect answers.
 - Leitner intervals of 1, 3, 7, 14, and 30 days, including compatibility with the legacy `ipsec-connection-rule` card ID.
 - Persistent text-size control from 85% to 130%, responsive mobile layout, practical lab evidence, authentication, and progress synchronization APIs.
@@ -23,7 +24,9 @@ A responsive, trilingual Windows Server learning workspace for AZ-802 preparatio
 | 5 | Storage and File Services | 168–213 | 46 |
 | 6 | Security | 214–245 | 32 |
 | 7 | Monitoring and Troubleshooting | 246–280 | 35 |
-| 8 | Backup, Recovery, HA and Migration | 281–300 | 20 |
+| 8 | Capstone (cross-domain) | 281–300 | 20 |
+
+The official weighting remains the seven assessed AZ-802 domains. Capstone questions are assigned a `primaryDomain` for weighting and do not create an eighth weighted domain.
 
 ## Run locally
 
@@ -40,6 +43,7 @@ Useful checks:
 npx tsc --noEmit
 npm run lint
 npm run build
+npm run validate:questions
 ```
 
 ## Vercel account setup
@@ -66,7 +70,7 @@ RESET_FROM_EMAIL=verified-sender@example.com
 
 Set the D1 variables and `SESSION_SECRET` for every Vercel environment that should support accounts: **Production**, **Preview**, and **Development**. The secret must be at least 32 characters and must remain the same across deployments in an environment so existing sessions survive redeployment. Redeploy after changing variables. Passwords must contain 8–1024 characters. Keep all credentials server-only; never use a `NEXT_PUBLIC_` prefix.
 
-The D1 database must contain the tables in `drizzle/`. For a **new** database, apply `0001` through `0006` once, in numeric order, using `npx wrangler d1 execute <database-name> --remote --file ./drizzle/<filename>.sql`. For a database where `0001`–`0005` are already applied, apply **only** `0006_google_accounts.sql`. Do not rerun `0004`: it rebuilds the progress table. The repository does not maintain a Wrangler migration journal, so `wrangler d1 migrations apply` is not appropriate here. Back up a live D1 database before applying a migration.
+The D1 database must contain the tables in `drizzle/`. For a **new** database, apply `0001` through `0008` once, in numeric order, using `npx wrangler d1 execute <database-name> --remote --file ./drizzle/<filename>.sql`. For an existing database with `0001`–`0006`, apply `0007` and `0008` in order; `0008_exam_sessions.sql` adds durable exam sessions, option ordering, multi-answer storage, and idempotency keys. Do not rerun `0004`: it rebuilds the progress table. The repository does not maintain a Wrangler migration journal, so `wrangler d1 migrations apply` is not appropriate here. Back up a live D1 database before applying a migration.
 
 To enable **Continue with Google**, create a Google Cloud OAuth **Web application** credential. In Google Cloud, add `https://az-802-eosin.vercel.app` as an **Authorized JavaScript origin** and `https://az-802-eosin.vercel.app/api/auth/google/callback` as an **Authorized redirect URI**, provided that is the actual production hostname. The redirect must match `GOOGLE_REDIRECT_URI` exactly, including scheme, hostname, path, and trailing slash. Add the deployed test-user email to the OAuth consent screen while the Google app is in Testing mode. Configure both Google credentials and the redirect in Vercel **Production**. A Preview deployment needs its **own stable Preview/branch hostname** registered in Google Cloud and set as `GOOGLE_REDIRECT_URI` in Vercel **Preview**; use a separate branch-specific Preview scope if different branches have different hosts. Do not use a changing per-commit URL as a fixed callback. Local development uses port 5173 in this repository, so register `http://localhost:5173` and `http://localhost:5173/api/auth/google/callback` for local OAuth, and set the local `GOOGLE_REDIRECT_URI` accordingly. The app checks that the configured callback belongs to the active request origin, preventing a Preview deployment from silently redirecting to Production.
 
@@ -383,7 +387,7 @@ Each row contains the English question, its Google Translate Persian translation
 
 ## Sources and content policy
 
-The content is written from the official [AZ-802 certification study guide](https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-802) and Microsoft Learn concepts. The app links to Microsoft’s official [Practice Assessments policy](https://learn.microsoft.com/en-us/certifications/practice-assessments-for-microsoft-certifications), but does not reproduce real assessment items.
+The content is written from the official [AZ-802 certification study guide](https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-802) and Microsoft Learn concepts. Microsoft currently lists the AZ-802 Practice Assessment as not published; the app links to the [official AZ-802 page](https://learn.microsoft.com/en-us/credentials/certifications/exams/az-802/) and [Exam Sandbox](https://learn.microsoft.com/en-us/credentials/certifications/windows-server-administrator-associate/) instead. It does not reproduce real assessment items, dump content, or paid-course questions.
 
 ## Project structure
 
@@ -392,6 +396,7 @@ The content is written from the official [AZ-802 certification study guide](http
 - `app/components/learning-views.tsx`: bilingual lessons, quizzes, practical exam, labs, graph, and Leitner cards.
 - `lib/content/training.ts`: stage metadata and question-to-stage mapping.
 - `lib/content/questions.ts`: the complete 300-question content bank.
+- `content/question-audit.manifest.json`: per-question draft/audit checks and reviewer fields.
 - `app/api/flashcards/route.ts`: synchronized Leitner scheduling and legacy card normalization.
 
 ## License and exam notice
