@@ -5,6 +5,10 @@ const MAX_TEXTS = 80;
 const MAX_TEXT_LENGTH = 1_600;
 const MAX_REQUEST_LENGTH = 18_000;
 const cache = new Map<string, string>();
+const GOOGLE_WEB_ENDPOINTS = [
+  "https://translate.googleapis.com/translate_a/single",
+  "https://translate.google.com/translate_a/single",
+] as const;
 
 type PublicGoogleSegment = Array<string | number | null | unknown[]>;
 type PublicGoogleResponse = Array<unknown> & { 0?: PublicGoogleSegment[] };
@@ -36,13 +40,27 @@ async function translateWithGoogleWeb(target: string, text: string) {
   const params = new URLSearchParams({ client: "gtx", sl: "en", tl: language.googleCode ?? language.code, q: text });
   params.append("dt", "t");
   if (language.romanize) params.append("dt", "rm");
-  const response = await fetch(`https://translate.googleapis.com/translate_a/single?${params.toString()}`, { headers: { accept: "application/json" } });
-  if (!response.ok) throw new Error(`Google Translate returned ${response.status}`);
-  const body = await response.json() as PublicGoogleResponse;
-  const segments = Array.isArray(body[0]) ? body[0] : [];
-  const translated = language.romanize ? extractRomanizedTranslation(segments) : joinedStringAt(segments, 0);
-  if (!translated) throw new Error("Google Translate returned an empty result");
-  return translated;
+
+  for (const endpoint of GOOGLE_WEB_ENDPOINTS) {
+    try {
+      const response = await fetch(`${endpoint}?${params.toString()}`, {
+        headers: {
+          accept: "application/json",
+          "accept-language": "en-US,en;q=0.9",
+          "user-agent": "Mozilla/5.0 (compatible; WinCraftLearning/1.0)",
+        },
+      });
+      if (!response.ok) continue;
+      const body = await response.json() as PublicGoogleResponse;
+      const segments = Array.isArray(body[0]) ? body[0] : [];
+      const translated = language.romanize ? extractRomanizedTranslation(segments) : joinedStringAt(segments, 0);
+      if (translated) return translated;
+    } catch {
+      // Try the second Google web host before reporting a temporary failure.
+    }
+  }
+
+  throw new Error("Google Translate returned no usable result");
 }
 
 async function translate(target: string, text: string) {
