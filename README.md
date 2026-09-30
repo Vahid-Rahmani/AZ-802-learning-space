@@ -12,6 +12,8 @@ A responsive, trilingual Windows Server learning workspace for AZ-802 preparatio
 - Positive/negative answer feedback, source links, skill mapping, and automatic Leitner cards for incorrect answers.
 - Leitner intervals of 1, 3, 7, 14, and 30 days, including compatibility with the legacy `ipsec-connection-rule` card ID.
 - Persistent text-size control from 85% to 130%, responsive mobile layout, practical lab evidence, authentication, and progress synchronization APIs.
+- Every practice question has an optional source-linked AI explanation, a domain-specific decision schematic, and (where useful) an attributed Microsoft Learn visual reference. Explanations use Google Gemini only when `GOOGLE_AI_API_KEY` is configured; otherwise the app returns a deterministic local explanation.
+- The redesigned Skill Graph connects `AZ-802 → domain → objective → lesson → question → source/lab/Leitner` and remains keyboard- and mobile-friendly.
 
 ## Eight stages
 
@@ -66,6 +68,10 @@ APP_ORIGIN=https://az-802-eosin.vercel.app
 RESEND_API_KEY=your-resend-key
 RESET_FROM_EMAIL=verified-sender@example.com
 # RESET_EMAIL_WEBHOOK_URL=https://your-mail-worker.example/reset
+
+# Optional AI explanations (server-only; Gemini fallback stays enabled without it)
+GOOGLE_AI_API_KEY=your-google-gemini-api-key
+# GOOGLE_AI_MODEL=gemini-2.0-flash
 ```
 
 Set the D1 variables and `SESSION_SECRET` for every Vercel environment that should support accounts: **Production**, **Preview**, and **Development**. The secret must be at least 32 characters and must remain the same across deployments in an environment so existing sessions survive redeployment. Redeploy after changing variables. Passwords must contain 8–1024 characters. Keep all credentials server-only; never use a `NEXT_PUBLIC_` prefix.

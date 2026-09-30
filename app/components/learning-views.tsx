@@ -1,11 +1,12 @@
 "use client";
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars -- Dashboard keeps the lab callback for the action-card API. */
 
 import { useEffect, useRef, useState } from "react";
 import { copy, learningGraphStages, lessons, practicalScenarios, questions, skills, trainingStageForQuestion } from "@/lib/course-data";
 import { examBlueprints, type ExamMode } from "@/lib/content/exam-blueprints";
 import { GoogleSubtitle } from "@/app/components/google-translate";
+import { QuestionExplanation } from "@/app/components/question-explanation";
 
 type Language = "fa" | "en" | "de";
 type Copy = typeof copy.en;
@@ -142,6 +143,7 @@ export function Quiz({ t, question, selected, totalQuestions, answer, setAnswer,
     <h2 className="mt-3 text-xl font-semibold leading-8"><GoogleSubtitle text={question.text} enabled={showTranslations} subtitleClassName="mt-2 text-base font-normal text-cyan-100" /></h2>
     <div className="mt-6 space-y-3">{question.options.map((option, index) => <button type="button" disabled={answered || (timed && timeLeft === 0)} onClick={() => setAnswer(index)} key={option} className={`w-full rounded-xl border p-4 text-start text-sm transition ${answer === index ? (index === question.correct ? "border-emerald-400 bg-emerald-400/10" : "border-rose-400 bg-rose-400/10") : index === question.correct && answered ? "border-emerald-400/50 bg-emerald-400/5" : "border-white/10 bg-black/10 hover:border-cyan-300/50"}`}><GoogleSubtitle text={option} enabled={showTranslations} subtitleClassName="mt-1 text-slate-300" /></button>)}</div>
     {answered && <div className={`mt-6 rounded-xl border p-4 ${answer === question.correct ? "border-emerald-400/30 bg-emerald-400/5" : "border-amber-300/30 bg-amber-300/5"}`}><p className="flex items-center gap-2 font-semibold"><span className={answer === question.correct ? "text-emerald-300" : "text-rose-300"}>{answer === question.correct ? "＋" : "−"}</span>{answer === question.correct ? t.correctAnswer : t.addedLeitner}</p><p className="mt-2 text-sm leading-6 text-slate-300"><BilingualText lang={t.lang} value={question.rationale} /></p><a className="mt-3 inline-block text-sm font-semibold text-cyan-200" href={question.source} target="_blank" rel="noreferrer">{t.viewSource} ↗</a></div>}
+    <QuestionExplanation question={question} showTranslations={showTranslations} />
     <div className="mt-6 flex gap-3"><button type="button" disabled={selected === 0} onClick={previous} className="rounded-xl border border-white/15 px-5 py-3 text-sm font-semibold text-cyan-100 disabled:opacity-35">{t.previousQuestion} ←</button><button type="button" disabled={!answered} onClick={next} className="rounded-xl bg-cyan-300 px-5 py-3 text-sm font-bold text-[#071016] disabled:opacity-35">{t.nextQuestion} →</button></div>
   </section>;
 }
