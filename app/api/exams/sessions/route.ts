@@ -4,6 +4,7 @@ import { attempts, examSessions } from "@/db/schema";
 import { getDb } from "@/db";
 import { currentUser, signInRequired } from "@/lib/auth-server";
 import { buildQuestionOrder, examBlueprints, examQuestionPool, selectExamQuestions, type ExamMode } from "@/lib/content/exam-blueprints";
+import { ensureExamSchema } from "@/lib/exam-schema";
 
 const validModes = new Set<ExamMode>(["quick", "stage", "mixed", "full"]);
 
@@ -15,6 +16,7 @@ export async function GET(request: Request) {
   const auth = await currentUser();
   if (auth.error) return auth.error;
   if (!auth.userId) return signInRequired();
+  await ensureExamSchema();
   const rows = await getDb().select().from(examSessions).where(eq(examSessions.userId, auth.userId)).orderBy(desc(examSessions.startedAt));
   const activeOnly = new URL(request.url).searchParams.get("active") === "1";
   const sessions = rows.filter((row) => !activeOnly || (!row.completedAt && row.expiresAt.getTime() > Date.now()));
@@ -25,6 +27,7 @@ export async function POST(request: Request) {
   const auth = await currentUser();
   if (auth.error) return auth.error;
   if (!auth.userId) return signInRequired();
+  await ensureExamSchema();
   const body = await request.json().catch(() => ({})) as Record<string, unknown>;
   const mode = typeof body.mode === "string" && validModes.has(body.mode as ExamMode) ? body.mode as ExamMode : "quick";
   const stageId = typeof body.stageId === "string" ? body.stageId : undefined;

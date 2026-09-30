@@ -5,6 +5,7 @@ import { getDb } from "@/db";
 import { currentUser, signInRequired } from "@/lib/auth-server";
 import { questions } from "@/lib/course-data";
 import { type ExamQuestionOrder } from "@/lib/content/exam-blueprints";
+import { ensureExamSchema } from "@/lib/exam-schema";
 
 type Params = { params: Promise<{ id: string }> };
 const intervals = [1, 3, 7, 14, 30];
@@ -20,6 +21,7 @@ export async function GET(_request: Request, { params }: Params) {
   const auth = await currentUser();
   if (auth.error) return auth.error;
   if (!auth.userId) return signInRequired();
+  await ensureExamSchema();
   const { id } = await params;
   const session = await loadSession(id, auth.userId);
   if (!session) return NextResponse.json({ error: "Exam session not found" }, { status: 404 });
@@ -30,6 +32,7 @@ export async function PUT(request: Request, { params }: Params) {
   const auth = await currentUser();
   if (auth.error) return auth.error;
   if (!auth.userId) return signInRequired();
+  await ensureExamSchema();
   const { id } = await params;
   const session = await loadSession(id, auth.userId);
   if (!session) return NextResponse.json({ error: "Exam session not found" }, { status: 404 });
@@ -72,6 +75,7 @@ export async function POST(request: Request, { params }: Params) {
   const auth = await currentUser();
   if (auth.error) return auth.error;
   if (!auth.userId) return signInRequired();
+  await ensureExamSchema();
   const { id } = await params;
   const session = await loadSession(id, auth.userId);
   if (!session) return NextResponse.json({ error: "Exam session not found" }, { status: 404 });
