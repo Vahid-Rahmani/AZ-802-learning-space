@@ -13,6 +13,19 @@
 }
 html[data-theme="fluent"], html[data-theme="fluent"] body { background:var(--background); color:var(--foreground); }
 .app-shell { width:100%; }
+/* Sharper learning cards in both themes; round progress rings and icons stay round. */
+.study-app .study-content .rounded-2xl,
+.study-app .study-content .rounded-3xl,
+.study-app .reading-panel,
+.study-app .question-learning-tools,
+.study-app .question-explanation-summary,
+.study-app .question-explanation-section,
+.study-app .question-explanation-choice,
+.study-app .question-distractor,
+.study-app .question-schematic,
+.study-app .question-schematic-node,
+.study-app .question-reference-media-card { border-radius:4px; }
+.study-app .practice-action-title { font-size:calc(1.45rem * var(--wincraft-font-scale,1)); font-weight:700; line-height:1.4; }
 .app-brand { display:flex; align-items:center; gap:.75rem; padding:.5rem; }
 .brand-mark { display:grid; place-items:center; width:40px; height:40px; flex-shrink:0; color:#fff; background:#0f6cbd; border-radius:12px; }
 .brand-mark svg { width:27px; height:27px; }
