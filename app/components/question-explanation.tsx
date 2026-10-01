@@ -24,7 +24,7 @@ type Props = {
 /**
  * A self-contained explanation for the current question. It uses the reviewed
  * answer and rationale already stored with that question, so all 300 questions
- * work inside WinCraft without an API, extension, popup, or copy/paste flow.
+ * work inside CertPath without an API, extension, popup, or copy/paste flow.
  */
 export function QuestionExplanation({ question, selectedAnswer, showTranslations }: Props) {
   const [open, setOpen] = useState(false);
@@ -49,7 +49,7 @@ export function QuestionExplanation({ question, selectedAnswer, showTranslations
 
     {open && <div className="question-explanation-body">
       <div className="question-explanation-summary">
-        <span className="question-explanation-provider">Built into WinCraft · question-specific</span>
+        <span className="question-explanation-provider">Built into CertPath · question-specific</span>
         <strong>Correct answer: {correctAnswer}</strong>
         <GoogleSubtitle text={`This question asks: ${question.text}`} enabled={showTranslations} />
       </div>

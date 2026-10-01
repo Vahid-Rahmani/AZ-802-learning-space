@@ -48,7 +48,7 @@ export function KnowledgeSearch({
         <div className="max-w-2xl">
           <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-cyan-300"><Sparkles size={15} /> {courseCode} knowledge search</p>
           <h2 id="knowledge-search-title" className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">Ask the existing question bank</h2>
-          <p className="mt-3 text-sm leading-7 text-slate-300">Write a {courseName} question in English or Persian. WinCraft finds the closest evidence in the {questionBank.length}-question bank and answers only from its stored answer, rationale, and Microsoft Learn source.</p>
+          <p className="mt-3 text-sm leading-7 text-slate-300">Write a {courseName} question in English or Persian. CertPath finds the closest evidence in the {questionBank.length}-question bank and answers only from its stored answer, rationale, and Microsoft Learn source.</p>
         </div>
         <div className="flex items-center gap-2 rounded-2xl border border-emerald-300/20 bg-emerald-300/5 px-3 py-2 text-xs text-emerald-100"><ShieldCheck size={16} /><span>No external AI · no invented answer</span></div>
       </div>
@@ -67,7 +67,7 @@ export function KnowledgeSearch({
 
     {submittedQuery && !supported && <div role="status" className="rounded-2xl border border-amber-300/25 bg-amber-300/5 p-5">
       <h3 className="font-semibold text-amber-100">No reliable answer found</h3>
-      <p className="mt-2 text-sm leading-6 text-slate-300">Try a product name, service, concept, or shorter technical phrase. WinCraft will not create an answer when the current bank does not contain enough evidence.</p>
+      <p className="mt-2 text-sm leading-6 text-slate-300">Try a product name, service, concept, or shorter technical phrase. CertPath will not create an answer when the current bank does not contain enough evidence.</p>
     </div>}
 
     {supported && best && <article className="rounded-3xl border border-cyan-300/20 bg-[#0c1623] p-5 sm:p-7">

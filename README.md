@@ -1,6 +1,12 @@
-# AZ-802 Learning Space
+# CertPath — Learn. Practice. Progress.
 
 A responsive, multilingual certification workspace for AZ-802 Windows Server and AZ-900 Microsoft Azure Fundamentals preparation. The exam-facing question text remains English and Google-powered subtitles can be displayed directly below it.
+
+## Appearance and mobile navigation
+
+CertPath offers two saved themes: **Fluent · New**, the default light/blue learning workspace inspired by Microsoft Fluent, and **Classic · Dark**, the original dark glass appearance. Select **Theme** in the desktop toolbar; on mobile, open the sliders button beside the account icon. The preference applies to both certification tracks without changing account or learning data.
+
+Mobile navigation has five touch-friendly entries: Home, Lessons, Exams, Search, and More. More opens a keyboard-accessible bottom sheet for Skill Graph, Labs, and Leitner. Theme, Google subtitles, and text-size controls share a collapsible settings panel.
 
 ## Certification tracks
 
