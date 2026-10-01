@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { GoogleSubtitle } from "@/app/components/google-translate";
 
 export type SchematicNode = {
   id: string;
@@ -113,25 +114,25 @@ export function getQuestionSchematic(domain: string, questionText = ""): Questio
   return promptHint ? { ...schematic, summary: `${schematic.summary} ${promptHint}` } : schematic;
 }
 
-export function QuestionSchematic({ domain, questionText, title, children }: { domain: string; questionText?: string; title?: string; children?: ReactNode }) {
+export function QuestionSchematic({ domain, questionText, title, children, showTranslations = true }: { domain: string; questionText?: string; title?: string; children?: ReactNode; showTranslations?: boolean }) {
   const schematic = getQuestionSchematic(domain, questionText);
   return (
     <section className="question-schematic" aria-label={title ?? schematic.title}>
       <div className="question-schematic-heading">
         <div>
-          <p className="question-schematic-kicker">Learning schematic</p>
-          <h3>{title ?? schematic.title}</h3>
+          <p className="question-schematic-kicker"><GoogleSubtitle text="Learning schematic" enabled={showTranslations} /></p>
+          <h3><GoogleSubtitle text={title ?? schematic.title} enabled={showTranslations} /></h3>
         </div>
-        <span className="question-schematic-domain">{domain}</span>
+        <span className="question-schematic-domain"><GoogleSubtitle text={domain} enabled={showTranslations} /></span>
       </div>
-      <p className="question-schematic-summary">{schematic.summary}</p>
+      <p className="question-schematic-summary"><GoogleSubtitle text={schematic.summary} enabled={showTranslations} /></p>
       <ol className="question-schematic-flow">
         {schematic.nodes.map((node, index) => (
           <li className="question-schematic-step" key={node.id}>
             <div className={`question-schematic-node question-schematic-node-${node.tone ?? "cyan"}`} tabIndex={0}>
               <span className="question-schematic-index" aria-hidden="true">{index + 1}</span>
-              <strong>{node.label}</strong>
-              <span>{node.detail}</span>
+              <strong><GoogleSubtitle text={node.label} enabled={showTranslations} /></strong>
+              <span><GoogleSubtitle text={node.detail} enabled={showTranslations} /></span>
             </div>
             {index < schematic.nodes.length - 1 && <span className="question-schematic-arrow" aria-hidden="true">→</span>}
           </li>

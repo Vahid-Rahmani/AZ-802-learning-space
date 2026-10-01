@@ -73,6 +73,14 @@ async function translate(target: string, text: string) {
   return result;
 }
 
+async function translateBatch(target: string, texts: string[]) {
+  const translations: string[] = [];
+  for (let index = 0; index < texts.length; index += 4) {
+    translations.push(...await Promise.all(texts.slice(index, index + 4).map((text) => translate(target, text))));
+  }
+  return translations;
+}
+
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null) as { target?: unknown; texts?: unknown } | null;
   const target = typeof body?.target === "string" ? body.target.trim() : "";
@@ -86,7 +94,7 @@ export async function POST(request: Request) {
   if (!target) return NextResponse.json({ translations: texts, provider: "original" }, { headers: { "cache-control": "no-store" } });
 
   try {
-    const translations = await Promise.all(texts.map((text) => translate(target, text)));
+    const translations = await translateBatch(target, texts);
     return NextResponse.json({ translations, provider: "google-web" }, { headers: { "cache-control": "private, max-age=86400" } });
   } catch {
     return NextResponse.json({ error: "Google Translate is temporarily unavailable." }, { status: 503 });

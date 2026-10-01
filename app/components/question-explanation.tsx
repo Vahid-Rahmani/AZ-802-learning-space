@@ -80,9 +80,9 @@ export function QuestionExplanation({ question, selectedAnswer, showTranslations
         </article>)}</div>
       </div>
 
-      <QuestionSchematic domain={question.domain} questionText={question.text} />
+      <QuestionSchematic domain={question.domain} questionText={question.text} showTranslations={showTranslations} />
       <QuestionReferenceMedia media={media} />
-      <a className="question-explanation-source" href={question.source} target="_blank" rel="noreferrer">Microsoft Learn source ↗</a>
+      <a className="question-explanation-source" href={question.source} target="_blank" rel="noreferrer"><GoogleSubtitle text="Microsoft Learn source ↗" enabled={showTranslations} /></a>
     </div>}
   </section>;
 }
