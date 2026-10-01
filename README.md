@@ -1,6 +1,14 @@
 # CertPath — Learn. Practice. Progress.
 
-A responsive, multilingual certification workspace for AZ-802 Windows Server and AZ-900 Microsoft Azure Fundamentals preparation. The exam-facing question text remains English and Google-powered subtitles can be displayed directly below it.
+A responsive, multilingual learning workspace for AZ-802 Windows Server, AZ-900 Microsoft Azure Fundamentals and Docker Foundations. The exam-facing question text remains English and Google-powered subtitles can be displayed directly below it.
+
+## Docker Foundations
+
+Choose **Docker** in the course selector or open `/docker`. Six independently scoped stages cover setup/container concepts, lifecycle and HTTP troubleshooting, non-root image builds, named-volume persistence, network DNS, and a two-service Compose capstone. Each includes a lesson, executable reference commands/file contents, step-specific Explain, expected practical outcomes and an original knowledge check: 24 build steps, 18 practical tests and 24 questions in total, with precise official Docker documentation links. They are learning questions, not official certification questions.
+
+The route reuses account authentication, server-graded lab checkpoints and owned evidence storage. Answers, current question, workflow tab, test notes and reports persist in the existing database; Docker lab IDs are separate from Windows Server and AZ-900. Only theme/reading preferences are device-local. Practical observations are learner-reported: the website never runs container commands or certifies the learner's engine. The shared translation service may be temporarily rate-limited by its upstream provider.
+
+Use Linux containers on a supported Docker Desktop client or disposable Linux Engine VM. Docker Desktop is not supported on Windows Server; review current licensing before installing. Lab ports are loopback-bound and cleanup targets exact `cp-*` resources or the `certpath-lab` Compose project; no global prune or Docker socket mount is needed. Run `node --experimental-strip-types scripts/validate-docker-course.mjs` to validate content and checkpoint boundaries. Existing Windows Server/Azure banks and account data are preserved.
 
 ## Appearance and mobile navigation
 

@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { labSubmissions } from "@/db/schema";
 import { currentUser, signInRequired } from "@/lib/auth-server";
-import { serverLabs } from "@/lib/content/server-labs";
+import { learningLabs } from "@/lib/content/lab-registry";
 import { emptyServerLabState, gradeServerLab, parseServerLabState } from "@/lib/server-lab-state";
 
 type Context = { params: Promise<{ id: string }> };
@@ -12,7 +12,7 @@ export async function GET(_request: Request, context: Context) {
   if (auth.error) return auth.error;
   if (!auth.userId) return signInRequired();
   const { id } = await context.params;
-  const lab = serverLabs.find((item) => item.id === id);
+  const lab = learningLabs.find((item) => item.id === id);
   if (!lab) return NextResponse.json({ error: "Unknown Windows Server lab" }, { status: 404 });
   try {
     const [row] = await getDb().select().from(labSubmissions).where(and(eq(labSubmissions.id, `${auth.userId}:server-lab:${id}`), eq(labSubmissions.userId, auth.userId)));
@@ -30,7 +30,7 @@ export async function PUT(request: Request, context: Context) {
   if (auth.error) return auth.error;
   if (!auth.userId) return signInRequired();
   const { id } = await context.params;
-  const lab = serverLabs.find((item) => item.id === id);
+  const lab = learningLabs.find((item) => item.id === id);
   if (!lab) return NextResponse.json({ error: "Unknown Windows Server lab" }, { status: 404 });
   if (Number(request.headers.get("content-length")) > 40000) return NextResponse.json({ error: "Lab evidence is too large" }, { status: 413 });
   const payload = await request.json().catch(() => null) as { state?: unknown; evidenceUrl?: unknown } | null;
