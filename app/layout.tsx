@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./appearance.css";
+import "./server-labs.css";
 import { AppearanceProvider } from "@/app/components/appearance-provider";
 export const metadata: Metadata = { title: "CertPath · Learn. Practice. Progress.", description: "Your learning path for Windows Server AZ-802 and Azure Fundamentals AZ-900. Lessons, practice questions, hands-on labs, and spaced review.", icons: { icon: "/favicon.svg" } };
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

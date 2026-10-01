@@ -10,6 +10,14 @@ Mobile navigation has five touch-friendly entries: Home, Lessons, Exams, Search,
 
 ## Certification tracks
 
+### Windows Server assignment labs
+
+The Windows Server **Labs** workspace now includes seven sequential, original teaching adaptations of the supplied independent-server and Radhaus Kettenblatt assignments: lab foundation, eight fictional AD users, AGDLP/SMB/NTFS permissions, user GPOs, four-port firewall testing, Defender detection and event investigation. There are **33 build steps, 28 practical checklist tests, 15 lab-specific knowledge questions** and a **30-cell permission matrix**. These are learning exercises, not real certification questions.
+
+Each lab has step-specific Explain, Microsoft references, account-scoped server persistence, saved quiz position and workflow tab, evidence notes and optional evidence uploads. Knowledge answers are graded by the server. Practical outcomes are explicitly self-reported: the website does not inspect or certify the learner's VM. Completion requires the checklist, evidence and at least 80% on the knowledge check. The original two-server hardening lab remains available separately; AZ-900 is unchanged.
+
+Only disposable learner-owned VMs are in scope. Shared exercise passwords, EICAR bytes, original Classroom files and personal class metadata are not included. Dangerous optional source variations (disabling antivirus, clearing logs, forced shutdown and changing time) are not mandatory. Use unique lab passwords and preserve protection/evidence. Run the data/rubric checks with `node --experimental-strip-types scripts/validate-server-labs.mjs`.
+
 - **AZ-802** keeps the existing 300-question Windows Server learning, exam, graph, lab, search, and Leitner experience.
 - **AZ-900** adds 180 original Microsoft Learn-sourced questions across all 57 objectives in the July 20, 2026 blueprint, distributed 50/68/62 across the three official domains. It includes 11 lessons, 11 stages, four review modes, smart search, a course graph, three guided labs, translations, session resume, and Leitner review.
 - No Microsoft exam or Practice Assessment question is copied into the repository. Official Practice Assessment and Exam Sandbox experiences are linked separately.
