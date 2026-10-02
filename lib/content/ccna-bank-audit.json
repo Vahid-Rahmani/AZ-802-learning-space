@@ -9,12 +9,35 @@
   "combinedQuestions": 94,
   "exactStemDuplicates": 0,
   "semanticDuplicatesRemoved": [
-    { "sourceIndex": 8, "retainedQuestionId": "ccna-addr-q3", "reason": "Same IPv6 link-local unicast recognition task; existing stem corrected to distinguish multicast scope." },
-    { "sourceIndex": 61, "retainedQuestionId": "ccna-channel-q3", "reason": "Same task: STP treats a correctly formed EtherChannel as one logical port." }
+    {
+      "sourceIndex": 8,
+      "retainedQuestionId": "ccna-addr-q3",
+      "reason": "Same IPv6 link-local unicast recognition task; existing stem corrected to distinguish multicast scope."
+    },
+    {
+      "sourceIndex": 61,
+      "retainedQuestionId": "ccna-channel-q3",
+      "reason": "Same task: STP treats a correctly formed EtherChannel as one logical port."
+    }
   ],
-  "domainCounts": [13, 12, 12, 10, 8, 7],
-  "technicalReview": "Two assigned technical reviews, independent cross-review and duplicate review completed; changes recorded on each published item.",
+  "domainCounts": [
+    13,
+    12,
+    12,
+    10,
+    8,
+    7
+  ],
+  "technicalReview": "Two assigned technical reviews plus independent cross-review completed; changes recorded on each published item. Locally reintroduced candidates 8 and 61 were reviewed and removed only because they duplicate existing lab questions.",
   "sourcePolicy": "Question-specific official Cisco documentation, corrected standalone prompts, no live certification exam claim. Repository provenance review is bounded, not a guarantee of original authorship.",
+  "localUpdateReview": {
+    "reviewedAt": "2026-10-02",
+    "newLocalCandidates": 2,
+    "duplicateSourceIndicesRemoved": [8, 61],
+    "nonduplicateQuestionsDeleted": 0,
+    "publishedQuestionsPreserved": 62,
+    "notes": "Candidate 8 repeats IPv6 link-local unicast identification; the retained lab distinguishes link-local multicast. Candidate 61 repeats STP's logical EtherChannel treatment; the retained lab avoids an unconditional promise about STP recalculation after member failure."
+  },
   "otherRepositoryInventory": {
     "url": "https://github.com/Z-eq/cisco-ccna-examtest",
     "commit": "b1a2d3ec0b3439dd21265d6cffa0dbd5a90b73db",

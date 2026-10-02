@@ -13,9 +13,13 @@ const source = readFileSync(file, "utf8")
   .replace('from "./ccna"', `from ${JSON.stringify(pathToFileURL(fileURLToPath(new URL("../lib/content/ccna.ts", import.meta.url))).href)}`);
 const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
 const { ccnaBankQuestions: questions, ccnaPracticeUnits: units, ccnaQuestionCount } = await import(`data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`);
-assert.equal(ccnaQuestionCount, 62);
+const audit = JSON.parse(readFileSync(new URL("../lib/content/ccna-bank-audit.json", import.meta.url), "utf8"));
+const rawItems = JSON.parse(readFileSync(new URL("../lib/content/ccna-bank-reviewed.json", import.meta.url), "utf8"));
+assert.equal(new Set(rawItems.map((q) => q.sourceIndex)).size, rawItems.length, "Duplicate source index in stored bank");
+assert.equal(rawItems.filter((q) => q.reviewStatus === "published").length, ccnaQuestionCount);
+assert.equal(ccnaQuestionCount, audit.publishedNewQuestions);
 assert.equal(units.length, 6);
-assert.deepEqual(units.map((unit) => unit.questions.length), [13, 12, 12, 10, 8, 7]);
+assert.deepEqual(units.map((unit) => unit.questions.length), audit.domainCounts);
 const stems = new Set(), ids = new Set();
 const distribution = [0, 0, 0, 0];
 const normalize = (text) => text.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -37,8 +41,9 @@ for (const q of questions) {
   assert.ok(["core", "supporting"].includes(q.priority));
   distribution[q.correct]++;
 }
-assert.ok(!questions.some((q) => [8, 61].includes(q.sourceIndex)), "Semantic duplicates must be excluded");
-assert.equal(ids.size, 94);
+const removed = audit.semanticDuplicatesRemoved.map((entry) => entry.sourceIndex);
+assert.ok(!rawItems.some((q) => removed.includes(q.sourceIndex)), "Removed semantic duplicates must not remain hidden as drafts");
+assert.equal(ids.size, audit.combinedQuestions);
 for (const unit of units) {
   const blank = { ...emptyServerLabState(), activeTab: "quiz" };
   assert.deepEqual(parseServerLabState(blank, unit), blank);
@@ -64,7 +69,7 @@ for (const unit of units) {
 }
 const ipv6 = ccnaLabs.flatMap((lab) => lab.questions).find((q) => q.id === "ccna-addr-q3");
 assert.ok(ipv6.text.includes("unicast") && ipv6.explain.includes("link-local multicast"));
-console.log(JSON.stringify({ status: "ok", addedQuestions: questions.length, combinedQuestions: ids.size, domains: units.map((unit) => ({ domain: unit.title, count: unit.questions.length })), semanticDuplicatesRemoved: 2, answerDistribution: distribution }));
+console.log(JSON.stringify({ status: "ok", bankQuestions: questions.length, combinedQuestions: ids.size, domains: units.map((unit) => ({ domain: unit.title, count: unit.questions.length })), semanticDuplicatesRemoved: removed.length, answerDistribution: distribution }));
 
 // Optional integration tests create disposable users only in the named local preview.
 if (process.argv.includes("--local-http")) {
