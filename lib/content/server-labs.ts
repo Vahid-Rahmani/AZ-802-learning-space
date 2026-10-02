@@ -4,8 +4,8 @@
  */
 export type LabStep = { title: string; instruction: string; command?: string; explain: string };
 export type LabTest = { id: string; title: string; procedure: string; expected: string; points: number };
-export type LabQuestion = { id: string; text: string; options: string[]; correct: number; explain: string; source: string };
-export type ServerLab = { id: string; title: string; assignment: string; lessonId: string; minutes: string; goal: string; prerequisites: string[]; steps: LabStep[]; tests: LabTest[]; questions: LabQuestion[]; sources: { title: string; url: string }[] };
+export type LabQuestion = { id: string; text: string; options: string[]; correct: number; explain: string; source: string; objective?: string; whyOthers?: string[]; priority?: "core" | "supporting" };
+export type ServerLab = { id: string; kind?: "knowledge"; title: string; assignment: string; lessonId: string; minutes: string; goal: string; prerequisites: string[]; steps: LabStep[]; tests: LabTest[]; questions: LabQuestion[]; sources: { title: string; url: string }[]; topology?: { title: string; nodes: { title: string; detail: string }[]; note: string } };
 
 export const serverLabSources = {
   switch: "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/get-started/create-a-virtual-switch-for-hyper-v-virtual-machines",

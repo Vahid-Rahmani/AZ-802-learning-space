@@ -1,0 +1,27 @@
+{
+  "reviewedAt": "2026-10-02",
+  "blueprint": "CCNA 200-301 v1.1",
+  "importedRepository": "https://github.com/BlackSwanAust/ccna-lab-sim",
+  "importedCommit": "8d1bdc7a1d28cca1776737e8863f7a4f237b92df",
+  "candidatesReviewed": 64,
+  "publishedNewQuestions": 62,
+  "existingLabQuestions": 32,
+  "combinedQuestions": 94,
+  "exactStemDuplicates": 0,
+  "semanticDuplicatesRemoved": [
+    { "sourceIndex": 8, "retainedQuestionId": "ccna-addr-q3", "reason": "Same IPv6 link-local unicast recognition task; existing stem corrected to distinguish multicast scope." },
+    { "sourceIndex": 61, "retainedQuestionId": "ccna-channel-q3", "reason": "Same task: STP treats a correctly formed EtherChannel as one logical port." }
+  ],
+  "domainCounts": [13, 12, 12, 10, 8, 7],
+  "technicalReview": "Two assigned technical reviews, independent cross-review and duplicate review completed; changes recorded on each published item.",
+  "sourcePolicy": "Question-specific official Cisco documentation, corrected standalone prompts, no live certification exam claim. Repository provenance review is bounded, not a guarantee of original authorship.",
+  "otherRepositoryInventory": {
+    "url": "https://github.com/Z-eq/cisco-ccna-examtest",
+    "commit": "b1a2d3ec0b3439dd21265d6cffa0dbd5a90b73db",
+    "entries": 899,
+    "uniqueNormalizedStems": 722,
+    "duplicateEntries": 177,
+    "verbatimImported": 0,
+    "status": "Unresolved item-level provenance; no accusation of copying, and no unknown question text committed or published."
+  }
+}

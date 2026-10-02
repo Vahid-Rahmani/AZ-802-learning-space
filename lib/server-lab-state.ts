@@ -42,9 +42,11 @@ export function parseServerLabState(value: unknown, lab: ServerLab): ServerLabSt
 export function gradeServerLab(lab: ServerLab, state: ServerLabState) {
   const maximum = lab.tests.reduce((sum, test) => sum + test.points, 0);
   const earned = lab.tests.reduce((sum, test) => sum + (state.results[test.id]?.outcome === "pass" && state.results[test.id].note.trim().length >= 8 ? test.points : 0), 0);
-  const practicalPercent = Math.round(earned / maximum * 100);
+  const practicalPercent = maximum > 0 ? Math.round(earned / maximum * 100) : 0;
   const correct = lab.questions.filter((question) => state.answers[question.id] === question.correct).length;
   const quizPercent = state.quizSubmitted ? Math.round(correct / lab.questions.length * 100) : null;
-  const complete = practicalPercent === 100 && state.stepIds.length === lab.steps.length && quizPercent !== null && quizPercent >= 80 && state.evidenceText.trim().length >= 8;
+  const complete = lab.kind === "knowledge"
+    ? quizPercent !== null && quizPercent >= 80
+    : practicalPercent === 100 && state.stepIds.length === lab.steps.length && quizPercent !== null && quizPercent >= 80 && state.evidenceText.trim().length >= 8;
   return { practicalPercent, quizPercent, correct, complete };
 }

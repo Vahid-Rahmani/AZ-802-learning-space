@@ -1,0 +1,1490 @@
+[
+  {
+    "sourceIndex": 1,
+    "domain": 1,
+    "objective": "1.1.a",
+    "text": "Which OSI layer provides IP logical addressing and routing between networks?",
+    "options": [
+      "Data Link (Layer 2)",
+      "Network (Layer 3)",
+      "Transport (Layer 4)",
+      "Session (Layer 5)"
+    ],
+    "correct": 1,
+    "explain": "The Network layer uses IP addresses to identify networks and destinations so routers can forward packets between them.",
+    "whyOthers": [
+      "Layer 2 handles frames and local-link MAC addressing.",
+      "",
+      "Layer 4 handles end-to-end transport, such as TCP and UDP.",
+      "Layer 5 concerns sessions, rather than IP route selection."
+    ],
+    "source": "https://www.cisco.com/c/dam/en/us/products/collateral/switches/catalyst-2950-series-switches/prod_white_paper0900aecd8013313e.pdf",
+    "priority": "supporting",
+    "reviewStatus": "published",
+    "changes": "Scoped logical addressing to IP and marked OSI terminology as supporting router fundamentals."
+  },
+  {
+    "sourceIndex": 2,
+    "domain": 1,
+    "objective": "1.6",
+    "text": "In historical classful IPv4 addressing, what is the natural mask of a Class B network?",
+    "options": [
+      "255.0.0.0",
+      "255.255.0.0",
+      "255.255.255.0",
+      "255.255.255.255"
+    ],
+    "correct": 1,
+    "explain": "A historical Class B network reserves its first 16 bits for the network, giving mask 255.255.0.0 (/16). Modern CIDR uses an explicitly supplied prefix.",
+    "whyOthers": [
+      "/8 is the natural Class A mask.",
+      "",
+      "/24 is the natural Class C mask.",
+      "/32 identifies one address, not a natural Class B network."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/ip/routing-information-protocol-rip/13788-3.html",
+    "priority": "supporting",
+    "reviewStatus": "published",
+    "changes": "Added historical-classful context; class-based mask memorization is supporting, not a separate blueprint objective."
+  },
+  {
+    "sourceIndex": 3,
+    "domain": 1,
+    "objective": "1.6",
+    "text": "Divide 192.168.10.0/24 into equal-sized subnets. Which mask provides at least five subnets while maximizing usable hosts per subnet?",
+    "options": [
+      "/26 (255.255.255.192)",
+      "/27 (255.255.255.224)",
+      "/28 (255.255.255.240)",
+      "/29 (255.255.255.248)"
+    ],
+    "correct": 1,
+    "explain": "Borrowing three bits gives eight /27 subnets. Five host bits leave 30 usable addresses per ordinary LAN, the largest capacity that meets the subnet requirement.",
+    "whyOthers": [
+      "/26 gives only four subnets.",
+      "",
+      "/28 gives 16 subnets but only 14 usable hosts each.",
+      "/29 gives 32 subnets but only six usable hosts each."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/ip/routing-information-protocol-rip/13788-3.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Added equal-size and maximize-host constraints; original had three valid answers."
+  },
+  {
+    "sourceIndex": 4,
+    "domain": 1,
+    "objective": "1.5",
+    "text": "Which protocol establishes a connection using SYN, SYN-ACK, and ACK?",
+    "options": [
+      "UDP",
+      "TCP",
+      "ICMP",
+      "ARP"
+    ],
+    "correct": 1,
+    "explain": "TCP exchanges these three segments to synchronize sequence numbers and establish a connection before normal data transfer.",
+    "whyOthers": [
+      "UDP sends datagrams without this connection handshake.",
+      "",
+      "ICMP carries network control and diagnostic messages, rather than TCP connections.",
+      "ARP resolves an IPv4 neighbor's link-layer address; it has no SYN sequence."
+    ],
+    "source": "https://www.cisco.com/en/US/docs/ios-xml/ios/ipapp/configuration/15-1sy/iap-tcp.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Made the handshake sequence explicit."
+  },
+  {
+    "sourceIndex": 5,
+    "domain": 1,
+    "objective": "1.5",
+    "text": "With TCP options absent, which pair gives the TCP and UDP header sizes?",
+    "options": [
+      "TCP: 8 bytes, UDP: 20 bytes",
+      "TCP: 20 bytes, UDP: 8 bytes",
+      "Both have 20-byte headers",
+      "TCP: 32 bytes, UDP: 16 bytes"
+    ],
+    "correct": 1,
+    "explain": "A TCP header without options occupies 20 bytes; a UDP header occupies eight. Additional TCP options increase TCP overhead.",
+    "whyOthers": [
+      "The two values are reversed.",
+      "",
+      "UDP's header is eight bytes, not 20.",
+      "Neither value matches these option-free transport headers."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/wireless/technology/mesh/7-4/design/guide/mesh74.pdf",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Replaced ambiguous 'size difference' wording with explicit header-size comparison; removed unsupported faster-processing claim."
+  },
+  {
+    "sourceIndex": 6,
+    "domain": 1,
+    "objective": "1.9.a",
+    "text": "Which IPv6 unicast address type is intended for globally routable communication, analogous to public IPv4 addressing?",
+    "options": [
+      "Link-local",
+      "Unique local",
+      "Global unicast",
+      "Multicast"
+    ],
+    "correct": 2,
+    "explain": "Global unicast addresses support global routing. Their address type does not by itself guarantee that a particular host has Internet connectivity.",
+    "whyOthers": [
+      "Link-local communication stays on one link.",
+      "Unique local addresses are intended for limited-site communication.",
+      "",
+      "Multicast identifies a receiver group, rather than an individual globally addressed interface."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipv6/configuration/15-2mt/ip6-15-2mt-book/ip6-uni-routing.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Replaced loose 'equivalent' wording with routing scope; avoided claiming guaranteed Internet reachability."
+  },
+  {
+    "sourceIndex": 7,
+    "domain": 1,
+    "objective": "1.3.a",
+    "text": "With Auto-MDIX disabled, which copper Ethernet cable connects a conventional MDI router port to an MDI-X switch port?",
+    "options": [
+      "Crossover cable",
+      "Straight-through cable",
+      "Rollover cable",
+      "Coaxial cable"
+    ],
+    "correct": 1,
+    "explain": "These unlike Ethernet pin arrangements use a straight-through twisted-pair cable. Auto-MDIX could otherwise correct the cable arrangement automatically.",
+    "whyOthers": [
+      "Crossover is used when the two conventional port pin arrangements are alike.",
+      "",
+      "Rollover is associated with console access, not this Ethernet data connection.",
+      "Coaxial cable does not match these twisted-pair Ethernet ports."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3850/software/release/16-8/configuration_guide/int_and_hw/b_168_int_and_hw_3850_cg/b_168_int_and_hw_3850_cg_chapter_01.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Specified port roles, copper Ethernet and disabled Auto-MDIX to make the answer unique."
+  },
+  {
+    "sourceIndex": 9,
+    "domain": 1,
+    "objective": "1.2.c",
+    "text": "In a conventional two-tier spine-leaf fabric, which connectivity is required for each spine switch?",
+    "options": [
+      "A connection to every other spine",
+      "A connection to every leaf switch",
+      "Connections only to a separate core tier",
+      "A data-path connection only to a central controller"
+    ],
+    "correct": 1,
+    "explain": "Each leaf connects to every spine, so each spine has a link to every leaf. This creates multiple paths across the fabric.",
+    "whyOthers": [
+      "Spine-to-spine links are not the required spine-leaf connectivity.",
+      "",
+      "A separate core tier is not part of this two-tier fabric.",
+      "A controller connection cannot replace the fabric links carrying leaf traffic."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/switches/datacenter/nexus9000/hw/aci_hig/guide/b_aci_hardware_install_guide/b_aci_hardware_install_guide_chapter_011.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Scoped topology to a conventional two-tier fabric and clarified data-path requirement."
+  },
+  {
+    "sourceIndex": 10,
+    "domain": 1,
+    "objective": "1.1.h",
+    "text": "What is the primary purpose of Power over Ethernet (PoE)?",
+    "options": [
+      "Increase Ethernet link speed",
+      "Provide electrical power and data over one Ethernet cable",
+      "Convert fiber signals to copper",
+      "Add a wireless radio to a switch"
+    ],
+    "correct": 1,
+    "explain": "A PoE-capable switch powers a compatible device through the same copper Ethernet cable that carries its data, such as an AP or IP phone.",
+    "whyOthers": [
+      "PoE supplies power; it does not increase the negotiated Ethernet speed.",
+      "",
+      "Fiber-to-copper conversion is a media-converter function.",
+      "Powering an AP does not add a radio to the switch."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/switches/lan/c9000/infra/poe/poe-configuration-guide/g-poe/c-poe.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Answer verified; added question-specific distractor explanations."
+  },
+  {
+    "sourceIndex": 11,
+    "domain": 1,
+    "objective": "1.6",
+    "text": "A host has IPv4 address 172.20.45.67/20. What is its network address?",
+    "options": [
+      "172.20.32.0",
+      "172.20.0.0",
+      "172.20.45.0",
+      "172.20.40.0"
+    ],
+    "correct": 0,
+    "explain": "The /20 mask is 255.255.240.0. Third-octet blocks begin every 16; 45 falls in 32–47, giving 172.20.32.0.",
+    "whyOthers": [
+      "",
+      "172.20.0.0 starts a different /20 block.",
+      "45 is not a /20 boundary; this resembles /24 reasoning.",
+      "40 is not a multiple-of-16 /20 boundary."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/ip/routing-information-protocol-rip/13788-3.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Answer verified; added question-specific distractor explanations."
+  },
+  {
+    "sourceIndex": 12,
+    "domain": 1,
+    "objective": "1.13.b",
+    "text": "For ordinary Layer 2 unicast frame switching within a VLAN, which address is looked up to select the outgoing port?",
+    "options": [
+      "Destination IP address",
+      "Destination MAC address",
+      "TCP destination port number",
+      "VLAN ID alone"
+    ],
+    "correct": 1,
+    "explain": "The switch looks up the destination MAC in that VLAN's MAC table. It learns the source MAC from incoming frames.",
+    "whyOthers": [
+      "Destination IP is used for Layer 3 forwarding.",
+      "",
+      "TCP ports identify transport applications, not the learned Ethernet destination.",
+      "The VLAN limits the forwarding domain, but alone does not identify the destination port."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst2960/software/release/15-2_2_e/configuration/guide/b_1522e_2960_2960c_2960s_2960sf_2960p_cg/b_1522e_2960_2960c_2960s_2960sf_2960p_cg_chapter_011.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Restricted question to Layer 2 unicast; clarified destination-address lookup and VLAN-table scope."
+  },
+  {
+    "sourceIndex": 13,
+    "domain": 2,
+    "objective": "2.1.a",
+    "text": "VLAN 10 exists and a Cisco IOS interface is already in access mode. Which interface command assigns its data VLAN to VLAN 10?",
+    "options": [
+      "vlan 10",
+      "switchport access vlan 10",
+      "switchport vlan 10",
+      "set vlan 10"
+    ],
+    "correct": 1,
+    "explain": "switchport access vlan 10 selects VLAN 10 for the configured access interface. Verify both the VLAN's existence and the port's access mode.",
+    "whyOthers": [
+      "vlan 10 is a global VLAN-configuration command, not this interface assignment.",
+      "",
+      "switchport vlan 10 is not the IOS access-VLAN syntax.",
+      "set vlan 10 is not this IOS interface command."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst2960xr/software/15-2_2_e/layer2/command_reference/b_Layer2_3_1522e_2960xr_cr/b_Layer2_3_1522e_2960xr_cr_chapter_010.pdf",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Added existing VLAN and access-mode prerequisites; removed platform-dependent automatic VLAN creation claim."
+  },
+  {
+    "sourceIndex": 14,
+    "domain": 2,
+    "objective": "2.2.c",
+    "text": "On an otherwise default Cisco Catalyst IEEE 802.1Q trunk, which VLAN is the native VLAN?",
+    "options": [
+      "VLAN 0",
+      "VLAN 1",
+      "VLAN 100",
+      "VLAN 1002"
+    ],
+    "correct": 1,
+    "explain": "The default native VLAN is VLAN 1. The native VLAN can be changed, and both trunk ends should agree.",
+    "whyOthers": [
+      "VLAN 0 is not a configurable native VLAN; ID 0 has a priority-tagging role.",
+      "",
+      "VLAN 100 could be configured manually, but is not the default.",
+      "VLAN 1002 is a legacy default VLAN ID, not the default native VLAN."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/switches/lan/c9000/lyr2-fwd/vlan/vlan-configuration-guide/configure-vlan-trunks.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Specified default Catalyst 802.1Q context; avoided absolute untagged-frame claim when native tagging is configurable."
+  },
+  {
+    "sourceIndex": 15,
+    "domain": 2,
+    "objective": "2.5.c",
+    "text": "A host-facing port comes up with PortFast enabled. Which spanning-tree state does it enter immediately?",
+    "options": [
+      "Listening",
+      "Learning",
+      "Forwarding",
+      "Blocking"
+    ],
+    "correct": 2,
+    "explain": "PortFast takes the host-facing port directly to forwarding, avoiding the normal listening and learning delay. It does not disable spanning tree.",
+    "whyOthers": [
+      "Listening is one of the traditional delay phases skipped.",
+      "Learning is also skipped during this immediate transition.",
+      "",
+      "Blocking does not pass normal user traffic and is not the intended immediate state."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/lan-switching/spanning-tree-protocol/10586-65.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Rephrased misleading 'skip to' wording; avoided claim that PortFast can never be used on an endpoint trunk."
+  },
+  {
+    "sourceIndex": 16,
+    "domain": 2,
+    "objective": "2.5.b",
+    "text": "In Rapid PVST+, which port role offers an alternative path to the root bridge if the current root port fails?",
+    "options": [
+      "Backup port",
+      "Alternate port",
+      "Edge port",
+      "Secondary port"
+    ],
+    "correct": 1,
+    "explain": "An alternate port offers another path toward the root bridge. A backup port instead backs up a designated port on the same segment.",
+    "whyOthers": [
+      "Backup refers to redundant access to the same segment, not this alternative root path.",
+      "",
+      "Edge describes an endpoint-facing port; it is not the alternative root-path role.",
+      "Secondary port is not an RSTP port role."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/lan-switching/spanning-tree-protocol/24062-146.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Replaced incorrect claim that only alternate replaces all classic non-designated ports; RSTP distinguishes alternate and backup."
+  },
+  {
+    "sourceIndex": 17,
+    "domain": 2,
+    "objective": "2.5",
+    "text": "How does spanning tree maintain a loop-free forwarding topology when redundant Layer 2 paths exist?",
+    "options": [
+      "Drops all traffic throughout the VLAN",
+      "Keeps selected redundant ports non-forwarding",
+      "Shuts down every switch",
+      "Creates a separate VLAN for looping traffic"
+    ],
+    "correct": 1,
+    "explain": "Spanning tree excludes redundant ports from the active forwarding tree, using blocking/discarding states while preserving alternate paths for reconvergence.",
+    "whyOthers": [
+      "Valid forwarding paths continue carrying traffic.",
+      "",
+      "Switches remain operational; selected port states change.",
+      "Spanning tree computes a topology; it does not create a VLAN to contain loops."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/lan-switching/spanning-tree-protocol/10586-65.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Replaced reactive loop-detection premise with spanning-tree prevention and added RSTP discarding terminology."
+  },
+  {
+    "sourceIndex": 18,
+    "domain": 2,
+    "objective": "2.4",
+    "text": "Which negotiation protocol can form a link aggregation between a Cisco switch and a non-Cisco switch that supports the same standard?",
+    "options": [
+      "PAgP",
+      "LACP",
+      "VTP",
+      "DTP"
+    ],
+    "correct": 1,
+    "explain": "LACP provides standards-based aggregation negotiation. Both devices must support LACP and have compatible member-link settings.",
+    "whyOthers": [
+      "PAgP is Cisco's proprietary aggregation protocol.",
+      "",
+      "VTP distributes VLAN information, rather than negotiating aggregation.",
+      "DTP negotiates trunking, rather than link aggregation."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3750/software/release/12-2_25_sea/configuration/guide/3750scg/swethchl.pdf",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Replaced ambiguous four-switch channel scenario with a supported two-switch aggregation."
+  },
+  {
+    "sourceIndex": 19,
+    "domain": 2,
+    "objective": "2.4",
+    "text": "For a manually configured IOS EtherChannel without LACP or PAgP negotiation, which channel-group mode is required at both ends?",
+    "options": [
+      "active",
+      "passive",
+      "desirable",
+      "on"
+    ],
+    "correct": 3,
+    "explain": "Mode on forces manual channel membership without negotiation. Both ends require compatible manual configuration; mismatches can cause forwarding problems.",
+    "whyOthers": [
+      "active initiates LACP negotiation.",
+      "passive responds to LACP negotiation.",
+      "desirable initiates PAgP negotiation.",
+      ""
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3750/software/release/12-2_25_sea/configuration/guide/3750scg/swethchl.pdf",
+    "priority": "supporting",
+    "reviewStatus": "published",
+    "changes": "Marked manual EtherChannel as supporting the blueprint's LACP objective; removed blanket statement that every mismatch simply fails."
+  },
+  {
+    "sourceIndex": 20,
+    "domain": 2,
+    "objective": "2.5.d",
+    "text": "BPDU Guard is enabled on a PortFast host-facing port. What happens if that port receives a BPDU?",
+    "options": [
+      "The BPDU is ignored and traffic continues",
+      "The BPDU is processed with no protective action",
+      "The port enters the err-disabled state",
+      "The port is automatically converted to a trunk"
+    ],
+    "correct": 2,
+    "explain": "Receiving a BPDU triggers BPDU Guard to error-disable the port. Re-enabling it requires recovery configuration or an operator after resolving the cause.",
+    "whyOthers": [
+      "Ignoring BPDUs describes filtering behavior, not this guard action.",
+      "The configured guard enforces the endpoint-port assumption by disabling the port.",
+      "",
+      "BPDU Guard does not change the port's VLAN trunk mode."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/lan-switching/spanning-tree-protocol/10586-65.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Explicitly required BPDU Guard to be enabled; distinguished guard from filtering."
+  },
+  {
+    "sourceIndex": 21,
+    "domain": 2,
+    "objective": "2.6",
+    "text": "Which AP mode supports forwarding WLAN client data onto the AP's local LAN when that WLAN is configured for local switching?",
+    "options": [
+      "Local mode",
+      "FlexConnect mode",
+      "Monitor mode",
+      "Sniffer mode"
+    ],
+    "correct": 1,
+    "explain": "FlexConnect can locally switch client data when the WLAN is configured accordingly. It can also use central switching; the mode alone does not force local data forwarding.",
+    "whyOthers": [
+      "Local-mode APs tunnel client data to the controller.",
+      "",
+      "Monitor mode dedicates radios to monitoring, not normal client service.",
+      "Sniffer mode captures wireless traffic for analysis, not local client forwarding."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/wireless/controller/8-5/config-guide/b_cg85/managing_aps.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Added WLAN local-switching condition and removed unconditional controller-outage survival claim."
+  },
+  {
+    "sourceIndex": 22,
+    "domain": 2,
+    "objective": "2.5.d",
+    "text": "What does Root Guard enforce on a designated switch port?",
+    "options": [
+      "The port must not become a root port",
+      "The port must never receive any BPDU",
+      "The local switch must never be elected root bridge",
+      "All trunk loops are automatically prevented"
+    ],
+    "correct": 0,
+    "explain": "A superior BPDU causes Root Guard to put the port into root-inconsistent state, preventing it from becoming the path toward a new root.",
+    "whyOthers": [
+      "",
+      "Root Guard receives and evaluates BPDUs; it reacts to superior ones.",
+      "It protects the intended root placement, rather than forbidding the local switch's root election.",
+      "Root Guard addresses root placement, not every cause of a Layer 2 loop."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/lan-switching/spanning-tree-protocol/10588-74.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Clarified designated-port enforcement and limited the loop-prevention distractor."
+  },
+  {
+    "sourceIndex": 23,
+    "domain": 3,
+    "objective": "3.1.e",
+    "text": "What is the default administrative distance of an OSPF route on Cisco IOS?",
+    "options": [
+      "90",
+      "100",
+      "110",
+      "120"
+    ],
+    "correct": 2,
+    "explain": "IOS assigns OSPF a default distance of 110 when comparing route sources for the same prefix. An administrator can change the default.",
+    "whyOthers": [
+      "90 is the default for internal EIGRP.",
+      "100 is associated with historical IGRP.",
+      "",
+      "120 is RIP's default distance."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/ip/enhanced-interior-gateway-routing-protocol-eigrp/8651-21.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Added default and IOS scope; avoided implying administrative distance is immutable."
+  },
+  {
+    "sourceIndex": 24,
+    "domain": 3,
+    "objective": "3.4",
+    "text": "In IOS OSPF router configuration mode, which network statement matches interface addresses in 10.0.0.0/24 and places those interfaces in area 0?",
+    "options": [
+      "network 10.0.0.0 255.255.255.0 area 0",
+      "network 10.0.0.0 0.0.0.255 area 0",
+      "advertise 10.0.0.0/24 area 0",
+      "ospf network 10.0.0.0 area 0"
+    ],
+    "correct": 1,
+    "explain": "The wildcard 0.0.0.255 fixes the first 24 address bits and ignores the last eight, selecting matching interfaces for area 0.",
+    "whyOthers": [
+      "255.255.255.0 is the subnet mask, not the required /24 wildcard match.",
+      "",
+      "advertise is not this IOS OSPF configuration syntax.",
+      "ospf network is not the router-mode network-statement syntax."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/iproute_ospf/configuration/15-mt/iro-15-mt-book/iro-cfg.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Replaced misleading arbitrary advertisement wording with interface address matching."
+  },
+  {
+    "sourceIndex": 25,
+    "domain": 3,
+    "objective": "3.4.a",
+    "text": "On an otherwise compatible OSPFv2 link, which difference does not prevent the routers from becoming neighbors?",
+    "options": [
+      "Mismatched hello intervals",
+      "Mismatched area IDs",
+      "Different unique router IDs",
+      "Mismatched dead intervals"
+    ],
+    "correct": 2,
+    "explain": "Neighbors need unique router IDs, so different IDs are expected. The hello/dead intervals and area on this link must agree.",
+    "whyOthers": [
+      "Hello intervals must match.",
+      "Area IDs must match on the shared link.",
+      "",
+      "Dead intervals must match."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/cloud-systems-management/application-policy-infrastructure-controller-apic/221994-troubleshoot-aci-ospf-adjacencies.pdf",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Specified otherwise-compatible link and uniqueness of differing router IDs."
+  },
+  {
+    "sourceIndex": 26,
+    "domain": 3,
+    "objective": "3.1.f",
+    "text": "Which metric does OSPF use to select its lowest-metric path?",
+    "options": [
+      "Hop count",
+      "Accumulated OSPF interface cost",
+      "Delay alone",
+      "An EIGRP-style bandwidth-and-delay composite"
+    ],
+    "correct": 1,
+    "explain": "OSPF compares summed interface costs along paths. IOS can derive an interface cost from reference bandwidth and interface bandwidth or accept an explicitly configured cost.",
+    "whyOthers": [
+      "Hop count is not OSPF's route metric.",
+      "",
+      "Delay alone is not the OSPF cost calculation.",
+      "The bandwidth-and-delay composite is associated with EIGRP, not OSPF."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/iproute_ospf/configuration/15-mt/iro-15-mt-book/iro-cfg.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Corrected metric name to cost, accounted for summed path cost and manual cost overrides."
+  },
+  {
+    "sourceIndex": 27,
+    "domain": 3,
+    "objective": "3.3.d",
+    "text": "The primary route to 10.1.1.0/24 is learned through OSPF with distance 110. Which IOS command configures a floating backup via reachable next hop 192.168.1.1?",
+    "options": [
+      "ip route 10.1.1.0 255.255.255.0 192.168.1.1",
+      "ip route 10.1.1.0 255.255.255.0 192.168.1.1 200",
+      "ip route 10.1.1.0 255.255.255.0 192.168.1.1 floating",
+      "ip route 10.1.1.0 0.0.0.255 192.168.1.1 200"
+    ],
+    "correct": 1,
+    "explain": "Distance 200 is less preferred than OSPF's 110 for the same /24, so the static route can be used when the primary disappears.",
+    "whyOthers": [
+      "Without a distance, the static route defaults to 1 and displaces OSPF.",
+      "",
+      "floating is not an IOS ip route keyword.",
+      "ip route requires a subnet mask; 0.0.0.255 is a wildcard mask."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/ip/enhanced-interior-gateway-routing-protocol-eigrp/8651-21.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Specified primary OSPF distance and reachable next hop; floating status is relative to a primary."
+  },
+  {
+    "sourceIndex": 28,
+    "domain": 3,
+    "objective": "3.1.a",
+    "text": "In Cisco IOS show ip route output, which route source does code D identify?",
+    "options": [
+      "Directly connected",
+      "Default route",
+      "EIGRP",
+      "Any dynamic routing protocol"
+    ],
+    "correct": 2,
+    "explain": "D identifies an EIGRP route. Interpreting the code reveals the route source, rather than whether it is simply dynamic or a default.",
+    "whyOthers": [
+      "Directly connected routes use C.",
+      "A candidate default is marked with an asterisk, not D.",
+      "",
+      "Other dynamic protocols have their own codes, such as O for OSPF."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/ip/enhanced-interior-gateway-routing-protocol-eigrp/8651-21.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Scoped code to Cisco IOS routing-table output."
+  },
+  {
+    "sourceIndex": 29,
+    "domain": 3,
+    "objective": "3.2.a",
+    "text": "A packet's destination matches several installed IPv4 routes with different prefix lengths. Which rule selects the forwarding route?",
+    "options": [
+      "Lowest metric across all matching routes",
+      "Lowest administrative distance across all matching routes",
+      "Longest matching prefix",
+      "Oldest installed route"
+    ],
+    "correct": 2,
+    "explain": "Forwarding selects the most specific installed matching prefix. Administrative distance and protocol metrics affect route installation, not precedence over a longer match.",
+    "whyOthers": [
+      "A lower metric cannot make a shorter installed prefix win.",
+      "Distance compares competing sources for a prefix before forwarding lookup.",
+      "",
+      "Route age does not replace prefix specificity."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/ip/enhanced-interior-gateway-routing-protocol-eigrp/8651-21.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Separated packet forwarding from routing-table construction; removed misleading AD-then-metric lookup recipe."
+  },
+  {
+    "sourceIndex": 30,
+    "domain": 3,
+    "objective": "3.3.a",
+    "text": "What purpose does an installed IPv4 default route, 0.0.0.0/0, serve?",
+    "options": [
+      "Blocks all traffic",
+      "Always selects the physically nearest router",
+      "Provides a path when no more specific route matches",
+      "Automatically advertises every route to neighbors"
+    ],
+    "correct": 2,
+    "explain": "A /0 matches every IPv4 destination, but any matching longer prefix takes precedence. It supplies the gateway of last resort.",
+    "whyOthers": [
+      "A default route is forwarding information, not a blanket deny rule.",
+      "The configured next hop need not be physically nearest.",
+      "",
+      "Installing a default route does not itself advertise routes."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/ip/enhanced-interior-gateway-routing-protocol-eigrp/8651-21.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Added installed-route context and precise more-specific-match condition."
+  },
+  {
+    "sourceIndex": 31,
+    "domain": 3,
+    "objective": "3.5",
+    "text": "What is the principal purpose of a first-hop redundancy protocol?",
+    "options": [
+      "Encrypt first-hop packets",
+      "Provide a redundant default gateway for hosts",
+      "Balance traffic over arbitrary WAN circuits",
+      "Form authenticated OSPF neighbor adjacencies"
+    ],
+    "correct": 1,
+    "explain": "FHRPs present a virtual gateway backed by multiple routers, allowing another router to take over gateway service after a failure.",
+    "whyOthers": [
+      "Gateway redundancy does not itself encrypt packets.",
+      "",
+      "Some FHRPs share gateway load, but arbitrary WAN balancing is not their primary purpose.",
+      "OSPF adjacency and FHRP gateway roles are separate functions."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipapp_fhrp/configuration/xe-16/fhp-xe-16-book/fhp-hsrp.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Avoided applying HSRP active/standby details to every FHRP and acknowledged gateway load sharing."
+  },
+  {
+    "sourceIndex": 32,
+    "domain": 3,
+    "objective": "3.4.c",
+    "text": "Which listed OSPFv2 network type elects a designated router and backup designated router?",
+    "options": [
+      "Point-to-point",
+      "Broadcast",
+      "Point-to-multipoint",
+      "Loopback"
+    ],
+    "correct": 1,
+    "explain": "OSPF broadcast networks use DR/BDR elections to coordinate multiaccess adjacency. Nonbroadcast multiaccess also uses elections, but is not one of these options.",
+    "whyOthers": [
+      "Point-to-point operation has no DR/BDR election.",
+      "",
+      "Point-to-multipoint operation has no DR/BDR election.",
+      "A loopback does not create a multiaccess OSPF segment with a DR/BDR election."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/iproute_ospf/configuration/15-mt/iro-15-mt-book/iro-cfg.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Added 'listed' so broadcast is not presented as the only OSPF type with elections."
+  },
+  {
+    "sourceIndex": 33,
+    "domain": 4,
+    "objective": "4.1",
+    "text": "Which inside source NAT method creates a configured one-to-one mapping between an inside local IPv4 address and an inside global IPv4 address?",
+    "options": [
+      "Dynamic NAT",
+      "Static NAT",
+      "PAT (NAT overload)",
+      "NAT64"
+    ],
+    "correct": 1,
+    "explain": "Static NAT fixes the address pair in configuration. Unlike a dynamic pool allocation, the mapping does not have to be created by the first outbound packet.",
+    "whyOthers": [
+      "Dynamic NAT allocates a global address from a pool as traffic requires it.",
+      "",
+      "PAT distinguishes multiple flows sharing a global address; it is not a fixed one-to-one address mapping.",
+      "NAT64 translates between IPv6 and IPv4 rather than performing this IPv4-to-IPv4 mapping."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/ip/network-address-translation-nat/13772-12.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Used precise inside-local/inside-global terminology instead of implying that all NAT mappings must be private-to-public."
+  },
+  {
+    "sourceIndex": 34,
+    "domain": 4,
+    "objective": "4.1",
+    "text": "Fourteen IPv4 hosts need concurrent outbound TCP connections, but only six inside global IPv4 addresses are available. Which NAT method lets them share those addresses?",
+    "options": [
+      "Static one-to-one NAT",
+      "Dynamic NAT without overload",
+      "PAT (NAT overload)",
+      "One-to-one NAT with a six-address pool"
+    ],
+    "correct": 2,
+    "explain": "PAT adds transport-layer identifiers to its translations, so several hosts can share an inside global address. A pool with overload can therefore serve more hosts than it has addresses.",
+    "whyOthers": [
+      "A separate one-to-one mapping needs a global address for each simultaneously translated host.",
+      "Without overload, each active host consumes one pool address, limiting this pool to six hosts.",
+      "",
+      "A six-address one-to-one pool still has only six simultaneous host mappings."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/ip/network-address-translation-nat/13772-12.html",
+    "priority": "supporting",
+    "reviewStatus": "published",
+    "changes": "Specified TCP connections and non-overloaded distractors; PAT is supporting detail of inside source NAT."
+  },
+  {
+    "sourceIndex": 35,
+    "domain": 4,
+    "objective": "4.2",
+    "text": "Which transport protocol and server port does NTP use?",
+    "options": [
+      "TCP 123",
+      "UDP 123",
+      "TCP 161",
+      "UDP 161"
+    ],
+    "correct": 1,
+    "explain": "NTP exchanges time information using UDP port 123. Devices use those exchanges to synchronize their clocks with configured time sources.",
+    "whyOthers": [
+      "The port number is associated with NTP, but NTP uses UDP rather than TCP.",
+      "",
+      "TCP 161 is neither the NTP transport nor its server port.",
+      "UDP 161 is associated with SNMP requests, not NTP synchronization."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/availability/high-availability/19643-ntpm.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Verified answer; added question-specific explanation and individual distractor rationales."
+  },
+  {
+    "sourceIndex": 36,
+    "domain": 4,
+    "objective": "4.5",
+    "text": "Which syslog severity number represents an emergency?",
+    "options": [
+      "0",
+      "1",
+      "4",
+      "7"
+    ],
+    "correct": 0,
+    "explain": "Severity 0 is emergency, the most severe syslog category. Syslog severity becomes less severe as the number increases toward 7.",
+    "whyOthers": [
+      "",
+      "Severity 1 is alert, one level below emergency.",
+      "Severity 4 is warning.",
+      "Severity 7 is debugging, the least severe category."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/routers/access/wireless/software/guide/SysMsgLogging.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Verified answer; added question-specific explanation and individual distractor rationales."
+  },
+  {
+    "sourceIndex": 37,
+    "domain": 4,
+    "objective": "4.5",
+    "text": "A Cisco IOS device has remote syslog logging enabled and a server configured. What severity threshold does logging trap debugging set?",
+    "options": [
+      "Send only level 7 messages",
+      "Permit messages at all severity levels, 0 through 7",
+      "Disable debug logging",
+      "Send SNMP trap messages instead of syslog"
+    ],
+    "correct": 1,
+    "explain": "The logging trap level is a maximum severity number for remote syslog. Debugging is level 7, so messages at levels 0 through 7 qualify; the command does not itself generate debugging messages.",
+    "whyOthers": [
+      "The threshold includes messages with lower numbers, not only level 7.",
+      "",
+      "Setting a threshold does not disable logging or debug generation.",
+      "The word trap here belongs to syslog configuration; it does not turn messages into SNMP traps."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/routers/access/wireless/software/guide/SysMsgLogging.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Expanded debug to full debugging keyword; specified configured syslog and separated eligibility from message generation."
+  },
+  {
+    "sourceIndex": 38,
+    "domain": 4,
+    "objective": "4.7",
+    "text": "Which QoS marking is carried in the Layer 3 IP header?",
+    "options": [
+      "802.1Q CoS",
+      "DSCP",
+      "802.1p priority",
+      "Weighted Fair Queuing"
+    ],
+    "correct": 1,
+    "explain": "DSCP is a six-bit marking in the IP header. A network device can use that marking when choosing the packet's forwarding treatment.",
+    "whyOthers": [
+      "CoS is a three-bit Layer 2 priority marking in an 802.1Q tag.",
+      "",
+      "802.1p priority refers to Layer 2 frame priority, not an IP-header field.",
+      "Weighted Fair Queuing schedules queued traffic; it is not an IP-header marking."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/quality-of-service-qos/qos-packet-marking/10103-dscpvalues.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Used precise IP-header DSCP description rather than treating all ToS bits as DSCP."
+  },
+  {
+    "sourceIndex": 39,
+    "domain": 4,
+    "objective": "4.6",
+    "text": "What does a DHCP relay do for clients whose DHCP server is on another subnet?",
+    "options": [
+      "Allocate addresses from its own lease pool",
+      "Relay client DHCP messages to the remote server",
+      "Encrypt DHCP messages",
+      "Replace the server with a local lease cache"
+    ],
+    "correct": 1,
+    "explain": "The relay carries DHCP requests across the routed boundary to the server and relays replies to clients. It supplies relay information, including giaddr, so the server can select the client subnet's pool.",
+    "whyOthers": [
+      "The DHCP server selects and leases addresses; the relay's forwarding role does not require a local pool.",
+      "",
+      "DHCP relay does not add encryption to DHCP.",
+      "The remote server remains responsible for leases; a cache does not replace it."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipaddr_dhcp/configuration/15-s/dhcp-15-s-book/dhcp-relay-agent.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Clarified bidirectional relay and server responsibility."
+  },
+  {
+    "sourceIndex": 40,
+    "domain": 5,
+    "objective": "5.6",
+    "text": "For Cisco IOS IPv4 packet filtering, which ACL type matches only the packet's source IPv4 address?",
+    "options": [
+      "Extended IPv4 ACL",
+      "Standard IPv4 ACL",
+      "A named extended IPv4 ACL",
+      "A reflexive ACL"
+    ],
+    "correct": 1,
+    "explain": "A standard IPv4 ACL permits or denies traffic using the source IPv4 address. An ACL's name or number does not change which fields its type can match.",
+    "whyOthers": [
+      "An extended ACL can also match destination addresses, protocols, and appropriate ports.",
+      "",
+      "Naming an extended ACL does not restrict it to source-address matching.",
+      "Reflexive ACLs create temporary session-based entries rather than providing simple source-only matching."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/security/ios-firewall/23602-confaccesslists.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Replaced ambiguous Named ACL distractor: named ACLs can themselves be standard."
+  },
+  {
+    "sourceIndex": 41,
+    "domain": 5,
+    "objective": "5.6",
+    "text": "A source subnet must be blocked from one destination LAN but allowed to reach other LANs. With a standard IPv4 ACL, which placement best avoids blocking its traffic to the other LANs?",
+    "options": [
+      "Near the source, before traffic paths diverge",
+      "On the interface leading to the restricted destination LAN",
+      "On every core-router interface",
+      "Only on a firewall, because routers cannot apply ACLs"
+    ],
+    "correct": 1,
+    "explain": "A standard ACL cannot match the destination address. Applying it on the path dedicated to the restricted destination limits its source-based denial to that LAN and leaves other destination paths available.",
+    "whyOthers": [
+      "Before the paths diverge, the same source-only deny would also catch traffic intended for permitted LANs.",
+      "",
+      "Repeating the deny on every core interface can block the source's permitted traffic too.",
+      "Cisco IOS routers can apply IPv4 ACLs to interfaces."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/sec_data_acl/configuration/15-sy/sec-data-acl-15-sy-book/sec-create-ip-apply.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Turned a blanket placement rule into a concrete topology/policy decision; placement rationale follows source-only matching."
+  },
+  {
+    "sourceIndex": 42,
+    "domain": 5,
+    "objective": "5.7",
+    "text": "Which Cisco switch port-security violation mode drops unauthorized-source traffic, increments the violation counter, and can notify through syslog/SNMP while keeping the port enabled?",
+    "options": [
+      "Shutdown",
+      "Protect",
+      "Restrict",
+      "Err-disable"
+    ],
+    "correct": 2,
+    "explain": "Restrict drops frames that violate the secure-MAC policy and records the violation, while the interface remains usable by authorized MAC addresses. This combines traffic blocking with notification without disabling the whole port.",
+    "whyOthers": [
+      "Shutdown places the interface in the error-disabled state after a violation.",
+      "Protect drops violating traffic without the restrict mode's counter and notification behavior.",
+      "",
+      "Err-disable is an interface state, not a selectable port-security violation mode."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst2960/software/release/15-0_2_se/configuration/guide/scg2960/swtrafc.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Used notification capability wording; distinguished a state from a violation mode."
+  },
+  {
+    "sourceIndex": 43,
+    "domain": 4,
+    "objective": "4.8",
+    "text": "Which protocol provides an encrypted remote command-line session to a Cisco router?",
+    "options": [
+      "Telnet",
+      "SSH",
+      "HTTP",
+      "SNMP"
+    ],
+    "correct": 1,
+    "explain": "SSH encrypts the remote management session, including credentials and command traffic. A Cisco router can restrict VTY access to SSH with transport input ssh.",
+    "whyOthers": [
+      "Telnet carries the ordinary management session in cleartext.",
+      "",
+      "HTTP serves web requests and does not provide this encrypted remote CLI session.",
+      "SNMP exchanges management objects and notifications rather than providing an interactive CLI."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/security-vpn/secure-shell-ssh/4145-ssh.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Corrected domain from Security Fundamentals to IP Services, matching explicit objective 4.8."
+  },
+  {
+    "sourceIndex": 44,
+    "domain": 5,
+    "objective": "5.8",
+    "text": "What does AAA stand for in network access control?",
+    "options": [
+      "Access, Audit, Authorization",
+      "Authentication, Authorization, Accounting",
+      "Authentication, Access, Auditing",
+      "Authorization, Authentication, Accessibility"
+    ],
+    "correct": 1,
+    "explain": "AAA means authentication, authorization, and accounting: verify identity, determine permitted actions, and record activity. Those functions answer different access-control questions.",
+    "whyOthers": [
+      "Access and audit are related ideas, but they are not the first and third terms in AAA.",
+      "",
+      "This substitutes access and auditing for the defined authorization and accounting terms.",
+      "Accessibility is not the accounting function, and the standard expansion starts with authentication."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/security/a1/sec-a1-cr-book/sec-cr-a1.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Verified answer; added question-specific explanation and individual distractor rationales."
+  },
+  {
+    "sourceIndex": 45,
+    "domain": 5,
+    "objective": "5.7",
+    "text": "Which switch feature blocks DHCP server messages arriving on untrusted client-facing ports when enabled for the VLAN?",
+    "options": [
+      "Port security",
+      "DHCP snooping",
+      "Dynamic ARP Inspection",
+      "Root Guard"
+    ],
+    "correct": 1,
+    "explain": "DHCP snooping applies a trust boundary to DHCP traffic. Server messages such as offers and acknowledgments must arrive through trusted Layer 2 ports; this limits rogue servers attached to untrusted ports.",
+    "whyOthers": [
+      "Port security limits allowed source MAC addresses; it does not distinguish DHCP server messages by trust.",
+      "",
+      "Dynamic ARP Inspection validates ARP traffic, often using snooping bindings; it does not provide the DHCP trust boundary.",
+      "Root Guard controls spanning-tree root selection, not DHCP responses."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/switches/catalyst-9600-series-switches/226185-understanding-dhcp-snooping-for-packets.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Scoped protection to enabled VLANs and untrusted Layer 2 ports; removed overbroad claim that every untrusted message must be a client message."
+  },
+  {
+    "sourceIndex": 46,
+    "domain": 5,
+    "objective": "5.9",
+    "text": "Which setting provides WPA2 Personal encryption using AES-CCMP?",
+    "options": [
+      "WEP",
+      "WPA with TKIP",
+      "WPA2 with AES",
+      "Open authentication without encryption"
+    ],
+    "correct": 2,
+    "explain": "WPA2 with AES selects CCMP protection for wireless data. WPA3 is also part of the CCNA v1.1 objectives, so WPA2 should not be described as the strongest wireless security protocol in general.",
+    "whyOthers": [
+      "WEP uses an obsolete RC4-based protection scheme rather than WPA2 AES-CCMP.",
+      "WPA with TKIP uses TKIP rather than the specified CCMP protection.",
+      "",
+      "An unencrypted open WLAN does not protect data using AES-CCMP."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/wireless-mobility/wireless-lan-wlan/116599-config-wpa-psk-00.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Replaced invalid strongest-protection claim; explicitly removed claim that WPA3 is outside CCNA scope."
+  },
+  {
+    "sourceIndex": 47,
+    "domain": 2,
+    "objective": "2.8",
+    "text": "For TACACS+ with its shared-secret protection enabled and classic RADIUS over UDP using PAP, which description of protected fields is correct?",
+    "options": [
+      "TACACS+ protects only the password; RADIUS protects its entire packet",
+      "TACACS+ protects its packet body, leaving its header visible; RADIUS hides the User-Password field",
+      "Both encrypt their entire packet including headers",
+      "Neither protects any field"
+    ],
+    "correct": 1,
+    "explain": "TACACS+ protects the packet body while its standard header stays visible. In this classic RADIUS/PAP comparison, the User-Password field is hidden and the rest of the packet is not encrypted; TLS-secured RADIUS is a different transport case.",
+    "whyOthers": [
+      "This reverses the protected fields for the stated protocol variants.",
+      "",
+      "The TACACS+ header remains visible, and classic RADIUS does not encrypt all attributes.",
+      "Both stated configurations protect data, although their protection scope differs."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/security-vpn/remote-authentication-dial-user-service-radius/13838-10.html?referring_site=bodynav",
+    "priority": "supporting",
+    "reviewStatus": "published",
+    "changes": "Corrected whole packet to packet body; qualified RADIUS/PAP and transport; moved to management access objective 2.8 as supporting depth."
+  },
+  {
+    "sourceIndex": 48,
+    "domain": 6,
+    "objective": "6.5",
+    "text": "In a REST API, which HTTP method typically creates a new entry in a collection when the server assigns the entry's URI?",
+    "options": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ],
+    "correct": 1,
+    "explain": "POST submits a new entry to the collection endpoint, and the API can assign and return its URI. PUT can also create a resource at a client-specified URI, which is why the collection/server-assigned detail matters.",
+    "whyOthers": [
+      "GET retrieves a representation rather than creating this entry.",
+      "",
+      "PUT targets a known URI to replace or create its resource; that differs from the collection operation described.",
+      "DELETE removes a resource rather than creating one."
+    ],
+    "source": "https://developer.cisco.com/docs/nx-os/representational-state-transfer-rest/",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Added server-assigned collection URI to eliminate ambiguity because PUT can also create resources."
+  },
+  {
+    "sourceIndex": 49,
+    "domain": 6,
+    "objective": "6.6",
+    "text": "Which configuration-management tool runs YAML playbooks and can manage Cisco devices over SSH without installing an agent on each device?",
+    "options": [
+      "Puppet",
+      "Chef",
+      "Ansible",
+      "Terraform"
+    ],
+    "correct": 2,
+    "explain": "Ansible runs YAML playbooks from its control system. Network modules can use SSH or supported APIs without an Ansible agent on each target device; the device still needs the appropriate reachable management interface.",
+    "whyOthers": [
+      "Puppet's native configuration units are manifests, not Ansible YAML playbooks.",
+      "Chef's native configuration units are recipes and cookbooks, not Ansible YAML playbooks.",
+      "",
+      "Terraform describes desired infrastructure using configuration and providers, not Ansible YAML playbooks."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/switches/datacenter/nexus7000/sw/programmability/guide/cisco_nexus7000_programmability_guide_8x/b-cisco-nexus7000-programmability-guide-8x_chapter_010.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Replaced SaltStack to avoid Salt SSH agentless ambiguity; added YAML playbooks as distinguishing capability."
+  },
+  {
+    "sourceIndex": 50,
+    "domain": 6,
+    "objective": "6.3.b",
+    "text": "Which API direction connects a network controller to the network devices it manages?",
+    "options": [
+      "Northbound",
+      "Southbound",
+      "An application-to-controller interface",
+      "A user-facing inventory API"
+    ],
+    "correct": 1,
+    "explain": "Southbound APIs carry controller-to-device communication. Northbound APIs expose controller services to applications, so direction describes the architectural relationship rather than a specific protocol.",
+    "whyOthers": [
+      "Northbound APIs connect applications to the controller.",
+      "",
+      "An application consuming controller services is using the northbound side.",
+      "A user-facing inventory API exposes controller data to an application and is northbound in this model."
+    ],
+    "source": "https://developer.cisco.com/docs/nx-os/controller-layer/",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Replaced ungrounded east/west distractors with concrete northbound relationships."
+  },
+  {
+    "sourceIndex": 51,
+    "domain": 6,
+    "objective": "6.6",
+    "text": "What is the Ansible term for a YAML document that organizes automation plays and tasks?",
+    "options": [
+      "An OSPF link-state advertisement",
+      "A JSON object",
+      "A playbook",
+      "A TCP segment"
+    ],
+    "correct": 2,
+    "explain": "An Ansible playbook organizes the plays and tasks used for automation. It uses YAML syntax and can describe the device groups and configuration actions Ansible should run.",
+    "whyOthers": [
+      "An OSPF LSA describes routing topology, not Ansible automation tasks.",
+      "JSON is a data format; an arbitrary JSON object is not an Ansible YAML playbook.",
+      "",
+      "A TCP segment is a transport-protocol data unit, not a configuration-management document."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/switches/datacenter/nexus7000/sw/programmability/guide/cisco_nexus7000_programmability_guide_8x/b-cisco-nexus7000-programmability-guide-8x_chapter_010.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Replaced legacy tool trivia distractors with recognizable data/document distinctions relevant to networking."
+  },
+  {
+    "sourceIndex": 52,
+    "domain": 6,
+    "objective": "6.7",
+    "text": "Which snippet is a valid JSON object containing a hostname string?",
+    "options": [
+      "{\"hostname\" = \"Router1\"}",
+      "{\"hostname\": \"Router1\"}",
+      "{hostname: \"Router1\"}",
+      "(\"hostname\": \"Router1\")"
+    ],
+    "correct": 1,
+    "explain": "A JSON object uses braces, double-quoted property names, and a colon between each name and value. This example's value is a string, so Router1 is also double-quoted; other JSON value types need not be strings.",
+    "whyOthers": [
+      "An equals sign cannot separate a JSON property name and its value.",
+      "",
+      "JSON requires property names to be double-quoted; an unquoted hostname is invalid.",
+      "Parentheses do not delimit a JSON object; braces are required."
+    ],
+    "source": "https://developer.cisco.com/docs/cisco-mds-9000-series-nx-api-reference-release-9-3-x/getting-started-with-cisco-mds-9000-series-nx-api/",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Avoided false generalization that all JSON values must be quoted; validated a hostname string object."
+  },
+  {
+    "sourceIndex": 53,
+    "domain": 6,
+    "objective": "6.4",
+    "text": "Which task is an example of predictive AI or machine learning assisting network operations?",
+    "options": [
+      "Guaranteeing that engineers are never needed",
+      "Detecting unusual behavior in telemetry and warning of likely service problems",
+      "Assigning physical cables without any measurements",
+      "Proving every generated recommendation is correct"
+    ],
+    "correct": 1,
+    "explain": "Predictive techniques can analyze telemetry patterns to flag anomalies and forecast service problems. Operators still need to validate the findings against observations and the network's context before acting.",
+    "whyOthers": [
+      "AI assistance does not guarantee that human engineering work is unnecessary.",
+      "",
+      "Physical cable assignment without measurements is not the telemetry-analysis task described.",
+      "Generated recommendations can be wrong; AI does not automatically establish their correctness."
+    ],
+    "source": "https://www.cisco.com/c/en/us/products/collateral/cloud-systems-management/crosswork-network-automation/crosswork-network-automation-aag.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Replaced trivial only distractors with distinct incorrect claims and focused on predictive AI/ML rather than guaranteed outcomes."
+  },
+  {
+    "sourceIndex": 54,
+    "domain": 6,
+    "objective": "6.6",
+    "text": "Which tool uses HCL configuration and providers to describe and manage infrastructure as code?",
+    "options": [
+      "Ansible",
+      "Puppet",
+      "Terraform",
+      "Chef"
+    ],
+    "correct": 2,
+    "explain": "Terraform configurations describe desired infrastructure in HCL, and providers interact with the relevant platforms. Terraform keeps state to track managed resources and plans changes toward that desired configuration.",
+    "whyOthers": [
+      "Ansible uses playbooks and modules; it is not the HCL/provider tool described.",
+      "Puppet is a configuration-management tool, but this HCL/provider model describes Terraform.",
+      "",
+      "Chef uses recipes and cookbooks; it is not Terraform's HCL/provider infrastructure model."
+    ],
+    "source": "https://www.cisco.com/c/en/us/solutions/collateral/executive-perspectives/technology-perspectives/automate-network-infrastructure-code-wp.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Kept Terraform answer; replaced exam-change trivia with actual configuration-management capabilities."
+  },
+  {
+    "sourceIndex": 55,
+    "domain": 1,
+    "objective": "1.6",
+    "text": "How many usable host IPv4 addresses are available in an ordinary /28 LAN subnet?",
+    "options": [
+      "14",
+      "16",
+      "30",
+      "12"
+    ],
+    "correct": 0,
+    "explain": "A /28 leaves four host bits, giving 2^4 = 16 addresses. Reserving the subnet address and directed-broadcast address leaves 14 ordinary host addresses.",
+    "whyOthers": [
+      "",
+      "Sixteen counts every address, including the subnet and broadcast addresses.",
+      "Thirty usable host addresses corresponds to /27, which has five host bits.",
+      "Subtracting four from the 16 total is incorrect; this ordinary subnet reserves two addresses."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/ip/routing-information-protocol-rip/13788-3.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Specified IPv4 and ordinary LAN semantics."
+  },
+  {
+    "sourceIndex": 56,
+    "domain": 2,
+    "objective": "2.2.b",
+    "text": "How much does a single 802.1Q VLAN tag add to an Ethernet frame that is transmitted tagged?",
+    "options": [
+      "4 bytes",
+      "8 bytes",
+      "2 bytes added to the FCS",
+      "12 bytes of encapsulation"
+    ],
+    "correct": 0,
+    "explain": "An 802.1Q tag adds four bytes: a two-byte tag protocol identifier and two bytes of tag control information. The control information includes priority, drop eligibility, and VLAN identification.",
+    "whyOthers": [
+      "",
+      "A single 802.1Q tag is four bytes, not eight.",
+      "Tagging does not enlarge the four-byte FCS by two bytes; the FCS is recalculated.",
+      "A single 802.1Q tag is not a 12-byte encapsulation."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/netflow/configuration/15-mt/nf-15-mt-book/nf-lay2-sec-mon-exp.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Specified transmitted tagged frames because native VLAN traffic can be untagged; removed false claim that all 0–4095 VLAN values are usable."
+  },
+  {
+    "sourceIndex": 57,
+    "domain": 3,
+    "objective": "3.4.d",
+    "text": "An OSPFv2 process has no retained router ID. Which selection preference applies on Cisco IOS when the relevant IPv4 interfaces are up?",
+    "options": [
+      "Highest non-loopback IPv4 address before any loopback",
+      "Configured router-id, then highest loopback IPv4 address, then highest other interface IPv4 address",
+      "Lowest interface IPv4 address",
+      "Interface MAC address"
+    ],
+    "correct": 1,
+    "explain": "An explicitly configured router-id takes precedence. Otherwise IOS prefers the highest loopback IPv4 address, then the highest other eligible interface IPv4 address; the selected 32-bit value identifies the OSPF router.",
+    "whyOthers": [
+      "A loopback is preferred over a non-loopback even when its address is numerically lower.",
+      "",
+      "Automatic selection prefers the highest eligible address rather than the lowest.",
+      "OSPFv2 router IDs are 32-bit values and are not selected from MAC addresses."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/ip/open-shortest-path-first-ospf/23862-duplicate-router-id-ospf.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Specified selection-time/retained-ID conditions and up interfaces to avoid release-specific interface-state and router-ID persistence ambiguity."
+  },
+  {
+    "sourceIndex": 58,
+    "domain": 4,
+    "objective": "4.6",
+    "text": "Which Cisco IOS interface command configures DHCP relay toward server 192.0.2.10 on the client-facing interface?",
+    "options": [
+      "ip dhcp relay",
+      "ip helper-address 192.0.2.10",
+      "dhcp-relay enable",
+      "service dhcp relay"
+    ],
+    "correct": 1,
+    "explain": "ip helper-address 192.0.2.10 on the client-facing interface relays DHCP requests toward that server. The interface address supplies giaddr so the server can identify the requesting clients' subnet.",
+    "whyOthers": [
+      "This incomplete phrase does not configure the destination helper address on the interface.",
+      "",
+      "This is not the Cisco IOS interface syntax for a DHCP helper address.",
+      "service dhcp is a global DHCP service setting; adding relay does not set the required interface helper destination."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipaddr_dhcp/configuration/15-s/dhcp-15-s-book/dhcp-relay-agent.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Used a concrete documentation address and explicitly named the client-facing interface."
+  },
+  {
+    "sourceIndex": 59,
+    "domain": 5,
+    "objective": "5.5",
+    "text": "Which VPN design connects the headquarters LAN and a branch-office LAN through their VPN gateways using IPsec?",
+    "options": [
+      "Remote-access VPN for an individual user",
+      "Site-to-site IPsec VPN",
+      "Clientless browser VPN session",
+      "An individual user's VPN client session"
+    ],
+    "correct": 1,
+    "explain": "A site-to-site IPsec VPN connects the two networks through gateway peers. Individual hosts can use that protected path without each establishing a personal remote-access VPN session.",
+    "whyOthers": [
+      "Remote access connects an individual user or endpoint to organizational resources.",
+      "",
+      "A clientless browser session provides user access to supported resources rather than this LAN-to-LAN IPsec path.",
+      "A user's client session is remote access, not gateway-to-gateway connectivity for both LANs."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/security/secure-firewall/management-center/device-config/720/management-center-device-config-72/secure-connections-s2s.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Removed inaccurate permanent tunnel assumption and specified LAN-to-LAN gateway topology."
+  },
+  {
+    "sourceIndex": 60,
+    "domain": 3,
+    "objective": "3.4.a",
+    "text": "Which Cisco IOS command displays OSPFv2 neighbors and their current neighbor states?",
+    "options": [
+      "show ip ospf database",
+      "show ip ospf neighbor",
+      "show ip route ospf",
+      "show ip protocols"
+    ],
+    "correct": 1,
+    "explain": "show ip ospf neighbor displays discovered neighbors, their router IDs, states, addresses, and local interfaces. It helps verify adjacency; on broadcast networks a 2-Way relationship between two DROTHERs can be normal.",
+    "whyOthers": [
+      "The database command displays link-state advertisements rather than the neighbor table.",
+      "",
+      "The route command displays routes learned through OSPF rather than neighbor state.",
+      "The protocols command summarizes routing-protocol settings rather than listing the neighbor table."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/iproute_ospf/configuration/15-mt/iro-15-mt-book/iro-cfg.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Added normal 2-Way broadcast behavior; did not imply every neighbor must be FULL."
+  },
+  {
+    "sourceIndex": 62,
+    "domain": 1,
+    "objective": "1.10",
+    "text": "A Windows client falls back to an IPv4 link-local address after DHCP fails. Which prefix identifies this APIPA range?",
+    "options": [
+      "10.0.0.0/8",
+      "169.254.0.0/16",
+      "172.16.0.0/12",
+      "192.168.0.0/16"
+    ],
+    "correct": 1,
+    "explain": "APIPA uses the 169.254.0.0/16 IPv4 link-local range. Seeing that prefix on a DHCP-configured client is a clue to check DHCP availability; link-local addresses do not provide ordinary routed connectivity beyond the local link.",
+    "whyOthers": [
+      "10.0.0.0/8 is an RFC 1918 private range, not the APIPA prefix.",
+      "",
+      "172.16.0.0/12 is an RFC 1918 private range rather than the link-local prefix.",
+      "192.168.0.0/16 is an RFC 1918 private range rather than APIPA."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/wireless/controller/7-4/message/guide/sysmsg74/dtl_eap_msgs9.html",
+    "priority": "supporting",
+    "reviewStatus": "published",
+    "changes": "Mapped client address diagnosis to 1.10; prefix identifies the range without implying every address within it is assignable."
+  },
+  {
+    "sourceIndex": 63,
+    "domain": 4,
+    "objective": "4.4",
+    "text": "What is SNMP's primary role in network operations?",
+    "options": [
+      "Synchronize device clocks",
+      "Monitor and manage network-device objects",
+      "Provide an encrypted interactive CLI in every version",
+      "Route packets between VLANs"
+    ],
+    "correct": 1,
+    "explain": "SNMP lets a manager obtain or, when permitted, change management objects exposed by device agents and receive notifications. It supports operational monitoring; security features depend on the SNMP version and configuration.",
+    "whyOthers": [
+      "NTP provides clock synchronization.",
+      "",
+      "SNMP is not an interactive CLI, and encryption is not provided by every version; SNMPv3 privacy requires configuration.",
+      "Inter-VLAN routing is performed by Layer 3 forwarding, not SNMP."
+    ],
+    "source": "https://www.cisco.com/c/en/us/td/docs/iosxr/cisco8000/system-management/configuration-guide/system-management-configuration-guide-for-cisco-8000-series-routers-cisco-ios-xr-releases/simple-network-management-protocol.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Qualified management writes and version-dependent security instead of implying universal encryption."
+  },
+  {
+    "sourceIndex": 64,
+    "domain": 5,
+    "objective": "5.6",
+    "text": "An extended IPv4 ACL can identify unwanted traffic by source, destination, and TCP port. To discard it before it consumes downstream network bandwidth, where is the preferred placement when you control the path?",
+    "options": [
+      "Near the destination after it traverses the network",
+      "Near the source before it traverses the network",
+      "On every router regardless of policy",
+      "Only on the core router"
+    ],
+    "correct": 1,
+    "explain": "Applying the extended ACL near the source removes the specified unwanted traffic early. Its destination and port matching can preserve traffic to other allowed services; actual placement still depends on topology and policy.",
+    "whyOthers": [
+      "This can enforce the rule but lets unwanted traffic consume upstream transit bandwidth first.",
+      "",
+      "Duplicating the rule on every router is unnecessary for the stated goal and can complicate policy.",
+      "A core-only placement can allow unwanted traffic to use access and distribution links before being denied."
+    ],
+    "source": "https://www.cisco.com/c/en/us/support/docs/security/ios-firewall/23602-confaccesslists.html",
+    "priority": "core",
+    "reviewStatus": "published",
+    "changes": "Converted blanket placement into explicit bandwidth/policy scenario; preference is a reasoned application of extended matching, not a universal location requirement."
+  }
+]

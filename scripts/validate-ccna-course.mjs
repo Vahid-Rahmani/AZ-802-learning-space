@@ -1,0 +1,62 @@
+import assert from "node:assert/strict";
+import { ccnaLabs, ccnaDomains, ccnaSources } from "../lib/content/ccna.ts";
+import { dockerLabs } from "../lib/content/docker.ts";
+import { serverLabs } from "../lib/content/server-labs.ts";
+import { emptyServerLabState, parseServerLabState, gradeServerLab } from "../lib/server-lab-state.ts";
+
+assert.equal(ccnaLabs.length, 8);
+assert.equal(ccnaDomains.length, 6);
+assert.equal(ccnaDomains.reduce((sum, domain) => sum + domain.weight, 0), 100);
+assert.equal(new Set([...serverLabs, ...dockerLabs, ...ccnaLabs].map((lab) => lab.id)).size, 21);
+const objectives = new Set(["1.6", "1.8", "1.9", "1.10", "1.11", "1.11.b", "2.1", "2.1.c", "2.2.a", "2.2.b", "2.4", "2.5", "3.2.a", "3.3", "3.4.a", "3.4.d", "4.1", "4.3", "4.8", "5.6", "5.9", "5.10", "6.3.b", "6.4", "6.5", "6.7"]);
+const ids = new Set();
+const coveredDomains = new Set();
+const answerDistribution = [0, 0, 0, 0];
+for (const lab of ccnaLabs) {
+  assert.ok(lab.id.startsWith("ccna-"));
+  assert.equal(lab.lessonId, lab.id);
+  assert.equal(lab.steps.length, 4);
+  assert.equal(lab.tests.length, 3);
+  assert.equal(lab.questions.length, 4);
+  assert.equal(lab.topology.nodes.length, 3);
+  assert.ok(lab.steps.every((item) => item.instruction.length > 60 && item.explain.length > 40));
+  assert.equal(new Set(lab.tests.map((item) => item.id)).size, 3);
+  for (const question of lab.questions) {
+    assert.ok(!ids.has(question.id)); ids.add(question.id);
+    assert.ok(objectives.has(question.objective), question.id);
+    coveredDomains.add(question.objective.split(".")[0]);
+    assert.equal(question.options.length, 4);
+    assert.equal(new Set(question.options).size, 4);
+    assert.ok(Number.isInteger(question.correct) && question.correct >= 0 && question.correct < 4);
+    assert.ok(question.explain.length > 40);
+    assert.ok(["www.cisco.com", "developer.cisco.com", "learningcontent.cisco.com"].includes(new URL(question.source).hostname));
+    assert.ok(lab.sources.some((source) => source.url === question.source));
+    answerDistribution[question.correct]++;
+  }
+  const blank = emptyServerLabState();
+  assert.deepEqual(parseServerLabState(blank, lab), blank);
+  assert.equal(gradeServerLab(lab, blank).complete, false);
+  const resume = { ...blank, activeTab: "quiz", questionIndex: 2, answers: { [lab.questions[0].id]: 1 } };
+  assert.deepEqual(parseServerLabState(resume, lab), resume);
+  assert.equal(parseServerLabState({ ...resume, questionIndex: 4 }, lab), null);
+  assert.equal(parseServerLabState({ ...resume, answers: { [dockerLabs[0].questions[0].id]: 0 } }, lab), null);
+  assert.equal(parseServerLabState({ ...resume, answers: { [serverLabs[0].questions[0].id]: 0 } }, lab), null);
+  assert.equal(parseServerLabState({ ...blank, quizSubmitted: true }, lab), null);
+  const complete = { ...blank, stepIds: ["0", "1", "2", "3"], results: Object.fromEntries(lab.tests.map((item) => [item.id, { outcome: "pass", note: "Unit fixture only; not executed on network devices" }])), answers: Object.fromEntries(lab.questions.map((question) => [question.id, question.correct])), quizSubmitted: true, evidenceText: "Unit fixture only, not actual lab certification" };
+  assert.equal(gradeServerLab(lab, complete).complete, true);
+  assert.equal(gradeServerLab(lab, complete).quizPercent, 100);
+  const wrong = { ...complete, answers: Object.fromEntries(lab.questions.map((question) => [question.id, (question.correct + 1) % 4])) };
+  assert.equal(gradeServerLab(lab, wrong).quizPercent, 0);
+  assert.equal(gradeServerLab(lab, wrong).complete, false);
+  assert.equal(gradeServerLab(lab, { ...complete, results: {} }).complete, false);
+  assert.equal(gradeServerLab(lab, { ...complete, evidenceText: "" }).complete, false);
+  assert.equal(gradeServerLab(lab, parseServerLabState({ ...blank, score: 100, complete: true }, lab)).complete, false);
+}
+assert.deepEqual([...coveredDomains].sort(), ["1", "2", "3", "4", "5", "6"]);
+assert.deepEqual(answerDistribution, [8, 8, 8, 8]);
+assert.equal(new Set(ccnaLabs.flatMap((lab) => lab.questions.map((question) => question.text))).size, 32);
+assert.equal(ccnaLabs[7].steps.some((step) => /curl|fetch\(/.test(step.command ?? "")), false);
+assert.ok(ccnaLabs[4].steps.some((step) => step.command?.includes("ip dhcp excluded-address 192.168.50.1 192.168.50.30")));
+assert.ok(ccnaLabs[5].steps.some((step) => step.command?.includes("transport input ssh")));
+assert.equal(ccnaSources.blueprint.endsWith("200-301-CCNA-v1.1.pdf"), true);
+console.log(JSON.stringify({ status: "ok", stages: 8, buildSteps: 32, practicalTests: 24, questions: 32, domains: 6, answerDistribution }));

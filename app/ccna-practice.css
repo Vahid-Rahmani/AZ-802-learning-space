@@ -1,0 +1,11 @@
+.ccna-practice { margin:2rem 0; }
+.ccna-practice-controls { display:grid; grid-template-columns:minmax(0,1fr) minmax(120px,.5fr); gap:1rem; }
+.ccna-practice-controls label { display:grid; gap:.4rem; min-width:0; }
+.ccna-practice-controls label:last-child { grid-column:1/-1; }
+.ccna-practice-controls label > span { display:flex; gap:.5rem; align-items:center; }
+.ccna-practice-controls input { width:100%; min-height:44px; border:1px solid var(--cp-line); border-radius:4px; background:var(--cp-alt); color:var(--cp-text); padding:.7rem; font:inherit; }
+.ccna-practice-controls [data-slot="select-trigger"] { width:100%; min-height:44px; height:auto; font:inherit; white-space:normal; background:var(--cp-alt); color:var(--cp-text); }
+.ccna-practice-controls [data-slot="select-value"] { white-space:normal; overflow-wrap:anywhere; text-align:start; }
+.ccna-practice .question-learning-tools { margin:1.4rem 0; }
+.ccna-practice .server-lab-lesson { margin-top:1rem; }
+@media(max-width:600px) { .ccna-practice-controls { grid-template-columns:minmax(0,1fr); } .ccna-practice .server-lab-navigation button { flex:1; white-space:normal; } }
