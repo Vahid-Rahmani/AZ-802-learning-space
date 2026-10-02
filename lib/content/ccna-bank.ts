@@ -1,4 +1,5 @@
 import reviewed from "./ccna-bank-reviewed.json";
+import localBank from "./ccna-local-bank.json";
 import { ccnaDomains, ccnaSources } from "./ccna";
 import type { LabQuestion, ServerLab } from "./server-labs";
 
@@ -17,18 +18,36 @@ export const ccnaBankAttribution = {
 /** Stable IDs and deterministic option rotation keep answers valid on resume.
  * Never reshuffle a published version: migrate IDs when changing answer meaning.
  */
-export const ccnaBankQuestions = (reviewed as CcnaReviewedItem[]).filter((q) => q.reviewStatus === "published").map((q) => {
+export const ccnaReviewedQuestions = (reviewed as CcnaReviewedItem[]).filter((q) => q.reviewStatus === "published").map((q) => {
   const order = [0, 1, 2, 3].map((index) => (index + q.sourceIndex % 4) % 4);
   return { ...q, id: `ccna-bank-v1-${q.sourceIndex}`, options: order.map((index) => q.options[index]), correct: order.indexOf(q.correct), whyOthers: order.map((index) => q.whyOthers[index]) };
 });
+// Local material retains its original review status, option order and rationale.
+export const ccnaLocalQuestions = localBank.map((q) => ({
+  ...q, domain: Number(q.objectiveId.split(".")[0]), objective: q.objectiveId,
+  explain: q.rationale.en, priority: "supporting" as const,
+}));
+export const ccnaBankQuestions = [...ccnaReviewedQuestions, ...ccnaLocalQuestions];
 export const ccnaQuestionCount = ccnaBankQuestions.length;
 
 /** Separate practice IDs preserve the existing four-question lab checkpoints. */
-export const ccnaPracticeUnits: ServerLab[] = ccnaDomains.map((domain, index) => ({
+const reviewedUnits: ServerLab[] = ccnaDomains.map((domain, index) => ({
   id: `ccna-practice-v1-${index + 1}`, kind: "knowledge", title: domain.title,
   assignment: `CCNA 200-301 v1.1 · domain ${domain.id}`, lessonId: `ccna-domain-${index + 1}`,
   minutes: "Untimed", goal: "Practice reviewed questions, understand the options and continue from your saved checkpoint.",
   prerequisites: [], steps: [], tests: [],
-  questions: ccnaBankQuestions.filter((q) => q.domain === index + 1).sort((a, b) => Number(a.priority === "supporting") - Number(b.priority === "supporting") || a.objective.localeCompare(b.objective, "en", { numeric: true }) || a.sourceIndex - b.sourceIndex) as LabQuestion[],
+  questions: ccnaReviewedQuestions.filter((q) => q.domain === index + 1).sort((a, b) => Number(a.priority === "supporting") - Number(b.priority === "supporting") || a.objective.localeCompare(b.objective, "en", { numeric: true }) || a.sourceIndex - b.sourceIndex) as LabQuestion[],
   sources: [{ title: "Official CCNA v1.1 objectives", url: ccnaSources.blueprint }],
 }));
+
+// Separate checkpoint IDs keep every existing cursor, answer and submitted grade valid.
+const localUnits: ServerLab[] = ccnaDomains.map((domain, index) => ({
+  id: `ccna-local-v1-${index + 1}`, kind: "knowledge" as const,
+  title: `${domain.title} · added questions`, assignment: "Local CCNA learning bank",
+  lessonId: `ccna-domain-${index + 1}`, minutes: "Untimed",
+  goal: "Practice your locally authored questions with their original explanations and references.",
+  prerequisites: [], steps: [], tests: [],
+  questions: ccnaLocalQuestions.filter((q) => q.domain === index + 1) as LabQuestion[],
+  sources: [{ title: "Official CCNA v1.1 objectives", url: ccnaSources.blueprint }],
+})).filter((unit) => unit.questions.length > 0);
+export const ccnaPracticeUnits: ServerLab[] = [...reviewedUnits, ...localUnits];

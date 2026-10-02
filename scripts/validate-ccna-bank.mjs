@@ -10,16 +10,22 @@ import { emptyServerLabState, parseServerLabState, gradeServerLab } from "../lib
 const file = new URL("../lib/content/ccna-bank.ts", import.meta.url);
 const source = readFileSync(file, "utf8")
   .replace('from "./ccna-bank-reviewed.json"', `from ${JSON.stringify(new URL("../lib/content/ccna-bank-reviewed.json", import.meta.url).href)} with { type: "json" }`)
+  .replace('from "./ccna-local-bank.json"', `from ${JSON.stringify(new URL("../lib/content/ccna-local-bank.json", import.meta.url).href)} with { type: "json" }`)
   .replace('from "./ccna"', `from ${JSON.stringify(pathToFileURL(fileURLToPath(new URL("../lib/content/ccna.ts", import.meta.url))).href)}`);
 const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
-const { ccnaBankQuestions: questions, ccnaPracticeUnits: units, ccnaQuestionCount } = await import(`data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`);
+const { ccnaBankQuestions: questions, ccnaReviewedQuestions, ccnaLocalQuestions, ccnaPracticeUnits: units, ccnaQuestionCount } = await import(`data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`);
 const audit = JSON.parse(readFileSync(new URL("../lib/content/ccna-bank-audit.json", import.meta.url), "utf8"));
 const rawItems = JSON.parse(readFileSync(new URL("../lib/content/ccna-bank-reviewed.json", import.meta.url), "utf8"));
+const localItems = JSON.parse(readFileSync(new URL("../lib/content/ccna-local-bank.json", import.meta.url), "utf8"));
+const localAudit = JSON.parse(readFileSync(new URL("../lib/content/ccna-local-import.json", import.meta.url), "utf8"));
 assert.equal(new Set(rawItems.map((q) => q.sourceIndex)).size, rawItems.length, "Duplicate source index in stored bank");
-assert.equal(rawItems.filter((q) => q.reviewStatus === "published").length, ccnaQuestionCount);
-assert.equal(ccnaQuestionCount, audit.publishedNewQuestions);
-assert.equal(units.length, 6);
-assert.deepEqual(units.map((unit) => unit.questions.length), audit.domainCounts);
+assert.equal(rawItems.filter((q) => q.reviewStatus === "published").length, ccnaReviewedQuestions.length);
+assert.equal(ccnaQuestionCount, audit.publishedNewQuestions + localAudit.imported);
+assert.equal(localItems.length, localAudit.imported);
+assert.equal(localItems.length + localAudit.duplicatesRemoved.length, localAudit.candidates);
+assert.equal(units.length, 6 + localAudit.domainCounts.filter(Boolean).length);
+assert.deepEqual(units.slice(0, 6).map((unit) => unit.questions.length), audit.domainCounts);
+assert.deepEqual(units.slice(6).map((unit) => unit.questions.length), localAudit.domainCounts.filter(Boolean));
 const stems = new Set(), ids = new Set();
 const distribution = [0, 0, 0, 0];
 const normalize = (text) => text.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -28,10 +34,10 @@ for (const q of [...questions, ...ccnaLabs.flatMap((lab) => lab.questions)]) {
   assert.ok(!stems.has(normalize(q.text)), `Duplicate text ${q.id}`); stems.add(normalize(q.text));
   assert.equal(q.options.length, 4); assert.equal(new Set(q.options).size, 4);
   assert.ok(Number.isInteger(q.correct) && q.correct >= 0 && q.correct < 4);
-  assert.ok(q.objective && q.explain.length > 40);
-  assert.ok(new URL(q.source).hostname.endsWith("cisco.com"));
+  assert.ok(q.objective && q.explain.trim().length > 0);
+  assert.ok(["cisco.com", "meraki.com", "rfc-editor.org", "ietf.org"].some((host) => new URL(q.source).hostname === host || new URL(q.source).hostname.endsWith(`.${host}`)));
 }
-for (const q of questions) {
+for (const q of ccnaReviewedQuestions) {
   assert.equal(q.reviewStatus, "published");
   assert.ok(q.objective.startsWith(`${q.domain}.`));
   assert.equal(q.whyOthers.length, 4);
@@ -42,8 +48,21 @@ for (const q of questions) {
   distribution[q.correct]++;
 }
 const removed = audit.semanticDuplicatesRemoved.map((entry) => entry.sourceIndex);
+for (const [index, q] of ccnaLocalQuestions.entries()) {
+  const original = localItems[index];
+  assert.equal(q.id, original.id);
+  assert.equal(q.reviewStatus, original.reviewStatus, "Do not claim technical approval for local drafts");
+  assert.equal(q.text, original.text);
+  assert.deepEqual(q.options, original.options, "Local option order must remain unchanged");
+  assert.equal(q.correct, original.correct);
+  assert.deepEqual(q.rationale, original.rationale);
+  assert.equal(q.explain, original.rationale.en);
+  assert.equal(q.source, original.source);
+  assert.ok(q.objective.startsWith(`${q.domain}.`));
+  distribution[q.correct]++;
+}
 assert.ok(!rawItems.some((q) => removed.includes(q.sourceIndex)), "Removed semantic duplicates must not remain hidden as drafts");
-assert.equal(ids.size, audit.combinedQuestions);
+assert.equal(ids.size, audit.combinedQuestions + localAudit.imported);
 for (const unit of units) {
   const blank = { ...emptyServerLabState(), activeTab: "quiz" };
   assert.deepEqual(parseServerLabState(blank, unit), blank);

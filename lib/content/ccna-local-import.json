@@ -1,0 +1,17 @@
+{
+  "importedAt": "2026-10-02",
+  "sourceDirectory": "C:/Users/meins/Documents/Codex/2026-10-01/vasl-sho-betam-x20-2/work/ccna-app/lib/content",
+  "candidates": 540,
+  "imported": 540,
+  "duplicatesRemoved": [],
+  "domainCounts": [
+    120,
+    120,
+    150,
+    0,
+    90,
+    60
+  ],
+  "reviewStatus": "draft",
+  "note": "Only exact duplicate stems with matching correct-answer text were eligible for removal. All question text, options, answer indices, sources and three-language rationales are preserved unchanged. The IP Services source file was absent; no replacement questions were generated."
+}
