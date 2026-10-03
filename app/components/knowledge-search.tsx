@@ -19,6 +19,7 @@ export function KnowledgeSearch({
   courseCode = "AZ-802",
   courseName = "Windows Server",
   examples = defaultExamples,
+  sourceName = "Microsoft Learn",
 }: {
   showTranslations: boolean;
   onPracticeQuestion: (questionId: string) => void;
@@ -26,6 +27,7 @@ export function KnowledgeSearch({
   courseCode?: string;
   courseName?: string;
   examples?: string[];
+  sourceName?: string;
 }) {
   const [query, setQuery] = useState("");
   const [submittedQuery, setSubmittedQuery] = useState("");
@@ -48,16 +50,16 @@ export function KnowledgeSearch({
         <div className="max-w-2xl">
           <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-cyan-300"><Sparkles size={15} /> {courseCode} knowledge search</p>
           <h2 id="knowledge-search-title" className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">Ask the existing question bank</h2>
-          <p className="mt-3 text-sm leading-7 text-slate-300">Write a {courseName} question in English or Persian. CertPath finds the closest evidence in the {questionBank.length}-question bank and answers only from its stored answer, rationale, and Microsoft Learn source.</p>
+          <p className="mt-3 text-sm leading-7 text-slate-300">Write a {courseName} question in English or Persian. CertPath finds the closest evidence in the {questionBank.length}-question bank and answers only from its stored answer, rationale, and {sourceName} reference.</p>
         </div>
         <div className="flex items-center gap-2 rounded-2xl border border-emerald-300/20 bg-emerald-300/5 px-3 py-2 text-xs text-emerald-100"><ShieldCheck size={16} /><span>No external AI · no invented answer</span></div>
       </div>
 
       <form onSubmit={submit} className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <label htmlFor="knowledge-query" className="sr-only">Ask the AZ-802 question bank</label>
+        <label htmlFor="knowledge-query" className="sr-only">Ask the {courseCode} question bank</label>
         <div className="relative min-w-0 flex-1">
           <Search aria-hidden="true" size={19} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-cyan-300" />
-          <input id="knowledge-query" type="search" dir="auto" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Example: Which role allocates RID pools?" className="min-h-13 w-full rounded-2xl border border-white/15 bg-black/25 py-3 pl-12 pr-4 text-base text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-300/10" />
+          <input id="knowledge-query" type="search" dir="auto" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Example: ${examples[0] ?? courseName}`} className="min-h-13 w-full rounded-2xl border border-white/15 bg-black/25 py-3 pl-12 pr-4 text-base text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-300/10" />
         </div>
         <button type="submit" disabled={!query.trim()} className="min-h-13 rounded-2xl bg-cyan-300 px-6 py-3 font-bold text-[#06131a] transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-45">Find answer</button>
       </form>
@@ -86,7 +88,7 @@ export function KnowledgeSearch({
       </div>
       <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
         <button type="button" onClick={() => onPracticeQuestion(best.item.id)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-cyan-300 px-4 py-2 text-sm font-bold text-[#06131a]"><BookOpenCheck size={17} /> Practice this question</button>
-        <a href={best.item.source} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-cyan-100">Microsoft Learn source <ArrowRight size={16} /></a>
+        <a href={best.item.source} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-cyan-100">{sourceName} source <ArrowRight size={16} /></a>
       </div>
     </article>}
 
@@ -98,6 +100,6 @@ export function KnowledgeSearch({
       </button>)}</div>
     </div>}
 
-    <p className="px-1 text-xs leading-5 text-slate-500">This feature searches the current original {courseCode} practice bank. Use the linked Microsoft Learn page for final verification.</p>
+    <p className="px-1 text-xs leading-5 text-slate-500">This feature searches the current {courseCode} practice bank. Use the linked {sourceName} page for final verification.</p>
   </section>;
 }

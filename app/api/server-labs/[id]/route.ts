@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { getDb } from "@/db";
 import { labSubmissions } from "@/db/schema";
 import { currentUser, signInRequired } from "@/lib/auth-server";
 import { learningLabs } from "@/lib/content/lab-registry";
 import { emptyServerLabState, gradeServerLab, parseServerLabState } from "@/lib/server-lab-state";
+import { legacyCcnaIds, restoreCcnaDomain } from "@/lib/ccna-progress";
 
 type Context = { params: Promise<{ id: string }> };
 export async function GET(_request: Request, context: Context) {
@@ -16,7 +17,9 @@ export async function GET(_request: Request, context: Context) {
   if (!lab) return NextResponse.json({ error: "Unknown learning lab" }, { status: 404 });
   try {
     const [row] = await getDb().select().from(labSubmissions).where(and(eq(labSubmissions.id, `${auth.userId}:server-lab:${id}`), eq(labSubmissions.userId, auth.userId)));
-    const state = row ? parseServerLabState(JSON.parse(row.evidenceText), lab) : emptyServerLabState();
+    const legacyIds = legacyCcnaIds(id);
+    const previous = !row && legacyIds.length ? await getDb().select().from(labSubmissions).where(and(eq(labSubmissions.userId, auth.userId), inArray(labSubmissions.id, legacyIds.map((legacyId) => `${auth.userId}:server-lab:${legacyId}`)))) : [];
+    const state = row ? parseServerLabState(JSON.parse(row.evidenceText), lab) : legacyIds.length ? restoreCcnaDomain(id, previous) : emptyServerLabState();
     if (!state) throw new Error("Invalid saved lab state");
     return NextResponse.json({ labId: id, state, grade: gradeServerLab(lab, state), evidenceUrl: row?.evidenceUrl ?? null });
   } catch {

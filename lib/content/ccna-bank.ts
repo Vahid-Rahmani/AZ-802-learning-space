@@ -50,4 +50,21 @@ const localUnits: ServerLab[] = ccnaDomains.map((domain, index) => ({
   questions: ccnaLocalQuestions.filter((q) => q.domain === index + 1) as LabQuestion[],
   sources: [{ title: "Official CCNA v1.1 objectives", url: ccnaSources.blueprint }],
 })).filter((unit) => unit.questions.length > 0);
-export const ccnaPracticeUnits: ServerLab[] = [...reviewedUnits, ...localUnits];
+export const ccnaLegacyPracticeUnits: ServerLab[] = [...reviewedUnits, ...localUnits];
+
+/** One visible practice per objective domain; legacy APIs remain addressable. */
+export const ccnaPracticeUnits: ServerLab[] = ccnaDomains.map((domain, index) => ({
+  ...reviewedUnits[index], id: `ccna-domain-v2-${index + 1}`,
+  title: domain.title,
+  goal: "Learn and practice all questions assigned to this objective domain.",
+  questions: [...reviewedUnits[index].questions, ...ccnaLocalQuestions.filter((q) => q.domain === index + 1)],
+}));
+
+export const ccnaKnowledgeQuestions = ccnaBankQuestions.map((q) => ({
+  ...q, domain: ccnaDomains[q.domain - 1].title,
+  rationale: "rationale" in q ? q.rationale : { en: q.explain, fa: "", de: "" },
+}));
+
+export function ccnaPracticeForQuestion(questionId: string) {
+  return ccnaPracticeUnits.find((unit) => unit.questions.some((q) => q.id === questionId));
+}

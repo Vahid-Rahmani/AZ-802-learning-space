@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { BookOpen, ChevronLeft, ChevronRight, Save, Search } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GoogleSubtitle } from "./google-translate";
-import { ccnaPracticeUnits, ccnaQuestionCount, ccnaBankAttribution } from "@/lib/content/ccna-bank";
+import { ccnaPracticeUnits, ccnaQuestionCount, ccnaBankAttribution, ccnaPracticeForQuestion } from "@/lib/content/ccna-bank";
+import { legacyCcnaIds, restoreCcnaDomain } from "@/lib/ccna-progress";
 import { emptyServerLabState, gradeServerLab, parseServerLabState, type ServerLabState } from "@/lib/server-lab-state";
 import type { LabQuestion, ServerLab } from "@/lib/content/server-labs";
 
@@ -12,36 +13,44 @@ const Copy = ({ text }: { text: string }) => <GoogleSubtitle text={text} />;
 type Checkpoint = { state: ServerLabState; grade: ReturnType<typeof gradeServerLab> };
 const relatedLabs = ["ccna-addressing", "ccna-vlans", "ccna-routing", "ccna-services", "ccna-security", "ccna-automation"];
 
-export function CcnaPractice({ userId, onOpenLab }: { userId: string; onOpenLab: (id: string) => void }) {
+export type CcnaPracticeRequest = { domainId?: string; questionId?: string; nonce: number };
+export function CcnaPractice({ userId, onOpenLab, request, onRequestHandled }: { userId: string; onOpenLab: (id: string) => void; request?: CcnaPracticeRequest; onRequestHandled?: () => void }) {
   const [selected, setSelected] = useState(ccnaPracticeUnits[0].id);
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [summaries, setSummaries] = useState<Record<string, number>>({});
+  const touched = useRef(false);
+  useEffect(() => {
+    if (!request || busy) return;
+    const unit = request.questionId ? ccnaPracticeForQuestion(request.questionId) : ccnaPracticeUnits.find((item) => item.id === request.domainId);
+    if (unit) { touched.current = true; setSelected(unit.id); if (!request.questionId) onRequestHandled?.(); }
+  }, [request, busy, onRequestHandled]);
   useEffect(() => {
     let alive = true;
     void fetch("/api/lab-submissions", { cache: "no-store" }).then(async (response) => {
       if (!response.ok) return;
       const data = await response.json() as { submissions?: { labId: string; evidenceText: string; updatedAt?: string }[] };
       const counts: Record<string, number> = {};
-      const rows = (data.submissions ?? []).filter((row) => ccnaPracticeUnits.some((unit) => unit.id === row.labId)).sort((a, b) => (Date.parse(b.updatedAt ?? "") || 0) - (Date.parse(a.updatedAt ?? "") || 0));
-      for (const row of rows) {
-        const unit = ccnaPracticeUnits.find((item) => item.id === row.labId)!;
-        try { const state = parseServerLabState(JSON.parse(row.evidenceText), unit); if (state) counts[unit.id] = Object.keys(state.answers).length; } catch { /* A corrupt row never replaces a saved checkpoint with a blank one. */ }
+      const rows = (data.submissions ?? []).sort((a, b) => (Date.parse(b.updatedAt ?? "") || 0) - (Date.parse(a.updatedAt ?? "") || 0));
+      for (const unit of ccnaPracticeUnits) {
+        try { const state = restoreCcnaDomain(unit.id, rows); counts[unit.id] = Object.keys(state.answers).length; } catch { /* Invalid checkpoints are handled by the load API, never replaced. */ }
       }
-      if (alive) { setSummaries(counts); if (rows[0] && counts[rows[0].labId] !== undefined) setSelected(rows[0].labId); }
+      const recent = rows.find((row) => ccnaPracticeUnits.some((unit) => unit.id === row.labId || legacyCcnaIds(unit.id).includes(row.labId)));
+      const resume = recent && ccnaPracticeUnits.find((unit) => unit.id === recent.labId || legacyCcnaIds(unit.id).includes(recent.labId));
+      if (alive) { setSummaries(counts); if (resume && !touched.current) setSelected(resume.id); }
     }).catch(() => undefined).finally(() => { if (alive) setReady(true); });
     return () => { alive = false; };
   }, [userId]);
   const unit = ccnaPracticeUnits.find((item) => item.id === selected)!;
   return <section id="ccna-question-bank" className="server-labs-workspace ccna-practice" aria-label="CCNA question bank">
-    <header className="server-labs-heading"><div><p className="server-lab-kicker"><Copy text="CCNA · question bank" /></p><h2><Copy text="Practice by objective. Understand every answer." /></h2><p><Copy text={`${ccnaQuestionCount} practice questions across six domains. The added local sets preserve your original questions and explanations; they are pending technical review. Your earlier practice remains saved. This is untimed learning practice, not the real exam.`} /></p></div></header>
-    <nav className="server-lab-library" aria-label="CCNA practice domains">{ccnaPracticeUnits.map((item, i) => <button type="button" key={item.id} disabled={!ready || busy} aria-current={selected === item.id ? "step" : undefined} onClick={() => setSelected(item.id)}><span className="server-lab-number">{i + 1}</span><span><strong><Copy text={item.title} /></strong><span className="server-lab-meta"><Copy text={`${summaries[item.id] ?? 0}/${item.questions.length} answered`} /></span></span></button>)}</nav>
-    {ready ? <PracticeWorkspace key={`${userId}:${unit.id}`} userId={userId} unit={unit} onBusy={setBusy} onSaved={(state) => setSummaries((previous) => ({ ...previous, [unit.id]: Object.keys(state.answers).length }))} onOpenLab={() => onOpenLab(relatedLabs[Number(unit.lessonId.split("-").at(-1)) - 1])} /> : <p role="status"><Copy text="Loading your saved practice…" /></p>}
+    <header className="server-labs-heading"><div><p className="server-lab-kicker"><Copy text="CCNA · question bank" /></p><h2><Copy text="Practice by objective. Understand every answer." /></h2><p><Copy text={`${ccnaQuestionCount} questions organized into six objective domains. Search opens the exact question in its domain. Original questions, explanations and earlier progress are preserved. Local material is pending technical review; this is not the real exam.`} /></p></div></header>
+    <nav className="server-lab-library" aria-label="CCNA practice domains">{ccnaPracticeUnits.map((item, i) => <button type="button" key={item.id} disabled={!ready || busy} aria-current={selected === item.id ? "step" : undefined} onClick={() => { touched.current = true; setSelected(item.id); }}><span className="server-lab-number">{i + 1}</span><span><strong><Copy text={item.title} /></strong><span className="server-lab-meta"><Copy text={`${summaries[item.id] ?? 0}/${item.questions.length} answered`} /></span></span></button>)}</nav>
+    {ready ? <PracticeWorkspace key={`${userId}:${unit.id}`} userId={userId} unit={unit} onRequestHandled={onRequestHandled} target={request?.questionId && ccnaPracticeForQuestion(request.questionId)?.id === unit.id ? request : undefined} onBusy={setBusy} onSaved={(state) => setSummaries((previous) => ({ ...previous, [unit.id]: Object.keys(state.answers).length }))} onOpenLab={() => onOpenLab(relatedLabs[Number(unit.lessonId.split("-").at(-1)) - 1])} /> : <p role="status"><Copy text="Loading your saved practice…" /></p>}
     <p className="server-lab-meta"><Copy text="The original 62 reviewed questions were adapted from the MIT-licensed BlackSwanAust CCNA Lab Simulator. Added local questions retain their own sources and pending review status. Not endorsed by Cisco." /> <a href={ccnaBankAttribution.url} target="_blank" rel="noreferrer"><Copy text="Source and attribution" /> ↗</a> · <a href={ccnaBankAttribution.notice} target="_blank" rel="noreferrer"><Copy text="License notice" /></a></p>
   </section>;
 }
 
-function PracticeWorkspace({ unit, userId, onSaved, onBusy, onOpenLab }: { unit: ServerLab; userId: string; onSaved: (state: ServerLabState) => void; onBusy: (busy: boolean) => void; onOpenLab: () => void }) {
+function PracticeWorkspace({ unit, userId, onSaved, onBusy, onOpenLab, target, onRequestHandled }: { unit: ServerLab; userId: string; onSaved: (state: ServerLabState) => void; onBusy: (busy: boolean) => void; onOpenLab: () => void; target?: CcnaPracticeRequest; onRequestHandled?: () => void }) {
   const [checkpoint, setCheckpoint] = useState<Checkpoint | null>(null);
   const [status, setStatus] = useState("Loading saved practice…");
   const [error, setError] = useState("");
@@ -85,6 +94,15 @@ function PracticeWorkspace({ unit, userId, onSaved, onBusy, onOpenLab }: { unit:
     });
   };
   const change = (update: (state: ServerLabState) => ServerLabState) => { if (draft.current) save(update(draft.current.state)); };
+  const loaded = checkpoint !== null;
+  useEffect(() => {
+    if (!loaded || !target?.questionId) return;
+    const index = unit.questions.findIndex((q) => q.id === target.questionId);
+    if (index >= 0 && draft.current?.state.questionIndex !== index) change((current) => ({ ...current, activeTab: "quiz", questionIndex: index }));
+    onRequestHandled?.();
+    // A new search request is consumed once after the checkpoint loads.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target, loaded]);
   const state = checkpoint?.state ?? emptyServerLabState();
   const question = unit.questions[state.questionIndex];
   const answer = state.answers[question.id];

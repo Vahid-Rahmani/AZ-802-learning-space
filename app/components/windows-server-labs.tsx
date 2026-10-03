@@ -17,7 +17,7 @@ export function WindowsServerLabs({ userId, legacy }: { userId: string | null; l
   return <LearningLabPath userId={userId} labs={serverLabs} kicker="Windows Server · independent lab path" title="Build it. Test it. Explain it." intro="Turn the supplied server assignments into your own working domain, users, permissions and security tests. Azure labs are unchanged." legacy={legacy} />;
 }
 
-export function LearningLabPath({ userId, labs, kicker, title, intro, legacy, resumeLatest = false, initialLabId }: { userId: string | null; labs: ServerLab[]; kicker: string; title: string; intro: string; legacy?: ReactNode; resumeLatest?: boolean; initialLabId?: string }) {
+export function LearningLabPath({ userId, labs, kicker, title, intro, legacy, resumeLatest = false, initialLabId, onPracticeLab }: { userId: string | null; labs: ServerLab[]; kicker: string; title: string; intro: string; legacy?: ReactNode; resumeLatest?: boolean; initialLabId?: string; onPracticeLab?: (lab: ServerLab) => void }) {
   const [selected, setSelected] = useState(initialLabId ?? labs[0].id);
   const selectionTouched = useRef(false);
   const selectLab = (id: string) => { selectionTouched.current = true; setSelected(id); };
@@ -49,6 +49,7 @@ export function LearningLabPath({ userId, labs, kicker, title, intro, legacy, re
   return <div className="server-labs-workspace">
     <header className="server-labs-heading"><div><p className="server-lab-kicker"><Copy text={kicker} /></p><h2><Copy text={title} /></h2><p><Copy text={intro} /></p></div><span className="server-lab-badge"><FlaskConical size={20} /> {completed} / {labs.length} <Copy text="labs complete" /></span></header>
     <nav className="server-lab-library" aria-label={`${kicker} stages`}>{labs.map((item, i) => <button type="button" key={item.id} aria-current={selected === item.id ? "step" : undefined} onClick={() => selectLab(item.id)}><span className="server-lab-number">{summaries[item.id]?.complete ? <CheckCircle2 size={20} /> : i + 1}</span><span><strong><Copy text={item.title} /></strong><span className="server-lab-meta"><Copy text={`${item.minutes} min · ${item.tests.length} practical tests · ${item.questions.length} quiz questions`} /></span></span></button>)}</nav>
+    {onPracticeLab && <button type="button" className="server-lab-primary" onClick={() => onPracticeLab(lab)}><BookOpen size={18} /><Copy text={`Practice questions for ${lab.title}`} /></button>}
     <ServerLabWorkspace key={`${userId}:${lab.id}`} lab={lab} userId={userId} onSaved={(grade) => setSummaries((previous) => ({ ...previous, [lab.id]: grade }))} />
     <div className="server-lab-navigation"><button type="button" disabled={index === 0} onClick={() => selectLab(labs[index - 1].id)}><ChevronLeft size={18} /><Copy text="Previous lab" /></button><button type="button" disabled={index === labs.length - 1} onClick={() => selectLab(labs[index + 1].id)}><Copy text="Next lab" /><ChevronRight size={18} /></button></div>
     {legacy && <details className="server-lab-legacy"><summary><Copy text="Existing two-server hardening lab" /></summary><div className="mt-5">{legacy}</div></details>}
