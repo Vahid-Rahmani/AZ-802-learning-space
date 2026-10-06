@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-10-06T20:42:48.718Z",
+  "generatedAt": "2026-10-06T21:10:33.096Z",
   "source": "lib/content/questions.ts",
   "total": 300,
   "published": 0,
-  "audited": 17,
-  "draft": 283,
+  "audited": 65,
+  "draft": 235,
   "byIssue": {
-    "missing-objective": 283,
-    "missing-specific-source": 283,
-    "missing-topic": 283,
-    "missing-difficulty": 283,
-    "missing-option-reasoning": 283
+    "missing-objective": 235,
+    "missing-specific-source": 235,
+    "missing-topic": 235,
+    "missing-difficulty": 235,
+    "missing-option-reasoning": 235
   },
   "questions": [
     {
@@ -118,578 +118,290 @@
     {
       "id": "az802-q-018",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-019",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-020",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-021",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-022",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-023",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-024",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-025",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-026",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-027",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-028",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-029",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-030",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-031",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-032",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-033",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-034",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-035",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-036",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-037",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-038",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-039",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-040",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-041",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-042",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-043",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-044",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-045",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-046",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-047",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-048",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-049",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-050",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-051",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-052",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-053",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-054",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-055",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-056",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-057",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-058",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-059",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-060",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-061",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-062",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-063",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-064",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-065",
       "domain": "Deploy and manage AD DS",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-066",

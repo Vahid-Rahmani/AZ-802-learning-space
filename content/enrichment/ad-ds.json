@@ -22,9 +22,18 @@
     ],
     "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 Active Directory Domain Services. FSMO roles are single-master: each role is held by exactly one domain controller at a time. Reading the role holders needs the ActiveDirectory PowerShell module or the netdom/Ntdsutil command-line tools.",
     "commandPath": [
-      { "label": "Show all five FSMO role holders from a domain-joined server", "command": "netdom query fsmo" },
-      { "label": "Read the three domain-wide role holders with PowerShell", "command": "Get-ADDomain | Select-Object RIDMaster, PDCEmulator, InfrastructureMaster" },
-      { "label": "Read the two forest-wide role holders with PowerShell", "command": "Get-ADForest | Select-Object SchemaMaster, DomainNamingMaster" }
+      {
+        "label": "Show all five FSMO role holders from a domain-joined server",
+        "command": "netdom query fsmo"
+      },
+      {
+        "label": "Read the three domain-wide role holders with PowerShell",
+        "command": "Get-ADDomain | Select-Object RIDMaster, PDCEmulator, InfrastructureMaster"
+      },
+      {
+        "label": "Read the two forest-wide role holders with PowerShell",
+        "command": "Get-ADForest | Select-Object SchemaMaster, DomainNamingMaster"
+      }
     ],
     "translations": "runtime-google"
   },
@@ -50,8 +59,14 @@
     ],
     "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Writing the schema requires membership of Schema Admins in the forest root domain. The change replicates to the other domain controllers afterwards, so the whole forest is affected.",
     "commandPath": [
-      { "label": "Read the forest Schema Master with PowerShell", "command": "Get-ADForest | Select-Object SchemaMaster" },
-      { "label": "Read the current schema version on a domain controller", "command": "Get-ADObject (Get-ADRootDSE).schemaNamingContext -Property objectVersion" }
+      {
+        "label": "Read the forest Schema Master with PowerShell",
+        "command": "Get-ADForest | Select-Object SchemaMaster"
+      },
+      {
+        "label": "Read the current schema version on a domain controller",
+        "command": "Get-ADObject (Get-ADRootDSE).schemaNamingContext -Property objectVersion"
+      }
     ],
     "translations": "runtime-google"
   },
@@ -77,7 +92,10 @@
     ],
     "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. The Domain Naming Master must run on a domain controller that is also a global catalog server, which is enforced during promotion.",
     "commandPath": [
-      { "label": "Read the forest Domain Naming Master", "command": "Get-ADForest | Select-Object DomainNamingMaster" }
+      {
+        "label": "Read the forest Domain Naming Master",
+        "command": "Get-ADForest | Select-Object DomainNamingMaster"
+      }
     ],
     "translations": "runtime-google"
   },
@@ -103,8 +121,14 @@
     ],
     "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. The PDC Emulator role creates the greatest workload of the five roles, and the PDC Emulator in the forest root domain is the authoritative Windows Time source for the forest.",
     "commandPath": [
-      { "label": "Read the current PDC Emulator", "command": "Get-ADDomain | Select-Object PDCEmulator" },
-      { "label": "Ask a specific controller to sync time from its domain PDC", "command": "w32tm /resync" }
+      {
+        "label": "Read the current PDC Emulator",
+        "command": "Get-ADDomain | Select-Object PDCEmulator"
+      },
+      {
+        "label": "Ask a specific controller to sync time from its domain PDC",
+        "command": "w32tm /resync"
+      }
     ],
     "translations": "runtime-google"
   },
@@ -129,8 +153,14 @@
     ],
     "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Placement matters: if every domain controller in the domain also holds the global catalog, the Infrastructure Master stops updating object information because it holds no references to objects it does not already have. In a single-domain forest with no other domains, the role is not actively used.",
     "commandPath": [
-      { "label": "Read the Infrastructure Master", "command": "Get-ADDomain | Select-Object InfrastructureMaster" },
-      { "label": "Confirm whether a controller is a global catalog", "command": "Get-ADDomainController -Filter * | Select-Object Name, IsGlobalCatalog" }
+      {
+        "label": "Read the Infrastructure Master",
+        "command": "Get-ADDomain | Select-Object InfrastructureMaster"
+      },
+      {
+        "label": "Confirm whether a controller is a global catalog",
+        "command": "Get-ADDomainController -Filter * | Select-Object Name, IsGlobalCatalog"
+      }
     ],
     "translations": "runtime-google"
   },
@@ -156,8 +186,14 @@
     ],
     "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Losing the RID Master is not immediately visible; monitor event log entries about RID pool allocation and use dcdiag to confirm the role holder's health.",
     "commandPath": [
-      { "label": "Confirm the current RID Master", "command": "Get-ADDomain | Select-Object RIDMaster" },
-      { "label": "Review replication and role health", "command": "dcdiag /test:ridmanager /v" }
+      {
+        "label": "Confirm the current RID Master",
+        "command": "Get-ADDomain | Select-Object RIDMaster"
+      },
+      {
+        "label": "Review replication and role health",
+        "command": "dcdiag /test:ridmanager /v"
+      }
     ],
     "translations": "runtime-google"
   },
@@ -183,9 +219,18 @@
     ],
     "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Reading the role holders is a read-only operation. The PowerShell alternative needs the ActiveDirectory module, which is installed with RSAT.",
     "commandPath": [
-      { "label": "List all five FSMO role holders", "command": "netdom query fsmo" },
-      { "label": "Compare the domain-wide role holders", "command": "Get-ADDomain | Select-Object RIDMaster, PDCEmulator, InfrastructureMaster" },
-      { "label": "Compare the forest-wide role holders", "command": "Get-ADForest | Select-Object SchemaMaster, DomainNamingMaster" }
+      {
+        "label": "List all five FSMO role holders",
+        "command": "netdom query fsmo"
+      },
+      {
+        "label": "Compare the domain-wide role holders",
+        "command": "Get-ADDomain | Select-Object RIDMaster, PDCEmulator, InfrastructureMaster"
+      },
+      {
+        "label": "Compare the forest-wide role holders",
+        "command": "Get-ADForest | Select-Object SchemaMaster, DomainNamingMaster"
+      }
     ],
     "translations": "runtime-google"
   },
@@ -211,8 +256,14 @@
     ],
     "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Seizing requires Domain Admins for domain-wide roles and Enterprise Admins for forest-wide roles. Confirm the original holder is permanently offline first, because two controllers holding the same role cause conflicting writes.",
     "commandPath": [
-      { "label": "Seize a forest-level role with Ntdsutil", "command": "ntdsutil roles connections connect to server DC02 quit seize schema master" },
-      { "label": "Seize a domain-wide role with PowerShell", "command": "Move-ADDirectoryServerOperationMasterRole -Identity DC02 -OperationMasterRole RIDMaster -Force" }
+      {
+        "label": "Seize a forest-level role with Ntdsutil",
+        "command": "ntdsutil roles connections connect to server DC02 quit seize schema master"
+      },
+      {
+        "label": "Seize a domain-wide role with PowerShell",
+        "command": "Move-ADDirectoryServerOperationMasterRole -Identity DC02 -OperationMasterRole RIDMaster -Force"
+      }
     ],
     "translations": "runtime-google"
   },
@@ -238,8 +289,14 @@
     ],
     "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. A transfer needs the ActiveDirectory PowerShell module or Active Directory Users and Computers, and membership of Domain Admins (domain-wide roles) or Enterprise Admins (forest-wide roles).",
     "commandPath": [
-      { "label": "Move the RID Master to another controller", "command": "Move-ADDirectoryServerOperationMasterRole -Identity DC02 -OperationMasterRole RIDMaster" },
-      { "label": "Move several domain-wide roles at once", "command": "Move-ADDirectoryServerOperationMasterRole -Identity DC02 -OperationMasterRole RIDMaster,PDCEmulator,InfrastructureMaster" }
+      {
+        "label": "Move the RID Master to another controller",
+        "command": "Move-ADDirectoryServerOperationMasterRole -Identity DC02 -OperationMasterRole RIDMaster"
+      },
+      {
+        "label": "Move several domain-wide roles at once",
+        "command": "Move-ADDirectoryServerOperationMasterRole -Identity DC02 -OperationMasterRole RIDMaster,PDCEmulator,InfrastructureMaster"
+      }
     ],
     "translations": "runtime-google"
   },
@@ -265,7 +322,10 @@
     ],
     "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Directory database maintenance uses ntdsutil, run from an elevated prompt on the domain controller.",
     "commandPath": [
-      { "label": "Show the database and log file locations", "command": "ntdsutil \"activate instance ntds\" files info quit" }
+      {
+        "label": "Show the database and log file locations",
+        "command": "ntdsutil \"activate instance ntds\" files info quit"
+      }
     ],
     "translations": "runtime-google"
   },
@@ -291,8 +351,14 @@
     ],
     "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. SYSVOL must be shared on every domain controller; a controller whose SYSVOL is not shared cannot serve Group Policy correctly.",
     "commandPath": [
-      { "label": "Confirm the SYSVOL share is advertised", "command": "net share" },
-      { "label": "Check SYSVOL replication state with DFSR", "command": "dfsrmig /getglobalstate" }
+      {
+        "label": "Confirm the SYSVOL share is advertised",
+        "command": "net share"
+      },
+      {
+        "label": "Check SYSVOL replication state with DFSR",
+        "command": "dfsrmig /getglobalstate"
+      }
     ],
     "translations": "runtime-google"
   },
@@ -318,8 +384,14 @@
     ],
     "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Confirm the domain is already using DFSR before running DFSR commands, because the recovery steps differ for a domain still on FRS.",
     "commandPath": [
-      { "label": "Check whether the domain uses DFSR for SYSVOL", "command": "dfsrmig /getglobalstate" },
-      { "label": "Review DFSR SYSVOL replication health", "command": "dfsrdiag replicationstate /memobj:\"Domain System Volume\"" }
+      {
+        "label": "Check whether the domain uses DFSR for SYSVOL",
+        "command": "dfsrmig /getglobalstate"
+      },
+      {
+        "label": "Review DFSR SYSVOL replication health",
+        "command": "dfsrdiag replicationstate /memobj:\"Domain System Volume\""
+      }
     ],
     "translations": "runtime-google"
   },
@@ -345,7 +417,10 @@
     ],
     "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Deploying an RODC requires the forest functional level to support it and a writable Windows Server domain controller as its replication partner.",
     "commandPath": [
-      { "label": "Review an RODC Password Replication Policy", "command": "Get-ADDomainControllerPasswordReplicationPolicy -Identity BRANCH-DC -Allowed" }
+      {
+        "label": "Review an RODC Password Replication Policy",
+        "command": "Get-ADDomainControllerPasswordReplicationPolicy -Identity BRANCH-DC -Allowed"
+      }
     ],
     "translations": "runtime-google"
   },
@@ -371,7 +446,10 @@
     ],
     "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Denied entries take precedence over allowed entries, so an account in both lists is never cached.",
     "commandPath": [
-      { "label": "List allowed and denied accounts for an RODC", "command": "Get-ADDomainControllerPasswordReplicationPolicy -Identity BRANCH-DC -Allowed; Get-ADDomainControllerPasswordReplicationPolicy -Identity BRANCH-DC -Denied" }
+      {
+        "label": "List allowed and denied accounts for an RODC",
+        "command": "Get-ADDomainControllerPasswordReplicationPolicy -Identity BRANCH-DC -Allowed; Get-ADDomainControllerPasswordReplicationPolicy -Identity BRANCH-DC -Denied"
+      }
     ],
     "translations": "runtime-google"
   },
@@ -397,8 +475,14 @@
     ],
     "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. The change is made on the writable domain controller that is the RODC's replication partner and then replicates to the RODC.",
     "commandPath": [
-      { "label": "Allow a group to cache credentials on an RODC", "command": "Add-ADDomainControllerPasswordReplicationPolicy -Identity BRANCH-DC -AllowedList 'Allowed RODC Password Replication Group'" },
-      { "label": "Cache credentials for one user immediately", "command": "Add-ADDomainControllerPasswordReplicationPolicy -Identity BRANCH-DC -AllowedList 'BRANCH\\ahmed'" }
+      {
+        "label": "Allow a group to cache credentials on an RODC",
+        "command": "Add-ADDomainControllerPasswordReplicationPolicy -Identity BRANCH-DC -AllowedList 'Allowed RODC Password Replication Group'"
+      },
+      {
+        "label": "Cache credentials for one user immediately",
+        "command": "Add-ADDomainControllerPasswordReplicationPolicy -Identity BRANCH-DC -AllowedList 'BRANCH\\ahmed'"
+      }
     ],
     "translations": "runtime-google"
   },
@@ -424,8 +508,14 @@
     ],
     "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. An OU is a delegation and policy boundary, not a security boundary: it does not prevent a user from being granted rights elsewhere in the domain.",
     "commandPath": [
-      { "label": "Create an OU", "command": "New-ADOrganizationalUnit -Name 'Branch Users' -Path 'OU=Branches,DC=contoso,DC=com'" },
-      { "label": "List the OUs in a domain", "command": "Get-ADOrganizationalUnit -Filter * | Select-Object Name, DistinguishedName" }
+      {
+        "label": "Create an OU",
+        "command": "New-ADOrganizationalUnit -Name 'Branch Users' -Path 'OU=Branches,DC=contoso,DC=com'"
+      },
+      {
+        "label": "List the OUs in a domain",
+        "command": "Get-ADOrganizationalUnit -Filter * | Select-Object Name, DistinguishedName"
+      }
     ],
     "translations": "runtime-google"
   },
@@ -450,9 +540,1234 @@
     ],
     "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Group nesting across domains requires a trust, and universal group membership changes replicate to every global catalog server in the forest.",
     "commandPath": [
-      { "label": "Create a domain local group for a resource", "command": "New-ADGroup -Name 'FS-Finance-Read' -GroupScope DomainLocal -Path 'OU=Groups,DC=contoso,DC=com'" },
-      { "label": "Nest a global group inside it", "command": "Add-ADGroupMember -Identity 'FS-Finance-Read' -Members 'GG-Finance'" }
+      {
+        "label": "Create a domain local group for a resource",
+        "command": "New-ADGroup -Name 'FS-Finance-Read' -GroupScope DomainLocal -Path 'OU=Groups,DC=contoso,DC=com'"
+      },
+      {
+        "label": "Nest a global group inside it",
+        "command": "Add-ADGroupMember -Identity 'FS-Finance-Read' -Members 'GG-Finance'"
+      }
     ],
     "translations": "runtime-google"
+  },
+  "az802-q-018": {
+    "objective": "Create and manage AD DS users and groups",
+    "objectiveId": "adds-users-groups",
+    "topic": "Group scope and AGDLP",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups"
+    ],
+    "keyPoints": [
+      "Global groups contain accounts from their own domain and are the usual way to group users by job function or department.",
+      "In the AGDLP model, accounts go into global groups, global groups are nested into domain local groups, and permissions are assigned to the domain local group.",
+      "Because global group membership is not replicated forest-wide, grouping users by role with global groups is cheaper than using universal groups."
+    ],
+    "whyOthers": [
+      "Universal groups can contain members from any domain in the forest and their membership is replicated to every global catalog, which is more scope and more replication cost than grouping a single domain's users by role.",
+      "There is no Active Directory group scope named Resource. A resource is what receives the permission; the scope that carries that permission is domain local.",
+      "",
+      "Domain local groups are designed to receive permissions on resources in the domain, not to organise users by job function, so they are the end of the AGDLP chain rather than the beginning."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Group scope is set when the group is created; converting a group's scope is possible but limited by its current members (for example, a global group that contains another global group cannot become universal unless its members are converted first)."
+  },
+  "az802-q-019": {
+    "objective": "Create and manage AD DS users and groups",
+    "objectiveId": "adds-users-groups",
+    "topic": "Group scope and AGDLP",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups"
+    ],
+    "keyPoints": [
+      "Universal groups can contain members from any domain in the forest, which is what makes them suitable for membership that spans multiple domains.",
+      "Their membership is stored in the global catalog and replicated forest-wide, so changes are more expensive than global or domain local membership changes.",
+      "A common pattern is to nest global groups from several domains into one universal group instead of adding individual accounts."
+    ],
+    "whyOthers": [
+      "A built-in local group lives in the Builtin container of one domain, manages local server roles, and cannot hold members from another domain.",
+      "A global group can only contain members from its own domain, so it cannot span the forest on its own.",
+      "",
+      "A domain local group of another domain can appear in the membership of a domain local group, but a domain local group is scoped to resources in its own domain and its membership is not the forest-wide grouping the scenario needs."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Universal group membership is held in the global catalog, so a reachable global catalog is required when universal groups are used for authentication in a multidomain forest."
+  },
+  "az802-q-020": {
+    "objective": "Create and manage AD DS users and groups",
+    "objectiveId": "adds-users-groups",
+    "topic": "Group scope and AGDLP",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/delegating-administration-by-using-ou-objects"
+    ],
+    "keyPoints": [
+      "AGDLP stands for Accounts, Global groups, Domain Local groups, Permissions, read left to right.",
+      "The final LP is the Domain Local group that receives the Permissions on the resource.",
+      "Keeping the permission on the domain local group means access is granted and revoked by changing group membership, not by editing resource ACLs."
+    ],
+    "whyOthers": [
+      "Local users and passwords is a misreading; the A at the start of the model already stands for the user accounts, and passwords play no part in the acronym.",
+      "",
+      "LDAP is the directory access protocol clients use to query AD DS; it is not one of the four steps in the permission model.",
+      "Logon policies constrain when and where a user may sign in and are configured by policy; they are separate from how resource permissions are assigned."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. The AGDLP pattern works within a domain; across domains the equivalent is AGUDLP, where universal groups bridge the global groups of each domain."
+  },
+  "az802-q-021": {
+    "objective": "Create and manage AD DS security principals",
+    "objectiveId": "adds-security-principals",
+    "topic": "Role-based access with groups",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/delegating-administration-by-using-ou-objects"
+    ],
+    "keyPoints": [
+      "Putting the user in a role group and nesting that group into a resource-permission group keeps the ACL free of per-user entries.",
+      "Access is audited and revoked by changing one group membership instead of editing every resource ACL.",
+      "This is the practical form of least privilege: the user gets exactly the role that is needed and nothing broader."
+    ],
+    "whyOthers": [
+      "",
+      "Making the user a domain administrator grants full control of the domain, which is far more privilege than one shared folder requires.",
+      "Disabling inheritance changes which permissions the folder receives from its parent; it does not grant the user access and can silently remove permissions other users rely on.",
+      "Adding the user directly to the folder ACL is exactly the pattern the scenario wants to avoid, because a direct entry is hard to audit and easy to forget when the user changes roles."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Group nesting across domains requires a trust, and the resource-permission group must have the access type (Allow) set on the resource itself."
+  },
+  "az802-q-022": {
+    "objective": "Create and manage managed service accounts",
+    "objectiveId": "adds-service-accounts",
+    "topic": "Managed service accounts",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview"
+    ],
+    "keyPoints": [
+      "A group Managed Service Account manages and rotates its own password, so no administrator knows or resets the credential.",
+      "One gMSA can be used by multiple authorised computers, called hosts, so a service that runs on several servers can share a single managed identity.",
+      "The password is 240 characters and changes every 30 days by default, and host access is controlled by the list of principals allowed to retrieve the managed password."
+    ],
+    "whyOthers": [
+      "The Guest account is a disabled-by-default interactive logon account and has no service password management or multi-host features.",
+      "A temporary profile is a client-side profile fallback created when a roaming or local profile cannot load; it is not a domain account type.",
+      "A standard local user account cannot authenticate a service across multiple servers and its password must be managed by hand, which is what a gMSA is designed to remove.",
+      ""
+    ],
+    "commandPath": [
+      {
+        "label": "Create a gMSA for a service that runs on several servers",
+        "command": "New-ADServiceAccount -Name svc-app -DNSHostName svc-app.contoso.com -PrincipalsAllowedToRetrieveManagedPassword 'APP-HOSTS'"
+      },
+      {
+        "label": "Install and test the account on a host",
+        "command": "Install-ADServiceAccount svc-app; Test-ADServiceAccount svc-app"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. A gMSA requires the domain functional level to support it and the KDS root key to be created once with Add-KdsRootKey before the first gMSA is used."
+  },
+  "az802-q-023": {
+    "objective": "Create and manage managed service accounts",
+    "objectiveId": "adds-service-accounts",
+    "topic": "Managed service accounts",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview"
+    ],
+    "keyPoints": [
+      "A Standalone Managed Service Account gives the same automatic password management as a gMSA but is bound to a single computer.",
+      "It is the right fit for a service that runs on only one host but still should not use a human-managed password.",
+      "Unlike a gMSA it cannot be shared across servers, which is its main limitation."
+    ],
+    "whyOthers": [
+      "The built-in Administrator account is a shared, well-known credential with broad rights and no automatic rotation, so it is worse than a managed account.",
+      "Local System presents the computer account on the network, which is a powerful identity that is not scoped to the one service, and it does not provide a managed rotating credential.",
+      "",
+      "The Guest account is disabled by default, is meant for interactive use, and offers no automatic password management."
+    ],
+    "commandPath": [
+      {
+        "label": "Create a standalone managed service account on one host",
+        "command": "New-ADServiceAccount -Name svc-legacy -ManagedPasswordIntervalInDays 30 -RestrictToSingleComputer"
+      },
+      {
+        "label": "Install and test it on the target server",
+        "command": "Install-ADServiceAccount svc-legacy; Test-ADServiceAccount svc-legacy"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. An sMSA can only be installed on the single computer it was created for; if the service must later move, migrate it to a gMSA."
+  },
+  "az802-q-024": {
+    "objective": "Create and manage managed service accounts",
+    "objectiveId": "adds-service-accounts",
+    "topic": "Service account security",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups"
+    ],
+    "keyPoints": [
+      "Running a service as a domain administrator exposes the whole directory and infrastructure to anything that compromises that service.",
+      "Least privilege limits the blast radius: a service should hold only the rights its function needs.",
+      "Managed service accounts exist to give services a scoped identity without a human-managed password."
+    ],
+    "whyOthers": [
+      "Domain administrators can run services; the risk is the excessive privilege, not a technical limitation.",
+      "",
+      "Services can run under domain service identities, so local-only accounts are not required.",
+      "Kerberos supports service accounts and is used to authenticate services; it has no bearing on the privilege-exposure problem described."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. The same least-privilege reasoning applies to Scheduled Tasks, IIS application pools, cluster service accounts, and SQL Server service accounts."
+  },
+  "az802-q-025": {
+    "objective": "Configure and manage fine-grained password policies",
+    "objectiveId": "adds-fgpp",
+    "topic": "Fine-grained password policy",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/adac/fine-grained-password-policies",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/adac/advanced-ad-ds-management-using-active-directory-administrative-center--level-200-"
+    ],
+    "keyPoints": [
+      "A Fine-Grained Password Policy is defined by a Password Settings Object (PSO) in AD DS.",
+      "A PSO applies to a single user or to a global security group within one domain, and it can set stricter password and lockout settings than the domain default.",
+      "PSOs are created and managed in Active Directory Administrative Center or with the ActiveDirectory PowerShell module."
+    ],
+    "whyOthers": [
+      "DNS Policy controls name-resolution behaviour such as split-brain DNS and does not set password or lockout requirements.",
+      "Loopback processing changes how user Group Policy is applied on a computer; it has nothing to do with password settings.",
+      "A DFS namespace is a logical view of file shares and is unrelated to account passwords.",
+      ""
+    ],
+    "commandPath": [
+      {
+        "label": "Create a PSO that enforces a longer password for administrators",
+        "command": "New-ADFineGrainedPasswordPolicy -Name AdminsPSO -Precedence 1 -MinPasswordLength 14 -ComplexityEnabled $true -LockoutThreshold 5 -LockoutDuration 00:30:00 -LockoutObservationWindow 00:30:00"
+      },
+      {
+        "label": "Apply the PSO to an administrative group",
+        "command": "Add-ADFineGrainedPasswordPolicySubject -Identity AdminsPSO -Subjects 'Tier0-Admins'"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Fine-grained password policies require a domain functional level of Windows Server 2008 or higher, and each PSO must have a unique precedence value."
+  },
+  "az802-q-026": {
+    "objective": "Configure and manage fine-grained password policies",
+    "objectiveId": "adds-fgpp",
+    "topic": "Fine-grained password policy",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/adac/fine-grained-password-policies",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-processing"
+    ],
+    "keyPoints": [
+      "Account password and lockout settings come from the default domain password policy, which lives at the domain root in the Default Domain Policy.",
+      "A GPO linked to an OU cannot give a subset of users different password requirements; that is precisely what a PSO is for.",
+      "The effective result for a user is reported by Get-ADUserResultantPasswordPolicy."
+    ],
+    "whyOthers": [
+      "OUs do contain users; the limitation is that account password policy is scoped to the domain rather than to the OU.",
+      "Kerberos enforces the resulting policy at sign-in; it does not ignore password policies.",
+      "",
+      "Passwords are stored as hashes in the directory database ntds.dit, never in DNS."
+    ],
+    "commandPath": [
+      {
+        "label": "Show which password policy actually applies to a user",
+        "command": "Get-ADUserResultantPasswordPolicy -Identity 'contoso\\a.smith'"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. The Default Domain Policy is the only GPO whose password settings apply domain-wide; the Default Domain Controller Policy applies to domain controllers specifically."
+  },
+  "az802-q-027": {
+    "objective": "Manage AD DS computer accounts and secure channels",
+    "objectiveId": "adds-computer-accounts",
+    "topic": "Computer accounts and secure channel",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/broken-trust-relationship-domain-joined-device-its-domain-secure-channel-issues"
+    ],
+    "keyPoints": [
+      "A computer account in AD DS gives a member machine its domain identity, and its password forms the secure channel used for domain authentication.",
+      "The account is created when the machine joins the domain and, by default, the machine changes its account password every 30 days.",
+      "Without a valid computer account the machine cannot authenticate to the domain, apply Group Policy, or access domain resources."
+    ],
+    "whyOthers": [
+      "A local user profile stores a user's environment settings and does not establish a machine's identity or trust with the domain.",
+      "",
+      "A DNS forwarder resolves names outside the domain and plays no part in machine authentication.",
+      "A DHCP reservation gives the machine a stable address but does not authenticate it to the domain."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Computer account passwords are managed by the Netlogon service and are stored in the local LSA secret rather than in the registry in clear text."
+  },
+  "az802-q-028": {
+    "objective": "Manage AD DS computer accounts and secure channels",
+    "objectiveId": "adds-computer-accounts",
+    "topic": "Computer accounts and secure channel",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/test-computersecurechannel?view=powershell-5.1",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/broken-trust-relationship-domain-joined-device-its-domain-secure-channel-issues"
+    ],
+    "keyPoints": [
+      "Test-ComputerSecureChannel checks whether the local computer's secure channel with the domain is healthy.",
+      "With the -Repair switch it resets the computer account password using supplied credentials to restore the channel.",
+      "It is the PowerShell equivalent of the classic netdom resetpwd recovery on a member computer."
+    ],
+    "whyOthers": [
+      "",
+      "Get-DnsServerZone reports DNS zones hosted on a DNS server and says nothing about machine trust.",
+      "Get-Volume reports disk volumes and file-system information, which is unrelated to the secure channel.",
+      "Get-WindowsFeature lists installed Windows roles and features and does not test domain trust."
+    ],
+    "commandPath": [
+      {
+        "label": "Check the secure channel",
+        "command": "Test-ComputerSecureChannel -Verbose"
+      },
+      {
+        "label": "Reset the secure channel with a credential that can reset the account",
+        "command": "Test-ComputerSecureChannel -Repair -Credential (Get-Credential)"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS and to domain-joined client computers. The repairing account must have permission to reset the computer object in the domain; otherwise Secure Channel reset fails."
+  },
+  "az802-q-029": {
+    "objective": "Manage AD DS computer accounts and secure channels",
+    "objectiveId": "adds-computer-accounts",
+    "topic": "Computer accounts and secure channel",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/windows-security/broken-trust-relationship-domain-joined-device-its-domain-secure-channel-issues",
+      "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/test-computersecurechannel?view=powershell-5.1"
+    ],
+    "keyPoints": [
+      "The \"trust relationship failed\" message means the computer account password stored in AD DS no longer matches the secret the client holds.",
+      "The fix is to reset the secure channel using a domain credential, for example Test-ComputerSecureChannel -Repair.",
+      "Rejoining the domain also works but requires a delete-and-rejoin workflow, so the channel repair is the more direct action."
+    ],
+    "whyOthers": [
+      "Deleting domain controllers would destroy the domain rather than repair a single workstation.",
+      "Changing the DNS suffix changes the domain name the machine uses, which is not a repair action and can break name resolution further.",
+      "Disabling Kerberos on the client would prevent all domain authentication instead of repairing the account relationship.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. If, in addition to a broken channel, the computer object no longer exists, the machine must be rejoined to the domain after an account reset or recreation."
+  },
+  "az802-q-030": {
+    "objective": "Manage the Active Directory global catalog",
+    "objectiveId": "adds-global-catalog",
+    "topic": "Global catalog",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/planning-global-catalog-server-placement"
+    ],
+    "keyPoints": [
+      "A global catalog server holds a partial, read-only copy of every object in every domain of the forest.",
+      "The partial attribute set (PAS) determines which attributes are replicated to the global catalog.",
+      "It answers forest-wide searches and supplies universal group membership during sign-in."
+    ],
+    "whyOthers": [
+      "SYSVOL replicates Group Policy templates and logon scripts within a domain; it is not a forest-wide partial copy of directory objects.",
+      "A site link defines the replication cost and schedule between sites rather than a copy of directory data.",
+      "",
+      "A RID pool is a block of identifiers issued by the RID Master so a controller can create security principals; it holds no directory objects."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. The Domain Naming Master must itself be a global catalog server, and additional global catalogs are placed to keep forest-wide logons local."
+  },
+  "az802-q-031": {
+    "objective": "Manage the Active Directory global catalog",
+    "objectiveId": "adds-global-catalog",
+    "topic": "Global catalog",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/planning-global-catalog-server-placement",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups"
+    ],
+    "keyPoints": [
+      "At sign-in a domain controller asks a global catalog for the user's universal group membership, which is needed to build the access token.",
+      "Because universal group membership is stored only in the global catalog, a multidomain forest can fail sign-in when no global catalog is reachable.",
+      "This dependency exists only when universal groups are used to grant access."
+    ],
+    "whyOthers": [
+      "Hosting DHCP scopes is a networking role and has nothing to do with authentication.",
+      "File shares are stored on file servers, not in the global catalog.",
+      "",
+      "Leasing IP addresses is the job of DHCP, not of the global catalog."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Universal group membership caching can reduce this dependency in sites that have no global catalog, but it does not replace the global catalog for all operations."
+  },
+  "az802-q-032": {
+    "objective": "Manage AD DS sites and replication",
+    "objectiveId": "adds-sites-replication",
+    "topic": "AD DS sites",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/designing-the-site-topology",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/creating-a-site-design"
+    ],
+    "keyPoints": [
+      "An AD DS site represents a set of well-connected IP subnets used to model the physical network.",
+      "Sites let AD DS optimise replication and direct clients to the nearest domain controller and global catalog.",
+      "Site membership is driven by subnet-to-site mapping; a client whose subnet is not mapped has no site and cannot use nearest-site discovery."
+    ],
+    "whyOthers": [
+      "",
+      "OUs organise objects for delegation and Group Policy; sites model network topology and serve a different purpose.",
+      "Passwords are stored as hashes in the directory database, never in plaintext, and this is unrelated to sites.",
+      "File-share quotas are configured on file servers and are not a function of directory sites."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Every IP subnet that hosts clients should be mapped to exactly one site; a subnet that is mapped to two sites or to none causes unpredictable client referral."
+  },
+  "az802-q-033": {
+    "objective": "Manage AD DS sites and replication",
+    "objectiveId": "adds-sites-replication",
+    "topic": "AD DS sites",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/designing-the-site-topology",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/diagnose-replication-failures"
+    ],
+    "keyPoints": [
+      "Client site-awareness depends on the client's subnet being mapped to the correct site.",
+      "Without that mapping, nearest-site discovery fails and the client may authenticate against a distant domain controller over the WAN.",
+      "Replication scheduling between sites is also driven by site membership, so an unmapped subnet can also distort replication planning."
+    ],
+    "whyOthers": [
+      "NTFS permissions are stored on the file system and are not changed by site mapping.",
+      "The schema is a forest-wide definition and is unaffected by site or subnet configuration.",
+      "RID allocation is performed by the RID Master and does not depend on site mapping.",
+      ""
+    ],
+    "commandPath": [
+      {
+        "label": "Confirm which site a client resolves",
+        "command": "nltest /dsgetsite"
+      },
+      {
+        "label": "List subnets and the site each one belongs to",
+        "command": "Get-ADReplicationSubnet -Filter * | Select-Object Name, Site"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. A client that cannot resolve a site falls back to a randomly chosen domain controller, which is the source of the distant-controller symptom."
+  },
+  "az802-q-034": {
+    "objective": "Manage AD DS sites and replication",
+    "objectiveId": "adds-sites-replication",
+    "topic": "Site links",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/creating-a-site-link-design"
+    ],
+    "keyPoints": [
+      "A site link connects two or more sites and defines the logical replication path between them.",
+      "It carries a cost that influences which route the knowledge consistency checker prefers, and a schedule that controls when replication may occur.",
+      "Site link bridges allow replication to flow transitively between site links."
+    ],
+    "whyOthers": [
+      "DHCP reservations assign stable addresses and are unrelated to intersite replication paths.",
+      "Encrypting an SMB share is a file-server setting and does not describe a site link.",
+      "",
+      "Home folders are configured on user accounts, not on site links."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Each site link belongs to a site link bridge; bridge all site links is enabled by default, which makes the replication topology fully transitive unless it is changed."
+  },
+  "az802-q-035": {
+    "objective": "Manage AD DS sites and replication",
+    "objectiveId": "adds-sites-replication",
+    "topic": "Replication model",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/diagnose-replication-failures",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/creating-a-site-link-design"
+    ],
+    "keyPoints": [
+      "Intrasite replication is optimised for fast, reliable connectivity and does not compress the data.",
+      "Domain controllers inside a site use change notification so partners are told quickly after a change, instead of waiting for a polling interval.",
+      "Intersite replication is compressed and scheduled to protect WAN links, which is the opposite trade-off."
+    ],
+    "whyOthers": [
+      "A DNS zone transfer replicates DNS records and is a different replication system from the directory.",
+      "",
+      "Manual export is not a replication model; directory replication between controllers is automatic.",
+      "Tape is used for backup and restore, not for live directory replication."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. The default change-notification delay inside a site is 15 seconds, and a controller waits three changes or 10 seconds before notifying partners, whichever comes first."
+  },
+  "az802-q-036": {
+    "objective": "Manage AD DS sites and replication",
+    "objectiveId": "adds-sites-replication",
+    "topic": "Replication monitoring",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-R2-and-2012/cc770963(v=ws.11)",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/diagnose-replication-failures"
+    ],
+    "keyPoints": [
+      "repadmin /showrepl reports each partition's inbound neighbours and the result of the last replication attempt.",
+      "repadmin /replsummary gives a quick health summary that flags failing partners and the largest replication deltas.",
+      "It is the primary command-line tool for diagnosing directory replication on Windows Server."
+    ],
+    "whyOthers": [
+      "",
+      "Diskpart manages disks and volumes and has no replication reporting.",
+      "Ipconfig shows IP configuration and does not report replication partners.",
+      "Wevtutil reads and manages event logs; it does not summarise replication partners or last-success times."
+    ],
+    "commandPath": [
+      {
+        "label": "Show inbound replication partners and last result",
+        "command": "repadmin /showrepl"
+      },
+      {
+        "label": "Get a forest-wide replication health summary",
+        "command": "repadmin /replsummary"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Repadmin ships with Remote Server Administration Tools; its newer form is the ActiveDirectory PowerShell cmdlets such as Get-ADReplicationPartnerMetadata."
+  },
+  "az802-q-037": {
+    "objective": "Manage AD DS sites and replication",
+    "objectiveId": "adds-sites-replication",
+    "topic": "Replication monitoring",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/diagnose-replication-failures",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/ad-ds-deployment"
+    ],
+    "keyPoints": [
+      "dcdiag runs a set of tests on a domain controller covering services, connectivity, DNS, and replication.",
+      "Individual tests can be selected with /test:, and /v adds detail.",
+      "It is the standard first check for the overall health of a controller."
+    ],
+    "whyOthers": [
+      "Nslookup queries DNS records only and does not test domain controller services.",
+      "Robocopy copies files and directories and is unrelated to AD DS health.",
+      "Mstsc starts a Remote Desktop session and performs no diagnostics.",
+      ""
+    ],
+    "commandPath": [
+      {
+        "label": "Run all default health tests on a domain controller",
+        "command": "dcdiag /v"
+      },
+      {
+        "label": "Run only the DNS tests",
+        "command": "dcdiag /test:dns /v"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Individual tests such as /test:replications and /test:ridmanager isolate specific problems, and dcdiag can be run against remote controllers with /s:."
+  },
+  "az802-q-038": {
+    "objective": "Manage AD DS sites and replication",
+    "objectiveId": "adds-sites-replication",
+    "topic": "Replication schedule",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/creating-a-site-link-design",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/diagnose-replication-failures"
+    ],
+    "keyPoints": [
+      "Intersite replication is governed by the site-link schedule, which can allow replication only during certain hours.",
+      "If the schedule permits replication only at night, a queue that grows during the day is expected until the window opens.",
+      "The site link also holds the replication interval, and change notification can be enabled on a site link to speed up propagation."
+    ],
+    "whyOthers": [
+      "NTFS compression affects how files are stored on disk, not how directory replication is scheduled.",
+      "DHCP lease duration concerns IP addressing and has no effect on replication timing.",
+      "",
+      "A user logon script runs at sign-in and does not influence replication scheduling."
+    ],
+    "commandPath": [
+      {
+        "label": "Read the schedule and interval of the site links",
+        "command": "Get-ADReplicationSiteLink -Filter * | Select-Object Name, ReplicationFrequencyInMinutes, Cost"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. The minimum intersite interval is 15 minutes; the schedule can be set to a window, and change notification on the site link is the supported way to replicate faster than the interval."
+  },
+  "az802-q-039": {
+    "objective": "Create and manage Active Directory trusts",
+    "objectiveId": "adds-trusts",
+    "topic": "Trusts",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/entra/identity/domain-services/concepts-forest-trust",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/creating-a-forest-design"
+    ],
+    "keyPoints": [
+      "Creating a child domain in a forest automatically creates a two-way transitive trust with the parent domain.",
+      "Transitivity means the child trusts domains the parent trusts through the same forest trust path.",
+      "A parent-child trust cannot be deleted on its own; it is removed only by removing the domain."
+    ],
+    "whyOthers": [
+      "A parent-child relationship always creates a trust by design, so \"No trust\" is incorrect.",
+      "",
+      "A one-way external trust connects domains in different forests and is not created automatically by promotion.",
+      "A realm trust connects AD DS with a non-Windows Kerberos realm and is not automatic either."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. All trusts inside a forest are transitive and two-way by default, which is why SID filtering and other hardening apply only to trusts that cross a forest boundary."
+  },
+  "az802-q-040": {
+    "objective": "Create and manage Active Directory trusts",
+    "objectiveId": "adds-trusts",
+    "topic": "Trusts",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/entra/identity/domain-services/concepts-forest-trust",
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/netdom-trust"
+    ],
+    "keyPoints": [
+      "An external trust connects a domain in one forest to a domain in another forest, or to a Windows NT 4.0 domain.",
+      "It is non-transitive, so it applies only to the two domains named in the trust rather than to their whole forests.",
+      "It is the right choice for a short-term or tightly scoped relationship that does not warrant a forest trust."
+    ],
+    "whyOthers": [
+      "",
+      "A parent-child trust is created automatically inside one forest during promotion and is not a manual cross-forest trust.",
+      "There is no AD DS trust type named intrasite; that term describes replication within a site.",
+      "There is no AD DS trust type named local."
+    ],
+    "commandPath": [
+      {
+        "label": "Create a one-way external trust from a domain",
+        "command": "netdom trust contoso.com /Domain:fabrikam.com /Add /Realm /PasswordT:Passw0rd"
+      },
+      {
+        "label": "List the trusts a domain participates in",
+        "command": "netdom trust contoso.com /Domain:fabrikam.com /Verify"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. An external trust requires the DNS names to be resolvable between the domains, and it is non-transitive so it must be created for each pair of domains that need it."
+  },
+  "az802-q-041": {
+    "objective": "Create and manage Active Directory trusts",
+    "objectiveId": "adds-trusts",
+    "topic": "Trusts",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/entra/identity/domain-services/concepts-forest-trust",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/creating-a-forest-design"
+    ],
+    "keyPoints": [
+      "A forest trust creates a trust relationship between two AD DS forests and is transitive between the domains each forest contains.",
+      "It requires forest functional level Windows Server 2003 or later on both sides.",
+      "Either forest-wide or selective authentication can be chosen, and SID filtering is applied by default to block forged SIDs across the boundary."
+    ],
+    "whyOthers": [
+      "A trust does not replace DNS records; name resolution between the forests still has to work, often through conditional forwarders or stub zones.",
+      "A trust creates no local groups on workstations.",
+      "A trust does not replicate file data; DFS replication or another file service handles that.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. A forest trust is created between the two forest root domains and enables transitive access to every domain in each forest, subject to authentication type and permissions."
+  },
+  "az802-q-042": {
+    "objective": "Create and manage Active Directory trusts",
+    "objectiveId": "adds-trusts",
+    "topic": "Trusts",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/entra/identity/domain-services/concepts-forest-trust",
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/netdom-trust"
+    ],
+    "keyPoints": [
+      "Selective authentication changes a trust so that users from the trusted forest can use a resource only after the resource grants them the Allowed to authenticate right.",
+      "Forest-wide authentication, the default, lets any account in the trusted forest authenticate to resources in the trusting forest, subject to permissions.",
+      "Selective authentication is chosen to constrain a cross-forest trust to explicitly approved servers."
+    ],
+    "whyOthers": [
+      "Guest-only access is not a trust authentication option and would grant broad low-trust access instead of the narrow approved-server access described.",
+      "Automatic logon is a Windows sign-in convenience setting and is not a trust option.",
+      "",
+      "Anonymous authentication grants unauthenticated access and is unrelated to scoping a trust."
+    ],
+    "commandPath": [
+      {
+        "label": "Turn selective authentication on for a trust",
+        "command": "netdom trust contoso.com /Domain:fabrikam.com /SelectiveAuth:yes"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. With selective authentication, an administrator must add the Allowed to authenticate permission on each target server or object, so it is more administrative work than forest-wide authentication."
+  },
+  "az802-q-043": {
+    "objective": "Deploy and manage AD DS domain controllers",
+    "objectiveId": "adds-domain-controllers",
+    "topic": "Domain controller deployment",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/install-active-directory-domain-services--level-100-",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/ad-ds-deployment"
+    ],
+    "keyPoints": [
+      "AD DS supports a staged or delegated preparation: the required directory changes, such as the account and DNS records, are made first and the final promotion completes later.",
+      "This split lets a service administrator perform preparation while a server administrator owns the final promotion step.",
+      "It also lets the target server be prepared before it becomes a domain controller."
+    ],
+    "whyOthers": [
+      "Format-Volume formats a disk volume and has nothing to do with directory preparation.",
+      "",
+      "Enable-DhcpServer enables the DHCP role, not AD DS preparation.",
+      "ConvertTo-MsolDomain relates to a cloud domain and is unrelated to on-premises AD DS deployment."
+    ],
+    "commandPath": [
+      {
+        "label": "Run the AD DS preparation steps separately from promotion",
+        "command": "Install-ADDSDomainController -DomainName contoso.com -PrepareOnly"
+      },
+      {
+        "label": "Complete promotion later on the prepared server",
+        "command": "Install-ADDSDomainController -DomainName contoso.com -SiteName 'Head Office'"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Staged deployment requires the forest and domain preparation (adprep) steps to have been completed, and it is most commonly used to separate the permissions needed for preparation from those needed for promotion."
+  },
+  "az802-q-044": {
+    "objective": "Deploy and manage AD DS domain controllers",
+    "objectiveId": "adds-domain-controllers",
+    "topic": "Domain controller deployment",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/dns-and-ad-ds",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/install-active-directory-domain-services--level-100-"
+    ],
+    "keyPoints": [
+      "AD DS depends on DNS SRV records to locate LDAP and Kerberos services for discovery, authentication, and replication.",
+      "A new controller must be able to resolve the domain it is joining or hosting, and it must be able to register its own service records.",
+      "The AD DS domain name and the DNS namespace normally use the same name, so reliable DNS is a prerequisite, not an optional step."
+    ],
+    "whyOthers": [
+      "",
+      "A domain controller is a domain member by definition; the workgroup state exists only before promotion.",
+      "Domain controllers use private addressing and should not be exposed with a public IP address.",
+      "The Windows Firewall should stay enabled; the required AD DS ports are allowed rather than the firewall being turned off."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Before promotion, confirm that the server can resolve the domain's SRV records and that no conflicting records exist in DNS."
+  },
+  "az802-q-045": {
+    "objective": "Deploy and manage AD DS domain controllers",
+    "objectiveId": "adds-domain-controllers",
+    "topic": "DNS for AD DS",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/dns-and-ad-ds",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/install-active-directory-domain-services--level-100-"
+    ],
+    "keyPoints": [
+      "Domain controllers and clients locate LDAP, Kerberos, and global catalog services through AD-specific SRV and host records in internal DNS.",
+      "Pointing a controller at public DNS breaks service discovery and can cause it to register records externally.",
+      "Best practice is for a controller to point at internal AD-integrated DNS and to use forwarders for names outside the domain."
+    ],
+    "whyOthers": [
+      "Public DNS has no part in creating user accounts in a domain.",
+      "DHCP can hand out any DNS server address; it does not require public DNS.",
+      "Kerberos ticket requests are addressed to services located by DNS name, so name resolution is essential, not optional.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. A domain controller should never list a public DNS server as one of its own DNS client addresses, because that causes it to register AD SRV records in the public zone."
+  },
+  "az802-q-046": {
+    "objective": "Deploy and manage AD DS domain controllers",
+    "objectiveId": "adds-domain-controllers",
+    "topic": "Domain controller demotion",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/demoting-domain-controllers-and-domains--level-200-",
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/dcpromo"
+    ],
+    "keyPoints": [
+      "Graceful demotion removes the controller's directory and service references cleanly, including its NTDS settings and DNS records.",
+      "It requires the server to be reachable and the domain to be available so the remaining controllers can take over its roles.",
+      "Before demoting, transfer or seize any FSMO roles it holds and confirm replication is healthy."
+    ],
+    "whyOthers": [
+      "Turning off the network adapter leaves stale metadata in the directory and DNS and produces the same cleanup work as a crash.",
+      "Removing only the DNS zone leaves the server object and its directory metadata behind.",
+      "",
+      "Deleting the computer object does not clean up the NTDS settings, connection objects, or replication agreements."
+    ],
+    "commandPath": [
+      {
+        "label": "Demote a controller with PowerShell",
+        "command": "Uninstall-ADDSDomainController -DemoteOperationMasterRole $true -ForceRemoval $false"
+      },
+      {
+        "label": "Remove the AD DS role from Server Manager",
+        "command": "Remove-WindowsFeature AD-Domain-Services -Restart"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Demotion requires local administrator rights and domain credentials with permission to remove the controller; if the last controller in a domain is demoted, the domain itself is removed."
+  },
+  "az802-q-047": {
+    "objective": "Manage AD DS backup, restore, and recovery",
+    "objectiveId": "adds-recovery",
+    "topic": "Domain controller metadata cleanup",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/ad-ds-metadata-cleanup",
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/dcpromo"
+    ],
+    "keyPoints": [
+      "An unplanned removal leaves a stale server object with NTDS settings, connection objects, and DNS records.",
+      "Metadata cleanup removes those remnants so the remaining controllers stop trying to replicate with a controller that no longer exists.",
+      "It also frees the controller's identity so the same name and address can be reused safely."
+    ],
+    "whyOthers": [
+      "Workstations are unaffected by the loss of one domain controller, so they do not need to be reimaged.",
+      "",
+      "User objects live in the domain partition and are replicated; they are not tied to the failed controller.",
+      "Deleting the forest schema would destroy the forest, which is the opposite of cleanup."
+    ],
+    "commandPath": [
+      {
+        "label": "Delete a failed controller's metadata in Active Directory Users and Computers",
+        "command": "dsa.msc  (then delete the server object under Domain Controllers and choose This Domain Controller is permanently offline)"
+      },
+      {
+        "label": "Clean up the failed controller's metadata with ntdsutil",
+        "command": "ntdsutil \"metadata cleanup\" connections \"connect to server DC01\" quit \"select operation target\" quit \"remove selected server\" quit quit"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Metadata cleanup requires membership of Enterprise Admins or Domain Admins in the forest root domain, and it must be run from a surviving domain controller."
+  },
+  "az802-q-048": {
+    "objective": "Deploy and manage AD DS domain controllers",
+    "objectiveId": "adds-domain-controllers",
+    "topic": "Directory partitions",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/win32/ad/naming-contexts-and-partitions",
+      "https://learn.microsoft.com/en-us/windows/win32/ad/about-application-directory-partitions"
+    ],
+    "keyPoints": [
+      "The Configuration partition stores forest-wide configuration such as sites, services, and replication topology.",
+      "It is replicated to every domain controller in the forest, so all controllers hold the same copy.",
+      "It is separate from the Schema partition, which defines object classes and attributes, and from each domain partition."
+    ],
+    "whyOthers": [
+      "",
+      "The domain partition holds objects for one domain only and does not contain forest-wide configuration.",
+      "There is no directory partition named application cache; an application partition holds application-specific data, not cached configuration.",
+      "The local SAM is the local account database on a member server, not a directory partition."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. A forest has exactly one configuration partition and one schema partition, plus one domain partition per domain and any application partitions that have been created."
+  },
+  "az802-q-049": {
+    "objective": "Deploy and manage AD DS domain controllers",
+    "objectiveId": "adds-domain-controllers",
+    "topic": "Directory partitions",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/win32/ad/about-application-directory-partitions",
+      "https://learn.microsoft.com/en-us/windows/win32/ad/naming-contexts-and-partitions"
+    ],
+    "keyPoints": [
+      "An application directory partition stores application or service data and can be replicated to a chosen subset of domain controllers.",
+      "The replication scope can be a specific domain, selected controllers, or all controllers in the forest, so a service can control where its data lives.",
+      "AD-integrated DNS zones are a common example, because a DNS zone can be stored in an application partition and replicated only to DNS servers."
+    ],
+    "whyOthers": [
+      "An application partition is additional storage and does not replace the domain partition.",
+      "Windows event logs are files managed by the Event Log service, not directory partitions.",
+      "Allocating IP addresses is a DHCP function, unrelated to directory partitions.",
+      ""
+    ],
+    "commandPath": [
+      {
+        "label": "List the application partitions in the forest",
+        "command": "Get-ADObject -SearchBase (Get-ADRootDSE).configurationNamingContext -LDAPFilter '(objectClass=crossRefContainer)' | Select-Object Name"
+      },
+      {
+        "label": "Create and replicate an application partition with ntdsutil",
+        "command": "ntdsutil \"partition management\" connections \"connect to server DC01\" quit \"create nc dc=appdata,dc=contoso,dc=com DC02\" quit quit"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. An application partition is created in the forest and needs an explicit replica set; until a replica is added it exists only on the controller that created it."
+  },
+  "az802-q-050": {
+    "objective": "Manage AD DS backup, restore, and recovery",
+    "objectiveId": "adds-recovery",
+    "topic": "Object recovery",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/retore-deleted-accounts-and-groups-in-ad",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/adac/active-directory-recycle-bin"
+    ],
+    "keyPoints": [
+      "AD Recycle Bin preserves the attributes of deleted objects so they can be restored with their original identity, including their GUID.",
+      "An authoritative restore is the alternative when Recycle Bin is not enabled, and it restores the object as it was at backup time.",
+      "Recreating the object gives a new SID, which does not restore the original permissions or memberships."
+    ],
+    "whyOthers": [
+      "A recreated account has a new SID and does not inherit the original object's identity, group memberships, or permissions.",
+      "DHCP reconciliation compares leases with the DHCP database and has nothing to do with directory objects.",
+      "",
+      "DNS scavenging deletes stale DNS records on a schedule and does not recover directory objects."
+    ],
+    "commandPath": [
+      {
+        "label": "Restore a deleted object with PowerShell",
+        "command": "Get-ADObject -Filter 'isDeleted -eq $true -and name -ne \"Deleted Objects\"' -IncludeDeletedObjects | Restore-ADObject"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. An object restored with AD Recycle Bin keeps its identity; an object restored with an authoritative restore also keeps its identity but the restore operation is forest-wide in effect and must be planned."
+  },
+  "az802-q-051": {
+    "objective": "Manage AD DS backup, restore, and recovery",
+    "objectiveId": "adds-recovery",
+    "topic": "Object recovery",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/adac/active-directory-recycle-bin",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/retore-deleted-accounts-and-groups-in-ad"
+    ],
+    "keyPoints": [
+      "AD Recycle Bin must be enabled once at the forest level before its normal restore workflow can be used.",
+      "Once enabled it cannot be disabled except in some versions by a forest recovery, so enabling it is a one-way decision.",
+      "Enabling it preserves additional attributes for deleted objects, which is what allows a complete restore."
+    ],
+    "whyOthers": [
+      "BitLocker encrypts volumes and plays no part in directory restore.",
+      "",
+      "DHCP failover provides redundancy for the DHCP service, not for directory objects.",
+      "Hyper-V Replica replicates virtual machines, not individual directory objects."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Enabling AD Recycle Bin raises the forest functional level requirement to Windows Server 2008 R2 and cannot be undone without a forest recovery."
+  },
+  "az802-q-052": {
+    "objective": "Manage AD DS functional levels",
+    "objectiveId": "adds-functional-levels",
+    "topic": "Functional levels",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/active-directory-functional-levels"
+    ],
+    "keyPoints": [
+      "Raising a functional level requires every domain controller that can host the level to run a supported Windows Server version.",
+      "Functional levels can only move forward; they cannot be lowered without reintroducing older controllers.",
+      "Plan the raise so that older controllers are upgraded or removed before the level is changed."
+    ],
+    "whyOthers": [
+      "",
+      "Global catalogs are essential for sign-in and are never deleted to raise a functional level.",
+      "Disabling replication would prevent the change from propagating and would break the directory.",
+      "Trusts are unrelated to the version requirements of a functional level."
+    ],
+    "commandPath": [
+      {
+        "label": "Read the current domain and forest functional levels",
+        "command": "Get-ADDomain | Select-Object DomainMode; Get-ADForest | Select-Object ForestMode"
+      },
+      {
+        "label": "Raise the domain functional level",
+        "command": "Set-ADDomainMode -Identity contoso.com -DomainMode Windows2016Domain"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. A forest functional level can never be higher than the lowest domain functional level in the forest, so all member domains must be raised first."
+  },
+  "az802-q-053": {
+    "objective": "Manage AD DS functional levels",
+    "objectiveId": "adds-functional-levels",
+    "topic": "Functional levels",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/active-directory-functional-levels"
+    ],
+    "keyPoints": [
+      "The domain functional level governs capabilities within a single domain, such as supported authentication and Kerberos behaviours.",
+      "The forest functional level governs features available across the whole forest, such as AD Recycle Bin and certain trust features.",
+      "A forest functional level cannot be raised above the lowest domain functional level in the forest."
+    ],
+    "whyOthers": [
+      "DHCP and DNS are separate network services; neither is governed by a functional level named for it.",
+      "Functional levels affect directory capabilities, not clients or printers.",
+      "Domain and forest levels are separate settings with different scope, so they are never identical in scope.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. The forest functional level is at least the lowest domain functional level, and raising it can enable forest-wide features that were previously unavailable."
+  },
+  "az802-q-054": {
+    "objective": "Delegate administration of AD DS objects",
+    "objectiveId": "adds-delegation",
+    "topic": "Delegation of administration",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/delegation-control-wizard",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/delegating-administration-by-using-ou-objects"
+    ],
+    "keyPoints": [
+      "The Delegation of Control Wizard grants a principal specific rights on an OU and its child objects.",
+      "Delegating the Reset Password task on one OU gives help-desk staff exactly that task without domain-wide rights.",
+      "If a delegated task does not work, check for a denied ACE or a conflicting inherited permission on the affected objects."
+    ],
+    "whyOthers": [
+      "Schema Admins can change the forest schema, which is far beyond resetting passwords in one OU.",
+      "Disabling inheritance at the domain root breaks normal permission flow and can cause wide outages.",
+      "",
+      "Adding the help-desk group to Domain Admins grants full control of the domain and violates least privilege."
+    ],
+    "commandPath": [
+      {
+        "label": "Delegate password reset on an OU with PowerShell",
+        "command": "dsacls \"OU=Helpdesk Users,DC=contoso,DC=com\" /I:S /G \"CONTOSO\\Helpdesk:CA;Reset Password;user\""
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Delegation is granted on the OU, and an object moved into the OU inherits the delegated rights; an object moved out of it loses them."
+  },
+  "az802-q-055": {
+    "objective": "Manage Group Policy processing and precedence",
+    "objectiveId": "gpo-processing",
+    "topic": "Group Policy scope",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-processing",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-modeling-results"
+    ],
+    "keyPoints": [
+      "A GPO linked at the domain root applies to all users and computers in the domain unless it is filtered.",
+      "Broad scope means a mistake affects many objects at once, so root links should be deliberate and tested before rollout.",
+      "If only some objects should receive a setting, scope it with security filtering or WMI filtering rather than linking it at the root."
+    ],
+    "whyOthers": [
+      "A GPO does not disable DNS; no Group Policy setting turns off DNS automatically.",
+      "",
+      "Domain-root GPOs do process on domain controllers; they are commonly used to configure controller settings.",
+      "A domain-root link affects the whole domain, not just a single user."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Settings in computer configuration apply at boot and on refresh; user configuration applies at sign-in and on refresh."
+  },
+  "az802-q-056": {
+    "objective": "Manage Group Policy processing and precedence",
+    "objectiveId": "gpo-processing",
+    "topic": "Group Policy processing",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-processing"
+    ],
+    "keyPoints": [
+      "Group Policy processes in LSDOU order: Local, Site, Domain, then OU from the top OU inward.",
+      "Later links process last and normally win when settings conflict, which is why the most specific setting is applied last.",
+      "Enforced links and Block Inheritance change this normal order."
+    ],
+    "whyOthers": [
+      "",
+      "OU, Domain, Site, Local reverses the broad-to-specific order and would make local policy win, which is not how processing works.",
+      "Domain, Local, OU, Site puts local policy after domain policy, but local policy is processed first.",
+      "Site, OU, Local, Domain puts site policy first, but local policy always processes before site policy."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. A maximum of 999 GPOs can apply to a single user or computer, and LSDOU is the order in which their settings are processed."
+  },
+  "az802-q-057": {
+    "objective": "Manage Group Policy processing and precedence",
+    "objectiveId": "gpo-processing",
+    "topic": "Group Policy processing",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-processing"
+    ],
+    "keyPoints": [
+      "A more specific child-OU GPO processes later than a parent-OU GPO and normally overrides the same setting from the parent.",
+      "This is the last-writer-wins behaviour of normal Group Policy processing.",
+      "An enforced link on the parent reverses this precedence and wins over the child."
+    ],
+    "whyOthers": [
+      "A parent-OU link is less specific and processes earlier than the child, so it does not normally win.",
+      "Local policy is the least specific and is applied first, so it loses to a conflicting OU setting.",
+      "The Default Domain Policy is linked at the domain root and is less specific than an OU link.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. The precedence rule applies to conflicting settings of the same kind; settings in different policy areas do not override each other."
+  },
+  "az802-q-058": {
+    "objective": "Manage Group Policy processing and precedence",
+    "objectiveId": "gpo-processing",
+    "topic": "Group Policy inheritance",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-processing",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-modeling-results"
+    ],
+    "keyPoints": [
+      "Block Inheritance stops parent-container GPOs from applying to that container.",
+      "It does not remove links or delete GPOs; it only stops inheritance at that point.",
+      "A GPO with the Enforced link setting still applies through Block Inheritance."
+    ],
+    "whyOthers": [
+      "Block Inheritance does not affect logon rights or prevent users from signing in.",
+      "It changes how policy is processed; it does not delete any GPO.",
+      "",
+      "Local Group Policy is processed separately from the domain and is not blocked."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Block Inheritance is set on a site, domain, or OU and is a per-container setting; it is common on an OU that must not receive a domain-wide baseline."
+  },
+  "az802-q-059": {
+    "objective": "Manage Group Policy processing and precedence",
+    "objectiveId": "gpo-processing",
+    "topic": "Group Policy inheritance",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-processing"
+    ],
+    "keyPoints": [
+      "An enforced link, formerly called No Override, makes the GPO's settings win over conflicting settings from lower-level containers in normal processing.",
+      "Enforced links are processed last, so they take precedence even across a Block Inheritance boundary.",
+      "Use enforcement sparingly because it can silently override intended per-OU settings."
+    ],
+    "whyOthers": [
+      "Starter GPOs are templates used when creating new GPOs; enforcement is unrelated.",
+      "",
+      "Security filtering is a separate mechanism and is not disabled by enforcement.",
+      "Enforcement applies to the scope of the linked container, not only to local users."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Link order still matters among multiple enforced GPOs, and an enforced setting can still be blocked at the object level by a permission that prevents the GPO from applying."
+  },
+  "az802-q-060": {
+    "objective": "Manage Group Policy application and filtering",
+    "objectiveId": "gpo-application",
+    "topic": "Group Policy diagnosis",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-modeling-results"
+    ],
+    "keyPoints": [
+      "gpresult reports the Resultant Set of Policy for a user and computer, including which GPOs applied and which were denied.",
+      "gpresult /h produces an HTML report, and gpresult /r prints a summary.",
+      "It is read-only and runs on the target computer."
+    ],
+    "whyOthers": [
+      "",
+      "Diskpart manages disks and volumes, not policy.",
+      "Repadmin reports directory replication, not effective Group Policy.",
+      "Nslookup queries DNS records and does not report policy results."
+    ],
+    "commandPath": [
+      {
+        "label": "Summarise the applied policy for the current user and computer",
+        "command": "gpresult /r"
+      },
+      {
+        "label": "Write a full HTML policy report",
+        "command": "gpresult /h C:\\Reports\\policy-results.html"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS and to domain-joined clients. Reporting another user or computer requires the appropriate permissions, and the target must be reachable."
+  },
+  "az802-q-061": {
+    "objective": "Manage Group Policy application and filtering",
+    "objectiveId": "gpo-application",
+    "topic": "Group Policy diagnosis",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-modeling-results",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-processing"
+    ],
+    "keyPoints": [
+      "Group Policy Modeling in GPMC simulates the effect of policy for a chosen user and computer combination before it is applied.",
+      "Group Policy Results reports what actually happened on a real computer rather than a simulation.",
+      "Modeling needs a suitable domain controller and may use a saved plan; Results needs the target computer to be reachable and logged on."
+    ],
+    "whyOthers": [
+      "Disk Management configures volumes and has no policy modeling.",
+      "DNS Manager administers DNS zones and does not model policy.",
+      "Hyper-V Manager administers virtual machines and does not model Group Policy.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Group Policy Modeling is a what-if simulation, so it can be run for a computer that is offline, while Group Policy Results requires a live target."
+  },
+  "az802-q-062": {
+    "objective": "Manage Group Policy application and filtering",
+    "objectiveId": "gpo-application",
+    "topic": "Group Policy filtering",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/group-policy/cannot-apply-user-gpo-when-computer-objects-dont-have-read-permissions",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-processing"
+    ],
+    "keyPoints": [
+      "Security filtering controls which principals can read and apply a GPO.",
+      "The group or user must have both Read and Apply Group Policy permissions for the GPO to affect them.",
+      "For user settings, the computer object also needs Read permission on the GPO, which is a common cause of user policy not applying."
+    ],
+    "whyOthers": [
+      "DHCP scope settings do not affect whether a GPO applies.",
+      "Printer drivers are unrelated to Group Policy scope.",
+      "",
+      "The disk partition style of a server has no bearing on policy application."
+    ],
+    "commandPath": [
+      {
+        "label": "Show which GPOs were denied for a computer",
+        "command": "gpresult /scope computer /v"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Since Windows Server 2016, the default allows Authenticated Users to read but not apply, and computer objects need Read permission on the GPO to receive user settings."
+  },
+  "az802-q-063": {
+    "objective": "Manage Group Policy application and filtering",
+    "objectiveId": "gpo-application",
+    "topic": "Group Policy loopback",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/group-policy/loopback-processing-of-group-policy",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/group-policy/apply-group-policy-objects-rds"
+    ],
+    "keyPoints": [
+      "Loopback processing applies user settings based on the computer's location or role, regardless of who logs on.",
+      "It is used for shared computers, kiosks, and Remote Desktop session hosts.",
+      "It has two modes, Merge and Replace."
+    ],
+    "whyOthers": [
+      "Loopback is a Group Policy setting and does not create an AD trust.",
+      "",
+      "SYSVOL replication is governed by DFSR, not by loopback processing.",
+      "Resetting a user password is a directory operation that loopback does not perform."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Loopback is configured under Computer Configuration, Administrative Templates, System, Group Policy, and requires a restart or a policy refresh to take effect."
+  },
+  "az802-q-064": {
+    "objective": "Manage Group Policy application and filtering",
+    "objectiveId": "gpo-application",
+    "topic": "Group Policy loopback",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/group-policy/loopback-processing-of-group-policy",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/group-policy/apply-group-policy-objects-rds"
+    ],
+    "keyPoints": [
+      "In Replace mode, the user settings from GPOs scoped to the computer replace the user's normal user-policy list.",
+      "In Merge mode, the computer's user settings are combined with the user's normal user settings instead of replacing them.",
+      "Replace gives strict control over a shared or kiosk computer, while Merge is less disruptive."
+    ],
+    "whyOthers": [
+      "Merge combines the computer's user settings with the user's normal settings rather than replacing them.",
+      "",
+      "There is no loopback mode named Append.",
+      "Redirect is not a loopback mode."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. The loopback setting is per-computer, and in Replace mode the user's normal user-side GPOs do not apply on that computer."
+  },
+  "az802-q-065": {
+    "objective": "Manage Group Policy application and filtering",
+    "objectiveId": "gpo-application",
+    "topic": "Group Policy preferences",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-preferences",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/group-policy/group-policy-processing"
+    ],
+    "keyPoints": [
+      "Item-level targeting applies a single preference item only when its conditions match, such as a registry value, security group, IP range, or computer name.",
+      "Conditions can be combined with AND/OR, and a false result means the item is skipped.",
+      "It is a property of the preference item, not of the whole GPO."
+    ],
+    "whyOthers": [
+      "A schema extension adds object classes and attributes to the directory and has nothing to do with preference filtering.",
+      "RID allocation assigns identifiers to new security principals and is unrelated to Group Policy.",
+      "DNS delegation hands a DNS zone to another server and does not filter preference items.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Group Policy Preferences are available only in domain-based GPOs, and each preference item can carry its own item-level targeting conditions."
   }
 }
