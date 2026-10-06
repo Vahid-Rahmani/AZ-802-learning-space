@@ -5,7 +5,7 @@
     "topic": "Performance Monitor",
     "difficulty": "easy",
     "sourceRefs": [
-      "https://learn.microsoft.com/en-us/windows-server/administration/performance/performance-monitor",
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/perfmon",
       "https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-performance-problems-in-windows"
     ],
     "keyPoints": [
@@ -26,7 +26,7 @@
     "topic": "Performance Monitor",
     "difficulty": "easy",
     "sourceRefs": [
-      "https://learn.microsoft.com/en-us/windows-server/administration/performance/performance-monitor",
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/perfmon",
       "https://learn.microsoft.com/en-us/windows-server/administration/server-manager/view-and-configure-performance-event-and-service-data"
     ],
     "keyPoints": [
@@ -47,7 +47,7 @@
     "topic": "Performance Monitor",
     "difficulty": "easy",
     "sourceRefs": [
-      "https://learn.microsoft.com/en-us/windows-server/administration/performance/performance-monitor",
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/perfmon",
       "https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-performance-problems-in-windows"
     ],
     "keyPoints": [
@@ -68,7 +68,7 @@
     "topic": "Performance Monitor",
     "difficulty": "medium",
     "sourceRefs": [
-      "https://learn.microsoft.com/en-us/windows-server/administration/performance/performance-monitor",
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/perfmon",
       "https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-performance-problems-in-windows"
     ],
     "keyPoints": [
@@ -488,7 +488,7 @@
     "topic": "AD replication",
     "difficulty": "easy",
     "sourceRefs": [
-      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/repadmin",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/troubleshoot/troubleshooting-active-directory-replication-problems",
       "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/diagnose-replication-failures"
     ],
     "keyPoints": [

@@ -90,7 +90,7 @@
     "difficulty": "easy",
     "sourceRefs": [
       "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/wbadmin-start-recovery",
-      "https://learn.microsoft.com/en-us/azure/backup/backup-azure-architecture"
+      "https://learn.microsoft.com/en-us/azure/backup/backup-architecture"
     ],
     "keyPoints": [
       "A completed backup job proves capture, not that a restore meets RTO or data requirements.",
@@ -110,7 +110,7 @@
     "topic": "Backup design",
     "difficulty": "medium",
     "sourceRefs": [
-      "https://learn.microsoft.com/en-us/azure/backup/backup-azure-architecture",
+      "https://learn.microsoft.com/en-us/azure/backup/backup-architecture",
       "https://learn.microsoft.com/en-us/azure/well-architected/reliability/disaster-recovery"
     ],
     "keyPoints": [
@@ -137,7 +137,7 @@
     "keyPoints": [
       "System state includes AD DS, SYSVOL, registry, boot files, COM+ class registry, and certificates.",
       "It supports nonauthoritative restores of directory components without full-volume recovery.",
-      "wbadmin start sytemstatebackup -backupTarget:... runs an ad-hoc system-state capture."
+      "wbadmin start systemstatebackup -backupTarget:... runs an ad-hoc system-state capture."
     ],
     "whyOthers": [
       "Screenshots are not a recoverable OS state.",
