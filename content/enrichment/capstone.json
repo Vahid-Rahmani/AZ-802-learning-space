@@ -1,0 +1,422 @@
+{
+  "az802-q-281": {
+    "objective": "Define the recovery point objective as the maximum acceptable data-loss window measured in time.",
+    "objectiveId": "recovery-objectives",
+    "topic": "Recovery objectives",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/site-recovery/site-recovery-overview",
+      "https://learn.microsoft.com/en-us/azure/well-architected/reliability/disaster-recovery"
+    ],
+    "keyPoints": [
+      "RPO bounds how much data change the business can afford to lose after an incident.",
+      "RPO is set per workload and directly shapes replication and backup frequency.",
+      "An RPO of 15 minutes means at most roughly 15 minutes of lost changes."
+    ],
+    "whyOthers": [
+      "Restoring service within a deadline is RTO, a different objective.",
+      "Domain-controller counts have no relationship to data-loss tolerance.",
+      "Backup disk size is capacity planning, not a time-based loss bound.",
+      ""
+    ]
+  },
+  "az802-q-282": {
+    "objective": "Define the recovery time objective as the target time to restore service after disruption.",
+    "objectiveId": "recovery-objectives",
+    "topic": "Recovery objectives",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/site-recovery/site-recovery-overview",
+      "https://learn.microsoft.com/en-us/azure/well-architected/reliability/disaster-recovery"
+    ],
+    "keyPoints": [
+      "RTO bounds how quickly service must be back after an incident.",
+      "RTO drives stand-up runbooks, automation, and failover design.",
+      "RPO and RTO together define the overall continuity requirement."
+    ],
+    "whyOthers": [
+      "Password age describes account-lifecycle policy, unrelated to service restoration.",
+      "DNS caching duration controls record refresh, not recovery timing.",
+      "",
+      "Maximum file size is a storage limit, not a recovery objective."
+    ]
+  },
+  "az802-q-283": {
+    "objective": "Explain that differential backups capture all changes since the last full backup.",
+    "objectiveId": "backup-types",
+    "topic": "Backup types",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/wbadmin-start-backup",
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/windows-server-backup-command-reference"
+    ],
+    "keyPoints": [
+      "Differential backups grow until the next full backup resets the delta base.",
+      "Restore needs the last full plus the latest differential.",
+      "Compared with incrementals, differentials trade more storage and copy time for simpler restores."
+    ],
+    "whyOthers": [
+      "Mirror-only checkpoints are Hyper-V state capture, not a backup type.",
+      "",
+      "Incremental backups capture changes since the previous backup of any type, not since the full.",
+      "Synthetic delete is not a recognized backup taxonomy term."
+    ]
+  },
+  "az802-q-284": {
+    "objective": "Explain that incremental backups capture changes since the previous backup of any type.",
+    "objectiveId": "backup-types",
+    "topic": "Backup types",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/wbadmin-start-backup",
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/windows-server-backup-command-reference"
+    ],
+    "keyPoints": [
+      "Incrementals are the smallest and fastest daily runs but chain restore steps.",
+      "Restore requires the last full plus each needed incremental in order.",
+      "Any single damaged increment can break the whole restore chain."
+    ],
+    "whyOthers": [
+      "",
+      "Differential backups always delta from the last full backup, not from yesterday's media.",
+      "A full-only scheme re-copies everything daily, the opposite of incremental efficiency.",
+      "Replica metadata describes replication state, not backup deltas."
+    ]
+  },
+  "az802-q-285": {
+    "objective": "Prove recoverability with actual restore exercises, not just successful backup jobs.",
+    "objectiveId": "restore-testing",
+    "topic": "Backup testing",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/wbadmin-start-recovery",
+      "https://learn.microsoft.com/en-us/azure/backup/backup-azure-architecture"
+    ],
+    "keyPoints": [
+      "A completed backup job proves capture, not that a restore meets RTO or data requirements.",
+      "Restore tests validate media integrity, procedures, permissions, and application dependencies.",
+      "Schedule drills and track their duration against RTO."
+    ],
+    "whyOthers": [
+      "Test frequency does not change the size classification of backups.",
+      "Restore testing and monitoring answer different questions; neither replaces the other.",
+      "Encryption state is independent of whether restores are exercised.",
+      ""
+    ]
+  },
+  "az802-q-286": {
+    "objective": "Design backups with protected, access-controlled, tested copies including isolated or immutable storage.",
+    "objectiveId": "ransomware-resilience",
+    "topic": "Backup design",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/backup/backup-azure-architecture",
+      "https://learn.microsoft.com/en-us/azure/well-architected/reliability/disaster-recovery"
+    ],
+    "keyPoints": [
+      "Keep at least one copy an attacker cannot reach or overwrite: isolated or immutable.",
+      "Restrict access to backup administration with privileged accounts and separate credentials.",
+      "Regularly test restores so the defense is proven, not assumed."
+    ],
+    "whyOthers": [
+      "One shared administrator account is an easy single point of compromise.",
+      "Disabling alerts hides the biggest signal that an attack is underway.",
+      "",
+      "Storing the only backup on the production server defeats the purpose entirely."
+    ]
+  },
+  "az802-q-287": {
+    "objective": "Use system state backups to capture critical AD DS, registry, and boot components of a domain controller.",
+    "objectiveId": "system-state-backup",
+    "topic": "System state",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/wbadmin-start-systemstatebackup",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/forest-recovery-guide/ad-forest-recovery-procedures"
+    ],
+    "keyPoints": [
+      "System state includes AD DS, SYSVOL, registry, boot files, COM+ class registry, and certificates.",
+      "It supports nonauthoritative restores of directory components without full-volume recovery.",
+      "wbadmin start sytemstatebackup -backupTarget:... runs an ad-hoc system-state capture."
+    ],
+    "whyOthers": [
+      "Screenshots are not a recoverable OS state.",
+      "",
+      "User folders live in volume backups, not in the state database.",
+      "DHCP lease data is its own targeted backup, not part of system state."
+    ]
+  },
+  "az802-q-288": {
+    "objective": "Recognize DSRM as the offline recovery environment for the AD DS database.",
+    "objectiveId": "dsrm",
+    "topic": "DSRM",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/forest-recovery-guide/ad-forest-recovery-procedures",
+      "https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc732211(v=ws.11)"
+    ],
+    "keyPoints": [
+      "DSRM boots a DC with directory services stopped so ntdsutil and restore tools can act offline.",
+      "The DSRM Administrator password is distinct from domain credentials and must be recorded securely.",
+      "Recovery mode selection happens through boot options or WBC/VM configuration."
+    ],
+    "whyOthers": [
+      "",
+      "DHCP configuration happens online with the DHCP console or PowerShell.",
+      "Cluster joining is a generic HA action with no directory-recovery semantics.",
+      "DNSSEC signing operates on zones online, unrelated to DSRM."
+    ]
+  },
+  "az802-q-289": {
+    "objective": "Distinguish nonauthoritative restore (receive updates from partners) from authoritative restore (replicate restored data outward).",
+    "objectiveId": "authoritative-restore",
+    "topic": "AD restore modes",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/forest-recovery-guide/ad-forest-recovery-procedures",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/group-policy/force-authoritative-non-authoritative-synchronization"
+    ],
+    "keyPoints": [
+      "Nonauthoritative restore pulls newer state from replication partners; it is the default correction path.",
+      "Authoritative restore pushes selected data (for example deleted OUs) out to partners.",
+      "Choose by deciding whether the restored copy is the source of truth, not just recovery mechanics."
+    ],
+    "whyOthers": [
+      "Schema and DNS roles are independent; the restore modes are not about them.",
+      "The two modes are operationally very different, not identical.",
+      "Printer restoration is an ordinary workload restore, not an AD concept.",
+      ""
+    ]
+  },
+  "az802-q-290": {
+    "objective": "Use authoritative SYSVOL restore when the restored copy must repopulate policy and scripts to other DCs.",
+    "objectiveId": "authoritative-restore",
+    "topic": "SYSVOL restore",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/forest-recovery-guide/ad-forest-recovery-procedures",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/group-policy/force-authoritative-non-authoritative-synchronization"
+    ],
+    "keyPoints": [
+      "Authoritative SYSVOL restore marks the restored content as the domain's copy to replicate outward.",
+      "Use the msDFSR-Options attribute (or BurFlags D2) to force authoritative SYSVOL sync.",
+      "For forest recovery, perform authoritative SYSVOL on the first reinstated DC only."
+    ],
+    "whyOthers": [
+      "SYSVOL holds policy and scripts; DNS zone data lives elsewhere.",
+      "SYSVOL restore never creates a forest automatically.",
+      "",
+      "Removing Group Policy objects is a separate administrative task, not SYSVOL restore semantics."
+    ]
+  },
+  "az802-q-291": {
+    "objective": "Explain that failover clustering continues supported workloads on another node after failure.",
+    "objectiveId": "failover-clustering",
+    "topic": "Failover clustering",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/failover-clustering/failover-clustering-overview",
+      "https://learn.microsoft.com/en-us/windows-server/failover-clustering/deploy-quorum-witness"
+    ],
+    "keyPoints": [
+      "Clustered roles fail over to surviving nodes with limited or no downtime for supported roles.",
+      "Instructions live in the cluster database and are kept consistent by quorum.",
+      "Failover clustering is distinct from replication or backup as an availability mechanism."
+    ],
+    "whyOthers": [
+      "Clustering does not remove the need for patching; rolling upgrades coordinate but do not eliminate it.",
+      "",
+      "DNS recursion is a resolver concern with no clustering tie.",
+      "Backups remain mandatory; HA is not a substitute for restore capability."
+    ]
+  },
+  "az802-q-292": {
+    "objective": "Prevent split-brain by requiring sufficient quorum votes or a proper quorum model.",
+    "objectiveId": "failover-clustering",
+    "topic": "Quorum",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/failover-clustering/deploy-quorum-witness",
+      "https://learn.microsoft.com/en-us/windows-server/failover-clustering/what-is-quorum-witness"
+    ],
+    "keyPoints": [
+      "Quorum defines how many votes are required to keep operating, preventing partitions from acting independently.",
+      "Convert a lost vote into a witness (disk, file share, or cloud) to keep quorum reachable.",
+      "A cluster without sufficient votes goes offline to protect consistency."
+    ],
+    "whyOthers": [
+      "",
+      "Every node running DHCP is a service distribution choice, not a quorum mechanism.",
+      "Returning multiple addresses from DNS can add ambiguity, not cluster-safe decisions.",
+      "VM checkpoints are point-in-time virtualization state, not cluster voting."
+    ]
+  },
+  "az802-q-293": {
+    "objective": "Use a witness as an additional tie-break vote in quorum decisions.",
+    "objectiveId": "failover-clustering",
+    "topic": "Quorum",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/failover-clustering/what-is-quorum-witness",
+      "https://learn.microsoft.com/en-us/windows-server/failover-clustering/deploy-quorum-witness"
+    ],
+    "keyPoints": [
+      "Witnesses add a tie-breaking vote: file-share witness or cloud witness are common for two-node clusters.",
+      "Choose witness type based on topology; they help maintain quorum, not participate in workload.",
+      "A witness stores only minimal cluster information, never user data."
+    ],
+    "whyOthers": [
+      "Witnesses never store passwords; storing secrets there would be unsafe.",
+      "VM memory allocation is a resource-setting concern, not a quorum artifact.",
+      "Encrypting shares is an SMB protocol-level function, not witness behavior.",
+      ""
+    ]
+  },
+  "az802-q-294": {
+    "objective": "Use planned maintenance failover to move workloads deliberately to another node.",
+    "objectiveId": "failover-clustering",
+    "topic": "Planned failover",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/failover-clustering/failover-clustering-overview",
+      "https://learn.microsoft.com/en-us/windows-server/failover-clustering/deploy-quorum-witness"
+    ],
+    "keyPoints": [
+      "Planned failovers drain roles to another node before maintenance, minimizing disruption.",
+      "Use it to validate every node's ability to host roles before unscheduled failovers.",
+      "Coordinate cluster patching through planned failover and rolling upgrades."
+    ],
+    "whyOthers": [
+      "Deleted user objects are not recovered by cluster moves; restore them from backups or the Recycle Bin.",
+      "Disabling monitoring is unrelated and increases operational risk.",
+      "",
+      "Deleting the cluster database destroys configuration, an anti-pattern during maintenance."
+    ]
+  },
+  "az802-q-295": {
+    "objective": "Describe in-place upgrade as upgrading the existing OS installation while retaining supported roles and settings.",
+    "objectiveId": "in-place-upgrade",
+    "topic": "OS upgrade",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/get-started/upgrade-in-place",
+      "https://learn.microsoft.com/en-us/windows-server/get-started/install-upgrade-migrate"
+    ],
+    "keyPoints": [
+      "In-place upgrade keeps hardware, roles, and settings while moving to a newer release.",
+      "Validate compatibility, confirm working backups, and plan rollback before starting.",
+      "Some roles or applications require dedicated migration steps instead of in-place upgrade."
+    ],
+    "whyOthers": [
+      "Converting an RODC to DNS is not a real upgrade path.",
+      "",
+      "Creating a new forest automatically is not part of any upgrade operation.",
+      "Replacing a file server with Azure Files is a service migration, not an OS upgrade."
+    ]
+  },
+  "az802-q-296": {
+    "objective": "Prefer side-by-side migration when you need a rollback path, hardware refresh, or a clean configuration on a new server.",
+    "objectiveId": "side-by-side-migration",
+    "topic": "Migration paths",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/get-started/install-upgrade-migrate",
+      "https://learn.microsoft.com/en-us/azure/migrate/migrate-services-overview"
+    ],
+    "keyPoints": [
+      "A parallel target server allows staged migration, testing, and controlled cutover.",
+      "Hardware refresh and redesign usually choose this path instead of in-place upgrade.",
+      "Decommission the old server only after validation completes."
+    ],
+    "whyOthers": [
+      "",
+      "When no new server can be provisioned, side-by-side is exactly the path that cannot run.",
+      "Unsupported applications need remediation regardless of migration approach.",
+      "Unavailable backups block every safe path rather than selecting one."
+    ]
+  },
+  "az802-q-298": {
+    "objective": "Apply security translation during a file-server migration so migrated accounts retain access to resources.",
+    "objectiveId": "admt",
+    "topic": "ADMT",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/win32/ad/using-dsaddsidhistory",
+      "https://learn.microsoft.com/en-us/windows/win32/secauthz/access-control-lists"
+    ],
+    "keyPoints": [
+      "ACLs grant access through SIDs; SID history keeps original SIDs valid in the token during migration.",
+      "Security translation rewrites resource ACLs to reference the new domain's SIDs.",
+      "Run translation after confirming group memberships so no access is lost at cutover."
+    ],
+    "whyOthers": [
+      "Converting VHDX to VHD is a disk-image conversion, unrelated to access control.",
+      "DHCP option translation adjusts network settings, not permissions.",
+      "",
+      "Resolving DNS names into IPs is name resolution, not identity migration."
+    ]
+  },
+  "az802-q-299": {
+    "objective": "Assess dependencies, runtime compatibility, data stores, authentication, networking, and performance requirements before migrating an IIS workload to Azure.",
+    "objectiveId": "app-assessment",
+    "topic": "Workload assessment",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/migrate/migrate-services-overview",
+      "https://learn.microsoft.com/en-us/azure/migrate/concepts-assessment-overview"
+    ],
+    "keyPoints": [
+      "Map application dependencies first; a web server is never only web files.",
+      "Confirm runtime and database compatibility along with authentication design.",
+      "Network and performance requirements drive sizing and connectivity decisions."
+    ],
+    "whyOthers": [
+      "DNS TTL is a single record lifetime setting, not a migration assessment.",
+      "",
+      "The server hostname carries over trivially and proves nothing about readiness.",
+      "Local user counts reveal nothing about application dependencies."
+    ]
+  },
+  "az802-q-300": {
+    "objective": "Finish recovery or migration work with documented tests, business validation, monitoring, and runbook updates.",
+    "objectiveId": "runbook-validation",
+    "topic": "Operational validation",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/well-architected/reliability/disaster-recovery",
+      "https://learn.microsoft.com/en-us/azure/migrate/migrate-services-overview"
+    ],
+    "keyPoints": [
+      "Validated behavior, not a completed copy, is what makes a service ready.",
+      "Runbooks must reflect the current tested environment so future recovery repeats success.",
+      "Monitor recovered or migrated services and close gaps found during validation."
+    ],
+    "whyOthers": [
+      "",
+      "Deleting the source before validation creates an unrecoverable failure mode.",
+      "Disabling alerts removes the signal needed to catch post-cutover problems.",
+      "Assuming a successful copy means readiness ignores real functional proof."
+    ]
+  },
+  "az802-q-297": {
+    "objective": "Use Active Directory Migration Tool (ADMT) to migrate AD DS objects between domains or forests.",
+    "objectiveId": "admt",
+    "topic": "ADMT",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/support-policy-and-known-issues-for-admt",
+      "https://learn.microsoft.com/en-us/windows/win32/ad/using-dsaddsidhistory"
+    ],
+    "keyPoints": [
+      "ADMT migrates users, groups, and computers, supporting security translation scenarios.",
+      "Trusts between source and target domains are a prerequisite for object migration.",
+      "Plan password migration and SID history usage for phased restructuring."
+    ],
+    "whyOthers": [
+      "Disk Cleanup removes unneeded files; it never migrates directory objects.",
+      "DNS Manager manages name records, not users, groups, or computers.",
+      "Hyper-V Replica replicates whole VMs and cannot migrate AD objects.",
+      ""
+    ]
+  }
+}
