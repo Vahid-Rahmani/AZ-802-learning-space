@@ -86,7 +86,10 @@ export function Az802QuestionBank({
     });
   }, [domainQuestions, topic, difficulty, status, attempts, query]);
 
-  const selectClass = "rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white outline-none focus:border-cyan-300";
+  // min-w-0 lets the control shrink inside the wrapping filter row on a phone;
+  // without it a long option label forces the whole page to scroll sideways.
+  const selectClass = "w-full min-w-0 max-w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white outline-none focus:border-cyan-300";
+  const filterLabelClass = "grid min-w-0 gap-1 text-xs text-slate-400";
 
   return <section className="mx-auto max-w-6xl space-y-5" aria-label="AZ-802 question bank">
     <div className="rounded-3xl border border-cyan-300/20 bg-gradient-to-br from-[#173147] to-[#111a28] p-6 sm:p-8">
@@ -123,14 +126,14 @@ export function Az802QuestionBank({
 
     <div className="rounded-3xl border border-white/10 bg-[#111a28] p-5 sm:p-6">
       <div className="flex flex-wrap items-end gap-3">
-        <label className="grid gap-1 text-xs text-slate-400">
+        <label className={filterLabelClass}>
           <span>Topic</span>
           <select className={selectClass} value={topic} onChange={(event) => setTopic(event.target.value)} aria-label="Filter by topic">
             <option value="all">All topics ({domainQuestions.length})</option>
             {topicCounts.map(([name, count]) => <option key={name} value={name}>{name} ({count})</option>)}
           </select>
         </label>
-        <label className="grid gap-1 text-xs text-slate-400">
+        <label className={filterLabelClass}>
           <span>Difficulty</span>
           <select className={selectClass} value={difficulty} onChange={(event) => setDifficulty(event.target.value)} aria-label="Filter by difficulty">
             <option value="all">Any difficulty</option>
@@ -140,7 +143,7 @@ export function Az802QuestionBank({
             {hasUnrated && <option value={UNRATED}>Not rated yet</option>}
           </select>
         </label>
-        <label className="grid gap-1 text-xs text-slate-400">
+        <label className={filterLabelClass}>
           <span>Your status</span>
           <select className={selectClass} value={status} onChange={(event) => setStatus(event.target.value)} aria-label="Filter by answer status">
             <option value="all">All questions</option>
@@ -149,7 +152,7 @@ export function Az802QuestionBank({
             <option value="incorrect">Answered incorrectly</option>
           </select>
         </label>
-        <label className="grid min-w-48 flex-1 gap-1 text-xs text-slate-400">
+        <label className="grid min-w-0 flex-1 gap-1 text-xs text-slate-400 sm:min-w-48">
           <span>Find in this domain</span>
           <span className="relative">
             <Search aria-hidden="true" size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-cyan-300" />
