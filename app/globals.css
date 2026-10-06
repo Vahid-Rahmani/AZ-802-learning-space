@@ -158,6 +158,19 @@ body { top:0 !important; }
 .question-distractor .google-subtitle-original, .question-distractor .google-subtitle-translation { min-width:0; overflow-wrap:anywhere; word-break:normal; }
 .question-distractor .google-subtitle-translation { margin-top:0; border-top:1px solid rgba(103,232,249,.18); padding-top:.55rem; line-height:1.75; }
 .question-explanation-source { color:#67e8f9; font-size:calc(1.125rem * var(--wincraft-font-scale, 1)); font-weight:800; }
+/* Question-specific evidence: deciding facts, real commands, exact Learn pages.
+   Every size follows --wincraft-font-scale and every block wraps instead of
+   clipping so the translation line never overlaps at the largest text size. */
+.question-key-points { margin:0; padding-inline-start:1.35rem; display:grid; gap:.55rem; }
+.question-key-points li { color:#cbd5e1; font-size:calc(1.125rem * var(--wincraft-font-scale, 1)); line-height:1.75; overflow-wrap:anywhere; }
+.question-command-path { display:grid; gap:.7rem; }
+.question-command-step { min-width:0; border:1px solid rgba(148,163,184,.22); border-radius:.7rem; padding:.65rem .75rem; background:rgba(2,6,12,.6); }
+.question-command-step p { margin:0 0 .4rem; color:#cbd5e1; font-size:calc(1.05rem * var(--wincraft-font-scale, 1)); line-height:1.6; }
+.question-command-step pre { margin:0; max-width:100%; overflow-x:auto; border-radius:.55rem; border:1px solid rgba(103,232,249,.18); background:rgba(0,0,0,.45); padding:.6rem .7rem; }
+.question-command-step code { color:#a5f3fc; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:calc(.95rem * var(--wincraft-font-scale, 1)); line-height:1.6; white-space:pre-wrap; overflow-wrap:anywhere; }
+.question-source-refs { margin:0; padding-inline-start:1.35rem; display:grid; gap:.45rem; }
+.question-source-refs li { min-width:0; }
+.question-source-refs a { color:#67e8f9; font-size:calc(1.05rem * var(--wincraft-font-scale, 1)); font-weight:700; line-height:1.6; overflow-wrap:anywhere; word-break:break-word; }
 .question-explanation-choice { display:grid; gap:.35rem; border:1px solid rgba(148,163,184,.2); border-radius:.8rem; padding:.8rem; background:rgba(3,7,12,.55); font-size:calc(1.25rem * var(--wincraft-font-scale, 1)); line-height:1.75; }
 .question-explanation-choice h4 { margin:0; font-size:calc(1.5rem * var(--wincraft-font-scale, 1)); }
 .question-explanation-choice strong { color:#f8fafc; }

@@ -40,7 +40,23 @@ Each lab has step-specific Explain, Microsoft references, account-scoped server 
 
 Only disposable learner-owned VMs are in scope. Shared exercise passwords, EICAR bytes, original Classroom files and personal class metadata are not included. Dangerous optional source variations (disabling antivirus, clearing logs, forced shutdown and changing time) are not mandatory. Use unique lab passwords and preserve protection/evidence. Run the data/rubric checks with `node --experimental-strip-types scripts/validate-server-labs.mjs`.
 
-- **AZ-802** keeps the existing 300-question Windows Server learning, exam, graph, lab, search, and Leitner experience.
+- **AZ-802** keeps the existing 300-question Windows Server learning, exam, graph, lab, search, and Leitner experience. All 300 IDs are unchanged, so saved answers, checkpoint cursors, and Leitner boxes remain valid.
+
+### AZ-802 structure and Explain (October 6, 2026)
+
+Navigation now separates the areas: a dedicated **Question bank**, a dedicated **Exams** section, Search, Labs, the Skill graph, and Leitner each live in their own section instead of being stacked on the dashboard. The dashboard keeps only the progress summary, the continue card, and clear access to the other sections. Every counter reads the real bank, so the header, the stage strip, and the bank filters always match the question count actually present in `lib/content/questions.ts`.
+
+**Question bank** shows the path domain → topic → question. Topic, difficulty, and your own answer status (answered, not answered, answered incorrectly) are filters over real data: topics and difficulty come from each question's own enrichment fields, and answer status comes from the account's saved attempts. "Practice this question" opens that exact question through the same practice flow, so search, bank, exam, lesson, and Leitner all point at one question record.
+
+**Explain** is rebuilt around question-specific evidence: the direct answer, the facts in the scenario that decide it, the Windows Server version and effective limits, a separate reason for **every** other option with the situation where that option would be right, a real command or settings path where one genuinely clarifies the answer, and the exact Microsoft Learn page for the objective. The generic per-domain "Learning schematic" template and its filler sentence are removed from the AZ-802 Explain output. `QuestionExplanation` is shared with AZ-900, so the change is opt-in through a prop and the AZ-900 Explain is untouched.
+
+**Review status stays honest.** Questions keep `reviewStatus: "draft"` and the existing `audit` flags. A flag is only set when the corresponding check was actually performed with a page-specific source. Enrichment is tracked per question, and `npm run validate:az802` reports how many questions are fully sourced; the bank remains usable while that number grows, because nothing is presented as verified until it is.
+
+New questions are stored in English only and translated for display by the existing Google Translate flow. No manual translation bank and no paid translation service are introduced. The bank, the exam pool, and search all read from the same array, so a new question automatically appears in its domain practice, the weighted exam modes, search, its related lesson, and Leitner.
+
+Validate the shape and the coverage with `npm run validate:questions` and `npm run validate:az802`; regenerate the tracked audit manifest with `npm run audit:questions`. Reviewed enrichment batches are applied with `node scripts/enrich-question-bank.mjs <patch.json>`, which refuses to change a question ID, its options, or its answer unless you pass `--allow-answer-fixes` deliberately.
+
+The authored target is roughly 400 sourced questions. The current count is whatever the bank actually contains after review: closing the gap is expected to happen domain by domain, and a question that cannot prove its answer with a page-specific Microsoft Learn source does not enter the flow.
 - **AZ-900** adds 180 original Microsoft Learn-sourced questions across all 57 objectives in the July 20, 2026 blueprint, distributed 50/68/62 across the three official domains. It includes 11 lessons, 11 stages, four review modes, smart search, a course graph, three guided labs, translations, session resume, and Leitner review.
 - No Microsoft exam or Practice Assessment question is copied into the repository. Official Practice Assessment and Exam Sandbox experiences are linked separately.
 

@@ -145,6 +145,15 @@ html[data-theme="fluent"], html[data-theme="fluent"] body { background:var(--bac
 [data-theme="fluent"] .question-explain-button { background:#e8f2fc; border-color:#bbd8f1; color:#0f6cbd; }
 [data-theme="fluent"] .question-distractor { background:#fff8e8; color:#536579; border-left-color:#b78928; }
 [data-theme="fluent"] .question-distractor strong { color:#765208; }
+/* The question-specific evidence blocks need the same light-theme treatment as
+   the rest of Explain, otherwise the original English inherits the dark-theme
+gray and becomes unreadable next to its translation. */
+[data-theme="fluent"] .question-key-points li,
+[data-theme="fluent"] .question-command-step p { color:#536579; }
+[data-theme="fluent"] .question-command-step { background:#f5f7fa; border-color:#dce3ed; }
+[data-theme="fluent"] .question-command-step pre { background:#eef4fb; border-color:#dce3ed; }
+[data-theme="fluent"] .question-command-step code { color:#0b4a6f; }
+[data-theme="fluent"] .question-source-refs a { color:#0f6cbd; }
 [data-theme="fluent"] .question-explanation-choice.is-correct { background:#e6f4ec; border-color:#9acdad; }
 [data-theme="fluent"] .question-explanation-choice.is-incorrect { background:#fce9ec; border-color:#e8b4bf; }
 [data-theme="fluent"] .course-switcher { background:#fff; box-shadow:var(--cp-shadow); }

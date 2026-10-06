@@ -1,0 +1,458 @@
+{
+  "az802-q-001": {
+    "objective": "Manage and troubleshoot Flexible Single-Master Operations (FSMO) roles",
+    "objectiveId": "adds-fsmo-roles",
+    "topic": "FSMO roles",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-fsmo-roles",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/fsmo-roles"
+    ],
+    "keyPoints": [
+      "Every domain has three domain-wide operations master roles: RID Master, PDC Emulator, and Infrastructure Master.",
+      "Schema Master and Domain Naming Master are forest-wide, so they exist once per forest rather than once per domain.",
+      "The RID Master hands out a pool of relative IDs to each domain controller so new security principals such as users, groups, and computers receive unique SIDs.",
+      "A domain controller keeps creating objects from the pool it already holds while the RID Master is unreachable, and requests another block as that pool is consumed."
+    ],
+    "whyOthers": [
+      "",
+      "Schema Master is the forest-wide role that governs writes to the schema naming context, which defines object classes and attributes. It would be the correct answer if the question asked which role must update the schema, but it never allocates relative ID pools.",
+      "Infrastructure Master keeps references from objects in its own domain pointing at objects in other domains, including group-to-user references after a rename. It would be the correct answer for stale cross-domain group membership, not for allocating identifiers.",
+      "PDC Emulator receives priority replication of password changes, processes account lockouts, and acts as the preferred time source for the domain. It would be the correct answer for an urgent password-change check, not for RID allocation."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 Active Directory Domain Services. FSMO roles are single-master: each role is held by exactly one domain controller at a time. Reading the role holders needs the ActiveDirectory PowerShell module or the netdom/Ntdsutil command-line tools.",
+    "commandPath": [
+      { "label": "Show all five FSMO role holders from a domain-joined server", "command": "netdom query fsmo" },
+      { "label": "Read the three domain-wide role holders with PowerShell", "command": "Get-ADDomain | Select-Object RIDMaster, PDCEmulator, InfrastructureMaster" },
+      { "label": "Read the two forest-wide role holders with PowerShell", "command": "Get-ADForest | Select-Object SchemaMaster, DomainNamingMaster" }
+    ],
+    "translations": "runtime-google"
+  },
+  "az802-q-002": {
+    "objective": "Manage and troubleshoot Flexible Single-Master Operations (FSMO) roles",
+    "objectiveId": "adds-fsmo-roles",
+    "topic": "FSMO roles",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-fsmo-roles",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/transfer-or-seize-operation-master-roles-in-ad-ds"
+    ],
+    "keyPoints": [
+      "Schema Master is a forest-wide role: one domain controller in the forest holds it.",
+      "It governs writes to the schema naming context, which defines which object classes and attributes can exist.",
+      "A schema change affects every domain in the forest, which is why only a single role holder accepts the write."
+    ],
+    "whyOthers": [
+      "",
+      "RID Master is a domain-wide role that allocates pools of relative IDs to domain controllers. It would be correct for creating security principals, never for writing schema definitions.",
+      "Domain Naming Master adds and removes domain and application directory partitions and keeps names unique in the forest. It controls the forest namespace, not the schema contents.",
+      "PDC Emulator handles priority replication of password changes, account lockouts, and the preferred time source. It does not write the schema."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Writing the schema requires membership of Schema Admins in the forest root domain. The change replicates to the other domain controllers afterwards, so the whole forest is affected.",
+    "commandPath": [
+      { "label": "Read the forest Schema Master with PowerShell", "command": "Get-ADForest | Select-Object SchemaMaster" },
+      { "label": "Read the current schema version on a domain controller", "command": "Get-ADObject (Get-ADRootDSE).schemaNamingContext -Property objectVersion" }
+    ],
+    "translations": "runtime-google"
+  },
+  "az802-q-003": {
+    "objective": "Manage and troubleshoot Flexible Single-Master Operations (FSMO) roles",
+    "objectiveId": "adds-fsmo-roles",
+    "topic": "FSMO roles",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-fsmo-roles",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/fsmo-roles"
+    ],
+    "keyPoints": [
+      "Domain Naming Master is a forest-wide role, so one domain controller in the forest holds it.",
+      "It adds and removes domain directory partitions and application directory partitions.",
+      "It also guarantees that domain names remain unique across the forest."
+    ],
+    "whyOthers": [
+      "RID Master allocates relative ID pools so domain controllers can create unique SIDs for new security principals. Forest namespace changes are not its task.",
+      "",
+      "Infrastructure Master maintains references from objects in its own domain to objects in other domains, including group-to-user references after a rename.",
+      "PDC Emulator receives priority replication of password changes, processes lockouts, and provides the preferred time source."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. The Domain Naming Master must run on a domain controller that is also a global catalog server, which is enforced during promotion.",
+    "commandPath": [
+      { "label": "Read the forest Domain Naming Master", "command": "Get-ADForest | Select-Object DomainNamingMaster" }
+    ],
+    "translations": "runtime-google"
+  },
+  "az802-q-004": {
+    "objective": "Manage and troubleshoot Flexible Single-Master Operations (FSMO) roles",
+    "objectiveId": "adds-fsmo-roles",
+    "topic": "FSMO roles",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-fsmo-roles",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/fsmo-placement-and-optimization-on-ad-dcs"
+    ],
+    "keyPoints": [
+      "The PDC Emulator receives preferential replication of password changes made on other domain controllers.",
+      "When a sign-in fails because of a bad password, the PDC Emulator is the source of the latest password information.",
+      "It also processes account lockouts, so a just-changed password or a lockout is checked there first."
+    ],
+    "whyOthers": [
+      "Schema Master governs writes to the schema naming context. It has no role in password replication.",
+      "",
+      "Domain Naming Master manages domain and application directory partitions. It does not hold password state.",
+      "Infrastructure Master maintains cross-domain object references and group membership references. It does not hold the newest password copy."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. The PDC Emulator role creates the greatest workload of the five roles, and the PDC Emulator in the forest root domain is the authoritative Windows Time source for the forest.",
+    "commandPath": [
+      { "label": "Read the current PDC Emulator", "command": "Get-ADDomain | Select-Object PDCEmulator" },
+      { "label": "Ask a specific controller to sync time from its domain PDC", "command": "w32tm /resync" }
+    ],
+    "translations": "runtime-google"
+  },
+  "az802-q-005": {
+    "objective": "Manage and troubleshoot Flexible Single-Master Operations (FSMO) roles",
+    "objectiveId": "adds-fsmo-roles",
+    "topic": "FSMO roles",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-fsmo-roles"
+    ],
+    "keyPoints": [
+      "Infrastructure Master manages references from objects in its own domain to objects in other domains.",
+      "It also updates group-to-user references when the members of a group are renamed or changed.",
+      "It represents those references by GUID, SID, or distinguished name of the referenced object."
+    ],
+    "whyOthers": [
+      "",
+      "DNS zones are created and managed by the DNS Server role, including Active Directory-integrated zones. No FSMO role generates zones.",
+      "IP addresses are assigned by the DHCP Server role. Address assignment is unrelated to directory references.",
+      "Logon hours are an attribute of a user account, evaluated during authentication. No FSMO role assigns them."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Placement matters: if every domain controller in the domain also holds the global catalog, the Infrastructure Master stops updating object information because it holds no references to objects it does not already have. In a single-domain forest with no other domains, the role is not actively used.",
+    "commandPath": [
+      { "label": "Read the Infrastructure Master", "command": "Get-ADDomain | Select-Object InfrastructureMaster" },
+      { "label": "Confirm whether a controller is a global catalog", "command": "Get-ADDomainController -Filter * | Select-Object Name, IsGlobalCatalog" }
+    ],
+    "translations": "runtime-google"
+  },
+  "az802-q-006": {
+    "objective": "Manage and troubleshoot Flexible Single-Master Operations (FSMO) roles",
+    "objectiveId": "adds-fsmo-roles",
+    "topic": "FSMO roles",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-fsmo-roles",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/fsmo-roles"
+    ],
+    "keyPoints": [
+      "Each domain controller draws new security identifiers from the RID pool it already holds.",
+      "When the pool is consumed, the controller requests another block from the RID Master.",
+      "The symptom is delayed: existing objects and logons keep working until a controller exhausts its pool and can no longer create new security principals."
+    ],
+    "whyOthers": [
+      "",
+      "DNS resolution is provided by the DNS Server service and does not depend on RID allocation.",
+      "Existing users can still sign in, because authentication does not require a new RID.",
+      "The schema is governed by Schema Master. RID Master availability has no effect on whether the schema can be written."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Losing the RID Master is not immediately visible; monitor event log entries about RID pool allocation and use dcdiag to confirm the role holder's health.",
+    "commandPath": [
+      { "label": "Confirm the current RID Master", "command": "Get-ADDomain | Select-Object RIDMaster" },
+      { "label": "Review replication and role health", "command": "dcdiag /test:ridmanager /v" }
+    ],
+    "translations": "runtime-google"
+  },
+  "az802-q-007": {
+    "objective": "Manage and troubleshoot Flexible Single-Master Operations (FSMO) roles",
+    "objectiveId": "adds-fsmo-roles",
+    "topic": "FSMO roles",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/find-servers-holding-fsmo-role",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/view-transfer-fsmo-roles"
+    ],
+    "keyPoints": [
+      "netdom query fsmo reports all five role holders in a single command.",
+      "It runs from a domain-joined server and needs the netdom tool, which ships with Remote Server Administration Tools.",
+      "Ntdsutil is the tool that can both display and move the roles when a transfer or seizure is required."
+    ],
+    "whyOthers": [
+      "gpresult /r reports the Resultant Set of Policy applied to a user or computer. It does not list FSMO owners.",
+      "dcdiag /test:dns verifies DNS health for domain controllers. It does not list FSMO owners.",
+      "",
+      "repadmin /showrepl shows inbound replication status and the result of the last replication attempt between directory partitions. It does not name the FSMO owners."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Reading the role holders is a read-only operation. The PowerShell alternative needs the ActiveDirectory module, which is installed with RSAT.",
+    "commandPath": [
+      { "label": "List all five FSMO role holders", "command": "netdom query fsmo" },
+      { "label": "Compare the domain-wide role holders", "command": "Get-ADDomain | Select-Object RIDMaster, PDCEmulator, InfrastructureMaster" },
+      { "label": "Compare the forest-wide role holders", "command": "Get-ADForest | Select-Object SchemaMaster, DomainNamingMaster" }
+    ],
+    "translations": "runtime-google"
+  },
+  "az802-q-008": {
+    "objective": "Manage and troubleshoot Flexible Single-Master Operations (FSMO) roles",
+    "objectiveId": "adds-fsmo-roles",
+    "topic": "FSMO roles",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/transfer-or-seize-operation-master-roles-in-ad-ds",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/forest-recovery-guide/ad-forest-recovery-seizing-operations-master-role"
+    ],
+    "keyPoints": [
+      "Seizing assigns a role to a new domain controller when the original holder will not come back.",
+      "It is a recovery action, not routine administration, and it must not be followed by rejoining the old holder.",
+      "After a seizure the old holder must never be brought online with its old role state; it has to be rebuilt or cleanly demoted offline."
+    ],
+    "whyOthers": [
+      "Replication copies directory data between domain controllers. It never transfers ownership of a single-master role.",
+      "",
+      "Delegating DNS changes who administers DNS zones. It has no effect on FSMO role ownership.",
+      "Promoting a member server adds another domain controller to the domain, but the role stays where it is until it is moved."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Seizing requires Domain Admins for domain-wide roles and Enterprise Admins for forest-wide roles. Confirm the original holder is permanently offline first, because two controllers holding the same role cause conflicting writes.",
+    "commandPath": [
+      { "label": "Seize a forest-level role with Ntdsutil", "command": "ntdsutil roles connections connect to server DC02 quit seize schema master" },
+      { "label": "Seize a domain-wide role with PowerShell", "command": "Move-ADDirectoryServerOperationMasterRole -Identity DC02 -OperationMasterRole RIDMaster -Force" }
+    ],
+    "translations": "runtime-google"
+  },
+  "az802-q-009": {
+    "objective": "Manage and troubleshoot Flexible Single-Master Operations (FSMO) roles",
+    "objectiveId": "adds-fsmo-roles",
+    "topic": "FSMO roles",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/transfer-or-seize-operation-master-roles-in-ad-ds",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/view-transfer-fsmo-roles"
+    ],
+    "keyPoints": [
+      "A transfer moves a role between domain controllers while the current holder is online and reachable.",
+      "A seizure is the recovery path when the holder cannot be contacted and will not return.",
+      "Plan a transfer before you patch or decommission the controller that holds a role, so the role is never lost with the hardware."
+    ],
+    "whyOthers": [
+      "SYSVOL is repaired by its own replication and authoritative restore procedures. Moving a role does not rebuild SYSVOL.",
+      "Converting a member server into an RODC is a promotion decision; roles are assigned during promotion, not by conversion.",
+      "The domain functional level is raised with Set-ADDomainMode or Active Directory Domains and Trusts. Moving a role does not change it.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. A transfer needs the ActiveDirectory PowerShell module or Active Directory Users and Computers, and membership of Domain Admins (domain-wide roles) or Enterprise Admins (forest-wide roles).",
+    "commandPath": [
+      { "label": "Move the RID Master to another controller", "command": "Move-ADDirectoryServerOperationMasterRole -Identity DC02 -OperationMasterRole RIDMaster" },
+      { "label": "Move several domain-wide roles at once", "command": "Move-ADDirectoryServerOperationMasterRole -Identity DC02 -OperationMasterRole RIDMaster,PDCEmulator,InfrastructureMaster" }
+    ],
+    "translations": "runtime-google"
+  },
+  "az802-q-010": {
+    "objective": "Deploy and manage AD DS domain controllers",
+    "objectiveId": "adds-domain-controllers",
+    "topic": "AD DS database and SYSVOL",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/training/modules/understand-active-directory-database/",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/diagnose-replication-failures"
+    ],
+    "keyPoints": [
+      "ntds.dit is the Active Directory Domain Services database that stores directory objects and their attributes.",
+      "Each domain controller holds a writable copy and replicates changes to the others through directory replication.",
+      "The directory database and SYSVOL are two separate replication units with separate health checks."
+    ],
+    "whyOthers": [
+      "pagefile.sys is the Windows paging file used for virtual memory. It holds no directory data.",
+      "winload.efi is the Windows boot loader for UEFI firmware. It is unrelated to the directory database.",
+      "bootmgr is the Windows Boot Manager. It only selects and starts an operating system.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Directory database maintenance uses ntdsutil, run from an elevated prompt on the domain controller.",
+    "commandPath": [
+      { "label": "Show the database and log file locations", "command": "ntdsutil \"activate instance ntds\" files info quit" }
+    ],
+    "translations": "runtime-google"
+  },
+  "az802-q-011": {
+    "objective": "Deploy and manage AD DS domain controllers",
+    "objectiveId": "adds-domain-controllers",
+    "topic": "AD DS database and SYSVOL",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/group-policy/force-authoritative-non-authoritative-synchronization",
+      "https://learn.microsoft.com/en-us/training/modules/understand-active-directory-database/"
+    ],
+    "keyPoints": [
+      "SYSVOL is a replicated share that holds domain Group Policy templates and logon scripts.",
+      "Every domain controller hosts it, and clients read policy through the SYSVOL share.",
+      "SYSVOL replicates separately from the directory database, so its health is diagnosed on its own."
+    ],
+    "whyOthers": [
+      "C:\\ProgramData holds local application data. It does not hold the replicated domain policy share.",
+      "C:\\Windows\\System32\\DNS holds DNS data for the DNS Server role. It is unrelated to SYSVOL.",
+      "C:\\Windows\\NTDS holds the directory database and its transaction logs, not the Group Policy templates.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. SYSVOL must be shared on every domain controller; a controller whose SYSVOL is not shared cannot serve Group Policy correctly.",
+    "commandPath": [
+      { "label": "Confirm the SYSVOL share is advertised", "command": "net share" },
+      { "label": "Check SYSVOL replication state with DFSR", "command": "dfsrmig /getglobalstate" }
+    ],
+    "translations": "runtime-google"
+  },
+  "az802-q-012": {
+    "objective": "Deploy and manage AD DS domain controllers",
+    "objectiveId": "adds-domain-controllers",
+    "topic": "AD DS database and SYSVOL",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/group-policy/force-authoritative-non-authoritative-synchronization",
+      "https://learn.microsoft.com/en-us/training/modules/understand-active-directory-database/"
+    ],
+    "keyPoints": [
+      "Current AD DS deployments replicate SYSVOL with DFS Replication (DFSR).",
+      "Older domains may have used File Replication Service (FRS), which is deprecated.",
+      "A SYSVOL disagreement is repaired with an authoritative or non-authoritative DFSR synchronisation, not by restarting the directory service."
+    ],
+    "whyOthers": [
+      "",
+      "Print Spooler manages print jobs and printer drivers. It does not replicate SYSVOL.",
+      "Windows Update installs operating system and driver updates. It does not replicate SYSVOL.",
+      "The Server service publishes shared resources over SMB. It does not replicate file content between controllers."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Confirm the domain is already using DFSR before running DFSR commands, because the recovery steps differ for a domain still on FRS.",
+    "commandPath": [
+      { "label": "Check whether the domain uses DFSR for SYSVOL", "command": "dfsrmig /getglobalstate" },
+      { "label": "Review DFSR SYSVOL replication health", "command": "dfsrdiag replicationstate /memobj:\"Domain System Volume\"" }
+    ],
+    "translations": "runtime-google"
+  },
+  "az802-q-013": {
+    "objective": "Deploy Read-Only Domain Controllers (RODCs)",
+    "objectiveId": "adds-rodc",
+    "topic": "RODC and password replication",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/rodc-replicates-passwords-grant-incorrect-permissions",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups"
+    ],
+    "keyPoints": [
+      "An RODC holds a read-only copy of the directory partition and accepts no local directory writes.",
+      "A local administrator can administer the RODC without holding domain-wide administrator rights, which limits the damage a branch compromise can cause.",
+      "Credential caching is not automatic: it is controlled by the Password Replication Policy."
+    ],
+    "whyOthers": [
+      "",
+      "An RODC still depends on DNS for name resolution. It does not remove the need for DNS.",
+      "An RODC is an addition to the domain. At least one writable domain controller is still required.",
+      "An RODC refuses local directory writes and forwards supported changes to a writable controller, so it never accepts unrestricted writes."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Deploying an RODC requires the forest functional level to support it and a writable Windows Server domain controller as its replication partner.",
+    "commandPath": [
+      { "label": "Review an RODC Password Replication Policy", "command": "Get-ADDomainControllerPasswordReplicationPolicy -Identity BRANCH-DC -Allowed" }
+    ],
+    "translations": "runtime-google"
+  },
+  "az802-q-014": {
+    "objective": "Manage account security on an RODC",
+    "objectiveId": "adds-rodc-account-security",
+    "topic": "RODC and password replication",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/rodc-replicates-passwords-grant-incorrect-permissions",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups"
+    ],
+    "keyPoints": [
+      "The Password Replication Policy has an allowed list and a denied list.",
+      "The policy is stored on the writable domain controller that is the RODC's replication partner.",
+      "By default no account password is cached on a new RODC until the account is explicitly allowed."
+    ],
+    "whyOthers": [
+      "Default Domain Policy is a Group Policy object. It configures settings, not which credentials an RODC may cache.",
+      "DNS scavenging removes stale DNS records on a schedule. It has no effect on credential caching.",
+      "",
+      "Fine-Grained Password Policy applies different password and lockout settings to selected users. It does not control caching."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Denied entries take precedence over allowed entries, so an account in both lists is never cached.",
+    "commandPath": [
+      { "label": "List allowed and denied accounts for an RODC", "command": "Get-ADDomainControllerPasswordReplicationPolicy -Identity BRANCH-DC -Allowed; Get-ADDomainControllerPasswordReplicationPolicy -Identity BRANCH-DC -Denied" }
+    ],
+    "translations": "runtime-google"
+  },
+  "az802-q-015": {
+    "objective": "Manage account security on an RODC",
+    "objectiveId": "adds-rodc-account-security",
+    "topic": "RODC and password replication",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/rodc-replicates-passwords-grant-incorrect-permissions"
+    ],
+    "keyPoints": [
+      "Accounts in the Allowed RODC Password Replication Group may have their credentials cached on the RODC.",
+      "Accounts in the denied list are never cached, even when a broader group would otherwise allow them.",
+      "Prepopulate the cache for users who must sign in while the branch link is down."
+    ],
+    "whyOthers": [
+      "Local Administrators controls who administers the branch server. It does not authorise credential caching.",
+      "",
+      "Kerberos is the authentication protocol. Disabling it would break sign-in instead of controlling caching.",
+      "A global catalog holds a partial copy of forest attributes. It does not decide which credentials are cached."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. The change is made on the writable domain controller that is the RODC's replication partner and then replicates to the RODC.",
+    "commandPath": [
+      { "label": "Allow a group to cache credentials on an RODC", "command": "Add-ADDomainControllerPasswordReplicationPolicy -Identity BRANCH-DC -AllowedList 'Allowed RODC Password Replication Group'" },
+      { "label": "Cache credentials for one user immediately", "command": "Add-ADDomainControllerPasswordReplicationPolicy -Identity BRANCH-DC -AllowedList 'BRANCH\\ahmed'" }
+    ],
+    "translations": "runtime-google"
+  },
+  "az802-q-016": {
+    "objective": "Create and manage AD DS security principals",
+    "objectiveId": "adds-security-principals",
+    "topic": "OUs and group scope",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups",
+      "https://learn.microsoft.com/en-us/training/modules/understand-active-directory-database/"
+    ],
+    "keyPoints": [
+      "An organizational unit is a container used to organise objects inside a domain.",
+      "OUs are the scope for delegating administration and for linking Group Policy.",
+      "Moving an object between OUs keeps its identity and SID; it changes where policy and delegation apply."
+    ],
+    "whyOthers": [
+      "A site link describes replication scheduling and cost between sites. It is a replication object, not a container for users.",
+      "",
+      "A replication connection defines inbound replication between two domain controllers. It holds no user objects.",
+      "A DNS resolver is a client component that resolves names to addresses. It is not a directory object."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. An OU is a delegation and policy boundary, not a security boundary: it does not prevent a user from being granted rights elsewhere in the domain.",
+    "commandPath": [
+      { "label": "Create an OU", "command": "New-ADOrganizationalUnit -Name 'Branch Users' -Path 'OU=Branches,DC=contoso,DC=com'" },
+      { "label": "List the OUs in a domain", "command": "Get-ADOrganizationalUnit -Filter * | Select-Object Name, DistinguishedName" }
+    ],
+    "translations": "runtime-google"
+  },
+  "az802-q-017": {
+    "objective": "Create and manage AD DS users and groups",
+    "objectiveId": "adds-users-groups",
+    "topic": "OUs and group scope",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups"
+    ],
+    "keyPoints": [
+      "Domain local groups are intended for assigning permissions to resources in the domain where the group is created.",
+      "They can contain accounts plus global and universal groups from trusted domains.",
+      "The classic nesting pattern is accounts into global groups, global groups into domain local groups, and permissions on the domain local group."
+    ],
+    "whyOthers": [
+      "Global groups hold accounts from their own domain and are used to group users by role. They cannot contain members from trusted domains.",
+      "Universal groups can contain members from any domain in the forest and are stored in the global catalog. They are used for forest-wide grouping rather than for assigning permissions on a resource in one domain.",
+      "There is no Active Directory group scope named local computer. The fourth scope is domain local; a local group on a member server is not a domain group scope.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 AD DS. Group nesting across domains requires a trust, and universal group membership changes replicate to every global catalog server in the forest.",
+    "commandPath": [
+      { "label": "Create a domain local group for a resource", "command": "New-ADGroup -Name 'FS-Finance-Read' -GroupScope DomainLocal -Path 'OU=Groups,DC=contoso,DC=com'" },
+      { "label": "Nest a global group inside it", "command": "Add-ADGroupMember -Identity 'FS-Finance-Read' -Members 'GG-Finance'" }
+    ],
+    "translations": "runtime-google"
+  }
+}

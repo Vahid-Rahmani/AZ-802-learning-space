@@ -1,30 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import {
+  DIFFICULTIES,
+  DOMAIN_TO_STAGE,
+  EXPECTED_QUESTION_COUNT,
+  isPageSpecificLearnUrl,
+  readQuestionBank,
+} from "./question-bank-meta.mjs";
 
 const root = process.cwd();
-const sourcePath = path.join(root, "lib/content/questions.ts");
-const source = fs.readFileSync(sourcePath, "utf8");
-const lines = source.split(/\r?\n/);
-const rows = lines.filter((line) => line.trimStart().startsWith("{"));
-const questions = rows.map((line, index) => {
-  try {
-    return JSON.parse(line.trim().replace(/,$/, ""));
-  } catch (error) {
-    throw new Error(`Line ${index + 1} is not valid JSON: ${error instanceof Error ? error.message : String(error)}`);
-  }
-});
-
-const stageByDomain = new Map([
-  ["Deploy and manage AD DS", "ad-ds"],
-  ["Manage Windows Server instances and workloads in a hybrid environment", "hybrid"],
-  ["Manage virtual machines", "virtual-machines"],
-  ["Implement and manage on-premises and hybrid networking", "networking"],
-  ["Manage storage and file services", "storage"],
-  ["Secure Windows Server infrastructure", "security"],
-  ["Monitor and troubleshoot Windows Server environments", "monitoring"],
-  ["Backup, recovery, high availability, and migration crossover", "recovery"],
-]);
+const { sourcePath, lines, questions } = readQuestionBank(root);
 
 const errors = [];
 const warnings = [];
@@ -42,19 +28,63 @@ for (const [index, question] of questions.entries()) {
   if (!Array.isArray(question.options) || question.options.length !== 4) errors.push(`${id}: exactly four English options are required`);
   if (Array.isArray(question.options) && new Set(question.options.map((option) => String(option).trim().toLowerCase())).size !== 4) errors.push(`${id}: English options are not unique`);
   if (!Number.isInteger(question.correct) || question.correct < 0 || question.correct > 3) errors.push(`${id}: correct must be an option index from 0 to 3`);
-  if (typeof question.textFa !== "string" || !question.textFa.trim()) errors.push(`${id}: Persian translation is missing`);
-  if (!Array.isArray(question.optionsFa) || question.optionsFa.length !== 4) errors.push(`${id}: exactly four Persian options are required`);
+
+  // New content is stored in English only and translated at display time by the
+  // site's existing Google Translate flow. Items that still carry stored
+  // Persian keep the original strict requirement; runtime-translated items are
+  // reported instead of failed, because storing Persian would create the
+  // manual translation bank the project explicitly avoids.
+  const runtimeTranslated = question.translations === "runtime-google";
+  if (runtimeTranslated) {
+    if (typeof question.textFa === "string" && question.textFa.trim() && !Array.isArray(question.optionsFa)) warnings.push(`${id}: textFa is stored without optionsFa`);
+  } else {
+    if (typeof question.textFa !== "string" || !question.textFa.trim()) errors.push(`${id}: Persian translation is missing`);
+    if (!Array.isArray(question.optionsFa) || question.optionsFa.length !== 4) errors.push(`${id}: exactly four Persian options are required`);
+  }
   if (typeof question.textDe !== "string" || !question.textDe.trim()) warnings.push(`${id}: German question translation is pending review`);
   if (!Array.isArray(question.optionsDe) || question.optionsDe.length !== 4) warnings.push(`${id}: exactly four German options are required before publication`);
   if (!question.rationale || typeof question.rationale.en !== "string" || typeof question.rationale.fa !== "string" || typeof question.rationale.de !== "string") errors.push(`${id}: all three rationale translations are required`);
   if (typeof question.rationale?.de === "string" && /Die richtige Antwort ist .*; sie passt zum Bereich .* und zum beschriebenen Szenario/.test(question.rationale.de)) warnings.push(`${id}: German rationale is still a template and needs content review`);
   if (typeof question.source !== "string" || !/^https:\/\//.test(question.source)) errors.push(`${id}: an HTTPS source URL is required`);
-  if (typeof question.domain !== "string" || !stageByDomain.has(question.domain)) errors.push(`${id}: domain is not connected to a known training stage`);
+  if (typeof question.domain !== "string" || !DOMAIN_TO_STAGE.has(question.domain)) errors.push(`${id}: domain is not connected to a known training stage`);
   if (typeof question.skillId !== "string" || !question.skillId) errors.push(`${id}: skillId is missing`);
   if (question.isOriginal !== true) warnings.push(`${id}: isOriginal is not true`);
+
+  // Enrichment fields are optional while the bank is completed domain by
+  // domain, but every value that exists must be usable.
+  if (question.objective !== undefined && (typeof question.objective !== "string" || question.objective.trim().length < 8)) errors.push(`${id}: objective must be the verbatim study-guide bullet when present`);
+  if (question.objectiveId !== undefined && (typeof question.objectiveId !== "string" || !/^[a-z0-9-]+$/.test(question.objectiveId))) errors.push(`${id}: objectiveId must be a lowercase slug when present`);
+  if (question.topic !== undefined && (typeof question.topic !== "string" || question.topic.trim().length < 2)) errors.push(`${id}: topic must be a non-empty label when present`);
+  if (question.difficulty !== undefined && !DIFFICULTIES.includes(question.difficulty)) errors.push(`${id}: difficulty must be one of ${DIFFICULTIES.join(", ")}`);
+  if (question.requirements !== undefined && (typeof question.requirements !== "string" || question.requirements.trim().length < 8)) errors.push(`${id}: requirements must be a meaningful note when present`);
+  if (question.keyPoints !== undefined) {
+    if (!Array.isArray(question.keyPoints) || question.keyPoints.some((point) => typeof point !== "string" || point.trim().length < 8)) errors.push(`${id}: keyPoints must be an array of meaningful strings when present`);
+  }
+  if (question.sourceRefs !== undefined) {
+    if (!Array.isArray(question.sourceRefs) || question.sourceRefs.length === 0) errors.push(`${id}: sourceRefs must be a non-empty array when present`);
+    else if (question.sourceRefs.some((reference) => !isPageSpecificLearnUrl(reference))) errors.push(`${id}: every sourceRefs entry must be a page-specific Microsoft Learn URL`);
+  }
+  if (question.commandPath !== undefined) {
+    const valid =
+      Array.isArray(question.commandPath) &&
+      question.commandPath.length > 0 &&
+      question.commandPath.every((step) => step && typeof step.label === "string" && step.label.trim() && typeof step.command === "string" && step.command.trim());
+    if (!valid) errors.push(`${id}: commandPath must be a non-empty array of {label, command} when present`);
+  }
+  if (question.whyOthers !== undefined) {
+    if (!Array.isArray(question.whyOthers) || question.whyOthers.length !== question.options.length) {
+      errors.push(`${id}: whyOthers must be index-aligned with every option`);
+    } else {
+      question.whyOthers.forEach((reason, optionIndex) => {
+        if (optionIndex === question.correct) return;
+        if (typeof reason !== "string" || reason.trim().length < 12) errors.push(`${id}: whyOthers[${optionIndex}] needs a specific reason`);
+      });
+    }
+  }
+
   audit.push({
     id,
-    stageId: stageByDomain.get(question.domain) ?? null,
+    stageId: DOMAIN_TO_STAGE.get(question.domain) ?? null,
     domain: question.domain ?? null,
     sourceRefs: typeof question.source === "string" ? [question.source] : [],
     reviewStatus: "draft",
@@ -71,10 +101,10 @@ for (const [index, question] of questions.entries()) {
   });
 }
 
-if (questions.length !== 300) errors.push(`Expected exactly 300 questions, found ${questions.length}`);
+if (questions.length !== EXPECTED_QUESTION_COUNT) errors.push(`Expected ${EXPECTED_QUESTION_COUNT} questions, found ${questions.length}`);
 const result = {
   generatedAt: new Date().toISOString(),
-  expectedQuestionCount: 300,
+  expectedQuestionCount: EXPECTED_QUESTION_COUNT,
   actualQuestionCount: questions.length,
   status: errors.length ? "invalid" : "draft",
   errors,

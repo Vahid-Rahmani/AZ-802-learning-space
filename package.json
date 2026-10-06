@@ -11,6 +11,7 @@
     "build": "node scripts/run-framework.mjs build",
     "build:vercel": "node scripts/build-vercel.mjs",
     "audit:questions": "node scripts/audit-question-bank.mjs",
+    "validate:az802": "node scripts/validate-az802-coverage.mjs",
     "validate:search": "node --experimental-strip-types scripts/validate-knowledge-search.mjs",
     "validate:az900": "node --experimental-strip-types scripts/validate-az900-bank.mjs",
     "start": "node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js dev --config dist/server/wrangler.json --local --persist-to .wrangler/state --ip 127.0.0.1 --inspector-port 0",
