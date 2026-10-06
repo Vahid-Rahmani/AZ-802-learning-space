@@ -1,0 +1,757 @@
+{
+  "az802-q-100": {
+    "objective": "Configure virtual machine networking",
+    "objectiveId": "vm-networking",
+    "topic": "Hyper-V virtual switch",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/get-started/create-a-virtual-switch-for-hyper-v-virtual-machines",
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/plan/plan-hyper-v-networking-in-windows-server"
+    ],
+    "keyPoints": [
+      "A Hyper-V virtual switch connects virtual network adapters to each other, to the host, or to a physical network.",
+      "It is a software layer that performs the switching that a physical switch would perform for the virtual machines.",
+      "The switch type determines which of those connections are possible."
+    ],
+    "whyOthers": [
+      "",
+      "A virtual hard disk controller attaches storage to a virtual machine and provides no network connectivity.",
+      "Checkpoint manager creates and manages virtual machine checkpoints, which capture state rather than carrying network traffic.",
+      "Integration Services provide host-to-guest services such as heartbeat and time synchronisation, not packet switching."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 with the Hyper-V role installed. A virtual switch is bound at the host level and is then attached to virtual machine network adapters."
+  },
+  "az802-q-101": {
+    "objective": "Configure virtual machine networking",
+    "objectiveId": "vm-networking",
+    "topic": "Hyper-V virtual switch",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/get-started/create-a-virtual-switch-for-hyper-v-virtual-machines"
+    ],
+    "keyPoints": [
+      "An external virtual switch binds to a physical network adapter and provides connectivity to the physical network.",
+      "It is the switch type used when virtual machines must reach physical hosts, the internet, or other networks.",
+      "The host can still use the physical adapter through the switch, and a virtual adapter is created on the host for that purpose."
+    ],
+    "whyOthers": [
+      "An internal switch connects virtual machines and the host but has no binding to a physical adapter, so there is no physical network path.",
+      "A private switch connects only the virtual machines attached to it and excludes both the host and the physical network.",
+      "An isolated storage switch is not a Hyper-V switch type; storage isolation is a separate concept.",
+      ""
+    ],
+    "commandPath": [
+      {
+        "label": "Create an external virtual switch on a physical adapter",
+        "command": "New-VMSwitch -Name External-Switch -NetAdapterName 'Ethernet' -AllowManagementOS $true"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Binding an external switch to a physical adapter briefly interrupts host networking, so plan the change for a maintenance window."
+  },
+  "az802-q-102": {
+    "objective": "Configure virtual machine networking",
+    "objectiveId": "vm-networking",
+    "topic": "Hyper-V virtual switch",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/get-started/create-a-virtual-switch-for-hyper-v-virtual-machines"
+    ],
+    "keyPoints": [
+      "An internal switch allows communication between virtual machines and the management host operating system.",
+      "It has no binding to a physical network adapter, so virtual machines cannot reach the physical network directly through it.",
+      "It is often used for host-to-guest management or for traffic that should not leave the host."
+    ],
+    "whyOthers": [
+      "A private switch excludes the host, so it does not permit communication with the host.",
+      "There is no Public switch type in Hyper-V; public connectivity is provided by an external switch.",
+      "",
+      "An external switch does bind to the physical network, so it does not match the scenario."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. An internal switch creates a virtual adapter on the host, which is how the host takes part in that network."
+  },
+  "az802-q-103": {
+    "objective": "Configure virtual machine networking",
+    "objectiveId": "vm-networking",
+    "topic": "Hyper-V virtual switch",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/get-started/create-a-virtual-switch-for-hyper-v-virtual-machines"
+    ],
+    "keyPoints": [
+      "A private switch carries traffic only between the virtual machines attached to it.",
+      "Neither the host nor the physical network can participate, which makes it useful for isolated test traffic.",
+      "It is the most restrictive of the three Hyper-V switch types."
+    ],
+    "whyOthers": [
+      "NAT is a configuration that shares an address through a virtual adapter; it is not the switch type that isolates traffic to attached virtual machines.",
+      "",
+      "An internal switch includes the host, so it is not restricted to the virtual machines only.",
+      "An external switch connects to the physical network, which is the opposite of isolation."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Because the host has no adapter on a private switch, virtual machines on it cannot be managed over the network without another adapter."
+  },
+  "az802-q-104": {
+    "objective": "Manage virtual machine storage and checkpoints",
+    "objectiveId": "vm-storage-checkpoints",
+    "topic": "Hyper-V checkpoints",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/checkpoints",
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/features-terminology"
+    ],
+    "keyPoints": [
+      "A checkpoint captures a virtual machine's state and its virtual disk configuration so the machine can be reverted to that point.",
+      "The virtual disks referenced by the checkpoint are switched to differencing disks so later changes accumulate separately.",
+      "Checkpoints are intended for short-term rollback and are not a substitute for an application-consistent backup."
+    ],
+    "whyOthers": [
+      "",
+      "An AD backup protects directory data and is a different mechanism from a Hyper-V checkpoint.",
+      "Assigning an IP address is a network configuration action and is unrelated to checkpoints.",
+      "Replicating a DNS zone is a DNS operation and is not what a checkpoint does."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. A checkpoint stores data in .avhdx differencing files alongside the original .vhdx, so it consumes additional storage over time."
+  },
+  "az802-q-105": {
+    "objective": "Manage virtual machine storage and checkpoints",
+    "objectiveId": "vm-storage-checkpoints",
+    "topic": "Hyper-V checkpoints",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/manage/choose-between-standard-or-production-checkpoints-in-hyper-v",
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/checkpoints"
+    ],
+    "keyPoints": [
+      "A production checkpoint uses backup technology inside the guest to create an application-consistent state rather than saving running memory.",
+      "Because it does not capture memory, restoring it is like recovering from a clean shutdown rather than resuming a running session.",
+      "Standard checkpoints are used when a saved run-time state is required, such as for development and testing."
+    ],
+    "whyOthers": [
+      "A standard checkpoint with saved memory is used for development and testing; it is not application-consistent, which is why production checkpoints are safer for a running application.",
+      "There is no Hyper-V checkpoint type named network checkpoint.",
+      "There is no Hyper-V checkpoint type named DNS checkpoint.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Production checkpoints are the default on Windows Server 2016 and later, and they require the guest to support the backup technology being used."
+  },
+  "az802-q-106": {
+    "objective": "Manage virtual machine storage and checkpoints",
+    "objectiveId": "vm-storage-checkpoints",
+    "topic": "Hyper-V checkpoints",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/checkpoints",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/virtualization/hyper-v-virtual-machine-backup-checkpoint-storage"
+    ],
+    "keyPoints": [
+      "Checkpoints grow as the virtual machine writes changes, so a long-lived checkpoint consumes increasing host storage.",
+      "Each checkpoint adds a link in a chain of differencing disks, and a deep chain complicates capacity and recovery management.",
+      "Merging a checkpoint requires enough free space to write the merged result, so filling the volume can block the merge."
+    ],
+    "whyOthers": [
+      "A checkpoint does not delete the parent virtual disk; it creates a differencing disk and keeps the parent.",
+      "Checkpoints do not prevent guest sign-in; the guest continues to run normally.",
+      "",
+      "Checkpoints do not disable virtual machine networking."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. A checkpoint should be removed or applied as soon as its purpose is served, and the volume should keep free space for the merge."
+  },
+  "az802-q-107": {
+    "objective": "Manage virtual machine storage and checkpoints",
+    "objectiveId": "vm-storage-checkpoints",
+    "topic": "Virtual hard disk formats",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/features-terminology",
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/checkpoints"
+    ],
+    "keyPoints": [
+      "VHDX is the newer virtual hard disk format and supports larger disk sizes than the legacy VHD format.",
+      "VHDX also adds features such as larger block sizes and better resilience against power failure.",
+      "The legacy VHD format is limited to 2 TB and is retained mainly for compatibility."
+    ],
+    "whyOthers": [
+      "IMG is a disk image format used elsewhere and is not a Hyper-V virtual hard disk format.",
+      "",
+      "ISO is an optical disc image, not a virtual hard disk format.",
+      "VFD is a virtual floppy disk format and does not provide modern capacity or resiliency features."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 with Hyper-V. VHDX supports virtual disks up to 64 TB, while the legacy VHD format is limited to 2 TB."
+  },
+  "az802-q-108": {
+    "objective": "Manage virtual machine storage and checkpoints",
+    "objectiveId": "vm-storage-checkpoints",
+    "topic": "Virtual hard disk formats",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/features-terminology"
+    ],
+    "keyPoints": [
+      "A dynamically expanding VHDX starts small and grows as data is written to it.",
+      "It conserves host storage at first but can exhaust the volume as the guest fills the disk.",
+      "Because of the growth, monitoring free space on the host volume is essential."
+    ],
+    "whyOthers": [
+      "",
+      "Dynamic disks do not always have the best write performance; a fixed disk often performs more consistently because the space is allocated up front.",
+      "A dynamic disk can absolutely run out of host storage as it expands.",
+      "Dynamic VHDX files are not automatically replicated to Azure; replication is a separate configuration."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. A dynamically expanding disk is the default in many workflows, which is why host free-space monitoring matters."
+  },
+  "az802-q-109": {
+    "objective": "Manage virtual machine storage and checkpoints",
+    "objectiveId": "vm-storage-checkpoints",
+    "topic": "Virtual hard disk formats",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/features-terminology"
+    ],
+    "keyPoints": [
+      "A fixed-size VHDX allocates all of its space up front, so capacity is predictable and cannot grow unexpectedly.",
+      "Because the blocks are already allocated, write behaviour is more consistent than with a dynamic disk.",
+      "The trade-off is that provisioning takes longer and consumes the full capacity immediately."
+    ],
+    "whyOthers": [
+      "A fixed disk requires more host storage than a dynamic disk at creation, so it is not chosen when the host has no storage.",
+      "The switch type a virtual machine uses is unrelated to the disk format.",
+      "Backup requirements do not determine the disk format; both formats need backup.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Converting between dynamic and fixed is possible with the Hyper-V tools, but conversion of a dynamic disk to fixed is not always allowed while a checkpoint chain exists."
+  },
+  "az802-q-110": {
+    "objective": "Manage virtual machine compute and integration services",
+    "objectiveId": "vm-compute",
+    "topic": "PowerShell Direct",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/powershell-direct",
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/features-terminology"
+    ],
+    "keyPoints": [
+      "PowerShell Direct lets an administrator manage a supported Windows guest from the Hyper-V host without guest network connectivity.",
+      "It uses the host-to-guest integration channel, so it works even when the guest has no network adapter.",
+      "It is useful for initial configuration, troubleshooting, and automation on a host that is already trusted."
+    ],
+    "whyOthers": [
+      "PowerShell Direct does not replace an external virtual switch; switching is a separate function.",
+      "It does not replicate a virtual machine across forests; replication is a Hyper-V Replica function.",
+      "",
+      "It connects only to a guest running on the same host, not to arbitrary internet servers."
+    ],
+    "commandPath": [
+      {
+        "label": "Open an interactive session to a guest by name",
+        "command": "Enter-PSSession -VMName Web01 -Credential (Get-Credential)"
+      },
+      {
+        "label": "Run a command in a guest without network access",
+        "command": "Invoke-Command -VMName Web01 -Credential (Get-Credential) -ScriptBlock { Get-Service }"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 hosts with Windows Server 2016 or later guests. The guest must be running, and the credentials used must exist inside the guest operating system."
+  },
+  "az802-q-111": {
+    "objective": "Manage virtual machine compute and integration services",
+    "objectiveId": "vm-compute",
+    "topic": "SSH Direct",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/powershell-direct",
+      "https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh-overview"
+    ],
+    "keyPoints": [
+      "SSH Direct extends the same host-to-guest idea to supported Linux guests over SSH.",
+      "It requires a supported guest, a working OpenSSH service in the guest, and appropriate host integration.",
+      "Like PowerShell Direct, it removes the dependency on guest network connectivity."
+    ],
+    "whyOthers": [
+      "A DNSSEC key is used to sign DNS data and has no role in guest management.",
+      "",
+      "A writable domain controller is not required for SSH Direct.",
+      "A DHCP failover cluster provides address-service redundancy and is irrelevant to guest access."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 hosts with supported Linux guests. The guest needs the Hyper-V integration components (or the KVP daemon) and the SSH server running."
+  },
+  "az802-q-112": {
+    "objective": "Manage virtual machine compute and integration services",
+    "objectiveId": "vm-compute",
+    "topic": "Nested virtualization",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/nested-virtualization",
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/features-terminology"
+    ],
+    "keyPoints": [
+      "Nested virtualization exposes hardware virtualization extensions to a virtual machine so it can run its own hypervisor.",
+      "It lets a guest host additional virtual machines, which is common for development, testing, and some container or training scenarios.",
+      "The host must support the required virtualization extensions and, where required, explicit enablement."
+    ],
+    "whyOthers": [
+      "",
+      "A virtual machine cannot run without a host; nested virtualization still depends on the physical host.",
+      "Running DNS inside a switch is not a supported concept and is unrelated to nested virtualization.",
+      "Converting a virtual machine to a physical server describes a migration, not nested virtualization."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 with Hyper-V. The guest operating system must support the exposed extensions, and performance of the nested workload is lower than on a physical host."
+  },
+  "az802-q-113": {
+    "objective": "Manage virtual machine compute and integration services",
+    "objectiveId": "vm-compute",
+    "topic": "Dynamic memory",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/features-terminology"
+    ],
+    "keyPoints": [
+      "Dynamic Memory lets the memory assigned to a virtual machine change between configured limits as demand changes.",
+      "The configuration includes startup memory, minimum memory, and maximum memory values.",
+      "It allows a host to run more virtual machines by reclaiming memory that other guests are not using."
+    ],
+    "whyOthers": [
+      "Storage QoS manages storage throughput rather than memory allocation.",
+      "NUMA spanning controls how a virtual machine's memory maps across physical NUMA nodes; it does not itself change the memory allocation within limits.",
+      "There is no Hyper-V feature named memory checkpoint.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Dynamic Memory requires supported guest integration services, and the minimum and maximum values should reflect what the workload truly needs."
+  },
+  "az802-q-114": {
+    "objective": "Manage virtual machine compute and integration services",
+    "objectiveId": "vm-compute",
+    "topic": "Dynamic memory",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/features-terminology"
+    ],
+    "keyPoints": [
+      "The minimum memory value is the floor the host will not take memory below, so it must cover what the guest needs to run acceptably.",
+      "If the minimum is too low, the guest experiences memory pressure and pages heavily, which harms performance.",
+      "The guest operating system still needs enough memory for its own components plus the application workload."
+    ],
+    "whyOthers": [
+      "A memory setting cannot turn a virtual machine into a domain controller; that role is installed in the guest operating system.",
+      "Memory allocation does not delete DNS records.",
+      "",
+      "Reducing a virtual machine's minimum memory does not give the host more CPU; CPU is a separate resource."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. The maximum memory should also be checked against the workload ceiling so the guest is not starved at peak demand."
+  },
+  "az802-q-115": {
+    "objective": "Manage virtual machine compute and integration services",
+    "objectiveId": "vm-compute",
+    "topic": "Virtual processors",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/features-terminology"
+    ],
+    "keyPoints": [
+      "The virtual processor count controls how many logical processors the guest sees.",
+      "The value can be changed while the guest is running when the guest operating system supports it.",
+      "Over-assigning processors to guests does not create CPU capacity and can increase contention on the host."
+    ],
+    "whyOthers": [
+      "An NTFS quota limits disk space for a user or folder and does not control processors.",
+      "",
+      "A DHCP reservation assigns a stable IP address and is unrelated to processor allocation.",
+      "DNS TTL affects how long a DNS record may be cached, not how many processors a virtual machine receives."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Guest support matters: the processor count must be within what the guest operating system licence and edition allow."
+  },
+  "az802-q-116": {
+    "objective": "Manage virtual machine compute and integration services",
+    "objectiveId": "vm-compute",
+    "topic": "Integration Services",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/manage/manage-hyper-v-integration-services",
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/features-terminology"
+    ],
+    "keyPoints": [
+      "Integration Services provide controlled communication and management features between the host and the guest.",
+      "These include time synchronisation, heartbeat, guest shutdown, and data exchange.",
+      "They can be enabled or disabled individually, and their state is visible in the virtual machine's settings."
+    ],
+    "whyOthers": [
+      "",
+      "Integration Services do not provide internet DNS; DNS is a network service.",
+      "They do not store AD objects; the directory database does.",
+      "They do not encrypt virtual hard disks; disk encryption is provided by BitLocker or another encryption mechanism."
+    ],
+    "commandPath": [
+      {
+        "label": "List the integration services on a virtual machine",
+        "command": "Get-VMIntegrationService -VMName Web01 | Select-Object Name, Enabled"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Guest operating systems receive integration components through Windows Update or a supported package, and a guest without them may not expose all services."
+  },
+  "az802-q-117": {
+    "objective": "Configure virtual machine networking",
+    "objectiveId": "vm-networking",
+    "topic": "NIC teaming",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/plan/plan-hyper-v-networking-in-windows-server",
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/features-terminology"
+    ],
+    "keyPoints": [
+      "NIC teaming combines multiple physical adapters into one logical adapter so that traffic survives a single adapter failure.",
+      "Depending on the teaming mode, traffic can also be distributed across the adapters to increase aggregate throughput.",
+      "Switch Embedded Teaming (SET) is the teaming option designed to work with Hyper-V virtual switches."
+    ],
+    "whyOthers": [
+      "NIC teaming does not replicate Active Directory; directory replication is a separate service.",
+      "File-level deduplication reduces stored file data and is unrelated to network adapters.",
+      "Teaming does not provide virtual machine memory encryption.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Teaming modes differ in whether the physical switch must be configured to support the team, so the switch must match the chosen mode."
+  },
+  "az802-q-118": {
+    "objective": "Manage virtual machine compute and integration services",
+    "objectiveId": "vm-compute",
+    "topic": "Discrete Device Assignment",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/plan/plan-for-deploying-devices-using-discrete-device-assignment"
+    ],
+    "keyPoints": [
+      "Discrete Device Assignment (DDA) passes a supported physical PCIe device directly to a virtual machine.",
+      "The device is then owned by the guest, with reduced host mediation, which can improve performance for specialised workloads.",
+      "Because the device is assigned away from the host, it cannot be shared with other virtual machines at the same time."
+    ],
+    "whyOthers": [
+      "VMQ offloads certain packet processing to the adapter; it does not hand a device to a guest.",
+      "Merging a checkpoint is a storage operation and does not assign hardware.",
+      "",
+      "Dynamic Memory changes memory allocation and does not pass through PCIe devices."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. DDA requires server hardware with the right firmware support, and the device must be dismounted from the host before it can be assigned."
+  },
+  "az802-q-119": {
+    "objective": "Manage virtual machine compute and integration services",
+    "objectiveId": "vm-compute",
+    "topic": "GPU partitioning",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/gpu-partitioning"
+    ],
+    "keyPoints": [
+      "GPU partitioning divides a supported physical GPU so its resources can be shared among multiple virtual machines.",
+      "It lets several virtual machines use graphics or compute acceleration without dedicating a whole GPU to each.",
+      "It requires a GPU and host platform that support partitioning."
+    ],
+    "whyOthers": [
+      "GPU partitioning does not create a checkpoint; checkpoints capture virtual machine state.",
+      "",
+      "It does not turn a GPU into a DNS server.",
+      "It does not encrypt a hard disk."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 with supported GPU hardware and drivers. GPU partitioning support depends on the specific GPU model and the host firmware configuration."
+  },
+  "az802-q-120": {
+    "objective": "Configure high availability and replication for virtual machines",
+    "objectiveId": "vm-ha-replication",
+    "topic": "Hyper-V Replica",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/replication-overview",
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/manage/set-up-hyper-v-replica"
+    ],
+    "keyPoints": [
+      "Hyper-V Replica maintains an asynchronous copy of a virtual machine on another Hyper-V host.",
+      "Replication happens over the network, so it does not require shared storage between the two hosts.",
+      "It is a disaster-recovery mechanism, and the replica can be started through a failover operation when needed."
+    ],
+    "whyOthers": [
+      "",
+      "Hyper-V Replica is asynchronous and specific to virtual machines; it does not synchronously replicate every file share.",
+      "It does not perform DNS load balancing.",
+      "It has nothing to do with Group Policy inheritance."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Replication can be over Kerberos or certificate-based authentication, and the replica host must be configured to accept replication."
+  },
+  "az802-q-121": {
+    "objective": "Configure high availability and replication for virtual machines",
+    "objectiveId": "vm-ha-replication",
+    "topic": "Hyper-V Replica",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/replication-failover",
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/replication-overview"
+    ],
+    "keyPoints": [
+      "A test failover creates a temporary test virtual machine from the replica so the recovery plan can be validated.",
+      "It does not interrupt the primary virtual machine, so it can be run as a recovery drill.",
+      "The test virtual machine is isolated from the production network so it does not interfere with live services."
+    ],
+    "whyOthers": [
+      "A planned failover is an orderly move of production to the replica, which does affect the primary.",
+      "Reverse replication changes the direction of replication after a failover and is not a validation step.",
+      "Live migration moves a running virtual machine between hosts and is unrelated to replica validation.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. A test failover should be cleaned up afterwards so the replica continues to receive changes from the primary."
+  },
+  "az802-q-122": {
+    "objective": "Configure high availability and replication for virtual machines",
+    "objectiveId": "vm-ha-replication",
+    "topic": "Hyper-V Replica",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/replication-failover",
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/replication-overview"
+    ],
+    "keyPoints": [
+      "A planned failover synchronises the remaining changes and shuts down the primary virtual machine in an orderly way.",
+      "It is used when the primary is still healthy, for example before planned maintenance.",
+      "After the failover, replication can be reversed so the original host becomes the replica."
+    ],
+    "whyOthers": [
+      "Deleting the replica discards the recovery copy rather than failing over to it.",
+      "An emergency restore is used when the primary is lost, not when it is healthy.",
+      "",
+      "A test failover validates the replica without moving production."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. A planned failover is the cleanest option because no replication data is lost, and it can be performed from the primary host."
+  },
+  "az802-q-123": {
+    "objective": "Configure high availability and replication for virtual machines",
+    "objectiveId": "vm-ha-replication",
+    "topic": "Live migration",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/manage/live-migration-overview"
+    ],
+    "keyPoints": [
+      "Live migration moves a running virtual machine from one host to another with minimal downtime.",
+      "It is used for host maintenance and load balancing without stopping the workload.",
+      "It requires compatible hosts and accessible storage or live migration without shared storage."
+    ],
+    "whyOthers": [
+      "Moving a DNS zone is a DNS operation and is not live migration.",
+      "",
+      "Restoring a deleted AD object is a directory recovery operation.",
+      "Converting a VHDX to an ISO changes a disk format and is not a migration."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Live migration can use shared storage or storage migration, and the source and destination hosts must satisfy the processor and version compatibility requirements."
+  },
+  "az802-q-124": {
+    "objective": "Configure high availability and replication for virtual machines",
+    "objectiveId": "vm-ha-replication",
+    "topic": "Failover clustering",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/manage/live-migration-overview",
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/features-terminology"
+    ],
+    "keyPoints": [
+      "For a virtual machine to be highly available, it must be configured as a clustered role in the failover cluster.",
+      "The cluster nodes must have coordinated access to the virtual machine's configuration and its virtual disks, either through shared storage or a storage abstraction.",
+      "A cluster requires more than one node before it provides availability."
+    ],
+    "whyOthers": [
+      "",
+      "A private switch restricts connectivity and is not an availability requirement.",
+      "A single-node cluster provides no failover capability.",
+      "Checkpoints are not required to be permanent, and long-lived checkpoints are discouraged."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. The Failover Clustering feature and the Hyper-V role are both required, and shared storage is often provided by a CSV (cluster shared volume)."
+  },
+  "az802-q-125": {
+    "objective": "Manage virtual machines in Azure",
+    "objectiveId": "vm-azure",
+    "topic": "Azure availability",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/virtual-machines/availability-set-overview"
+    ],
+    "keyPoints": [
+      "An availability set distributes virtual machines across fault domains and update domains within an Azure datacenter construct.",
+      "Fault domains separate machines onto different physical hardware so a hardware failure does not take all of them down.",
+      "Update domains allow the platform to patch hosts in stages rather than rebooting every machine at once."
+    ],
+    "whyOthers": [
+      "Azure File Sync caches file shares and does not distribute virtual machines.",
+      "DNSSEC signs DNS data and is unrelated to virtual machine placement.",
+      "An Azure Policy initiative groups policy definitions and does not affect fault or update domains.",
+      ""
+    ],
+    "requirements": "Applies to Azure virtual machines. An availability set is scoped to a single datacenter within a region, so it protects against hardware faults but not against a datacenter-level outage."
+  },
+  "az802-q-126": {
+    "objective": "Manage virtual machines in Azure",
+    "objectiveId": "vm-azure",
+    "topic": "Azure availability",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/reliability/availability-zones-overview",
+      "https://learn.microsoft.com/en-us/azure/virtual-machines/availability-set-overview"
+    ],
+    "keyPoints": [
+      "Availability zones are physically separate datacenters within a region, each with independent power, cooling, and networking.",
+      "Placing virtual machines in different zones protects against a whole datacenter failing.",
+      "Zones therefore provide stronger separation than an availability set, which is confined to one datacenter."
+    ],
+    "whyOthers": [
+      "Zones are used when networking exists; the absence of a network is not a reason to choose them.",
+      "Local testing does not need zone-level separation.",
+      "",
+      "Sharing one host is the opposite of what zones provide."
+    ],
+    "requirements": "Applies to Azure regions that support availability zones. Not every region or virtual machine size supports zones, so the region and SKU must be checked before relying on them."
+  },
+  "az802-q-127": {
+    "objective": "Manage virtual machines in Azure",
+    "objectiveId": "vm-azure",
+    "topic": "Azure VM scaling",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/virtual-machines/resize-vm"
+    ],
+    "keyPoints": [
+      "Resizing changes the compute capacity allocated to a virtual machine, which is the direct response to a CPU constraint.",
+      "The new SKU must be supported by the host hardware and available in the region and zone.",
+      "The resize decision must also consider availability, memory, networking limits, and cost, not CPU alone."
+    ],
+    "whyOthers": [
+      "Disabling monitoring removes the data needed to make a good sizing decision.",
+      "",
+      "Changing the DNS TTL affects name caching and does not add compute capacity.",
+      "Deleting the OS disk destroys the virtual machine."
+    ],
+    "requirements": "Applies to Azure virtual machines. Depending on the change, resizing may require a restart, and some SKU families can only be reached by deallocating the virtual machine first."
+  },
+  "az802-q-128": {
+    "objective": "Manage virtual machines in Azure",
+    "objectiveId": "vm-azure",
+    "topic": "Virtual machine scale sets",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/overview"
+    ],
+    "keyPoints": [
+      "A virtual machine scale set manages a group of similar virtual machines that can scale out and in.",
+      "All instances are created from the same configuration, which keeps them consistent.",
+      "It can scale manually or automatically based on metrics or a schedule."
+    ],
+    "whyOthers": [
+      "",
+      "DNS records are stored in Azure DNS or an on-premises DNS zone, not in a scale set.",
+      "A scale set is not used to host a single AD database instance.",
+      "It is not a replacement for a file server."
+    ],
+    "requirements": "Applies to Azure virtual machine scale sets. Flexible orchestration gives more control over instance management, while uniform orchestration keeps all instances identical."
+  },
+  "az802-q-129": {
+    "objective": "Manage virtual machines in Azure",
+    "objectiveId": "vm-azure",
+    "topic": "Just-in-time access",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/defender-for-cloud/just-in-time-access-overview"
+    ],
+    "keyPoints": [
+      "Just-in-time (JIT) virtual machine access opens selected management ports only for an approved time window.",
+      "Outside that window the ports stay closed, so the exposure to scanning and brute-force attempts is greatly reduced.",
+      "Requests are subject to role-based approvals and are recorded for auditing."
+    ],
+    "whyOthers": [
+      "Azure Storage lifecycle management moves or deletes blobs and does not control access ports.",
+      "An availability set distributes virtual machines across fault and update domains and does not limit management access.",
+      "A private DNS zone resolves names inside a virtual network and does not open or close management ports.",
+      ""
+    ],
+    "requirements": "Applies to Microsoft Defender for Cloud. JIT access is configured with a policy that lists the allowed source addresses and the maximum request duration per port."
+  },
+  "az802-q-130": {
+    "objective": "Manage virtual machines in Azure",
+    "objectiveId": "vm-azure",
+    "topic": "Azure data disks",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/virtual-machines/windows/attach-managed-disk-portal",
+      "https://learn.microsoft.com/en-us/azure/virtual-machines/managed-disks-overview"
+    ],
+    "keyPoints": [
+      "A data disk must first be attached to the virtual machine in Azure, and then recognised and initialised by the guest operating system.",
+      "In Windows the disk must be initialised, partitioned, formatted, and brought online before a drive letter appears.",
+      "If the disk is read-only or offline, or the attachment failed, the guest cannot use it regardless of guest configuration."
+    ],
+    "whyOthers": [
+      "Group Policy loopback affects user policy on a computer and does not attach disks.",
+      "DNSSEC signing secures DNS answers and is unrelated to disk access.",
+      "",
+      "The forest functional level concerns Active Directory capabilities and does not affect Azure data disks."
+    ],
+    "requirements": "Applies to Azure Windows virtual machines. A disk cannot be attached to two virtual machines at once as a data disk, and only the guest's own instance sees it as local storage."
+  },
+  "az802-q-131": {
+    "objective": "Manage virtual machines in Azure",
+    "objectiveId": "vm-azure",
+    "topic": "Azure managed disks",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/virtual-machines/disks-types",
+      "https://learn.microsoft.com/en-us/azure/virtual-machines/managed-disks-overview"
+    ],
+    "keyPoints": [
+      "Azure offers several managed disk types, including Standard HDD, Standard SSD, Premium SSD, and Ultra Disk, each with a different performance and cost profile.",
+      "Lower-latency, higher-performance workloads are matched to Premium SSD or Ultra Disk where the region, virtual machine size, and availability requirements support it.",
+      "Choosing a disk type should follow the workload's IOPS, throughput, and latency needs rather than a default."
+    ],
+    "whyOthers": [
+      "A DNS cache is a name-resolution feature and not a disk option.",
+      "",
+      "A basic text file is data, not a storage SKU.",
+      "A DHCP lease is an IP address assignment and is unrelated to disk selection."
+    ],
+    "requirements": "Applies to Azure managed disks. Not every disk type is available in every region or with every virtual machine size, and Ultra Disk support depends on the virtual machine family and the zone."
+  },
+  "az802-q-132": {
+    "objective": "Manage virtual machines in Azure",
+    "objectiveId": "vm-azure",
+    "topic": "Azure Bastion",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/bastion/bastion-overview",
+      "https://learn.microsoft.com/en-us/azure/bastion/bastion-connect-vm-rdp-windows"
+    ],
+    "keyPoints": [
+      "Azure Bastion requires a Bastion resource deployed into the virtual network that contains the target virtual machines.",
+      "It uses a dedicated subnet named AzureBastionSubnet, and no public IP address is needed on the virtual machines themselves.",
+      "It provides browser-based RDP and SSH over TLS through the Azure portal."
+    ],
+    "whyOthers": [
+      "",
+      "An internet-facing RDP port on every virtual machine is the exposure Bastion is designed to eliminate.",
+      "A public DNS root is not required for Bastion.",
+      "A local tape drive is a backup device and is unrelated."
+    ],
+    "requirements": "Applies to Azure Bastion. The dedicated subnet must be correctly sized, and Bastion access can be granted with role-based access control instead of distributing local credentials."
+  },
+  "az802-q-133": {
+    "objective": "Configure virtual machine networking",
+    "objectiveId": "vm-networking",
+    "topic": "SR-IOV",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/networking/technologies/hpn/hpn-software-hardware-features",
+      "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/plan/plan-hyper-v-networking-in-windows-server"
+    ],
+    "keyPoints": [
+      "Single-Root I/O Virtualization (SR-IOV) lets a virtual machine use a virtual function on a physical adapter directly.",
+      "Because traffic bypasses part of the host's software switching path, packet-processing overhead is reduced.",
+      "It requires an SR-IOV-capable adapter and support on the host and in the guest."
+    ],
+    "whyOthers": [
+      "Loopback processing is a Group Policy feature and is unrelated to network performance.",
+      "DNS scavenging removes stale DNS records and does not affect packet processing.",
+      "FSRM screening restricts file types on a file server and is unrelated to network adapters.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. SR-IOV must be enabled on the virtual switch and the adapter must support it, and some advanced features are unavailable when SR-IOV is in use."
+  }
+}

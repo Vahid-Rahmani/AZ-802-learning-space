@@ -1,0 +1,797 @@
+{
+  "az802-q-066": {
+    "objective": "Manage Windows Server by using Windows Admin Center",
+    "objectiveId": "hybrid-windows-admin-center",
+    "topic": "Windows Admin Center",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/manage/windows-admin-center/understand/what-is",
+      "https://learn.microsoft.com/en-us/windows-server/manage/windows-admin-center/deploy/install"
+    ],
+    "keyPoints": [
+      "Windows Admin Center is a browser-based management tool for Windows Server, clusters, virtual machines, storage, and networking.",
+      "It is installed locally and runs a gateway that manages servers through Remote PowerShell and WMI over WinRM.",
+      "It replaces the need to open a Remote Desktop session for many day-to-day management tasks, and it can extend to Azure and Azure Arc scenarios."
+    ],
+    "whyOthers": [
+      "Windows Admin Center is not a DNS root server; it is a management console, and DNS service is a separate server role.",
+      "Windows Admin Center is not a disk-encryption algorithm; disk encryption is provided by BitLocker.",
+      "",
+      "Windows Admin Center is not a replacement for Active Directory; it manages servers and does not provide directory services."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 and to Windows client machines. A gateway is installed and then managed servers are added by name; the managed node needs Remote Management (WinRM) and the required firewall rules enabled."
+  },
+  "az802-q-067": {
+    "objective": "Manage Windows Server by using Windows Admin Center",
+    "objectiveId": "hybrid-windows-admin-center",
+    "topic": "Windows Admin Center",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/manage/windows-admin-center/understand/what-is",
+      "https://learn.microsoft.com/en-us/windows-server/manage/windows-admin-center/plan/installation-options"
+    ],
+    "keyPoints": [
+      "An on-premises gateway is installed in the organization's own environment and manages the resources it can reach.",
+      "The gateway is the web server plus management service that serves the browser session and forwards actions to managed nodes.",
+      "The alternative installation option is a per-user local installation on a Windows PC, which is not shared by other administrators."
+    ],
+    "whyOthers": [
+      "A Hyper-V Replica broker is a failover-clustering role for replica coordination, not a Windows Admin Center deployment.",
+      "",
+      "Azure DNS resolver is an Azure DNS service and has nothing to do with where the gateway is hosted.",
+      "Microsoft Entra Connect cloud sync synchronises identities to Microsoft Entra ID and is not a Windows Admin Center deployment type."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. A shared gateway installation lets multiple administrators connect through one gateway; a per-user installation on a Windows client is limited to that user."
+  },
+  "az802-q-068": {
+    "objective": "Manage Windows Server by using Windows Admin Center",
+    "objectiveId": "hybrid-windows-admin-center",
+    "topic": "Windows Admin Center",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/manage/windows-admin-center/deploy/install"
+    ],
+    "keyPoints": [
+      "Windows Admin Center communicates with the browser over HTTPS by default on port 443.",
+      "The port is chosen during installation and can be changed if 443 is already in use.",
+      "Because the gateway is browser-based, the HTTPS port must be reachable from the administrator's browser, not from the managed servers."
+    ],
+    "whyOthers": [
+      "Port 22 is the default port for SSH, used for remote shell access rather than Windows Admin Center's web interface.",
+      "Port 80 is plain HTTP and is not the secure default for the gateway.",
+      "",
+      "Port 3389 is Remote Desktop Protocol, used by Remote Desktop sessions rather than by the Windows Admin Center web interface."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. If the default port conflicts with another service, choose an alternate HTTPS port during installation and open it in the gateway's firewall."
+  },
+  "az802-q-069": {
+    "objective": "Connect servers to Azure with Azure Arc",
+    "objectiveId": "hybrid-arc",
+    "topic": "Azure Arc-enabled servers",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/azure-arc/servers/overview"
+    ],
+    "keyPoints": [
+      "Azure Arc-enabled servers project on-premises or other-cloud servers into Azure so they can be managed with Azure control-plane tools.",
+      "It enables inventory, tags, Azure Policy, extensions, monitoring, and update management for machines that are not Azure virtual machines.",
+      "The server keeps running where it is; Arc adds a management representation of it in Azure rather than moving it."
+    ],
+    "whyOthers": [
+      "Converting every server into an Azure VM describes a migration, whereas Arc extends management without moving the workload.",
+      "Replacing domain controllers with Linux is unrelated to Azure Arc.",
+      "Providing local DHCP leases is a networking role; Arc does not assign addresses.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, 2016, and to supported Linux distributions. Arc-enabled servers must be able to reach the required Azure endpoints, directly or through a proxy."
+  },
+  "az802-q-070": {
+    "objective": "Connect servers to Azure with Azure Arc",
+    "objectiveId": "hybrid-arc",
+    "topic": "Azure Arc-enabled servers",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/azure-arc/servers/agent-overview"
+    ],
+    "keyPoints": [
+      "The Azure Connected Machine agent connects a Windows or Linux machine to Azure Arc.",
+      "It creates the machine's metadata representation in Azure and enables supported extensions and management features.",
+      "Agent health is the first thing to check when an Arc resource is offline or an extension does not deploy."
+    ],
+    "whyOthers": [
+      "A Hyper-V integration service runs inside a guest to provide host-to-guest services and does not connect a server to Azure.",
+      "The SMB redirector is the client component that accesses SMB file shares and is unrelated to Arc.",
+      "",
+      "A DHCP relay agent forwards DHCP requests between subnets and does not connect a machine to Azure Arc."
+    ],
+    "commandPath": [
+      {
+        "label": "Run the connection script with the service principal",
+        "command": "& \"$env:ProgramFiles\\AzureConnectedMachineAgent\\azcmagent.exe\" connect --service-principal-id <appId> --service-principal-secret <secret> --tenant-id <tenantId> --location <region> --resource-group <rg>"
+      },
+      {
+        "label": "Show the agent's connection and extension status",
+        "command": "azcmagent show"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, 2016, and supported Linux distributions. The Connected Machine agent service runs as a local service and needs outbound HTTPS to the Arc endpoints."
+  },
+  "az802-q-071": {
+    "objective": "Connect servers to Azure with Azure Arc",
+    "objectiveId": "hybrid-arc",
+    "topic": "Azure Arc extensions",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/azure-arc/servers/agent-overview",
+      "https://learn.microsoft.com/en-us/azure/azure-arc/servers/network-requirements"
+    ],
+    "keyPoints": [
+      "Arc extension deployment depends on a healthy agent reporting to Azure.",
+      "The server also needs outbound connectivity to the extension's own endpoints, which may differ from the core Arc endpoints.",
+      "Extension prerequisites vary by extension, so check the operating-system support and any required platform components."
+    ],
+    "whyOthers": [
+      "The server's wallpaper is a cosmetic desktop setting and has no effect on extension deployment.",
+      "",
+      "The local printer queue is unrelated to Azure Arc extensions.",
+      "The forest schema version concerns Active Directory and does not affect Arc extension deployment."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Extension installation and upgrade run as SYSTEM on the machine, so a restrictive proxy or egress firewall is a common cause of a pending extension."
+  },
+  "az802-q-072": {
+    "objective": "Manage updates for hybrid servers",
+    "objectiveId": "hybrid-updates",
+    "topic": "Azure Update Manager",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/update-manager/overview",
+      "https://learn.microsoft.com/en-us/azure/azure-arc/servers/overview"
+    ],
+    "keyPoints": [
+      "Azure Update Manager provides update assessment, compliance reporting, and maintenance scheduling for Azure and Arc-enabled machines.",
+      "It gives a single view of update state across machines that live in different places.",
+      "For non-Azure machines, it relies on the server being connected through Azure Arc."
+    ],
+    "whyOthers": [
+      "",
+      "Automatically creating AD trusts is a directory operation and has nothing to do with update management.",
+      "Update Manager does not replace backup systems; backup is a separate service.",
+      "Local DNS zone hosting is a DNS Server role function, not an update management feature."
+    ],
+    "requirements": "Applies to supported Windows Server and Linux machines. Update Manager is a cloud service, so an Arc-connected machine needs outbound access, and a maintenance configuration is used to schedule patching."
+  },
+  "az802-q-073": {
+    "objective": "Automate administration with runbooks and managed identities",
+    "objectiveId": "hybrid-automation",
+    "topic": "Azure Automation",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/automation/overview"
+    ],
+    "keyPoints": [
+      "Azure Automation runbooks execute administrative workflows, on demand or on a schedule.",
+      "Runbooks can be written in PowerShell or Python and can target Azure resources or hybrid machines through Hybrid Runbook Worker.",
+      "The service can be used for scheduled tasks that do not need a dedicated server to host them."
+    ],
+    "whyOthers": [
+      "Azure DNS hosts DNS zones and does not run administrative scripts.",
+      "Azure Files provides SMB and REST file shares and does not execute automation.",
+      "Azure Bastion provides browser-based RDP and SSH access and does not run scheduled automation.",
+      ""
+    ],
+    "requirements": "Applies to the Azure Automation service. To run scripts against on-premises machines, a Hybrid Runbook Worker is registered, and the worker needs network access to those machines."
+  },
+  "az802-q-074": {
+    "objective": "Automate administration with runbooks and managed identities",
+    "objectiveId": "hybrid-automation",
+    "topic": "Automation security",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview",
+      "https://learn.microsoft.com/en-us/azure/automation/overview"
+    ],
+    "keyPoints": [
+      "A managed identity gives an Azure resource an identity in Microsoft Entra ID without a stored secret.",
+      "The identity can be granted only the permissions the runbook needs, which is least privilege for automation.",
+      "Because there is no password to store or rotate, the runbook avoids secret sprawl and the exposure that comes with embedded credentials."
+    ],
+    "whyOthers": [
+      "A shared domain administrator password in plain text is the opposite of the requirement and exposes a high-privilege credential.",
+      "A disabled service account cannot authenticate, so the runbook would simply fail.",
+      "",
+      "The Guest account is disabled by default and is not an automation identity."
+    ],
+    "requirements": "Applies to Azure Automation and other Azure resources. A system-assigned identity is tied to the resource's lifecycle, while a user-assigned identity can be shared across resources and granted role assignments explicitly."
+  },
+  "az802-q-075": {
+    "objective": "Manage servers remotely with PowerShell remoting",
+    "objectiveId": "hybrid-remoting",
+    "topic": "PowerShell remoting",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/08-powershell-remoting?view=powershell-7.6"
+    ],
+    "keyPoints": [
+      "PowerShell remoting runs commands and scripts on remote computers using WS-Management and WinRM.",
+      "It supports one-to-one sessions and one-to-many execution through Invoke-Command.",
+      "Remoting must be enabled on the target, normally with Enable-PSRemoting, before a connection is accepted."
+    ],
+    "whyOthers": [
+      "Formatting a virtual disk is done locally with Disk Management or diskpart, not through PowerShell remoting.",
+      "",
+      "Replicating DNS zones is a DNS Server function and is not what remoting does.",
+      "Encrypting a volume is BitLocker's job and is unrelated to remoting."
+    ],
+    "commandPath": [
+      {
+        "label": "Enable remoting on the target computer",
+        "command": "Enable-PSRemoting -Force"
+      },
+      {
+        "label": "Run a command on a remote computer",
+        "command": "Invoke-Command -ComputerName SRV01 -ScriptBlock { Get-Service }"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 and to supported PowerShell versions. WinRM needs the service running and the firewall rules for the management protocols enabled on the target."
+  },
+  "az802-q-076": {
+    "objective": "Manage servers remotely with PowerShell remoting",
+    "objectiveId": "hybrid-remoting",
+    "topic": "PowerShell remoting",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_remote_troubleshooting?view=powershell-7.6",
+      "https://learn.microsoft.com/en-us/powershell/scripting/security/remoting/winrm-security?view=powershell-7.6"
+    ],
+    "keyPoints": [
+      "Test-WSMan verifies WS-Management connectivity to a target, which is the transport PowerShell remoting uses.",
+      "A successful response confirms the WS-Management service is reachable and responding.",
+      "When Test-WSMan fails, the problem is normally the WinRM service, the firewall rule, or name resolution rather than the PowerShell command itself."
+    ],
+    "whyOthers": [
+      "",
+      "Test-NetConnection against port 53 tests DNS connectivity, not the remoting transport.",
+      "Get-Volume reports local disk volumes and does not test remoting.",
+      "Get-ADUser queries Active Directory and does not test WinRM configuration."
+    ],
+    "commandPath": [
+      {
+        "label": "Test WS-Management connectivity to a target",
+        "command": "Test-WSMan -ComputerName SRV01"
+      },
+      {
+        "label": "Check the WinRM service state locally",
+        "command": "Get-Service WinRM | Select-Object Status, StartType"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Test-WSMan confirms the transport only; a subsequent failure to create a session can still be an authentication problem."
+  },
+  "az802-q-077": {
+    "objective": "Manage servers remotely with PowerShell remoting",
+    "objectiveId": "hybrid-remoting",
+    "topic": "PowerShell remoting",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/powershell/scripting/security/remoting/ps-remoting-second-hop?view=powershell-7.6",
+      "https://learn.microsoft.com/en-us/powershell/scripting/security/remoting/winrm-security?view=powershell-7.6"
+    ],
+    "keyPoints": [
+      "The remote machine does not hold the user's credentials, so a second network hop fails by default with an access-denied error.",
+      "This is the Kerberos double-hop problem: the credential is not delegated to the intermediate server.",
+      "Supported options include constrained delegation, resource-based constrained delegation, CredSSP, and running as a virtual account or System on the intermediate server."
+    ],
+    "whyOthers": [
+      "DHCP scope exhaustion is an addressing problem and would not produce the pattern described.",
+      "NTFS compression affects file storage and has no bearing on authentication between servers.",
+      "A Hyper-V checkpoint merge is a virtualisation operation unrelated to remoting.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. CredSSP delegates credentials and raises risk, so constrained delegation or resource-based constrained delegation is generally preferred where the service supports it."
+  },
+  "az802-q-078": {
+    "objective": "Constrain administrative access with Just Enough Administration",
+    "objectiveId": "hybrid-jea",
+    "topic": "Just Enough Administration",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/powershell/scripting/security/remoting/jea/overview?view=powershell-7.6"
+    ],
+    "keyPoints": [
+      "JEA constrains administrators to an approved set of commands and parameters through a scoped endpoint.",
+      "It uses role capabilities to define exactly what a delegated role may do, and NoLanguage mode limits sessions to command invocation.",
+      "It reduces the blast radius of administrative mistakes and misuse by removing general-purpose administrative access."
+    ],
+    "whyOthers": [
+      "JEA does not disable PowerShell logging; it works with logging and transcription to record what was done.",
+      "JEA does not replace the Windows Firewall; firewall rules are managed separately.",
+      "",
+      "JEA is the opposite of granting every administrator Domain Admins membership, which would remove the constraint."
+    ],
+    "commandPath": [
+      {
+        "label": "Create a JEA role capability",
+        "command": "New-PSRoleCapabilityFile -Path .\\DNSOps.psrc -VisibleCmdlets 'Get-DnsServer*','Restart-DnsServer'"
+      },
+      {
+        "label": "Register the constrained endpoint",
+        "command": "Register-PSSessionConfiguration -Name DNSOps -Path .\\DNSOps.pssc -RunAsCredential (Get-Credential)"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 and to PowerShell 5.1 and later. JEA endpoints can run under a virtual account so the delegated work uses a scoped identity rather than the operator's own rights."
+  },
+  "az802-q-079": {
+    "objective": "Manage remote access with SSH and Remote Desktop Services",
+    "objectiveId": "hybrid-remote-access",
+    "topic": "OpenSSH",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh-overview"
+    ],
+    "keyPoints": [
+      "Windows Server supports OpenSSH for encrypted remote shell and file-transfer scenarios.",
+      "The OpenSSH Server feature provides an SSH server, and the OpenSSH Client feature provides the ssh client.",
+      "It allows administration and scripting workflows that are common in mixed Windows and Linux environments."
+    ],
+    "whyOthers": [
+      "TFTP is a trivial, unauthenticated file-transfer protocol and is not used for interactive remote shells.",
+      "",
+      "FTP is an unencrypted file-transfer protocol and does not provide an interactive encrypted shell.",
+      "Telnet sends data in clear text and offers no encryption or modern authentication."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. OpenSSH Server is installed as a Windows optional feature and can be configured through the sshd_config file."
+  },
+  "az802-q-080": {
+    "objective": "Manage remote access with SSH and Remote Desktop Services",
+    "objectiveId": "hybrid-remote-access",
+    "topic": "OpenSSH",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_keymanagement",
+      "https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse"
+    ],
+    "keyPoints": [
+      "Key-based authentication uses a private key held by the client and a public key authorised on the server.",
+      "No reusable password is transmitted during authentication, which removes password guessing and credential reuse as an attack path.",
+      "The private key can also be protected by a passphrase and is never sent to the server."
+    ],
+    "whyOthers": [
+      "",
+      "Key-based authentication does not disable encryption; the session remains encrypted.",
+      "Keys do not bypass authorisation; the server still decides what the authenticated user may do.",
+      "SSH keys do not create DHCP reservations, which are an addressing feature."
+    ],
+    "commandPath": [
+      {
+        "label": "Generate a key pair",
+        "command": "ssh-keygen -t ed25519"
+      },
+      {
+        "label": "Install the public key for an administrator account",
+        "command": "Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. On Windows, an administrator's key is placed in the administrators_authorized_keys file with restricted permissions, while a standard user's key goes in the user's .ssh folder."
+  },
+  "az802-q-081": {
+    "objective": "Manage remote access with SSH and Remote Desktop Services",
+    "objectiveId": "hybrid-remote-access",
+    "topic": "Remote Desktop Services",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/overview"
+    ],
+    "keyPoints": [
+      "Remote Desktop Services provides session-based remote desktop access to Windows Server.",
+      "It also supports publishing applications so users can run them remotely without a full desktop.",
+      "It is the built-in Windows Server platform for delivering managed desktops and applications."
+    ],
+    "whyOthers": [
+      "DFS Replication replicates file data between servers and does not provide remote desktop sessions.",
+      "Storage Replica replicates volumes between servers and has no graphical session capability.",
+      "DNSSEC extends DNS with cryptographic validation and is unrelated to remote sessions.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Remote Desktop Services requires an RDS deployment with session hosts and, depending on the design, other roles such as connection broker and gateway."
+  },
+  "az802-q-082": {
+    "objective": "Manage remote access with SSH and Remote Desktop Services",
+    "objectiveId": "hybrid-remote-access",
+    "topic": "Remote Desktop Services",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/rds-roles",
+      "https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/remote-desktop-gateway-role"
+    ],
+    "keyPoints": [
+      "An RD Gateway centralises remote access policy and authenticates users before they reach a session host.",
+      "It lets clients reach internal session hosts without exposing every RDP port directly to the internet.",
+      "It should be combined with strong authentication and restricted authorisation policy."
+    ],
+    "whyOthers": [
+      "Disabling auditing removes the evidence administrators need and weakens security rather than protecting the deployment.",
+      "Using the Guest account gives unauthenticated, low-trust access and is not a protection measure.",
+      "",
+      "Exposing every RDP port directly to the internet is exactly the exposure a gateway is meant to avoid."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. RD Gateway uses HTTPS (normally port 443) and can use Remote Desktop connection authorisation policies to control who may connect where."
+  },
+  "az802-q-083": {
+    "objective": "Manage remote access with SSH and Remote Desktop Services",
+    "objectiveId": "hybrid-remote-access",
+    "topic": "Azure Bastion",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/bastion/bastion-overview",
+      "https://learn.microsoft.com/en-us/azure/bastion/bastion-connect-vm-rdp-windows"
+    ],
+    "keyPoints": [
+      "Azure Bastion is a managed service that provides RDP and SSH access to virtual machines through the Azure portal over TLS.",
+      "Virtual machines do not need public IP addresses or exposed RDP/SSH ports, which removes that exposure.",
+      "It removes the need to run and secure a separate jump host."
+    ],
+    "whyOthers": [
+      "The Azure Migrate appliance performs discovery and assessment for migration, not interactive remote access.",
+      "",
+      "Azure File Sync caches file shares locally and has no remote-desktop capability.",
+      "Azure DNS Private Resolver resolves names in private DNS zones and does not provide RDP or SSH access."
+    ],
+    "requirements": "Applies to the Azure Bastion service. It is deployed into a virtual network, and access can be granted with role-based access control rather than by distributing local credentials."
+  },
+  "az802-q-084": {
+    "objective": "Centrally manage hybrid resources with Azure Policy",
+    "objectiveId": "hybrid-policy",
+    "topic": "Azure Arc and Azure Policy",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/azure-arc/servers/overview",
+      "https://learn.microsoft.com/en-us/azure/governance/policy/overview"
+    ],
+    "keyPoints": [
+      "Arc-enabled servers bring non-Azure machines into Azure management scope, which is what makes them subject to Azure Policy.",
+      "Azure Policy evaluates resources against definitions and can audit or enforce configuration requirements.",
+      "Together they give inventory and policy coverage across on-premises and cloud servers."
+    ],
+    "whyOthers": [
+      "",
+      "DHCP and print services are local network services and provide neither inventory nor policy for cloud management.",
+      "Hyper-V Replica and SMB signing are replication and file-transfer settings, not a governance pairing.",
+      "DNSSEC and FSRM are DNS validation and file-screening features and are unrelated to policy."
+    ],
+    "requirements": "Applies to Azure Arc-enabled servers. A policy assignment can audit configuration or, through guest configuration, evaluate settings inside the machine, and remediation can be applied where the effect supports it."
+  },
+  "az802-q-085": {
+    "objective": "Centrally manage hybrid resources with Azure Policy",
+    "objectiveId": "hybrid-policy",
+    "topic": "Azure Policy",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/governance/policy/concepts/initiative-definition-structure",
+      "https://learn.microsoft.com/en-us/azure/governance/policy/overview"
+    ],
+    "keyPoints": [
+      "An initiative, also called a policy set, is a collection of related policy definitions grouped for assignment and compliance tracking.",
+      "Assigning one initiative reports compliance across all of its member policies, which is how a broad objective such as a regulatory baseline is tracked.",
+      "Parameters can be passed to an initiative so one definition can be reused across assignments."
+    ],
+    "whyOthers": [
+      "A virtual hard disk is a storage artefact and is not an initiative.",
+      "A DHCP failover relationship provides address-service redundancy and is unrelated.",
+      "A DNS zone transfer key secures zone transfers and is not part of an initiative.",
+      ""
+    ],
+    "requirements": "Applies to Azure Policy. An initiative can be assigned at management-group, subscription, or resource-group scope, and compliance is evaluated per policy within the initiative."
+  },
+  "az802-q-086": {
+    "objective": "Monitor hybrid servers with Azure Monitor",
+    "objectiveId": "hybrid-monitoring",
+    "topic": "Azure Monitor",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/azure-monitor/overview"
+    ],
+    "keyPoints": [
+      "Azure Monitor collects telemetry from Azure resources and, with Arc, from hybrid machines.",
+      "It provides metrics, logs, alerts, dashboards, and workbooks from one platform.",
+      "Hybrid servers send data through the Azure Monitor Agent rather than a legacy log-analytics agent."
+    ],
+    "whyOthers": [
+      "Azure Load Testing is a load-testing service and does not collect machine telemetry.",
+      "Azure Files provides file shares and does not analyse logs or metrics.",
+      "",
+      "Azure DNS hosts DNS zones and does not monitor servers."
+    ],
+    "requirements": "Applies to Azure Monitor. Hybrid machines must first be connected through Azure Arc, and a data collection rule defines what data is gathered and where it is sent."
+  },
+  "az802-q-087": {
+    "objective": "Monitor hybrid servers with Azure Monitor",
+    "objectiveId": "hybrid-monitoring",
+    "topic": "Azure Monitor Agent",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/azure-monitor/vm/data-collection",
+      "https://learn.microsoft.com/en-us/azure/azure-monitor/agents/azure-monitor-agent-overview"
+    ],
+    "keyPoints": [
+      "The Azure Monitor Agent collects data from virtual machines and Arc-enabled servers according to data collection rules.",
+      "A data collection rule specifies the data sources, any transformations, and the destination workspace.",
+      "Windows event logs are a supported data source, so a rule can be scoped to the channels the organization needs."
+    ],
+    "whyOthers": [
+      "Creating a Hyper-V checkpoint affects one virtual machine's state and does not send logs anywhere.",
+      "",
+      "Installing a DHCP relay is a networking change and does not collect event logs.",
+      "Enabling SMB Direct improves SMB performance and is unrelated to log collection."
+    ],
+    "requirements": "Applies to Azure Monitor Agent on supported operating systems. The legacy Microsoft Monitoring Agent is being retired in favour of Azure Monitor Agent and data collection rules."
+  },
+  "az802-q-088": {
+    "objective": "Monitor hybrid servers with Azure Monitor",
+    "objectiveId": "hybrid-monitoring",
+    "topic": "Data collection rules",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/azure-monitor/data-collection/data-collection-rule-overview"
+    ],
+    "keyPoints": [
+      "A data collection rule defines the data sources to collect, how the data is processed, and the destination where it is sent.",
+      "Rules are reusable and can be scoped so that many machines share one consistent collection policy.",
+      "A single rule can include several data sources, such as performance counters and Windows event logs."
+    ],
+    "whyOthers": [
+      "",
+      "NTFS ACL inheritance is a file-permission setting and is unrelated to telemetry.",
+      "AD trust direction is a directory setting and is not defined by a data collection rule.",
+      "A virtual machine's boot disk layout is a storage configuration, not a collection definition."
+    ],
+    "requirements": "Applies to Azure Monitor. A data collection rule is associated with machines through a data collection rule association, and edits to the rule change collection for every associated machine."
+  },
+  "az802-q-089": {
+    "objective": "Connect servers to Azure with Azure Arc",
+    "objectiveId": "hybrid-arc",
+    "topic": "Azure Arc extensions",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/azure-arc/servers/agent-overview"
+    ],
+    "keyPoints": [
+      "Extensions can execute code or change configuration on the machine, so each one expands the trusted computing base.",
+      "Deploying only the extensions that are needed keeps the attack surface and the maintenance burden smaller.",
+      "Granting least-privilege access to manage extensions limits who can change the machine's configuration."
+    ],
+    "whyOthers": [
+      "Installing every available extension maximises the code running on the server and contradicts least privilege.",
+      "Shared administrator passwords are the opposite of a least-privilege practice.",
+      "Disabling agent health checks removes the signal that would detect a problem and is not a security improvement.",
+      ""
+    ],
+    "requirements": "Applies to Azure Arc-enabled servers. Extension management should be restricted with role-based access control so only authorised operators can deploy or remove extensions."
+  },
+  "az802-q-090": {
+    "objective": "Manage servers remotely with PowerShell remoting",
+    "objectiveId": "hybrid-remoting",
+    "topic": "Remote management firewall",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/powershell/scripting/security/remoting/winrm-security?view=powershell-7.6",
+      "https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/08-powershell-remoting?view=powershell-7.6"
+    ],
+    "keyPoints": [
+      "Remote management firewall rules should allow only the management protocols that are actually used.",
+      "Rules are scoped to the required network profiles and, where possible, to specific source hosts or subnets.",
+      "Enabling a rule for a management protocol should be deliberate, not part of a broad allow-all change."
+    ],
+    "whyOthers": [
+      "Firewall rules do not disable authentication; they filter traffic.",
+      "Firewall rules do not replace DNS; name resolution is a separate service.",
+      "",
+      "Allowing all inbound traffic removes the protection the firewall provides and is not a management rule."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. The built-in Remote Management firewall group contains the rules for WinRM, WMI, and the Windows Remote Shell; scope them rather than enabling every rule."
+  },
+  "az802-q-091": {
+    "objective": "Manage servers remotely with PowerShell remoting",
+    "objectiveId": "hybrid-remoting",
+    "topic": "PowerShell remoting",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_remote_troubleshooting?view=powershell-7.6",
+      "https://learn.microsoft.com/en-us/powershell/scripting/security/remoting/winrm-security?view=powershell-7.6"
+    ],
+    "keyPoints": [
+      "Remoting by hostname uses Kerberos, which requires correct name resolution and a service principal name.",
+      "An IP address cannot be authenticated by Kerberos in the same way, so it can succeed with NTLM or fail differently.",
+      "The first checks are DNS resolution of the name and the authentication requirement the target enforces."
+    ],
+    "whyOthers": [
+      "VM checkpoints are virtual-machine state objects and do not affect name-based authentication.",
+      "",
+      "Disk parity is a storage property and is unrelated.",
+      "File-screening templates are an FSRM feature and have no role in remoting."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. If Kerberos cannot be used, a TrustedHosts entry or HTTPS listener may be required, and both should be configured deliberately because they weaken the default trust model."
+  },
+  "az802-q-092": {
+    "objective": "Manage hybrid workloads and connectivity",
+    "objectiveId": "hybrid-workloads",
+    "topic": "Hybrid operations",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/azure-arc/servers/overview",
+      "https://learn.microsoft.com/en-us/windows-server/manage/windows-admin-center/understand/what-is"
+    ],
+    "keyPoints": [
+      "A hybrid workload uses on-premises and cloud services as part of one operational design.",
+      "Identity, management, networking, storage, and monitoring can each be the joined element.",
+      "The workload is not simply moved to the cloud; the design deliberately spans both environments."
+    ],
+    "whyOthers": [
+      "",
+      "A hybrid workload is not restricted to physical servers; it can run on virtual machines in either environment.",
+      "Hybrid workloads commonly use identity services such as Active Directory or Microsoft Entra ID.",
+      "Monitoring is usually a core part of a hybrid design rather than something excluded from it."
+    ],
+    "requirements": "Applies to hybrid designs on Windows Server 2025, 2022, 2019, and 2016. Hybrid scenarios depend on reliable network connectivity and consistent identity between the on-premises and cloud sides."
+  },
+  "az802-q-093": {
+    "objective": "Manage updates for hybrid servers",
+    "objectiveId": "hybrid-updates",
+    "topic": "Azure Update Manager",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/update-manager/overview"
+    ],
+    "keyPoints": [
+      "Periodic assessment produces a current inventory of update compliance and the updates a machine is missing.",
+      "Assessment is separate from deployment, so administrators can plan remediation based on accurate state.",
+      "Compliance data can be reviewed per machine or across a set of machines to prioritise work."
+    ],
+    "whyOthers": [
+      "A new AD forest is created by domain deployment and is unrelated to update assessment.",
+      "A file-share namespace is a DFS construct, not an update report.",
+      "A virtual switch is a Hyper-V networking component and is unrelated.",
+      ""
+    ],
+    "requirements": "Applies to Azure Update Manager for Azure and Arc-enabled machines. Assessment requires the machine to be connected and the Update Manager extensions or prerequisites to be in place."
+  },
+  "az802-q-094": {
+    "objective": "Manage updates for hybrid servers",
+    "objectiveId": "hybrid-updates",
+    "topic": "Update rollout",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/update-manager/overview",
+      "https://learn.microsoft.com/en-us/azure/azure-monitor/overview"
+    ],
+    "keyPoints": [
+      "Maintenance windows confine the work to an agreed time so it does not collide with peak usage.",
+      "Phased deployment updates a subset first so a problem is caught before it reaches every server.",
+      "Health validation after each phase confirms the service is working before the rollout continues."
+    ],
+    "whyOthers": [
+      "Disabling backups before updating removes the safety net that makes a failed update recoverable.",
+      "Ignoring application dependencies risks updating a tier out of order and breaking the service.",
+      "",
+      "Rebooting all servers at once removes the ability to detect a problem early and can take the whole service down."
+    ],
+    "requirements": "Applies to update management on Windows Server 2025, 2022, 2019, and 2016. A maintenance configuration in Azure Update Manager defines the schedule and scope used for phased patching."
+  },
+  "az802-q-095": {
+    "objective": "Connect servers to Azure with Azure Arc",
+    "objectiveId": "hybrid-arc",
+    "topic": "Azure Arc-enabled servers",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/azure-arc/servers/agent-overview",
+      "https://learn.microsoft.com/en-us/azure/azure-arc/servers/network-requirements"
+    ],
+    "keyPoints": [
+      "An Arc resource that shows as offline usually means the Connected Machine agent service is stopped or cannot reach Azure.",
+      "The agent's own service state and recent logs are the fastest local source of the reason.",
+      "Common causes are a stopped service, expired or blocked credentials, and outbound connectivity to the Arc endpoints being blocked."
+    ],
+    "whyOthers": [
+      "Disabling the Windows Firewall permanently weakens the server and is not a diagnosis.",
+      "",
+      "Deleting the AD forest would destroy the directory and has nothing to do with Arc connectivity.",
+      "Repartitioning the system disk is a destructive change with no relationship to the agent."
+    ],
+    "commandPath": [
+      {
+        "label": "Show agent connection state and metadata",
+        "command": "azcmagent show"
+      },
+      {
+        "label": "Review the agent service state",
+        "command": "Get-Service himds"
+      }
+    ],
+    "requirements": "Applies to Azure Arc-enabled servers. The agent service is named himds on Windows, and agent logs are the authoritative local evidence for an offline status."
+  },
+  "az802-q-096": {
+    "objective": "Centrally manage hybrid resources with Azure Policy",
+    "objectiveId": "hybrid-policy",
+    "topic": "Azure Policy",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/governance/policy/overview",
+      "https://learn.microsoft.com/en-us/azure/azure-arc/servers/overview"
+    ],
+    "keyPoints": [
+      "Azure Policy evaluates resources against policy definitions and reports compliance.",
+      "Through guest configuration, it can evaluate and enforce settings inside Arc-enabled servers, not only resource metadata.",
+      "Assignments can be scoped to management groups, subscriptions, or resource groups to cover many servers consistently."
+    ],
+    "whyOthers": [
+      "",
+      "DHCP reservations assign addresses and do not enforce configuration.",
+      "Hyper-V Enhanced Session Mode improves the console experience and does not enforce configuration.",
+      "FSRM quotas limit file storage and are not a compliance mechanism."
+    ],
+    "requirements": "Applies to Azure Policy. Enforcement behaviour depends on the policy effect, such as Audit or DeployIfNotExists, and some guest-configuration policies require a managed identity on the assignment for remediation."
+  },
+  "az802-q-097": {
+    "objective": "Constrain administrative access with Just Enough Administration",
+    "objectiveId": "hybrid-jea",
+    "topic": "Delegated administration",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/powershell/scripting/security/remoting/jea/overview?view=powershell-7.6"
+    ],
+    "keyPoints": [
+      "A JEA endpoint exposes only the commands and parameters a role needs, so the operator cannot do more than that task.",
+      "A narrowly delegated role achieves the same result without JEA when the task maps to a specific directory right.",
+      "Either way, least privilege limits accidental and malicious changes."
+    ],
+    "whyOthers": [
+      "Adding the operator to Enterprise Admins grants forest-wide control, which is far beyond one management function.",
+      "Sharing the domain administrator password defeats accountability and grants broad access.",
+      "Unrestricted local administrator access on every server is more privilege than one function requires.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. JEA endpoints are registered on the target and can run with a virtual account or a gMSA so the delegated work has its own scoped identity."
+  },
+  "az802-q-098": {
+    "objective": "Manage Windows Server by using Windows Admin Center",
+    "objectiveId": "hybrid-windows-admin-center",
+    "topic": "Windows Admin Center",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/manage/windows-admin-center/understand/what-is",
+      "https://learn.microsoft.com/en-us/azure/azure-arc/servers/overview"
+    ],
+    "keyPoints": [
+      "Windows Admin Center's Azure integration connects local management workflows with Azure services.",
+      "It can support registration with Azure, Arc onboarding, monitoring, and update management from the same console.",
+      "The goal is a single management surface for hybrid resources rather than a separate tool per environment."
+    ],
+    "whyOthers": [
+      "Windows Admin Center does not automatically convert NTFS to ReFS; the file system is chosen when a volume is created.",
+      "It does not host a public DNS root server; that is a DNS role.",
+      "",
+      "It does not replace all PowerShell scripts; it is a management surface that complements scripting."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Azure integration requires the gateway to be able to authenticate to Azure and, for Arc scenarios, the server to be onboarded."
+  },
+  "az802-q-099": {
+    "objective": "Manage servers remotely with PowerShell remoting",
+    "objectiveId": "hybrid-remoting",
+    "topic": "Remote management design",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/powershell/scripting/security/remoting/winrm-security?view=powershell-7.6",
+      "https://learn.microsoft.com/en-us/powershell/scripting/security/remoting/jea/overview?view=powershell-7.6"
+    ],
+    "keyPoints": [
+      "Role-based access limits what each operator may do, which is the foundation of separation of duties.",
+      "JEA constrains session content where a narrower scope than a full administrative role is needed.",
+      "Centralised logging records administrative activity, and secure transport protects the traffic in transit."
+    ],
+    "whyOthers": [
+      "Direct internet exposure of WinRM removes the network protections and is not a strong design.",
+      "",
+      "Shared local Administrator credentials destroy individual accountability and auditing.",
+      "Telnet and anonymous access are unencrypted and unauthenticated and provide no separation of duties."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. A complete design also covers certificate and key management for the transport, plus retention and review of the collected logs."
+  }
+}

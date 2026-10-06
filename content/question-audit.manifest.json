@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-10-06T21:10:33.096Z",
+  "generatedAt": "2026-10-06T21:22:31.717Z",
   "source": "lib/content/questions.ts",
   "total": 300,
   "published": 0,
-  "audited": 65,
-  "draft": 235,
+  "audited": 167,
+  "draft": 133,
   "byIssue": {
-    "missing-objective": 235,
-    "missing-specific-source": 235,
-    "missing-topic": 235,
-    "missing-difficulty": 235,
-    "missing-option-reasoning": 235
+    "missing-objective": 133,
+    "missing-specific-source": 133,
+    "missing-topic": 133,
+    "missing-difficulty": 133,
+    "missing-option-reasoning": 133
   },
   "questions": [
     {
@@ -406,1226 +406,614 @@
     {
       "id": "az802-q-066",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-067",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-068",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-069",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-070",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-071",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-072",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-073",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-074",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-075",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-076",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-077",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-078",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-079",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-080",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-081",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-082",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-083",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-084",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-085",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-086",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-087",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-088",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-089",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-090",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-091",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-092",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-093",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-094",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-095",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-096",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-097",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-098",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-099",
       "domain": "Manage Windows Server instances and workloads in a hybrid environment",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-100",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-101",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-102",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-103",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-104",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-105",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-106",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-107",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-108",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-109",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-110",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-111",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-112",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-113",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-114",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-115",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-116",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-117",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-118",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-119",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-120",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-121",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-122",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-123",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-124",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-125",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-126",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-127",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-128",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-129",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-130",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-131",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-132",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-133",
       "domain": "Manage virtual machines",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-134",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-135",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-136",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-137",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-138",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-139",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-140",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-141",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-142",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-143",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-144",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-145",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-146",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-147",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-148",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-149",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-150",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-151",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-152",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-153",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-154",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-155",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-156",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-157",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-158",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-159",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-160",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-161",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-162",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-163",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-164",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-165",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-166",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-167",
       "domain": "Implement and manage on-premises and hybrid networking",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-168",

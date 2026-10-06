@@ -1,0 +1,859 @@
+{
+  "az802-q-134": {
+    "objective": "Implement and manage DNS for Windows Server",
+    "objectiveId": "net-dns",
+    "topic": "DNS record types",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/dns-architecture",
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/zone-types"
+    ],
+    "keyPoints": [
+      "An A record maps a host name to an IPv4 address.",
+      "It is the most common forward-lookup record for IPv4 hosts.",
+      "IPv6 uses the separate AAAA record type."
+    ],
+    "whyOthers": [
+      "An MX record identifies the mail servers that accept email for a domain.",
+      "A PTR record performs reverse lookup, mapping an address back to a name.",
+      "",
+      "An AAAA record maps a name to an IPv6 address, not an IPv4 address."
+    ],
+    "requirements": "Applies to the DNS Server role on Windows Server 2025, 2022, 2019, and 2016. A records can be entered manually or registered dynamically by clients and by DHCP."
+  },
+  "az802-q-135": {
+    "objective": "Implement and manage DNS for Windows Server",
+    "objectiveId": "net-dns",
+    "topic": "DNS record types",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/dns-architecture",
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/zone-types"
+    ],
+    "keyPoints": [
+      "An AAAA record maps a host name to an IPv6 address.",
+      "The four As stand for the four 32-bit groups that made up the original 128-bit IPv6 address format.",
+      "A host name typically has an A record, an AAAA record, or both."
+    ],
+    "whyOthers": [
+      "An SRV record identifies a service's host and port, such as LDAP or Kerberos.",
+      "A PTR record is used for reverse lookup rather than for IPv6 forward lookup.",
+      "",
+      "A CNAME record creates an alias from one name to another name, not a name-to-IPv6 mapping."
+    ],
+    "requirements": "Applies to the DNS Server role on Windows Server 2025, 2022, 2019, and 2016. Windows clients register AAAA records for their IPv6 addresses when IPv6 is enabled and dynamic update is permitted."
+  },
+  "az802-q-136": {
+    "objective": "Implement and manage DNS for Windows Server",
+    "objectiveId": "net-dns",
+    "topic": "DNS record types",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/dns-architecture",
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/manage-dns-zones"
+    ],
+    "keyPoints": [
+      "A PTR record maps an IP address back to a host name and lives in a reverse lookup zone.",
+      "Reverse lookup zones use the in-addr.arpa namespace for IPv4 and ip6.arpa for IPv6.",
+      "PTR records matter for tools and services that log or verify names from addresses."
+    ],
+    "whyOthers": [
+      "",
+      "An A record is a forward-lookup record that maps a name to an IPv4 address, not the reverse.",
+      "An NS record lists the authoritative name servers for a zone.",
+      "A TXT record carries arbitrary text such as sender policy information, not an address-to-name mapping."
+    ],
+    "requirements": "Applies to the DNS Server role on Windows Server 2025, 2022, 2019, and 2016. A reverse lookup zone must exist before PTR records can be created, and clients register them dynamically when the zone permits it."
+  },
+  "az802-q-137": {
+    "objective": "Implement and manage DNS for Windows Server",
+    "objectiveId": "net-dns",
+    "topic": "DNS record types",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/dns-and-ad-ds",
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/dns-architecture"
+    ],
+    "keyPoints": [
+      "An SRV record publishes the host and port of a service so clients can locate it.",
+      "AD DS publishes SRV records under _msdcs so clients can find LDAP and Kerberos services.",
+      "The record also carries a priority and weight, which allows clients to prefer one server over another."
+    ],
+    "whyOthers": [
+      "A PTR record maps an address to a name and does not name a service or port.",
+      "An SOA record describes the zone's authority and serial number but does not locate a service.",
+      "A CNAME record aliases one name to another and does not carry a port or service definition.",
+      ""
+    ],
+    "commandPath": [
+      {
+        "label": "Query the LDAP service records for the domain",
+        "command": "nslookup -type=SRV _ldap._tcp.dc._msdcs.contoso.com"
+      }
+    ],
+    "requirements": "Applies to DNS Server on Windows Server 2025, 2022, 2019, and 2016. AD DS service records are registered automatically by the Netlogon service on each domain controller."
+  },
+  "az802-q-138": {
+    "objective": "Implement and manage DNS for Windows Server",
+    "objectiveId": "net-dns",
+    "topic": "DNS zones",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/zone-types",
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/manage-dns-zones"
+    ],
+    "keyPoints": [
+      "An AD-integrated zone stores its records in Active Directory and replicates them through directory replication rather than zone transfers.",
+      "Because the data is in AD DS, the zone benefits from AD security and can support secure dynamic updates.",
+      "Integration is available only on domain controllers that also run DNS."
+    ],
+    "whyOthers": [
+      "AD-integrated zones do support secure dynamic updates, so the opposite statement is incorrect.",
+      "The zone type concerns where the records are stored, not whether the names are public or internal.",
+      "",
+      "Storing the zone only in a text file on one server describes a standard primary zone, not an AD-integrated zone."
+    ],
+    "requirements": "Applies to DNS Server on Windows Server 2025, 2022, 2019, and 2016. An AD-integrated zone can be replicated to all DNS servers in the domain, the forest, or a chosen application partition."
+  },
+  "az802-q-139": {
+    "objective": "Implement and manage DNS for Windows Server",
+    "objectiveId": "net-dns",
+    "topic": "DNS zones",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/zone-types",
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/manage-dns-zones"
+    ],
+    "keyPoints": [
+      "A stub zone holds only the records needed to identify the authoritative name servers for another zone.",
+      "It is used to keep a server's knowledge of a delegated namespace current without hosting the whole zone.",
+      "An AD-integrated stub zone replicates through AD DS so all DNS servers share the same delegation information."
+    ],
+    "whyOthers": [
+      "There is no DNS zone type named DHCP zone; DHCP allocates addresses and is a separate service.",
+      "",
+      "A reverse-only zone is not a standard zone type; reverse lookup is a purpose, and a reverse zone is still primary, secondary, stub, or AD-integrated.",
+      "A cache is not a zone type; a caching-only server has no zone of its own."
+    ],
+    "requirements": "Applies to DNS Server on Windows Server 2025, 2022, 2019, and 2016. A stub zone needs at least one authoritative server for the target zone to be specified so it can be populated."
+  },
+  "az802-q-140": {
+    "objective": "Implement and manage DNS for Windows Server",
+    "objectiveId": "net-dns",
+    "topic": "DNS resolution",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/dns-top",
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/zone-types"
+    ],
+    "keyPoints": [
+      "A conditional forwarder sends queries for one specific namespace to designated DNS servers.",
+      "It is used for hybrid or partner namespaces where the authoritative resolvers are known in advance.",
+      "It is more precise than a general forwarder, which handles all unresolved queries."
+    ],
+    "whyOthers": [
+      "",
+      "Forwarding every query to the root describes normal recursion, not a conditional forwarder.",
+      "Allocating IP addresses is a DHCP function, not DNS forwarding.",
+      "Replicating SYSVOL is a directory replication task and is unrelated to DNS forwarding."
+    ],
+    "commandPath": [
+      {
+        "label": "Create a conditional forwarder for a partner domain",
+        "command": "Add-DnsServerConditionalForwarderZone -Name 'fabrikam.com' -MasterServers 10.20.0.10,10.20.0.11"
+      }
+    ],
+    "requirements": "Applies to DNS Server on Windows Server 2025, 2022, 2019, and 2016. A conditional forwarder can be stored in AD DS so it is shared across DNS servers in the domain or forest."
+  },
+  "az802-q-141": {
+    "objective": "Implement and manage DNS for Windows Server",
+    "objectiveId": "net-dns",
+    "topic": "DNS resolution",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/dns-top"
+    ],
+    "keyPoints": [
+      "A forwarder is a DNS server to which a DNS server sends queries it cannot resolve itself.",
+      "Using a forwarder lets an internal DNS server rely on an upstream resolver instead of performing full recursion.",
+      "Forwarders are commonly used to reach the internet while keeping internal resolution local."
+    ],
+    "whyOthers": [
+      "An AD group scope is a directory concept and is not a DNS resolver.",
+      "A file-server quota limits storage usage and is unrelated to DNS.",
+      "A DHCP reservation assigns a fixed address to a client and is not a DNS forwarder.",
+      ""
+    ],
+    "requirements": "Applies to DNS Server on Windows Server 2025, 2022, 2019, and 2016. If forwarders are unavailable, the server can fall back to recursion depending on its configuration."
+  },
+  "az802-q-142": {
+    "objective": "Troubleshoot name resolution and network connectivity",
+    "objectiveId": "net-troubleshoot",
+    "topic": "DNS troubleshooting",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/dns-and-ad-ds",
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/nslookup"
+    ],
+    "keyPoints": [
+      "Domain controller discovery depends on the client using DNS that hosts the AD namespace and its SRV records.",
+      "A client that can resolve public names is likely pointed at a public resolver, which cannot answer for the internal AD namespace.",
+      "The check is therefore the client's DNS server addresses plus whether the AD SRV records exist and resolve."
+    ],
+    "whyOthers": [
+      "Storage Spaces parity is a storage configuration and has no bearing on directory discovery.",
+      "Hyper-V checkpoints capture virtual machine state and do not affect name resolution.",
+      "",
+      "The user's desktop wallpaper is a cosmetic setting and is irrelevant."
+    ],
+    "commandPath": [
+      {
+        "label": "Confirm which DNS server the client uses",
+        "command": "Get-DnsClientServerAddress -AddressFamily IPv4"
+      },
+      {
+        "label": "Verify the domain's SRV records resolve",
+        "command": "Resolve-DnsName -Type SRV _ldap._tcp.dc._msdcs.contoso.com"
+      }
+    ],
+    "requirements": "Applies to domain-joined Windows Server 2025, 2022, 2019, and 2016 and to clients. A common cause is a client whose DNS settings were changed to a public resolver, often by an incorrect DHCP option."
+  },
+  "az802-q-143": {
+    "objective": "Troubleshoot name resolution and network connectivity",
+    "objectiveId": "net-troubleshoot",
+    "topic": "DNS troubleshooting",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ipconfig",
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/dns-top"
+    ],
+    "keyPoints": [
+      "ipconfig /flushdns clears the local DNS resolver cache so later queries are resolved again.",
+      "It is used after a DNS change to make the client pick up the new answer rather than a cached one.",
+      "It affects only the local resolver cache, not the DNS server's own cache."
+    ],
+    "whyOthers": [
+      "gpupdate /force refreshes Group Policy and does not clear the DNS cache.",
+      "",
+      "ipconfig /release gives up the DHCP lease rather than clearing the DNS cache.",
+      "netsh dhcp show displays DHCP configuration and does not clear the DNS cache."
+    ],
+    "commandPath": [
+      {
+        "label": "Clear the local resolver cache",
+        "command": "ipconfig /flushdns"
+      },
+      {
+        "label": "Confirm the cache is empty",
+        "command": "ipconfig /displaydns"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, 2016 and to clients. The DNS Client service caches positive and negative answers, so a negative cache entry can also cause a stale failure."
+  },
+  "az802-q-144": {
+    "objective": "Troubleshoot name resolution and network connectivity",
+    "objectiveId": "net-troubleshoot",
+    "topic": "DNS troubleshooting",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/nslookup"
+    ],
+    "keyPoints": [
+      "nslookup queries DNS interactively and can target a specific DNS server.",
+      "It can request a specific record type, which makes it useful for verifying A, SRV, and PTR records.",
+      "Interactive mode lets successive queries be run without re-entering the server."
+    ],
+    "whyOthers": [
+      "",
+      "Diskpart manages disks and volumes and performs no DNS queries.",
+      "dcdiag /fix runs domain controller diagnostics and repair and is not an interactive DNS query tool.",
+      "route print displays the local routing table rather than querying DNS."
+    ],
+    "commandPath": [
+      {
+        "label": "Query a specific DNS server interactively",
+        "command": "nslookup - 10.10.0.10"
+      },
+      {
+        "label": "Query an SRV record from the command line",
+        "command": "nslookup -type=SRV _ldap._tcp.dc._msdcs.contoso.com"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, 2016 and to clients. On servers without the optional nslookup feature, the equivalent is Resolve-DnsName."
+  },
+  "az802-q-145": {
+    "objective": "Implement and manage DNS for Windows Server",
+    "objectiveId": "net-dns",
+    "topic": "DNS scavenging",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/troubleshoot-dns-scavenging-issues",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/configure-dns-dynamic-updates-windows-server-2003"
+    ],
+    "keyPoints": [
+      "Scavenging removes stale dynamic records that have not refreshed within the configured aging intervals.",
+      "A record becomes stale through the combination of its timestamp, the no-refresh interval, and the refresh interval.",
+      "It keeps zones accurate when clients are retired or move and never refresh their old records."
+    ],
+    "whyOthers": [
+      "Active Directory users are objects in the directory database and are not removed by DNS scavenging.",
+      "Encrypted disks are not affected by DNS scavenging.",
+      "DHCP server certificates are not managed by DNS scavenging.",
+      ""
+    ],
+    "commandPath": [
+      {
+        "label": "Trigger scavenging immediately on a DNS server",
+        "command": "Start-DnsServerScavenging -ComputerName DNS01"
+      }
+    ],
+    "requirements": "Applies to DNS Server on Windows Server 2025, 2022, 2019, and 2016. Scavenging must be enabled on both the zone and the server, and the intervals must allow enough time before stale records are removed."
+  },
+  "az802-q-146": {
+    "objective": "Implement and manage DNS for Windows Server",
+    "objectiveId": "net-dns",
+    "topic": "DNS scavenging",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/troubleshoot-dns-scavenging-issues",
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/manage-dns-zones"
+    ],
+    "keyPoints": [
+      "If the refresh plus no-refresh interval is too short, records can be removed while they are still in use.",
+      "Scavenging must be enabled and configured consistently on the zones and the DNS servers.",
+      "The safe approach is to set generous intervals and enable scavenging everywhere before relying on it."
+    ],
+    "whyOthers": [
+      "DNS scavenging does not stop DHCP from leasing addresses.",
+      "Scavenging does not change the authentication protocol used for Kerberos.",
+      "",
+      "Scavenging does not encrypt DNS traffic."
+    ],
+    "requirements": "Applies to DNS Server on Windows Server 2025, 2022, 2019, and 2016. Default no-refresh and refresh intervals are measured in days, and a combination shorter than 24 hours is a known cause of premature deletion."
+  },
+  "az802-q-147": {
+    "objective": "Implement and manage DNS for Windows Server",
+    "objectiveId": "net-dns",
+    "topic": "DNSSEC",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/sign-dnssec-zone",
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/dns-top"
+    ],
+    "keyPoints": [
+      "DNSSEC signs DNS records so a resolver can validate their authenticity and integrity.",
+      "Validation relies on a chain of trust from the root down to the signed zone.",
+      "It protects against forged or tampered DNS answers; it does not encrypt the query itself."
+    ],
+    "whyOthers": [
+      "Conditional forwarding directs queries to other servers and provides no validation.",
+      "",
+      "DNS round robin rotates multiple address records and does not sign data.",
+      "DNS scavenging removes stale records and does not validate them."
+    ],
+    "requirements": "Applies to DNS Server on Windows Server 2025, 2022, 2019, and 2016. Signing requires a zone signing key and, for validation, the parent zone must publish the delegation of trust."
+  },
+  "az802-q-148": {
+    "objective": "Implement and manage DHCP for Windows Server",
+    "objectiveId": "net-dhcp",
+    "topic": "DHCP scopes",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/networking/technologies/dhcp/dhcp-top",
+      "https://learn.microsoft.com/en-us/windows-server/networking/technologies/dhcp/quickstart-install-configure-dhcp-server"
+    ],
+    "keyPoints": [
+      "A DHCP scope defines the range of addresses the server may lease to clients on a subnet.",
+      "It also holds exclusions, lease duration, and options such as the default gateway and DNS servers.",
+      "A scope must be activated before it will serve clients."
+    ],
+    "whyOthers": [
+      "",
+      "An AD trust is a directory relationship and is not a DHCP scope.",
+      "A storage pool is a storage concept and has nothing to do with address allocation.",
+      "A virtual machine checkpoint captures virtual machine state and is not a DHCP scope."
+    ],
+    "requirements": "Applies to the DHCP Server role on Windows Server 2025, 2022, 2019, and 2016. A scope is tied to a subnet, and a server that is an AD member must be authorised in AD DS before it will serve clients."
+  },
+  "az802-q-149": {
+    "objective": "Implement and manage DHCP for Windows Server",
+    "objectiveId": "net-dhcp",
+    "topic": "DHCP scopes",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/networking/technologies/dhcp/dhcp-top",
+      "https://learn.microsoft.com/en-us/windows-server/networking/technologies/dhcp/quickstart-install-configure-dhcp-server"
+    ],
+    "keyPoints": [
+      "A DHCP reservation assigns a specific address to a client identified by its MAC address or client identifier.",
+      "The client still obtains its configuration through DHCP, but the address is predictable.",
+      "Reservations are useful for devices that need a stable address without static configuration."
+    ],
+    "whyOthers": [
+      "A DNS zone transfer copies zone data and is not an address reservation.",
+      "A domain password policy governs passwords and lockouts and is unrelated.",
+      "A storage replica maintains a copy of a volume and does not assign addresses.",
+      ""
+    ],
+    "commandPath": [
+      {
+        "label": "Create a reservation for a known client",
+        "command": "Add-DhcpServerv4Reservation -ScopeId 10.10.10.0 -IPAddress 10.10.10.50 -ClientId '00-15-5D-11-22-33' -Description 'Print server'"
+      }
+    ],
+    "requirements": "Applies to DHCP Server on Windows Server 2025, 2022, 2019, and 2016. The reserved address must fall inside the scope's address range and must not be excluded."
+  },
+  "az802-q-150": {
+    "objective": "Implement and manage DHCP for Windows Server",
+    "objectiveId": "net-dhcp",
+    "topic": "DHCP options",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/networking/technologies/dhcp/dhcp-top"
+    ],
+    "keyPoints": [
+      "DHCP option 003 supplies the router (default gateway) addresses to clients.",
+      "Options are configured at the server, scope, or class level and are inherited by clients.",
+      "Getting the gateway option right is essential because it determines the client's path off the local subnet."
+    ],
+    "whyOthers": [
+      "Option 015 is the DNS domain name, not the default gateway.",
+      "Option 066 is the boot server host name used for PXE-style booting.",
+      "",
+      "Option 006 supplies DNS server addresses, not the default gateway."
+    ],
+    "requirements": "Applies to DHCP Server on Windows Server 2025, 2022, 2019, and 2016. A common number-to-purpose mapping worth remembering is 003 for the router, 006 for DNS servers, and 015 for the DNS domain name."
+  },
+  "az802-q-151": {
+    "objective": "Implement and manage DHCP for Windows Server",
+    "objectiveId": "net-dhcp",
+    "topic": "DHCP options",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/networking/technologies/dhcp/dhcp-top"
+    ],
+    "keyPoints": [
+      "DHCP option 006 supplies the DNS server addresses clients should use.",
+      "It is one of the most important options for a domain environment, because clients must reach internal DNS to find domain services.",
+      "It can be set at scope level so each subnet points at the nearest DNS servers."
+    ],
+    "whyOthers": [
+      "Option 060 is the vendor class identifier, used to distinguish client types.",
+      "",
+      "Option 003 supplies the default gateway, not DNS servers.",
+      "Option 044 is commonly used for WINS servers, not DNS servers."
+    ],
+    "requirements": "Applies to DHCP Server on Windows Server 2025, 2022, 2019, and 2016. For domain clients the DNS option should list internal DNS servers, never public resolvers."
+  },
+  "az802-q-152": {
+    "objective": "Implement and manage DHCP for Windows Server",
+    "objectiveId": "net-dhcp",
+    "topic": "DHCP failover",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/hh831385(v=ws.11)",
+      "https://learn.microsoft.com/en-us/windows-server/networking/technologies/dhcp/dhcp-top"
+    ],
+    "keyPoints": [
+      "DHCP failover keeps address service available by synchronising lease information between two DHCP servers.",
+      "It supports load-balance and hot-standby modes.",
+      "Clients keep receiving addresses even if one server becomes unavailable."
+    ],
+    "whyOthers": [
+      "",
+      "DHCP failover does not sign DNS data; DNSSEC does that.",
+      "It does not perform virtual machine live migration.",
+      "It does not replicate the AD schema."
+    ],
+    "requirements": "Applies to DHCP Server on Windows Server 2025, 2022, 2019, and 2016. A failover relationship is limited to two servers and applies to IPv4 scopes, so IPv6 and some configurations need a different approach."
+  },
+  "az802-q-153": {
+    "objective": "Troubleshoot name resolution and network connectivity",
+    "objectiveId": "net-troubleshoot",
+    "topic": "DHCP troubleshooting",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/troubleshooting-guide-dhcp-authorization-failures",
+      "https://learn.microsoft.com/en-us/windows-server/networking/technologies/dhcp/dhcp-top"
+    ],
+    "keyPoints": [
+      "Authorization in AD DS is only one requirement; the scope must also be active and have free addresses.",
+      "There must be a network path for the client's broadcast or a relay agent on the remote subnet.",
+      "Checking scope state, available addresses, reachability, and relay configuration covers the common causes."
+    ],
+    "whyOthers": [
+      "The forest functional level is not the first thing to inspect for a lease failure.",
+      "A virtual machine checkpoint tree is a Hyper-V concept and unrelated to DHCP leases.",
+      "The NTFS compression ratio is a file-storage measure and has no bearing on DHCP.",
+      ""
+    ],
+    "commandPath": [
+      {
+        "label": "Check scope state and available addresses",
+        "command": "Get-DhcpServerv4ScopeStatistics"
+      },
+      {
+        "label": "Review current leases for a scope",
+        "command": "Get-DhcpServerv4Lease -ScopeId 10.10.10.0"
+      }
+    ],
+    "requirements": "Applies to DHCP Server on Windows Server 2025, 2022, 2019, and 2016. A deactivated scope, an exhausted address range, or a missing relay agent are the most common reasons a client receives no lease."
+  },
+  "az802-q-154": {
+    "objective": "Implement and manage DHCP for Windows Server",
+    "objectiveId": "net-dhcp",
+    "topic": "DHCP relay",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/networking/technologies/dhcp/dhcp-top"
+    ],
+    "keyPoints": [
+      "A DHCP relay agent forwards DHCP messages between clients on one subnet and a DHCP server on another.",
+      "It is needed because routers normally do not forward the broadcast a DHCP client sends.",
+      "The relay forwards to the server and returns the reply to the client, which allows one central DHCP server to serve many subnets."
+    ],
+    "whyOthers": [
+      "Encrypting SMB traffic is a file-server security setting and does not relay DHCP.",
+      "Moving a virtual machine is a Hyper-V operation and is unrelated.",
+      "",
+      "Replicating DNS records is a DNS task, not a DHCP relay function."
+    ],
+    "requirements": "Applies to DHCP Server and routing devices on Windows Server 2025, 2022, 2019, and 2016. A relay must be configured with the DHCP server addresses or be able to discover the server."
+  },
+  "az802-q-155": {
+    "objective": "Troubleshoot name resolution and network connectivity",
+    "objectiveId": "net-troubleshoot",
+    "topic": "DHCP troubleshooting",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/networking/technologies/dhcp/dhcp-top",
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ipconfig"
+    ],
+    "keyPoints": [
+      "Automatic Private IP Addressing (APIPA) uses the 169.254.0.0/16 range, which Windows self-assigns.",
+      "It appears when a client fails to obtain a usable address from DHCP.",
+      "APIPA hosts can communicate only on the local link, so the symptom is no address-service response."
+    ],
+    "whyOthers": [
+      "APIPA has nothing to do with DNSSEC; it is an address self-assignment behaviour.",
+      "",
+      "A successful domain controller contact would come from valid addressing, not from an APIPA address.",
+      "169.254.0.0/16 is a link-local private range, never a valid public address."
+    ],
+    "commandPath": [
+      {
+        "label": "Release and renew the lease",
+        "command": "ipconfig /release; ipconfig /renew"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, 2016 and to clients. A client can also receive APIPA when the DHCP server exists but has no free addresses in the scope."
+  },
+  "az802-q-156": {
+    "objective": "Troubleshoot name resolution and network connectivity",
+    "objectiveId": "net-troubleshoot",
+    "topic": "DHCP troubleshooting",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ipconfig",
+      "https://learn.microsoft.com/en-us/windows-server/networking/technologies/dhcp/dhcp-top"
+    ],
+    "keyPoints": [
+      "ipconfig /renew requests a renewed DHCP lease from the configured DHCP service.",
+      "Running ipconfig /release first gives up the current lease so a fresh address is requested.",
+      "It is the standard first step when a client shows an APIPA address or stale configuration."
+    ],
+    "whyOthers": [
+      "",
+      "ipconfig /displaydns shows the local DNS cache and does not renew a lease.",
+      "nslookup /renew is not a valid command; nslookup queries DNS.",
+      "route /lease is not a valid command; route print displays the routing table."
+    ],
+    "commandPath": [
+      {
+        "label": "Renew the DHCP lease for all adapters",
+        "command": "ipconfig /renew"
+      },
+      {
+        "label": "Renew the lease for one adapter",
+        "command": "ipconfig /renew \"Ethernet\""
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, 2016 and to clients. Renewal requires a reachable DHCP server and free addresses in the scope."
+  },
+  "az802-q-157": {
+    "objective": "Troubleshoot name resolution and network connectivity",
+    "objectiveId": "net-troubleshoot",
+    "topic": "Address resolution",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/arp",
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/route_ws2008"
+    ],
+    "keyPoints": [
+      "ARP resolves a local IPv4 address to the MAC address that Ethernet delivery needs.",
+      "If ARP fails, the packet cannot be framed for the local segment even though the address is correct.",
+      "Checking the ARP cache shows whether the host learned the peer's MAC address."
+    ],
+    "whyOthers": [
+      "LDAP is a directory access protocol and is used after connectivity, not for local address resolution.",
+      "Kerberos authenticates identities and does not map addresses to MAC addresses.",
+      "SMB is a file-sharing protocol and is not used to resolve addresses.",
+      ""
+    ],
+    "commandPath": [
+      {
+        "label": "Show the local ARP cache",
+        "command": "arp -a"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Name resolution succeeding while local delivery fails is a strong sign that the problem is at the link layer, such as ARP, VLAN, or switch port configuration."
+  },
+  "az802-q-158": {
+    "objective": "Troubleshoot name resolution and network connectivity",
+    "objectiveId": "net-troubleshoot",
+    "topic": "Routing",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/route_ws2008"
+    ],
+    "keyPoints": [
+      "route print displays the host's IPv4 and IPv6 routing tables.",
+      "It shows the destination networks, the gateway used for each, and the interface and metric.",
+      "It is the first check when a host can reach the local subnet but not a remote one."
+    ],
+    "whyOthers": [
+      "repadmin /replsummary summarises directory replication and does not show routing.",
+      "manage-bde -status reports BitLocker status on volumes.",
+      "",
+      "gpresult /h writes a Group Policy report."
+    ],
+    "commandPath": [
+      {
+        "label": "Show the routing table",
+        "command": "route print"
+      },
+      {
+        "label": "Show the effective IP configuration and routes",
+        "command": "Get-NetRoute | Sort-Object DestinationPrefix"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. When more than one route matches, the longest prefix wins and then the lowest metric, which explains many unexpected path selections."
+  },
+  "az802-q-159": {
+    "objective": "Troubleshoot name resolution and network connectivity",
+    "objectiveId": "net-troubleshoot",
+    "topic": "Connectivity testing",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/tracert"
+    ],
+    "keyPoints": [
+      "tracert shows each hop along the path to a destination by using increasing time-to-live values.",
+      "It can reveal where traffic stops, which helps locate a routing or filtering boundary.",
+      "A hop that does not answer does not prove a break, because some routers drop the probes."
+    ],
+    "whyOthers": [
+      "diskshadow manages volume shadow copies and does not test connectivity.",
+      "",
+      "gpupdate refreshes Group Policy and does not trace a path.",
+      "dfsutil manages DFS namespaces and replication and is unrelated to path testing."
+    ],
+    "commandPath": [
+      {
+        "label": "Trace the path to a host",
+        "command": "tracert -d 10.20.0.5"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. For a more detailed PowerShell option, Test-NetConnection -TraceRoute combines reachability and path information."
+  },
+  "az802-q-160": {
+    "objective": "Troubleshoot name resolution and network connectivity",
+    "objectiveId": "net-troubleshoot",
+    "topic": "Connectivity testing",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/powershell/module/nettcpip/test-netconnection",
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/tracert"
+    ],
+    "keyPoints": [
+      "Test-NetConnection can test reachability to a host and to a specific TCP port.",
+      "It also reports details such as the resolved address, the route used, and the interface.",
+      "Testing a port is often more useful than a ping because many servers block ICMP while still serving TCP."
+    ],
+    "whyOthers": [
+      "",
+      "Get-NetIPConfiguration shows local addressing but does not test a remote port.",
+      "Resolve-DnsName resolves names but does not test port reachability.",
+      "Get-DhcpServerv4Lease lists DHCP leases and does not test connectivity."
+    ],
+    "commandPath": [
+      {
+        "label": "Test TCP port 443 on a server",
+        "command": "Test-NetConnection -ComputerName srv01.contoso.com -Port 443 -InformationLevel Detailed"
+      },
+      {
+        "label": "Test reachability and trace the route",
+        "command": "Test-NetConnection -ComputerName srv01.contoso.com -TraceRoute"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 and to supported PowerShell versions. A failed TCP test can be caused by a firewall, a stopped service, or a routing problem, so the result should be combined with other evidence."
+  },
+  "az802-q-161": {
+    "objective": "Implement hybrid network connectivity and security",
+    "objectiveId": "net-hybrid",
+    "topic": "Private DNS",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/dns/private-dns-overview",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/dns-and-ad-ds"
+    ],
+    "keyPoints": [
+      "A private DNS zone resolves names for private addresses inside linked virtual networks.",
+      "It is not published to the public DNS namespace, so internal names stay internal.",
+      "Automatic registration can keep records current as virtual machines are added and removed."
+    ],
+    "whyOthers": [
+      "Public certificate signing is a public key infrastructure task and is not what a private DNS zone does.",
+      "DHCP failover provides address-service redundancy and is unrelated.",
+      "AD schema changes are directory operations and are not provided by a private DNS zone.",
+      ""
+    ],
+    "requirements": "Applies to Azure Private DNS. A private zone is linked to one or more virtual networks, and resolution works only for clients in the linked networks."
+  },
+  "az802-q-162": {
+    "objective": "Implement hybrid network connectivity and security",
+    "objectiveId": "net-hybrid",
+    "topic": "Split-brain DNS",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/manage-dns-zones",
+      "https://learn.microsoft.com/en-us/azure/dns/private-dns-overview"
+    ],
+    "keyPoints": [
+      "Split-brain (split-horizon) DNS returns different answers for the same name depending on the client's network or view.",
+      "Internal clients receive a private address while external clients receive a public endpoint.",
+      "It is common when a service must be reachable both inside and outside the organization."
+    ],
+    "whyOthers": [
+      "A duplicate DHCP lease is an addressing problem and is not split-brain DNS.",
+      "A replicated file share is a storage topic and is unrelated.",
+      "",
+      "The number of CPUs on a DNS server has nothing to do with split-brain DNS."
+    ],
+    "requirements": "Applies to DNS Server on Windows Server 2025, 2022, 2019, and 2016 and to Azure Private DNS. The internal and public zones must be maintained separately, so records can drift if the process is manual."
+  },
+  "az802-q-163": {
+    "objective": "Troubleshoot name resolution and network connectivity",
+    "objectiveId": "net-troubleshoot",
+    "topic": "DNS troubleshooting",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/dns-and-ad-ds",
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/nslookup"
+    ],
+    "keyPoints": [
+      "Domain clients must use DNS that can resolve the AD namespace and its SRV records.",
+      "If the client uses an external DNS server, AD service discovery and domain logon can fail even though internet name resolution works.",
+      "This is one of the most common causes of a domain-joined computer failing to find a domain controller."
+    ],
+    "whyOthers": [
+      "BitLocker does not decrypt a disk because of a DNS server change.",
+      "",
+      "NTFS permissions are stored on the file system and are not removed by a DNS change.",
+      "A computer is not given extra CPUs by a DNS change."
+    ],
+    "requirements": "Applies to domain-joined Windows Server 2025, 2022, 2019, and 2016 and to clients. Setting the correct DNS server through DHCP option 006 rather than local overrides keeps clients consistent."
+  },
+  "az802-q-164": {
+    "objective": "Implement and manage DNS for Windows Server",
+    "objectiveId": "net-dns",
+    "topic": "DNS load distribution",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/dns-top",
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/dns-architecture"
+    ],
+    "keyPoints": [
+      "DNS round robin returns the address records for a name in a rotating order.",
+      "It provides simple distribution of client connections without any health awareness.",
+      "Because there is no health check, a failed host can still be offered to clients until its record is removed."
+    ],
+    "whyOthers": [
+      "",
+      "Round robin is not stateful load balancing and does not perform health checks.",
+      "Round robin does not sign DNS data; that is DNSSEC.",
+      "Round robin does not replicate DHCP leases."
+    ],
+    "requirements": "Applies to DNS Server on Windows Server 2025, 2022, 2019, and 2016. Round robin is enabled by default on Windows DNS, and priority or weight values are not used in the way SRV records use them."
+  },
+  "az802-q-165": {
+    "objective": "Implement hybrid network connectivity and security",
+    "objectiveId": "net-hybrid",
+    "topic": "Network security rules",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview",
+      "https://learn.microsoft.com/en-us/windows-server/networking/technologies/dhcp/dhcp-top"
+    ],
+    "keyPoints": [
+      "Access by port is controlled by firewall and network security rules, on the host or in the network.",
+      "Allowing TCP 443 and denying unneeded inbound ports is the standard least-privilege approach for a server subnet.",
+      "Rules should be explicit and reviewed so that a temporary allowance does not become permanent."
+    ],
+    "whyOthers": [
+      "A DNS CNAME record is an alias and does not control access.",
+      "A DHCP reservation assigns an address and does not filter traffic.",
+      "A Group Policy drive map connects a drive letter and does not control ports.",
+      ""
+    ],
+    "requirements": "Applies to Windows Firewall on Windows Server 2025, 2022, 2019, and 2016 and to Azure network security groups. Effective access is the combination of the network rule set and the host firewall rule set."
+  },
+  "az802-q-166": {
+    "objective": "Implement hybrid network connectivity and security",
+    "objectiveId": "net-hybrid",
+    "topic": "Network security groups",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview"
+    ],
+    "keyPoints": [
+      "A network security group (NSG) contains ordered allow and deny rules for inbound and outbound traffic.",
+      "It can be associated with a subnet or a network interface, and it filters traffic in both directions.",
+      "Because rules are evaluated by priority, the lowest-numbered matching rule decides the outcome."
+    ],
+    "whyOthers": [
+      "Azure Automation runs runbooks and does not filter network traffic.",
+      "Microsoft Entra Connect synchronises identities and does not filter traffic.",
+      "",
+      "Azure File Sync caches file shares and does not filter network traffic."
+    ],
+    "requirements": "Applies to Azure network security groups. Every NSG has default rules that allow virtual network and load-balancer traffic and deny the rest, and default rules have the lowest priority."
+  },
+  "az802-q-167": {
+    "objective": "Implement hybrid network connectivity and security",
+    "objectiveId": "net-hybrid",
+    "topic": "Network security groups",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview"
+    ],
+    "keyPoints": [
+      "NSG rules are evaluated in priority order, and a lower-numbered rule takes precedence.",
+      "The rule must match the actual traffic: direction, protocol, source, destination, and port.",
+      "The most likely explanation for a deny rule that seems to do nothing is a higher-priority allow rule that matches first."
+    ],
+    "whyOthers": [
+      "The DHCP reservation name has no bearing on NSG rule evaluation.",
+      "",
+      "NTFS ACLs control file access on the guest and do not override an NSG rule.",
+      "The domain password policy is unrelated to network rule evaluation."
+    ],
+    "commandPath": [
+      {
+        "label": "Show the effective security rules for a network interface",
+        "command": "Get-AzEffectiveNetworkSecurityGroup -NetworkInterfaceName nic-web01 -ResourceGroupName rg-app"
+      }
+    ],
+    "requirements": "Applies to Azure network security groups. Effective security rules combine subnet-level and interface-level NSGs, so both must be checked when a rule appears ineffective."
+  }
+}
