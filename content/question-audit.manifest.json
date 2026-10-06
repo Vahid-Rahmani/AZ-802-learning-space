@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-10-06T21:22:31.717Z",
+  "generatedAt": "2026-10-06T21:28:18.261Z",
   "source": "lib/content/questions.ts",
   "total": 300,
   "published": 0,
-  "audited": 167,
-  "draft": 133,
+  "audited": 245,
+  "draft": 55,
   "byIssue": {
-    "missing-objective": 133,
-    "missing-specific-source": 133,
-    "missing-topic": 133,
-    "missing-difficulty": 133,
-    "missing-option-reasoning": 133
+    "missing-objective": 55,
+    "missing-specific-source": 55,
+    "missing-topic": 55,
+    "missing-difficulty": 55,
+    "missing-option-reasoning": 55
   },
   "questions": [
     {
@@ -1018,938 +1018,470 @@
     {
       "id": "az802-q-168",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-169",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-170",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-171",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-172",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-173",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-174",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-175",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-176",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-177",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-178",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-179",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-180",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-181",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-182",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-183",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-184",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-185",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-186",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-187",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-188",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-189",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-190",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-191",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-192",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-193",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-194",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-195",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-196",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-197",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-198",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-199",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-200",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-201",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-202",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-203",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-204",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-205",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-206",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-207",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-208",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-209",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-210",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-211",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-212",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-213",
       "domain": "Manage storage and file services",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-214",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-215",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-216",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-217",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-218",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-219",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-220",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-221",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-222",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-223",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-224",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-225",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-226",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-227",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-228",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-229",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-230",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-231",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-232",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-233",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-234",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-235",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-236",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-237",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-238",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-239",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-240",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-241",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-242",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-243",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-244",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-245",
       "domain": "Secure Windows Server infrastructure",
-      "status": "draft",
-      "issues": [
-        "missing-objective",
-        "missing-specific-source",
-        "missing-topic",
-        "missing-difficulty",
-        "missing-option-reasoning"
-      ]
+      "status": "audited",
+      "issues": []
     },
     {
       "id": "az802-q-246",

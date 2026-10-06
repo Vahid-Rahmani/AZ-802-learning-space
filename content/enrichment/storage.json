@@ -1,0 +1,1044 @@
+{
+  "az802-q-168": {
+    "objective": "Configure file systems and NTFS permissions",
+    "objectiveId": "storage-file-systems",
+    "topic": "File systems",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/ntfs-overview"
+    ],
+    "keyPoints": [
+      "NTFS is the default file system for Windows system volumes and supports per-object security.",
+      "It provides ACL-based permissions, journaling, quotas, compression, and encryption through EFS.",
+      "It is the file system that all Windows management tooling assumes for a system volume."
+    ],
+    "whyOthers": [
+      "",
+      "FAT12 is an obsolete file system with no ACLs, journaling, or support for large volumes.",
+      "ISO 9660 is an optical-disc file system, not a system-volume file system.",
+      "UDF is used for optical and removable media and is not the modern Windows system-volume choice."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. NTFS is required for volumes that must hold Active Directory data, SYSVOL, and the operating system itself."
+  },
+  "az802-q-169": {
+    "objective": "Configure file systems and NTFS permissions",
+    "objectiveId": "storage-file-systems",
+    "topic": "File systems",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/refs/refs-overview",
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/ntfs-overview"
+    ],
+    "keyPoints": [
+      "ReFS is designed for resiliency and large-scale data workloads, with integrity streams and automatic integrity checking.",
+      "It works with Storage Spaces and Storage Spaces Direct to detect and repair corruption where redundancy exists.",
+      "Not every Windows feature is available on ReFS, so it is used for data volumes rather than system volumes."
+    ],
+    "whyOthers": [
+      "FAT32 lacks per-object security and integrity features, and it is limited in volume and file size.",
+      "exFAT is designed for removable media interchange and does not provide integrity streams.",
+      "CDFS is an optical-disc file system and is not used for server data volumes.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. ReFS cannot host the operating system or Active Directory data, and features such as data deduplication and some quota behaviour differ from NTFS."
+  },
+  "az802-q-170": {
+    "objective": "Configure file systems and NTFS permissions",
+    "objectiveId": "storage-file-systems",
+    "topic": "NTFS permissions",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/win32/secauthz/access-control-lists",
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/ntfs-overview"
+    ],
+    "keyPoints": [
+      "An NTFS access control list is the ordered collection of access control entries on a file or folder.",
+      "Each entry names a security principal and either allows or denies specific operations.",
+      "The effective permission is the result of evaluating explicit and inherited entries together."
+    ],
+    "whyOthers": [
+      "DHCP lease duration is set in a DHCP scope and is not part of an ACL.",
+      "A virtual machine's CPU count is a Hyper-V setting and is unrelated to file permissions.",
+      "",
+      "DNS recursion is a resolver behaviour and is not defined by an ACL."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Object ownership is separate from the ACL, and an owner always retains the ability to change the ACL on the object it owns."
+  },
+  "az802-q-171": {
+    "objective": "Configure file systems and NTFS permissions",
+    "objectiveId": "storage-file-systems",
+    "topic": "NTFS permissions",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/win32/secauthz/access-control-lists",
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/ntfs-overview"
+    ],
+    "keyPoints": [
+      "The Read permission allows a user to view a file's data and its attributes.",
+      "For a folder it also allows listing the folder's contents and reading the properties of the files in it.",
+      "Read is the minimum permission needed to open a file for viewing."
+    ],
+    "whyOthers": [
+      "Change owner is a specific right that transfers ownership and is not the permission that reads contents.",
+      "",
+      "Delete child authorises deleting subobjects and does not grant read access.",
+      "Take ownership is a right used in recovery scenarios and does not by itself allow reading the contents."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. The advanced permission set also includes Read attributes, Read extended attributes, and Read permissions, which together make up the Read basic permission."
+  },
+  "az802-q-172": {
+    "objective": "Configure file systems and NTFS permissions",
+    "objectiveId": "storage-file-systems",
+    "topic": "NTFS permissions",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/win32/secauthz/access-control-lists",
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/ntfs-overview"
+    ],
+    "keyPoints": [
+      "The Write permission allows a user to change a file's data and attributes.",
+      "It is the permission that lets an existing file be modified rather than only read.",
+      "Modify combines Read and Write with delete, which is why it is used for documents that users edit."
+    ],
+    "whyOthers": [
+      "",
+      "List folder only allows browsing a directory and not modifying file data.",
+      "Read permissions only allows viewing the security descriptor and does not permit writing.",
+      "Synchronize only is a low-level right used for thread synchronisation and does not allow changing data."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Write does not include delete; Delete requires its own permission or the Modify basic permission."
+  },
+  "az802-q-173": {
+    "objective": "Configure file systems and NTFS permissions",
+    "objectiveId": "storage-file-systems",
+    "topic": "NTFS permissions",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/win32/secauthz/access-control-lists",
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/ntfs-overview"
+    ],
+    "keyPoints": [
+      "Explicit Deny entries generally override Allow entries for the same permission.",
+      "That is why deny assignments are used sparingly: they can silently block access that allows would otherwise grant.",
+      "Inherited denies also apply, and an explicit Allow does not override an inherited explicit Deny."
+    ],
+    "whyOthers": [
+      "Allow does not always take precedence; the normal rule is that Deny wins for the same right.",
+      "The creation order of ACEs does not decide permission outcomes; type, inheritance, and the permission itself do.",
+      "Being granted Read does not make a user the owner of the object.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. The practical advice is to grant access through group membership instead of denying it, and to use denial only for narrow exceptions."
+  },
+  "az802-q-174": {
+    "objective": "Configure file systems and NTFS permissions",
+    "objectiveId": "storage-file-systems",
+    "topic": "NTFS permissions",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/ntfs-overview",
+      "https://learn.microsoft.com/en-us/windows/win32/secauthz/access-control-lists"
+    ],
+    "keyPoints": [
+      "A copy creates a new file at the destination, so the new file inherits the destination folder's permissions.",
+      "The original file is left untouched and keeps its own ACL.",
+      "This is why copying a file between folders can change who can access the new copy."
+    ],
+    "whyOthers": [
+      "Permissions are not all removed; the new file receives inherited permissions from the destination.",
+      "Copying a file does not encrypt it automatically; encryption is a separate action.",
+      "",
+      "The source permissions are retained only on the source file, not on the new copy."
+    ],
+    "commandPath": [
+      {
+        "label": "Copy a file and preserve its ACL where required",
+        "command": "robocopy C:\\Source C:\\Dest report.docx /COPY:DATS /SEC"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. A copy is treated as a new object, and inherit-only ACEs on the destination folder apply to it."
+  },
+  "az802-q-175": {
+    "objective": "Configure file systems and NTFS permissions",
+    "objectiveId": "storage-file-systems",
+    "topic": "NTFS permissions",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/ntfs-overview"
+    ],
+    "keyPoints": [
+      "A move within the same NTFS volume changes the directory entry rather than creating a new file.",
+      "Because the file object is unchanged, it keeps its existing explicit ACL.",
+      "This is the key difference between a same-volume move and a copy."
+    ],
+    "whyOthers": [
+      "A move does not remove ownership; the owner persists with the object.",
+      "",
+      "The destination permissions are not forced on the file for a same-volume move.",
+      "Moving a file does not set the read-only attribute."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. A move across volumes is handled as a copy followed by a delete, so the ACL outcome differs and may need explicit preservation."
+  },
+  "az802-q-176": {
+    "objective": "Configure and manage file shares and SMB",
+    "objectiveId": "storage-shares",
+    "topic": "Share and NTFS permissions",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/smb-security",
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/ntfs-overview"
+    ],
+    "keyPoints": [
+      "Share permissions apply to access over the network share and are evaluated when a client connects to the share.",
+      "NTFS permissions apply to the file system itself and are evaluated for both local and network access.",
+      "When both apply, the most restrictive result is the effective permission the user receives."
+    ],
+    "whyOthers": [
+      "",
+      "Share permissions apply over the network share rather than only locally.",
+      "NTFS permissions have nothing to do with DNS; they govern file-system objects.",
+      "Both permission layers are directly related to access, so the last option is incorrect."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Local access on the server is governed by NTFS alone, which is why a share-level Deny does not affect a user logged on locally."
+  },
+  "az802-q-177": {
+    "objective": "Configure and manage file shares and SMB",
+    "objectiveId": "storage-shares",
+    "topic": "Share and NTFS permissions",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/smb-security",
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/ntfs-overview"
+    ],
+    "keyPoints": [
+      "A common pattern is to grant broad share access and enforce the real control with NTFS ACLs.",
+      "This keeps one authoritative place for granular permissions instead of two layers that can conflict.",
+      "It also avoids confusion when share and NTFS permissions disagree, since the restrictive result wins."
+    ],
+    "whyOthers": [
+      "Granting Everyone Full Control and relying only on the share ignores NTFS entirely and is not the recommended model.",
+      "Denying all share access stops file access over the network rather than providing control.",
+      "DNS permissions are a name-resolution concept and do not control file access.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. On modern Windows Server the default share permission for new shares is Read for Everyone, which is why NTFS must carry the real design."
+  },
+  "az802-q-178": {
+    "objective": "Configure and manage file shares and SMB",
+    "objectiveId": "storage-shares",
+    "topic": "SMB security",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/smb-security"
+    ],
+    "keyPoints": [
+      "SMB signing adds a cryptographic signature to SMB messages so the receiver can verify authenticity and detect tampering.",
+      "It helps prevent man-in-the-middle attacks that would otherwise relay or alter SMB traffic.",
+      "It can be required or optional, and requiring it is a common hardening step."
+    ],
+    "whyOthers": [
+      "SMB signing does not allocate IP addresses; DHCP does that.",
+      "It does not create DNS records.",
+      "",
+      "It does not compress files."
+    ],
+    "commandPath": [
+      {
+        "label": "Check SMB signing configuration on the server",
+        "command": "Get-SmbServerConfiguration | Select-Object RequireSecuritySignature, EnableSecuritySignature"
+      },
+      {
+        "label": "Require SMB signing on the server",
+        "command": "Set-SmbServerConfiguration -RequireSecuritySignature $true -Force"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Requiring signing can reduce throughput slightly because of the extra cryptographic work, and every client must support it."
+  },
+  "az802-q-179": {
+    "objective": "Configure and manage file shares and SMB",
+    "objectiveId": "storage-shares",
+    "topic": "SMB security",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/smb-security"
+    ],
+    "keyPoints": [
+      "SMB encryption protects SMB data while it travels across the network.",
+      "It is different from BitLocker, which encrypts data at rest on the disk.",
+      "Encryption can be enabled per share or for the whole server."
+    ],
+    "whyOthers": [
+      "SMB encryption does not create a DFS namespace; namespaces are a separate feature.",
+      "",
+      "It does not encrypt the disk at rest; that is BitLocker or another volume encryption technology.",
+      "It does not replace NTFS ACLs, which still govern authorization."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. SMB encryption requires clients that support SMB 3.0 or later, so older clients cannot connect to an encrypted share."
+  },
+  "az802-q-180": {
+    "objective": "Configure and manage file shares and SMB",
+    "objectiveId": "storage-shares",
+    "topic": "SMB security",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/smb-over-quic",
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/smb-security"
+    ],
+    "keyPoints": [
+      "SMB over QUIC carries SMB inside a QUIC/TLS session, which is designed for secure access across untrusted networks such as the internet.",
+      "It removes the need to expose the traditional TCP 445 port to the internet.",
+      "It relies on certificates to establish trust for the server."
+    ],
+    "whyOthers": [
+      "",
+      "SMB over FTP is not a Windows Server capability; FTP is a separate file-transfer protocol.",
+      "SMB over DNS is not a protocol option; DNS is a name-resolution service.",
+      "SMB over Telnet is not a capability, and Telnet is unencrypted and unsuitable for file access."
+    ],
+    "requirements": "Applies to Windows Server 2022 and later releases that support SMB over QUIC. The feature requires a certificate on the server and a client that supports the QUIC transport."
+  },
+  "az802-q-181": {
+    "objective": "Configure DFS namespaces and replication",
+    "objectiveId": "storage-dfs",
+    "topic": "DFS namespaces",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/dfs-namespaces/dfs-overview"
+    ],
+    "keyPoints": [
+      "A DFS namespace presents a logical path such as \\\\contoso.com\\Shares\\Finance\\Reports.",
+      "Behind that path, the namespace maps folders to targets on one or more file servers.",
+      "Users keep a stable path even when the underlying servers change."
+    ],
+    "whyOthers": [
+      "A DNS reverse zone maps addresses back to names and is not a file-access path.",
+      "A DHCP scope defines addresses for a subnet and is unrelated.",
+      "A virtual machine storage controller attaches disks to a guest and is not a namespace.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. A namespace can be domain-based, which stores its configuration in AD DS, or standalone, which stores it on the namespace server."
+  },
+  "az802-q-182": {
+    "objective": "Configure DFS namespaces and replication",
+    "objectiveId": "storage-dfs",
+    "topic": "DFS Replication",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/dfs-replication/dfsr-overview",
+      "https://learn.microsoft.com/en-us/windows-server/storage/dfs-namespaces/dfs-overview"
+    ],
+    "keyPoints": [
+      "DFS Replication (DFSR) replicates files between selected folders on multiple servers using a multi-master model.",
+      "It also replicates SYSVOL in modern AD DS domains.",
+      "It uses remote differential compression so only the changed parts of a file are transferred."
+    ],
+    "whyOthers": [
+      "DFSR does not replicate DHCP leases; DHCP failover does that.",
+      "It does not encrypt SMB sessions; SMB encryption does that.",
+      "",
+      "It does not replicate all AD objects; directory replication handles those."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. DFSR is the current SYSVOL replication engine, and it must be configured with replication groups and members before data moves."
+  },
+  "az802-q-183": {
+    "objective": "Configure DFS namespaces and replication",
+    "objectiveId": "storage-dfs",
+    "topic": "DFS namespaces",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/dfs-namespaces/dfs-overview"
+    ],
+    "keyPoints": [
+      "DFS referrals can use AD site topology to prefer namespace targets that are in the client's own site.",
+      "This keeps clients reading from a nearby server and reduces traffic across the WAN.",
+      "Referral ordering depends on target priority, site costing, and whether a local target exists."
+    ],
+    "whyOthers": [
+      "DHCP reservations assign addresses and do not influence DFS target selection.",
+      "",
+      "DNSSEC signs DNS data and has no role in referral ordering.",
+      "NTFS compression reduces file size on disk and does not direct clients to a nearby target."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Site-aware referrals require the client's subnet to be mapped to the correct AD site, otherwise the client has no local target to prefer."
+  },
+  "az802-q-184": {
+    "objective": "Configure DFS namespaces and replication",
+    "objectiveId": "storage-dfs",
+    "topic": "DFS namespaces",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/dfs-namespaces/dfs-overview"
+    ],
+    "keyPoints": [
+      "A domain-based namespace stores its configuration in AD DS and uses the domain name in its path.",
+      "It supports multiple namespace servers, which provides fault tolerance for the namespace itself.",
+      "A standalone namespace stores its configuration on one server and does not use AD DS."
+    ],
+    "whyOthers": [
+      "",
+      "A standalone namespace stores configuration locally and is not AD-integrated.",
+      "There is no FAT namespace type.",
+      "There is no DHCP namespace type."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. A domain-based namespace requires the domain functional level to support Windows Server 2008 mode to use the newer namespace features."
+  },
+  "az802-q-185": {
+    "objective": "Manage file-server resource manager and deduplication",
+    "objectiveId": "storage-fsrm",
+    "topic": "FSRM quotas",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/fsrm/fsrm-overview"
+    ],
+    "keyPoints": [
+      "An FSRM quota limits how much data a folder or volume may hold.",
+      "A quota can be hard, which blocks writes beyond the limit, or soft, which only notifies.",
+      "Threshold notifications can warn at percentages before the limit is reached."
+    ],
+    "whyOthers": [
+      "A DNS request limit is not a thing that FSRM quotas control.",
+      "A DHCP lease limit is not an FSRM quota.",
+      "A virtual machine CPU limit is a Hyper-V setting and is unrelated to storage quotas.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 with the File Server Resource Manager role service installed. Quotas are applied to a path, and inheritance to subfolders can be enabled."
+  },
+  "az802-q-186": {
+    "objective": "Manage file-server resource manager and deduplication",
+    "objectiveId": "storage-fsrm",
+    "topic": "File screening",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/fsrm/fsrm-overview"
+    ],
+    "keyPoints": [
+      "File screening blocks or monitors files based on file groups and extensions.",
+      "An active screen prevents the unwanted files from being saved; a passive screen only reports them.",
+      "It is commonly used to keep media files, executables, or other unwanted types off controlled shares."
+    ],
+    "whyOthers": [
+      "File screening does not allocate IP addresses.",
+      "It does not replicate SYSVOL.",
+      "",
+      "It does not encrypt file names."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 with FSRM installed. File groups define which extensions belong together, and screens are applied to specific paths."
+  },
+  "az802-q-187": {
+    "objective": "Manage file-server resource manager and deduplication",
+    "objectiveId": "storage-fsrm",
+    "topic": "FSRM reports",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/fsrm/fsrm-overview"
+    ],
+    "keyPoints": [
+      "FSRM storage reports summarise files, owners, duplicates, quotas, and usage patterns for chosen paths.",
+      "Reports can be run on demand or on a schedule and saved in several formats.",
+      "They are the auditing tool for understanding where storage is being consumed."
+    ],
+    "whyOthers": [
+      "Hyper-V Replica replicates virtual machines and does not produce storage reports.",
+      "",
+      "AD Recycle Bin recovers deleted directory objects.",
+      "DNS scavenging removes stale DNS records."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 with FSRM installed. Running reports requires the Windows Search and File Server Resource Manager services to be healthy."
+  },
+  "az802-q-188": {
+    "objective": "Manage file-server resource manager and deduplication",
+    "objectiveId": "storage-fsrm",
+    "topic": "Data deduplication",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/data-deduplication/overview",
+      "https://learn.microsoft.com/en-us/windows-server/storage/data-deduplication/understand"
+    ],
+    "keyPoints": [
+      "Data deduplication finds repeated patterns in data and stores a single copy while presenting the same logical files.",
+      "Clients and applications continue to see the files as normal; the savings happen under the file system.",
+      "It is applied per volume and is most effective where files share a lot of common data."
+    ],
+    "whyOthers": [
+      "",
+      "It does not delete duplicate user accounts; that is a directory operation.",
+      "It does not target DNS records specifically.",
+      "It does not clone a virtual machine into memory."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Deduplication is not supported for the operating system volume, and it requires planning for the optimization schedule and the volume's free space."
+  },
+  "az802-q-189": {
+    "objective": "Manage file-server resource manager and deduplication",
+    "objectiveId": "storage-fsrm",
+    "topic": "Data deduplication",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/data-deduplication/overview",
+      "https://learn.microsoft.com/en-us/windows-server/storage/data-deduplication/understand"
+    ],
+    "keyPoints": [
+      "Deduplication should be evaluated per workload because compatibility and performance depend on the file types and access pattern.",
+      "Latency-sensitive and certain database or virtual machine files are not supported workloads.",
+      "Supported file shares and backup repositories are the typical, safe use cases."
+    ],
+    "whyOthers": [
+      "A normal archive share is a well-suited workload for deduplication.",
+      "A supported backup repository is a documented and common use case.",
+      "A supported general-purpose file share is also a documented use case.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Deduplication estimates savings before it is enabled so the benefit can be assessed against the extra processing."
+  },
+  "az802-q-190": {
+    "objective": "Configure Storage Spaces and Storage Spaces Direct",
+    "objectiveId": "storage-spaces",
+    "topic": "Storage Spaces",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/storage-spaces/overview"
+    ],
+    "keyPoints": [
+      "Storage Spaces pools physical disks into a storage pool and then creates virtual disks from it.",
+      "Each virtual disk can use a layout such as simple, mirror, or parity to trade capacity against resiliency.",
+      "It abstracts the physical media so volumes can span disks and survive failures."
+    ],
+    "whyOthers": [
+      "Storage Spaces does not provide DNS recursion; that is a DNS server function.",
+      "It does not run DHCP failover; that is a DHCP feature.",
+      "",
+      "It does not manage AD trusts."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Supported disks are added to a pool and left out of traditional volumes, so the disks must be dedicated to Storage Spaces."
+  },
+  "az802-q-191": {
+    "objective": "Configure Storage Spaces and Storage Spaces Direct",
+    "objectiveId": "storage-spaces",
+    "topic": "Storage Spaces",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/storage-spaces/overview"
+    ],
+    "keyPoints": [
+      "A mirror layout keeps multiple copies of the data, so a disk failure does not lose the data.",
+      "Mirroring typically provides better write performance than parity.",
+      "The cost is that usable capacity is reduced because copies are stored."
+    ],
+    "whyOthers": [
+      "Cache-only is not a resiliency layout.",
+      "",
+      "A simple layout has no redundancy, so a single disk failure can lose the data.",
+      "Temporary is not a Storage Spaces resiliency layout."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. A two-way mirror requires at least two disks, and a three-way mirror trades more capacity for greater fault tolerance."
+  },
+  "az802-q-192": {
+    "objective": "Configure Storage Spaces and Storage Spaces Direct",
+    "objectiveId": "storage-spaces",
+    "topic": "Storage Spaces",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/storage-spaces/overview"
+    ],
+    "keyPoints": [
+      "A parity layout stores parity information so data can be rebuilt if a disk fails.",
+      "It provides better usable capacity than mirroring but writes involve parity calculation, which can reduce write performance.",
+      "Parity is a good fit for sequential and archive workloads rather than write-heavy random workloads."
+    ],
+    "whyOthers": [
+      "",
+      "A simple layout provides no redundancy at all.",
+      "A mirror layout keeps full copies and therefore uses more capacity than parity.",
+      "Boot is not a Storage Spaces resiliency layout."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Single parity tolerates one disk failure while dual parity tolerates two, and both require enough disks to reconstruct the data."
+  },
+  "az802-q-193": {
+    "objective": "Configure Storage Spaces and Storage Spaces Direct",
+    "objectiveId": "storage-spaces",
+    "topic": "Storage Spaces Direct",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/storage-spaces/storage-spaces-direct-overview"
+    ],
+    "keyPoints": [
+      "Storage Spaces Direct aggregates the local drives of multiple cluster nodes into software-defined storage.",
+      "It enables hyper-converged and converged designs without shared storage hardware.",
+      "Volumes are then created with resiliency across the nodes rather than within a single server."
+    ],
+    "whyOthers": [
+      "S2D does not provide a DNS namespace.",
+      "It does not provide a DHCP relay.",
+      "It does not provide a local user database.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 Datacenter. S2D requires a failover cluster of supported servers with compatible, dedicated disks."
+  },
+  "az802-q-194": {
+    "objective": "Configure Storage Spaces and Storage Spaces Direct",
+    "objectiveId": "storage-spaces",
+    "topic": "Storage Spaces Direct",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/storage-spaces/storage-spaces-direct-overview"
+    ],
+    "keyPoints": [
+      "S2D requires supported servers, compatible disks, and validated cluster networking.",
+      "The east-west traffic between nodes carries the storage replication, so fast, low-latency networking is essential.",
+      "Hardware must be validated because unsupported components cause cluster and storage failures."
+    ],
+    "whyOthers": [
+      "One disk in one server cannot provide storage across nodes.",
+      "Disabling the firewall is not a requirement and would weaken the cluster.",
+      "",
+      "A public DNS server is not the central prerequisite for S2D; cluster networking and disks are."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 Datacenter. The Cluster Validation Wizard should pass with no storage warnings before S2D is enabled."
+  },
+  "az802-q-195": {
+    "objective": "Configure storage replication, QoS, and iSCSI",
+    "objectiveId": "storage-block",
+    "topic": "Storage Replica",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/storage-replica/storage-replica-overview"
+    ],
+    "keyPoints": [
+      "Storage Replica replicates volumes at the block level between servers or clusters.",
+      "It supports both synchronous and asynchronous replication.",
+      "It is used for disaster recovery and planned failover of whole volumes."
+    ],
+    "whyOthers": [
+      "User-profile redirection is a file-access configuration and is not block replication.",
+      "",
+      "Storage Replica does not replicate DNS records.",
+      "It does not balance DHCP scopes."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 Datacenter. Storage Replica requires Windows Server Datacenter edition and a log volume plus a data volume on each side."
+  },
+  "az802-q-196": {
+    "objective": "Configure storage replication, QoS, and iSCSI",
+    "objectiveId": "storage-block",
+    "topic": "Storage Replica",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/storage-replica/storage-replica-overview"
+    ],
+    "keyPoints": [
+      "In synchronous replication, a write is acknowledged only after both copies are updated.",
+      "That gives an aggressive recovery point objective, effectively no data loss on a clean failover.",
+      "The trade-off is that latency between the sites directly affects write performance, so it needs a low-latency link."
+    ],
+    "whyOthers": [
+      "",
+      "Synchronous replication consumes bandwidth because every write is copied to the second site.",
+      "It does not depend on public DNS.",
+      "It absolutely supports failover; that is its purpose."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 Datacenter. Asynchronous replication is used when the link latency is too high for synchronous acknowledgement."
+  },
+  "az802-q-197": {
+    "objective": "Configure storage replication, QoS, and iSCSI",
+    "objectiveId": "storage-block",
+    "topic": "SMB Direct",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/smb-direct",
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/smb-security"
+    ],
+    "keyPoints": [
+      "SMB Direct uses RDMA-capable network adapters to transfer SMB data with low latency and low CPU overhead.",
+      "The network adapter performs the data movement, which frees the processor for other work.",
+      "It is used for high-throughput workloads such as file servers, Hyper-V storage, and Storage Spaces Direct."
+    ],
+    "whyOthers": [
+      "SMB over public DNS is not a supported transport concept.",
+      "A file-screening rule is an FSRM policy, not a transport.",
+      "A DHCP extension concerns addressing and is unrelated.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. SMB Direct requires RDMA-capable adapters (RoCE or iWARP) with matching configuration, and it works best on dedicated storage networks."
+  },
+  "az802-q-198": {
+    "objective": "Configure storage replication, QoS, and iSCSI",
+    "objectiveId": "storage-block",
+    "topic": "Storage QoS",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/storage-qos/storage-qos-overview"
+    ],
+    "keyPoints": [
+      "Storage Quality of Service controls or monitors the IOPS and bandwidth a virtual disk may consume.",
+      "It prevents a single virtual machine from monopolising shared storage performance.",
+      "It is configured on the Hyper-V virtual disk and enforced against the volume that hosts it."
+    ],
+    "whyOthers": [
+      "DNS TTL is a caching setting and is not controlled by Storage QoS.",
+      "DHCP reservations assign addresses and are unrelated.",
+      "",
+      "Password complexity is a security policy setting and is not storage performance."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 with Hyper-V. Policies can be aggregated from all virtual disks on a volume, and a maximum value of zero means no limit in some configurations."
+  },
+  "az802-q-199": {
+    "objective": "Configure storage replication, QoS, and iSCSI",
+    "objectiveId": "storage-block",
+    "topic": "iSCSI",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/iscsi/iscsi-target-server"
+    ],
+    "keyPoints": [
+      "iSCSI carries SCSI storage commands over an IP network.",
+      "It lets a server use block storage that is presented across Ethernet rather than through direct-attached disks.",
+      "The initiator is the client side and the target is the server side that presents the storage."
+    ],
+    "whyOthers": [
+      "A file-screening template is an FSRM policy and is not a storage protocol.",
+      "",
+      "A DNS signing algorithm relates to DNSSEC and not to block storage.",
+      "A user-account type is a directory concept and is unrelated to iSCSI."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. The iSCSI Target Server role service can present storage, and the iSCSI initiator connects a client to a target."
+  },
+  "az802-q-200": {
+    "objective": "Configure storage replication, QoS, and iSCSI",
+    "objectiveId": "storage-block",
+    "topic": "iSCSI",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/iscsi/iscsi-target-server"
+    ],
+    "keyPoints": [
+      "The iSCSI initiator is the client-side component that connects to a target.",
+      "It discovers targets, logs on to them, and presents the remote LUNs to the operating system as disks.",
+      "Windows includes the Microsoft iSCSI Initiator, which is managed from the control panel or with PowerShell."
+    ],
+    "whyOthers": [
+      "",
+      "An iSCSI namespace is not a component in the initiator/target model.",
+      "An iSCSI resolver is not a defined iSCSI component; DNS resolves the target's name.",
+      "An iSCSI DHCP scope is not a defined concept; DHCP assigns addresses, not storage."
+    ],
+    "commandPath": [
+      {
+        "label": "List discovered iSCSI targets",
+        "command": "Get-IscsiTarget"
+      },
+      {
+        "label": "Connect the initiator to a target",
+        "command": "Connect-IscsiTarget -NodeAddress iqn.1991-05.com.microsoft:srv01-target"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Multipath I/O can be added so that multiple network paths to the same target improve availability."
+  },
+  "az802-q-201": {
+    "objective": "Configure storage replication, QoS, and iSCSI",
+    "objectiveId": "storage-block",
+    "topic": "iSCSI",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/iscsi/iscsi-target-server",
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/smb-security"
+    ],
+    "keyPoints": [
+      "iSCSI access should be restricted to dedicated storage networks where possible.",
+      "CHAP authentication can require the initiator to prove its identity to the target.",
+      "Target access lists limit which initiators may connect to a target or LUN."
+    ],
+    "whyOthers": [
+      "Exposing the target to every network increases the attack surface instead of improving security.",
+      "Anonymous access removes authentication and is not a security improvement.",
+      "Disabling initiator authentication weakens access control.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. CHAP alone is modest protection, which is why network isolation and access lists are used alongside it."
+  },
+  "az802-q-202": {
+    "objective": "Manage Azure file services",
+    "objectiveId": "storage-azure",
+    "topic": "Azure Files",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/storage/files/storage-files-introduction"
+    ],
+    "keyPoints": [
+      "Azure Files provides managed cloud file shares accessible through SMB and other supported protocols.",
+      "Shares are hosted in a storage account and do not require a customer-managed file server.",
+      "They can be mounted from Windows, Linux, and macOS clients."
+    ],
+    "whyOthers": [
+      "An AD schema partition is a directory partition and is not a file share.",
+      "A local DNS cache is a resolver store and is unrelated.",
+      "",
+      "A virtual CPU scheduler is a compute concept and not a file service."
+    ],
+    "requirements": "Applies to the Azure Files service. Several performance tiers exist, and the tier chosen affects the available capacity, throughput, and cost."
+  },
+  "az802-q-203": {
+    "objective": "Manage Azure file services",
+    "objectiveId": "storage-azure",
+    "topic": "Azure Files",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/storage/files/storage-files-introduction",
+      "https://learn.microsoft.com/en-us/azure/storage/file-sync/file-sync-introduction"
+    ],
+    "keyPoints": [
+      "Identity-based access to Azure file shares can use directory identities and ACLs instead of storage account keys.",
+      "It integrates with an on-premises domain or Microsoft Entra Domain Services for authentication.",
+      "This lets permissions be managed like a normal file share rather than through a shared key."
+    ],
+    "whyOthers": [
+      "DHCP reservations assign IP addresses and are not an authentication method for file shares.",
+      "",
+      "Anonymous FTP is an unauthenticated file-transfer method and is not identity-based access.",
+      "DNSSEC signs DNS data and has nothing to do with file-share identity."
+    ],
+    "requirements": "Applies to Azure Files. Identity-based access requires the storage account to be domain-joined or integrated with a supported directory service, and the client must be able to reach that directory."
+  },
+  "az802-q-204": {
+    "objective": "Manage Azure file services",
+    "objectiveId": "storage-azure",
+    "topic": "Azure Files",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/storage/files/storage-files-introduction"
+    ],
+    "keyPoints": [
+      "A share access key, derived from the storage account keys, authenticates access when key-based access is used.",
+      "Storage account keys grant broad access to the account, so they must be protected and rotated.",
+      "Identity-based access is often preferred because it provides per-user authorization with ACLs."
+    ],
+    "whyOthers": [
+      "",
+      "A share access key does not sign DNS records; DNSSEC does that.",
+      "It does not create an AD trust.",
+      "It does not encrypt the client's boot volume; that is BitLocker's role."
+    ],
+    "requirements": "Applies to Azure Files. Storage account keys can be regenerated, and doing so invalidates clients and services that still use the old key."
+  },
+  "az802-q-205": {
+    "objective": "Manage Azure file services",
+    "objectiveId": "storage-azure",
+    "topic": "Azure File Sync",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/storage/file-sync/file-sync-introduction",
+      "https://learn.microsoft.com/en-us/azure/storage/file-sync/file-sync-cloud-tiering-overview"
+    ],
+    "keyPoints": [
+      "Azure File Sync synchronises a Windows file server with an Azure file share.",
+      "The cloud share can hold the authoritative copy while the local server keeps a cache for fast access.",
+      "It supports multiple servers syncing the same share, which enables distributed access."
+    ],
+    "whyOthers": [
+      "Azure File Sync does not scale virtual machine CPU.",
+      "It does not provide DNS failover.",
+      "It does not replicate the AD schema.",
+      ""
+    ],
+    "requirements": "Applies to Azure File Sync. It requires the Storage Sync Service and a registered Windows Server with the Azure File Sync agent."
+  },
+  "az802-q-206": {
+    "objective": "Manage Azure file services",
+    "objectiveId": "storage-azure",
+    "topic": "Azure File Sync",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/storage/file-sync/file-sync-cloud-tiering-overview"
+    ],
+    "keyPoints": [
+      "Cloud tiering keeps frequently accessed files locally while moving less-used data to the Azure file share.",
+      "Tiered files still appear in the local file system and open transparently when needed.",
+      "It lets a smaller local volume serve a larger cloud share."
+    ],
+    "whyOthers": [
+      "Cloud tiering does not encrypt DNS responses.",
+      "It does not convert NTFS to FAT.",
+      "",
+      "It does not duplicate every file on every server."
+    ],
+    "requirements": "Applies to Azure File Sync. Policies control how much free space to keep and after how long to tier files, and recall of tiered data depends on connectivity to the cloud share."
+  },
+  "az802-q-207": {
+    "objective": "Manage Azure file services",
+    "objectiveId": "storage-azure",
+    "topic": "Azure File Sync",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/storage/file-sync/file-sync-introduction",
+      "https://learn.microsoft.com/en-us/azure/storage/file-sync/file-sync-cloud-tiering-overview"
+    ],
+    "keyPoints": [
+      "Sync diagnostics start with the health of the server endpoint and the sync group.",
+      "The sync agent's state and its logs usually identify the reason for persistent sync errors.",
+      "Network connectivity to the Azure file share and the Storage Sync Service must also be verified."
+    ],
+    "whyOthers": [
+      "DHCP option 003 is the default gateway and is not the first check for sync health.",
+      "",
+      "FSMO roles concern directory operations and not file sync.",
+      "Virtual machine checkpoints capture state and are unrelated to Azure File Sync."
+    ],
+    "requirements": "Applies to Azure File Sync. A storage account used with File Sync must not have a firewall that blocks the agent, and the agent must be kept current."
+  },
+  "az802-q-208": {
+    "objective": "Manage volume encryption with BitLocker",
+    "objectiveId": "storage-bitlocker",
+    "topic": "BitLocker",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/"
+    ],
+    "keyPoints": [
+      "BitLocker encrypts volumes so data at rest cannot be read if the drive is removed or the machine is stolen.",
+      "It can be used on operating system volumes, data volumes, and removable drives.",
+      "It is different from SMB encryption, which protects data in transit."
+    ],
+    "whyOthers": [
+      "",
+      "BitLocker does not protect DNS queries in transit.",
+      "It does not take part in DHCP lease negotiation.",
+      "It does not affect AD replication topology."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Deployment requires a supported TPM or a startup key configuration, and network unlock can be used for cluster or remote scenarios."
+  },
+  "az802-q-209": {
+    "objective": "Manage volume encryption with BitLocker",
+    "objectiveId": "storage-bitlocker",
+    "topic": "BitLocker",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/",
+      "https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/bitlocker-recovery-guide-plan"
+    ],
+    "keyPoints": [
+      "A Trusted Platform Module (TPM) can store BitLocker key material protected by hardware and validate boot measurements.",
+      "It provides a seamless unlock experience when the boot environment is unchanged.",
+      "A change that alters the measured boot state can force recovery, which is why recovery information must be escrowed."
+    ],
+    "whyOthers": [
+      "A DHCP relay forwards DHCP traffic and does not protect keys.",
+      "A DNS forwarder sends DNS queries to another resolver and is unrelated.",
+      "The SMB redirector accesses file shares and does not protect BitLocker keys.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. A TPM 1.2 or 2.0 module is required for TPM protector modes, and the platform firmware must be trusted-boot capable where required."
+  },
+  "az802-q-210": {
+    "objective": "Manage volume encryption with BitLocker",
+    "objectiveId": "storage-bitlocker",
+    "topic": "BitLocker",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/bitlocker-recovery-guide-plan",
+      "https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/"
+    ],
+    "keyPoints": [
+      "A recovery key restores access when the normal unlock protectors are unavailable.",
+      "Common triggers include firmware changes, boot configuration changes, and a TPM that cannot verify the boot state.",
+      "The key must be stored in a controlled, access-audited location so it is available when needed but not exposed."
+    ],
+    "whyOthers": [
+      "A BitLocker recovery key does not expand a VHDX.",
+      "It does not authorise DHCP.",
+      "",
+      "It does not make DNS queries faster."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Recovery keys can be escrowed in Active Directory, Microsoft Entra ID, or another managed store, and escrow should be verified before encryption is relied upon."
+  },
+  "az802-q-211": {
+    "objective": "Manage volumes and disks",
+    "objectiveId": "storage-volumes",
+    "topic": "Volume troubleshooting",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/powershell/module/storage/get-volume",
+      "https://learn.microsoft.com/en-us/windows-server/storage/fsrm/fsrm-overview"
+    ],
+    "keyPoints": [
+      "A full volume can be consumed by data that is not visible in the file listing, such as shadow copies and deduplication metadata.",
+      "Hidden files, hidden system folders, quota-managed folders, and application data also account for space.",
+      "The investigation should therefore cover shadow copies, deduplication state, hidden files, quotas, and application data."
+    ],
+    "whyOthers": [
+      "Virtual machine display resolution has no effect on volume usage.",
+      "",
+      "The forest trust direction concerns authentication between domains and not storage.",
+      "DNSSEC keys are DNS signing material and do not consume volume space as hidden data."
+    ],
+    "commandPath": [
+      {
+        "label": "Show volume size and free space",
+        "command": "Get-Volume"
+      },
+      {
+        "label": "List shadow copies on a volume",
+        "command": "vssadmin list shadowstorage"
+      },
+      {
+        "label": "Show deduplication status and savings",
+        "command": "Get-DedupStatus"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Shadow copy storage is a frequent cause, because snapshots consume space that does not appear as files in Explorer."
+  },
+  "az802-q-212": {
+    "objective": "Manage volumes and disks",
+    "objectiveId": "storage-volumes",
+    "topic": "Volume mount points",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/powershell/module/storage/get-volume"
+    ],
+    "keyPoints": [
+      "A mount point makes a volume reachable through an empty folder path on another volume.",
+      "It allows many volumes to be organised under one path without consuming drive letters.",
+      "It is useful when a server hosts many data volumes or when the path structure should stay consistent."
+    ],
+    "whyOthers": [
+      "",
+      "A DNS alias is a name-resolution record and is not a volume mount point.",
+      "A DHCP reservation assigns an address and is unrelated.",
+      "A virtual machine checkpoint captures state and is not a mount point."
+    ],
+    "commandPath": [
+      {
+        "label": "Add a mount point to a volume",
+        "command": "Get-Volume -DriveLetter D | Add-PartitionAccessPath -AccessPath 'C:\\Data\\VolumeD'"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. The mount folder must be empty and located on an NTFS volume, and the mounted volume also needs a file system of its own."
+  },
+  "az802-q-213": {
+    "objective": "Manage volumes and disks",
+    "objectiveId": "storage-volumes",
+    "topic": "Volume management",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/powershell/module/storage/get-volume"
+    ],
+    "keyPoints": [
+      "Get-Volume reports the file system, health status, size, free space, drive letter, and related properties.",
+      "It is the quickest way to inspect volumes on a server from PowerShell.",
+      "It can be filtered to find volumes by drive letter, file-system label, or health state."
+    ],
+    "whyOthers": [
+      "Get-ADForest reports forest-level Active Directory settings and does not list volumes.",
+      "Get-DnsServerResourceRecord lists DNS records and is unrelated.",
+      "Get-GPResultantSetOfPolicy reports applied Group Policy settings.",
+      ""
+    ],
+    "commandPath": [
+      {
+        "label": "List all volumes",
+        "command": "Get-Volume"
+      },
+      {
+        "label": "Show volumes that are not healthy",
+        "command": "Get-Volume | Where-Object HealthStatus -ne 'Healthy'"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. The Storage module also provides Get-Disk and Get-Partition, which are used together with Get-Volume when investigating a volume problem."
+  }
+}

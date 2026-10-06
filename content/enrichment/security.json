@@ -1,0 +1,724 @@
+{
+  "az802-q-214": {
+    "objective": "Configure Windows Defender Firewall and IPsec",
+    "objectiveId": "sec-firewall",
+    "topic": "Windows Defender Firewall",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/",
+      "https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/rules"
+    ],
+    "keyPoints": [
+      "Windows Defender Firewall with Advanced Security enforces host-based traffic policy with stateful rules.",
+      "Rules apply per network profile: Domain, Private, and Public.",
+      "It supports both inbound and outbound rules and integrates with IPsec connection security rules."
+    ],
+    "whyOthers": [
+      "Replicating AD objects is a directory service task and is not a firewall function.",
+      "Managing VHDX files is a storage operation and is unrelated to the firewall.",
+      "",
+      "Allocating DHCP addresses is a network service task, not a host firewall function."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Rules can be deployed locally or centrally through Group Policy, and each profile applies based on how the network is identified."
+  },
+  "az802-q-215": {
+    "objective": "Configure Windows Defender Firewall and IPsec",
+    "objectiveId": "sec-firewall",
+    "topic": "Firewall profiles",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/",
+      "https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/rules"
+    ],
+    "keyPoints": [
+      "A server identifies each network as Domain, Private, or Public and applies the rules for that profile.",
+      "If a domain server is treated as Public, the Domain-profile rules do not apply and required management traffic can be blocked.",
+      "The fix is usually to correct the network location detection so the Domain profile is used again."
+    ],
+    "whyOthers": [
+      "A firewall profile change does not remove a virtual machine's VHDX.",
+      "",
+      "Network profile detection has no relationship to the RODC role.",
+      "NTFS ACLs are file-system permissions and are not changed by a firewall profile."
+    ],
+    "commandPath": [
+      {
+        "label": "Show the network profile in use",
+        "command": "Get-NetConnectionProfile"
+      },
+      {
+        "label": "Show the active firewall profiles",
+        "command": "Get-NetFirewallProfile | Select-Object Name, Enabled"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Domain identification depends on reaching a domain controller, so a broken network path can itself cause a server to fall back to a different profile."
+  },
+  "az802-q-216": {
+    "objective": "Configure Windows Defender Firewall and IPsec",
+    "objectiveId": "sec-firewall",
+    "topic": "Connection security rules",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/rules",
+      "https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/configure-with-command-line"
+    ],
+    "keyPoints": [
+      "Connection security rules specify how two hosts authenticate and protect traffic with IPsec.",
+      "They define the authentication requirements and whether the connection must be encrypted or only integrity-protected.",
+      "They work alongside firewall rules, which decide whether traffic is allowed."
+    ],
+    "whyOthers": [
+      "",
+      "Creating a DHCP reservation is an addressing task and is not a connection security rule.",
+      "Assigning a drive letter is a storage configuration and is unrelated.",
+      "Configuring a DFS namespace is a file-access task and is not IPsec policy."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Connection security rules can require authentication with Kerberos, a certificate, or another method, and they are commonly deployed by Group Policy."
+  },
+  "az802-q-217": {
+    "objective": "Configure Windows Defender Firewall and IPsec",
+    "objectiveId": "sec-firewall",
+    "topic": "Domain isolation",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/jj721516(v=ws.11)",
+      "https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/rules"
+    ],
+    "keyPoints": [
+      "Domain isolation requires unsolicited inbound traffic to be authenticated before it is accepted.",
+      "It uses firewall and IPsec connection security rules so only trusted, authenticated hosts can communicate.",
+      "It reduces the ability of an unmanaged or compromised device to reach managed servers."
+    ],
+    "whyOthers": [
+      "Domain isolation does not isolate a DNS zone from clients.",
+      "It does not prevent all server-to-server communication; authenticated servers can still communicate.",
+      "It does not replace Group Policy; it is deployed through it.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. A typical deployment keeps some traffic exempt, such as domain controller authentication and DHCP, so it is planned carefully before rollout."
+  },
+  "az802-q-218": {
+    "objective": "Manage credential protection",
+    "objectiveId": "sec-credentials",
+    "topic": "Credential Guard",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/security/identity-protection/credential-guard/",
+      "https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/protected-users-security-group"
+    ],
+    "keyPoints": [
+      "Credential Guard uses virtualization-based security to isolate secrets such as NTLM password hashes and Kerberos tickets.",
+      "Even an administrator who compromises the normal operating system cannot easily read the isolated material.",
+      "It targets credential theft techniques such as credential dumping."
+    ],
+    "whyOthers": [
+      "Credential Guard does not manage VHDX capacity.",
+      "It does not set DNS TTL values.",
+      "",
+      "It does not configure DHCP scopes."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Credential Guard requires supported hardware and firmware and is enabled through policy, and it can affect compatibility with some legacy authentication."
+  },
+  "az802-q-219": {
+    "objective": "Configure threat protection features",
+    "objectiveId": "sec-threat-protection",
+    "topic": "Application control",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/security/application-security/application-control/app-control-for-business/appcontrol"
+    ],
+    "keyPoints": [
+      "Windows Defender Application Control restricts execution to code that the organization trusts.",
+      "It uses code integrity policies to define which binaries and scripts may run.",
+      "It is a strong control against malware and unapproved software on servers."
+    ],
+    "whyOthers": [
+      "It does not assign drive letters; that is a storage task.",
+      "",
+      "It does not control which DHCP clients receive addresses.",
+      "It does not decide which DNS server is authoritative."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Policies can start in audit mode so that untrusted binaries are logged before enforcement is enabled."
+  },
+  "az802-q-220": {
+    "objective": "Configure threat protection features",
+    "objectiveId": "sec-threat-protection",
+    "topic": "Exploit Protection",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/defender-endpoint/exploit-protection"
+    ],
+    "keyPoints": [
+      "Exploit Protection configures system-wide or per-application mitigations against exploitation techniques.",
+      "It includes controls such as data execution prevention, address space layout randomisation, and control flow protection.",
+      "Mitigations can be set broadly or tuned for a specific application."
+    ],
+    "whyOthers": [
+      "",
+      "Exploit Protection does not replicate virtual machines.",
+      "It does not create user accounts.",
+      "It does not manage SMB shares."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Some mitigations can affect compatibility for older applications, so settings can be exported, tested, and applied per application."
+  },
+  "az802-q-221": {
+    "objective": "Configure threat protection features",
+    "objectiveId": "sec-threat-protection",
+    "topic": "SmartScreen",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/microsoft-defender-smartscreen/"
+    ],
+    "keyPoints": [
+      "Microsoft Defender SmartScreen uses reputation and related signals to warn about untrusted files, apps, and websites.",
+      "It helps block or warn about content that is unknown or known to be malicious.",
+      "It complements, but does not replace, endpoint protection."
+    ],
+    "whyOthers": [
+      "SmartScreen does not monitor AD replication latency.",
+      "It does not check disk parity errors.",
+      "It does not detect DHCP starvation.",
+      ""
+    ],
+    "requirements": "Applies to supported Windows Server and client releases. SmartScreen relies on reputation services, so it needs network access to those services to provide the best protection."
+  },
+  "az802-q-222": {
+    "objective": "Harden Windows Server with security baselines",
+    "objectiveId": "sec-baselines",
+    "topic": "Security baselines",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/security/operating-system-security/device-management/windows-security-configuration-framework/windows-security-baselines"
+    ],
+    "keyPoints": [
+      "A baseline changes many settings at once, so it can affect application and administrative workflows.",
+      "Testing against representative workloads before broad deployment prevents unexpected outages.",
+      "Where a setting must differ, a documented exception is safer than abandoning the baseline."
+    ],
+    "whyOthers": [
+      "Disabling auditing to reduce noise removes the evidence needed for investigations.",
+      "Granting users local administrator rights weakens the security posture.",
+      "",
+      "Applying every setting without testing ignores compatibility risks that a baseline introduces."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Baselines are provided as Group Policy objects or configuration packages and are best deployed in a ring-based rollout."
+  },
+  "az802-q-223": {
+    "objective": "Implement least privilege and privileged access",
+    "objectiveId": "sec-privileged-access",
+    "topic": "Windows LAPS",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/laps/laps-overview"
+    ],
+    "keyPoints": [
+      "Windows LAPS manages unique local administrator passwords on managed devices and servers.",
+      "Passwords are rotated on a policy schedule and backed up to a chosen directory store.",
+      "It removes the need to share a single local administrator password across many machines."
+    ],
+    "whyOthers": [
+      "LAPS does not create storage pools.",
+      "",
+      "It does not rotate DNS records.",
+      "It does not manage Hyper-V checkpoints."
+    ],
+    "commandPath": [
+      {
+        "label": "Read the current local administrator password for a device",
+        "command": "Get-LapsADPassword -Identity SRV01 -AsPlainText"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 and to supported client releases. LAPS can back up passwords to Active Directory or to Microsoft Entra ID depending on the configuration."
+  },
+  "az802-q-224": {
+    "objective": "Implement least privilege and privileged access",
+    "objectiveId": "sec-privileged-access",
+    "topic": "Local administrator passwords",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/laps/laps-overview",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models"
+    ],
+    "keyPoints": [
+      "A unique password on each server means compromising one machine does not grant the same credential on others.",
+      "Reused local administrator passwords are a classic lateral-movement path.",
+      "Uniqueness limits the blast radius without requiring more privileged accounts."
+    ],
+    "whyOthers": [
+      "",
+      "Unique passwords do not remove the need for multi-factor authentication where it is available.",
+      "They do not disable logging; auditing remains important.",
+      "They do reduce the need for broad administrative rights, but they do not make domain-level administration unnecessary in every case."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Unique local passwords work alongside other controls such as tiering and just-in-time access rather than replacing them."
+  },
+  "az802-q-225": {
+    "objective": "Configure threat protection features",
+    "objectiveId": "sec-threat-protection",
+    "topic": "Microsoft Defender for Servers",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-servers-introduction"
+    ],
+    "keyPoints": [
+      "Microsoft Defender for Servers provides security posture and threat protection for supported servers.",
+      "It covers Azure virtual machines and Azure Arc-enabled servers.",
+      "It integrates with other Defender for Cloud capabilities, such as just-in-time access and vulnerability assessment."
+    ],
+    "whyOthers": [
+      "It does not provide DHCP failover.",
+      "It does not manage the AD schema.",
+      "It does not provide DFS namespace referrals.",
+      ""
+    ],
+    "requirements": "Applies to Microsoft Defender for Cloud. Onboarding hybrid servers requires Azure Arc, and the plan selected determines which protection features are enabled."
+  },
+  "az802-q-226": {
+    "objective": "Implement least privilege and privileged access",
+    "objectiveId": "sec-privileged-access",
+    "topic": "Least privilege",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models",
+      "https://learn.microsoft.com/en-us/security/privileged-access-workstations/overview"
+    ],
+    "keyPoints": [
+      "Least privilege means each identity receives only the access it needs to perform its task.",
+      "It limits the damage from mistakes, compromised accounts, and misuse.",
+      "It also reduces lateral movement, because one compromised account does not open everything."
+    ],
+    "whyOthers": [
+      "Allowing all inbound traffic removes network restrictions and is not least privilege.",
+      "Using one password everywhere increases the impact of a single compromise.",
+      "",
+      "Giving all administrators Domain Admins membership is the opposite of least privilege."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Least privilege is implemented with scoped group membership, delegation, just-in-time access, and separated administrative accounts."
+  },
+  "az802-q-227": {
+    "objective": "Implement least privilege and privileged access",
+    "objectiveId": "sec-privileged-access",
+    "topic": "Delegated administration",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/delegation-control-wizard"
+    ],
+    "keyPoints": [
+      "A delegated help-desk group with reset-password rights on selected OUs gives exactly the task and no more.",
+      "Scoped delegation meets the operation without granting forest-wide power.",
+      "It also keeps the action auditable, because the group and its scope are explicit."
+    ],
+    "whyOthers": [
+      "The built-in Guest account is disabled by default and unsuitable for administrative work.",
+      "",
+      "Enterprise Admin grants forest-wide control, far beyond password resets.",
+      "Schema Admin can change the forest schema and is far more privileged than the task requires."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Delegation is granted on the OU, and an object moved out of that OU loses the delegated rights."
+  },
+  "az802-q-228": {
+    "objective": "Manage credential protection",
+    "objectiveId": "sec-credentials",
+    "topic": "Protected Users",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/protected-users-security-group",
+      "https://learn.microsoft.com/en-us/windows/security/identity-protection/credential-guard/"
+    ],
+    "keyPoints": [
+      "The Protected Users group applies stronger protections that cannot be configured for individual accounts.",
+      "Members cannot use NTLM, digest, or CredSSP authentication and cannot be delegated.",
+      "Kerberos ticket lifetimes are shortened, which reduces exposure of cached credentials."
+    ],
+    "whyOthers": [
+      "",
+      "Protected Users does not allow anonymous access.",
+      "It does not disable password policy; members are still subject to it.",
+      "It does not make users local administrators."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Membership can break applications that depend on NTLM or delegation, so it should be tested before adding high-value accounts."
+  },
+  "az802-q-229": {
+    "objective": "Manage credential protection",
+    "objectiveId": "sec-credentials",
+    "topic": "Password protection",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/entra/identity/authentication/concept-password-ban-bad-on-premises",
+      "https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/protected-users-security-group"
+    ],
+    "keyPoints": [
+      "Microsoft Entra Password Protection extends banned-password evaluation to on-premises Active Directory.",
+      "It uses a global banned-password list plus optional custom lists.",
+      "It blocks known weak passwords at the point of change, which raises the baseline for the whole domain."
+    ],
+    "whyOthers": [
+      "It does not prevent unauthorized DNS delegation.",
+      "It has nothing to do with VHDX fragmentation.",
+      "It does not address DHCP scope overlap.",
+      ""
+    ],
+    "requirements": "Applies to AD DS on Windows Server 2025, 2022, 2019, and 2016 and to Microsoft Entra ID. On-premises deployment requires a proxy and a domain controller agent component."
+  },
+  "az802-q-230": {
+    "objective": "Harden Windows Server with security baselines",
+    "objectiveId": "sec-baselines",
+    "topic": "Domain controller hardening",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/best-practices-for-securing-active-directory",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/tier-model"
+    ],
+    "keyPoints": [
+      "Minimise the roles installed on a domain controller so its attack surface stays small.",
+      "Restrict interactive logon so that only trusted administrators can sign in on it.",
+      "Keep it patched and monitor privileged activity, because a compromised controller compromises the identity system."
+    ],
+    "whyOthers": [
+      "Permitting anonymous SMB exposes directory information and is not a hardening measure.",
+      "Reusing the same local administrator password everywhere enables lateral movement.",
+      "",
+      "Installing unrelated desktop applications increases the attack surface on a high-value server."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Domain controllers should also avoid running other roles where possible, and their administration should follow the tier model."
+  },
+  "az802-q-231": {
+    "objective": "Implement least privilege and privileged access",
+    "objectiveId": "sec-privileged-access",
+    "topic": "Privileged groups",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/best-practices-for-securing-active-directory"
+    ],
+    "keyPoints": [
+      "Domain Admins grants extensive control over the domain and its data.",
+      "Membership should be minimal, monitored, and time-bound where the design allows.",
+      "Protecting the accounts that hold this power protects the whole domain."
+    ],
+    "whyOthers": [
+      "Everyone is a broad default group for basic access and does not confer domain control.",
+      "",
+      "Domain Users is the default group for ordinary user accounts and holds no administrative power.",
+      "Authenticated Users covers all authenticated identities and does not grant domain administration."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Equivalent caution applies to Enterprise Admins, Schema Admins, and Administrators in the forest root domain."
+  },
+  "az802-q-232": {
+    "objective": "Implement least privilege and privileged access",
+    "objectiveId": "sec-privileged-access",
+    "topic": "Authentication policy silos",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/authentication-policies-and-authentication-policy-silos",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/tier-model"
+    ],
+    "keyPoints": [
+      "An authentication policy silo restricts which accounts can authenticate on which computers.",
+      "It can also apply a stricter authentication policy to those accounts.",
+      "It is used to confine privileged accounts to approved administrative hosts."
+    ],
+    "whyOthers": [
+      "",
+      "A silo does not store user home directories.",
+      "It does not configure DNS forwarding.",
+      "It does not balance DHCP leases."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016 with the required domain functional level. Silo membership must be populated deliberately, because a misconfigured silo can block legitimate sign-in."
+  },
+  "az802-q-233": {
+    "objective": "Manage credential protection",
+    "objectiveId": "sec-credentials",
+    "topic": "NTLM auditing",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/security/kerberos/ntlm-overview",
+      "https://learn.microsoft.com/en-us/windows-server/security/kerberos/kerberos-authentication-overview"
+    ],
+    "keyPoints": [
+      "NTLM auditing identifies which systems and applications still rely on NTLM.",
+      "The result is used to remediate or migrate those dependencies before NTLM is restricted.",
+      "Auditing first avoids breaking authentication when restrictions are applied."
+    ],
+    "whyOthers": [
+      "NTLM auditing does not check disk fragmentation.",
+      "It does not test DHCP reservations.",
+      "It does not monitor virtual machine memory.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Audit events are collected in the Windows event logs and can be centralised for analysis before any blocking policy is enabled."
+  },
+  "az802-q-234": {
+    "objective": "Manage credential protection",
+    "objectiveId": "sec-credentials",
+    "topic": "Authentication protocols",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/security/kerberos/kerberos-authentication-overview",
+      "https://learn.microsoft.com/en-us/windows-server/security/kerberos/ntlm-overview"
+    ],
+    "keyPoints": [
+      "Kerberos is the preferred domain authentication protocol and supports mutual authentication.",
+      "Removing unnecessary NTLM dependencies reduces exposure to relay and credential-theft techniques.",
+      "The migration should be driven by audit data so nothing legitimate breaks."
+    ],
+    "whyOthers": [
+      "Sharing one service account across many services increases the impact of any compromise.",
+      "Disabling all auditing removes the evidence needed to verify the change.",
+      "",
+      "Enabling anonymous authentication weakens security instead of improving it."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. NTLM cannot always be removed completely, so the goal is to eliminate unnecessary use and harden what remains."
+  },
+  "az802-q-235": {
+    "objective": "Manage credential protection",
+    "objectiveId": "sec-credentials",
+    "topic": "Data-at-rest protection",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/",
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/smb-secure-traffic"
+    ],
+    "keyPoints": [
+      "BitLocker encrypts volume data so a disk moved to another machine cannot be read without a protector.",
+      "It addresses the stolen-disk threat directly.",
+      "It complements network protections such as SMB encryption, which secures data in transit."
+    ],
+    "whyOthers": [
+      "Group Policy loopback affects user policy application and does not encrypt data.",
+      "",
+      "DHCP failover provides address-service redundancy and does not encrypt volumes.",
+      "DNSSEC signs DNS data and does not protect stored files."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Recovery information must be escrowed so that a legitimate recovery is still possible after hardware or firmware changes."
+  },
+  "az802-q-236": {
+    "objective": "Audit and monitor security events",
+    "objectiveId": "sec-audit",
+    "topic": "Object access auditing",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/advanced-security-audit-policy-settings",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/best-practices-for-securing-active-directory"
+    ],
+    "keyPoints": [
+      "Object-access auditing records selected successful or failed access attempts on files and folders.",
+      "It requires both an audit policy and a system access control list entry on the object.",
+      "It should be scoped to high-value data to keep the log volume manageable."
+    ],
+    "whyOthers": [
+      "",
+      "Auditing does not grant access; permissions do.",
+      "It does not replicate a share; DFS Replication does that.",
+      "It does not increase disk capacity."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Advanced audit policy allows the specific subcategories to be selected rather than enabling whole categories."
+  },
+  "az802-q-237": {
+    "objective": "Audit and monitor security events",
+    "objectiveId": "sec-audit",
+    "topic": "Audit policy",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/advanced-security-audit-policy-settings",
+      "https://learn.microsoft.com/en-us/windows-server/security/kerberos/kerberos-authentication-overview"
+    ],
+    "keyPoints": [
+      "Account lockouts are investigated with account-management and authentication-related audit events.",
+      "These events show the account, the time, and often the source system involved.",
+      "Combining the events from domain controllers gives a clearer picture than reviewing one server."
+    ],
+    "whyOthers": [
+      "Printer colour settings are unrelated to account lockouts.",
+      "Disk defragmentation events do not reveal lockout sources.",
+      "DNS TTL values are unrelated to authentication failures.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Centralised collection of security events is important, because a lockout may be generated on a controller that did not originate it."
+  },
+  "az802-q-238": {
+    "objective": "Harden Windows Server with security baselines",
+    "objectiveId": "sec-baselines",
+    "topic": "Legacy protocol removal",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3",
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/smb-secure-traffic"
+    ],
+    "keyPoints": [
+      "SMBv1 uses an older design with weaker protections than later SMB versions.",
+      "Leaving it enabled increases the attack surface for known exploitation techniques.",
+      "It should be removed once no legacy dependency remains, and the removal should be verified."
+    ],
+    "whyOthers": [
+      "SMBv1 does not provide DNSSEC; that is a DNS feature.",
+      "It does not enable BitLocker.",
+      "",
+      "It is not required for modern SMB encryption; newer SMB versions provide that."
+    ],
+    "commandPath": [
+      {
+        "label": "Check whether SMBv1 is enabled",
+        "command": "Get-SmbServerConfiguration | Select-Object EnableSMB1Protocol"
+      },
+      {
+        "label": "Disable SMBv1 on the server",
+        "command": "Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force"
+      }
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. SMBv1 is not installed by default on current releases, but it can still be present after an upgrade from an older release."
+  },
+  "az802-q-239": {
+    "objective": "Manage identity threats with Defender for Identity",
+    "objectiveId": "sec-identity-threat",
+    "topic": "Microsoft Defender for Identity",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/defender-for-identity/what-is"
+    ],
+    "keyPoints": [
+      "Microsoft Defender for Identity detects identity-related threats and suspicious activity in Active Directory environments.",
+      "It analyses directory and authentication signals to identify techniques such as reconnaissance and credential abuse.",
+      "It helps surface attacks that are otherwise hard to see in individual event logs."
+    ],
+    "whyOthers": [
+      "It does not resize Azure virtual machines.",
+      "",
+      "It does not manage file quotas.",
+      "It does not provide DHCP leases."
+    ],
+    "requirements": "Applies to Microsoft Defender for Identity. A sensor is deployed to monitor domain controller traffic, and monitored domains are configured in the portal."
+  },
+  "az802-q-240": {
+    "objective": "Implement least privilege and privileged access",
+    "objectiveId": "sec-privileged-access",
+    "topic": "Privileged access",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/security/privileged-access-workstations/overview",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models"
+    ],
+    "keyPoints": [
+      "Administrative accounts should be separate from everyday user accounts.",
+      "Multi-factor authentication and hardened administrative workstations reduce the chance that routine activity compromises privileged credentials.",
+      "The goal is to keep privileged credentials away from browsing, email, and general workstation risk."
+    ],
+    "whyOthers": [
+      "",
+      "Using a single account for all tasks exposes privileged credentials to routine risk.",
+      "Storing passwords in scripts leaves secrets readable by anyone with access to the file.",
+      "Allowing interactive logon from every workstation widens the paths an attacker can use."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Tiered administration and privileged-access workstations are the practical implementations of these practices."
+  },
+  "az802-q-241": {
+    "objective": "Harden Windows Server with security baselines",
+    "objectiveId": "sec-baselines",
+    "topic": "Information disclosure",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/best-practices-for-securing-active-directory",
+      "https://learn.microsoft.com/en-us/windows-server/security/kerberos/ntlm-overview"
+    ],
+    "keyPoints": [
+      "Restricting anonymous access to directory and SAM information reduces information disclosure.",
+      "Attackers often map users, groups, and shares before attempting an attack.",
+      "Reducing that reconnaissance data makes later stages of an attack harder."
+    ],
+    "whyOthers": [
+      "Enabling anonymous SMB increases disclosure rather than reducing it.",
+      "Allowing null sessions everywhere is the classic exposure that this control removes.",
+      "Disabling all domain auditing removes visibility into activity.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. The relevant settings are found under security options for network access and for restricting anonymous access."
+  },
+  "az802-q-242": {
+    "objective": "Implement least privilege and privileged access",
+    "objectiveId": "sec-privileged-access",
+    "topic": "Service-account security",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models"
+    ],
+    "keyPoints": [
+      "Managed service accounts rotate their own passwords, so no one has to store or share a secret.",
+      "Avoiding embedded secrets removes a common way credentials leak through scripts and configuration files.",
+      "Where a managed account cannot be used, the credential should still be protected and rotated."
+    ],
+    "whyOthers": [
+      "Never rotating a password leaves a long-lived secret exposed indefinitely.",
+      "Granting a service account Domain Admins gives far more privilege than the service needs.",
+      "",
+      "Putting the password in a shared text file exposes it to anyone who can read the file."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. A gMSA requires the KDS root key, and an sMSA is limited to a single host."
+  },
+  "az802-q-243": {
+    "objective": "Harden Windows Server with security baselines",
+    "objectiveId": "sec-baselines",
+    "topic": "Security baselines",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/security/operating-system-security/device-management/windows-security-configuration-framework/windows-security-baselines"
+    ],
+    "keyPoints": [
+      "A security baseline is a recommended set of security configuration settings for a Windows release.",
+      "It gives a consistent starting point for hardening rather than configuring each server by hand.",
+      "Baselines can be adapted after testing so that required workloads still function."
+    ],
+    "whyOthers": [
+      "A virtual machine disk type is a storage choice and is not a baseline.",
+      "",
+      "A backup image is a recovery artefact, not a security configuration.",
+      "A DHCP scope defines addresses and is unrelated to baselines."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Baselines are version-specific and are distributed as Group Policy objects or configuration packages."
+  },
+  "az802-q-244": {
+    "objective": "Harden Windows Server with security baselines",
+    "objectiveId": "sec-baselines",
+    "topic": "Baseline exceptions",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/security/operating-system-security/device-management/windows-security-configuration-framework/windows-security-baselines",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/best-practices-for-securing-active-directory"
+    ],
+    "keyPoints": [
+      "A narrowly scoped, documented exception preserves risk management without discarding the whole baseline.",
+      "The exception should name the setting, the scope, the reason, and its review date.",
+      "Removing the entire baseline everywhere would expose every other system to unnecessary risk."
+    ],
+    "whyOthers": [
+      "",
+      "Removing the entire baseline everywhere trades a small compatibility issue for a large security regression.",
+      "Disabling auditing on all servers removes the evidence needed for investigations.",
+      "Granting the application full administrator rights is a broader change than the baseline setting that caused the problem."
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Exceptions are normally tracked in a change or risk register, with an owner and a review date."
+  },
+  "az802-q-245": {
+    "objective": "Configure Windows Defender Firewall and IPsec",
+    "objectiveId": "sec-firewall",
+    "topic": "Firewall rule design",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/rules",
+      "https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/"
+    ],
+    "keyPoints": [
+      "The most secure rule set explicitly allows only the required traffic from approved sources.",
+      "Everything not needed is denied, which keeps the attack surface small.",
+      "Rules should be documented so that each allowance has a clear purpose and owner."
+    ],
+    "whyOthers": [
+      "Allow Any/Any inbound removes the filtering the firewall exists to provide.",
+      "Disabling the firewall on domain networks exposes every open port on the system.",
+      "Allowing all management ports permanently is broader than the required management traffic.",
+      ""
+    ],
+    "requirements": "Applies to Windows Server 2025, 2022, 2019, and 2016. Rules can be scoped by profile, program, service, local and remote port, and remote address to keep them narrow."
+  }
+}
