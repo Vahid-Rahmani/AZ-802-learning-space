@@ -1,0 +1,737 @@
+{
+  "az802-q-246": {
+    "objective": "Use performance monitoring tools to establish baselines and detect resource bottlenecks affecting server workloads.",
+    "objectiveId": "perfmon-tools",
+    "topic": "Performance Monitor",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/performance/performance-monitor",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-performance-problems-in-windows"
+    ],
+    "keyPoints": [
+      "Performance Monitor (perfmon) exposes CPU, memory, disk, and network counters for live views and logged collections.",
+      "Baselines captured on a healthy server make later deviations meaningful.",
+      "PerfMon data complements, not replaces, event-based troubleshooting."
+    ],
+    "whyOthers": [
+      "Active Directory Users and Computers manages directory objects and has no performance counters.",
+      "Hyper-V Replica replicates VMs to a standby host and does not measure resource usage.",
+      "",
+      "DNS Manager administers zones and records and does not expose system performance counters."
+    ]
+  },
+  "az802-q-247": {
+    "objective": "Configure Data Collector Sets to capture counters, event trace data, and configuration information on a schedule for later analysis.",
+    "objectiveId": "perfmon-tools",
+    "topic": "Performance Monitor",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/performance/performance-monitor",
+      "https://learn.microsoft.com/en-us/windows-server/administration/server-manager/view-and-configure-performance-event-and-service-data"
+    ],
+    "keyPoints": [
+      "A Data Collector Set groups performance counters, event trace providers, and configuration data under one schedule.",
+      "Logged data can be reviewed as reports, compared against baselines, or imported into analysis tools.",
+      "Built-in sets such as System Diagnostics bundle a useful starter collection."
+    ],
+    "whyOthers": [
+      "Encryption of volumes is BitLocker or EFS functionality, unrelated to collector sets.",
+      "",
+      "Membership changes are a task for AD tools and delegation, not performance collection.",
+      "DHCP scope creation happens in DHCP administration, which has no collector semantics."
+    ]
+  },
+  "az802-q-248": {
+    "objective": "Select processor counters such as % Processor Time when diagnosing CPU saturation, then isolate the consuming process.",
+    "objectiveId": "perfmon-tools",
+    "topic": "Performance Monitor",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/performance/performance-monitor",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-performance-problems-in-windows"
+    ],
+    "keyPoints": [
+      "Processor % Processor Time shows overall CPU utilization; values persisting near 100% indicate saturation.",
+      "Process object counters identify which process consumes the CPU next.",
+      "Use context, workload timing, and sustained values rather than single spikes."
+    ],
+    "whyOthers": [
+      "",
+      "Free space measures capacity, not processor demand, and misses CPU saturation entirely.",
+      "DNS recursive query counts measure name-service activity, not processor saturation.",
+      "DHCP lease counts describe address allocation, not CPU pressure."
+    ]
+  },
+  "az802-q-249": {
+    "objective": "Use Average Disk sec/Read and Average Disk sec/Write to detect storage latency and correlate it with queue depth and workload.",
+    "objectiveId": "perfmon-tools",
+    "topic": "Performance Monitor",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/performance/performance-monitor",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-performance-problems-in-windows"
+    ],
+    "keyPoints": [
+      "Average Disk sec/Read and sec/Write approximate storage response time in seconds.",
+      "Current Queue Length plus latency distinguishes a busy but healthy disk from a saturated one.",
+      "Interpret values against the storage type; SSD and NVMe targets tolerate far less latency than spinning disks."
+    ],
+    "whyOthers": [
+      "DNS query counts never describe disk response time.",
+      "User logon counts measure authentication volume, not storage latency.",
+      "DHCP scope utilization tracks address pools, unrelated to disk latency.",
+      ""
+    ]
+  },
+  "az802-q-250": {
+    "objective": "Describe System Insights as local predictive analytics for Windows Server capacity and health signals.",
+    "objectiveId": "system-insights",
+    "topic": "System Insights",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/manage/system-insights/overview",
+      "https://learn.microsoft.com/en-us/windows-server/manage/system-insights/managing-capabilities"
+    ],
+    "keyPoints": [
+      "System Insights runs analytics locally on Windows Server 2019+ and forecasts disk, volume, CPU, and networking trends.",
+      "Default capabilities raise warnings; administrators can configure thresholds or add custom capabilities.",
+      "Data stays on the server, so predictions work without sending telemetry off-box."
+    ],
+    "whyOthers": [
+      "DHCP relay is a network forwarding role with no analytics function.",
+      "ReFS is a resilient file-system format, not a prediction engine.",
+      "",
+      "System Insights supplements Active Directory rather than replacing any directory service."
+    ]
+  },
+  "az802-q-251": {
+    "objective": "Use the System event log to investigate service, driver, and startup events.",
+    "objectiveId": "event-logs",
+    "topic": "Event logs",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/server-manager/view-and-configure-performance-event-and-service-data",
+      "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-winevent"
+    ],
+    "keyPoints": [
+      "The System log captures events from the operating system and its services, including service control manager errors and driver failures.",
+      "Filtering System log events by provider and level shortens diagnosis dramatically.",
+      "Retain and clear logs deliberately; deleting them destroys evidence."
+    ],
+    "whyOthers": [
+      "Clipboard history is unrelated to service and driver events.",
+      "",
+      "DNS zone files hold resource records, not OS service events.",
+      "DHCP lease files record address assignments, not driver failures."
+    ]
+  },
+  "az802-q-252": {
+    "objective": "Use the Application event log to investigate application crashes and application-written events.",
+    "objectiveId": "event-logs",
+    "topic": "Event logs",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/server-manager/view-and-configure-performance-event-and-service-data",
+      "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-winevent"
+    ],
+    "keyPoints": [
+      "Applications and application components write errors and warnings to the Application log.",
+      "Crash events frequently name the faulting module, aiding rapid triage.",
+      "Pair Application events with reliability and crash dump data for deeper analysis."
+    ],
+    "whyOthers": [
+      "",
+      "The security descriptor database is not an applications log and holds no crash records.",
+      "SYSVOL holds policy and scripts for the domain, not application crashes.",
+      "DHCP relay logs cover relay delivery only."
+    ]
+  },
+  "az802-q-253": {
+    "objective": "Describe the Security event log as the record of audited security events governed by audit policy.",
+    "objectiveId": "event-logs",
+    "topic": "Event logs",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-security/threat-protection/auditing/advanced-security-audit-policy-settings",
+      "https://learn.microsoft.com/en-us/windows-server/administration/server-manager/view-and-configure-performance-event-and-service-data"
+    ],
+    "keyPoints": [
+      "Security log content is controlled by advanced audit policy, covering logons, object access, policy changes, and directory events.",
+      "Absence of events often means no audit subcategory is enabled, not that nothing happened.",
+      "Security logs anchor investigations of authentication and access problems."
+    ],
+    "whyOthers": [
+      "DNS responses are not audited security events by default.",
+      "VM checkpoints live in Hyper-V storage, never in the Security log.",
+      "Disk partition layouts are storage configuration, not audited events.",
+      ""
+    ]
+  },
+  "az802-q-254": {
+    "objective": "Configure threshold-based alerting on free-space metrics with appropriate evaluation windows.",
+    "objectiveId": "alerts",
+    "topic": "Monitoring alerts",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/azure-monitor/data-collection/data-collection-rule-overview",
+      "https://learn.microsoft.com/en-us/windows-server/manage/system-insights/managing-capabilities"
+    ],
+    "keyPoints": [
+      "Alert rules evaluate a metric or counter against thresholds over a window to reduce false positives.",
+      "Local managers can raise warnings too; System Insights provides capacity forecasts with customizable thresholds.",
+      "Route alert notifications through the platform so the right team sees them."
+    ],
+    "whyOthers": [
+      "Fine-grained password policies govern authentication strength and never alert on disk space.",
+      "DFS referrals direct clients to namespace targets and have no alerting behavior.",
+      "",
+      "Conditional forwarders route DNS queries for specific zones, unrelated to capacity thresholds."
+    ]
+  },
+  "az802-q-255": {
+    "objective": "Explain that Azure Monitor data collection rules define which data sources an agent collects and where they go.",
+    "objectiveId": "azure-monitor-dcr",
+    "topic": "Azure Monitor",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/azure-monitor/data-collection/data-collection-rule-overview",
+      "https://learn.microsoft.com/en-us/azure/azure-monitor/agents/azure-monitor-agent-overview"
+    ],
+    "keyPoints": [
+      "A data collection rule (DCR) specifies data sources, transformations where supported, and destinations.",
+      "DCRs are associated with specific machines, enabling per-server collection choices.",
+      "The Azure Monitor Agent consumes DCR configuration locally."
+    ],
+    "whyOthers": [
+      "Storage account keys authorize blob access and define no collection behavior.",
+      "",
+      "Availability sets spread VM instances across fault and update domains, unrelated to collection.",
+      "Network security groups filter network traffic and are unrelated to telemetry collection."
+    ]
+  },
+  "az802-q-256": {
+    "objective": "Describe VM Insights as performance and dependency monitoring for supported Azure virtual machines.",
+    "objectiveId": "vm-insights",
+    "topic": "VM Insights",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/azure-monitor/vm/vminsights-overview",
+      "https://learn.microsoft.com/en-us/azure/azure-monitor/vm/vminsights-performance"
+    ],
+    "keyPoints": [
+      "VM Insights charts guest performance counters and maps process and dependency topology.",
+      "Enabling it deploys the monitoring agents and builds a workspace-backed data pipeline.",
+      "Performance views support trends over hours or days to catch slow degradation."
+    ],
+    "whyOthers": [
+      "",
+      "FSMO role management is an AD DS activity, unrelated to guest telemetry.",
+      "SMB share configuration is a file-server function, not dependency mapping.",
+      "DHCP failover is an address-allocation resiliency feature, not a monitoring tool."
+    ]
+  },
+  "az802-q-257": {
+    "objective": "Correlate CPU counters with process identity, workload context, and duration before acting.",
+    "objectiveId": "perfmon-baseline",
+    "topic": "Performance troubleshooting",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-performance-problems-in-windows",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-high-cpu-usage-guidance"
+    ],
+    "keyPoints": [
+      "Identify the consuming process, then correlate with workload timing, expected peaks, and duration.",
+      "Sustained high CPU with user impact differs from a short scheduled burst.",
+      "Compare against a baseline to decide whether the value is abnormal."
+    ],
+    "whyOthers": [
+      "Rebooting without collecting data destroys evidence and delays root-cause identification.",
+      "Deleting logs removes the records needed to confirm the cause.",
+      "Disabling monitoring hides the symptom and guarantees recurrence.",
+      ""
+    ]
+  },
+  "az802-q-258": {
+    "objective": "Test name resolution first when an IP-reachable host cannot be reached by name.",
+    "objectiveId": "dns-troubleshooting",
+    "topic": "DNS troubleshooting",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/powershell/module/dnsclient/resolve-dnsname",
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/dns-architecture"
+    ],
+    "keyPoints": [
+      "IP success with name failure points to resolver config, hosts entries, suffix search, or DNS records.",
+      "Resolve-DnsName reveals which server answered and what record it returned.",
+      "Confirm the client is querying the intended DNS server before changing records."
+    ],
+    "whyOthers": [
+      "BitLocker protects volumes and has nothing to do with hostname resolution.",
+      "VM memory pressure would degrade IP communication too, not just names.",
+      "",
+      "NTFS permissions block resource access after connection, not name lookup."
+    ]
+  },
+  "az802-q-259": {
+    "objective": "Resolve DNS names from PowerShell with Resolve-DnsName as part of name-resolution triage.",
+    "objectiveId": "dns-troubleshooting",
+    "topic": "DNS tools",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/powershell/module/dnsclient/resolve-dnsname",
+      "https://learn.microsoft.com/en-us/windows-server/networking/dns/zone-types"
+    ],
+    "keyPoints": [
+      "Resolve-DnsName queries DNS directly and shows the record type, data, and answering server.",
+      "It supports switching servers, cache views, and specific record types for focused checks.",
+      "It complements Test-NetConnection, which also reports name resolution plus TCP reachability."
+    ],
+    "whyOthers": [
+      "Get-WinEvent reads event logs and does not resolve names.",
+      "",
+      "Get-Volume reports volume health and space, unrelated to DNS.",
+      "Test-ComputerSecureChannel validates machine-account trust, not DNS resolution."
+    ]
+  },
+  "az802-q-260": {
+    "objective": "Explain that Kerberos authentication tolerates limited clock skew, so significant time drift breaks domain logon.",
+    "objectiveId": "time-sync-kerberos",
+    "topic": "Time synchronization",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/networking/windows-time-service/how-the-windows-time-service-works",
+      "https://learn.microsoft.com/en-us/windows-server/networking/windows-time-service/windows-time-service-top"
+    ],
+    "keyPoints": [
+      "Kerberos tickets are stamped with time and rejected beyond the policy skew threshold (default five minutes).",
+      "Clock problems typically appear as pre-authentication failures and intermittent authentication errors.",
+      "Verify time service health before changing authentication settings."
+    ],
+    "whyOthers": [
+      "",
+      "NTFS permissions are evaluated against security tokens, not time zones.",
+      "DHCP serving is independent of Kerberos skew tolerance.",
+      "VHDX files remain writable regardless of clock drift."
+    ]
+  },
+  "az802-q-261": {
+    "objective": "Identify W32Time as the Windows service responsible for time synchronization.",
+    "objectiveId": "time-sync-kerberos",
+    "topic": "Time synchronization",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/networking/windows-time-service/windows-time-service-top",
+      "https://learn.microsoft.com/en-us/windows-server/networking/windows-time-service/how-the-windows-time-service-works"
+    ],
+    "keyPoints": [
+      "W32Time synchronizes clocks from domain or manual sources using NTP.",
+      "Domain members chain from the PDC Emulator hierarchy by default.",
+      "Stopping or misconfiguring W32Time is a common cause of authentication drift."
+    ],
+    "whyOthers": [
+      "DFS Replication synchronizes SYSVOL and replicated folders, not clocks.",
+      "The Server service hosts shares, unrelated to time.",
+      "The Workstation service handles redirector duties and does not manage time sources.",
+      ""
+    ]
+  },
+  "az802-q-262": {
+    "objective": "Recognize the forest-root PDC Emulator as the authoritative time source for the domain hierarchy.",
+    "objectiveId": "time-sync-kerberos",
+    "topic": "Time synchronization",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/configure-authoritative-time-server",
+      "https://learn.microsoft.com/en-us/windows-server/networking/windows-time-service/how-the-windows-time-service-works"
+    ],
+    "keyPoints": [
+      "The forest-root PDC Emulator is the top of the domain time hierarchy and should synchronize from reliable external NTP.",
+      "Other DCs and members derive time from the hierarchy beneath it.",
+      "Configuring authoritative time sources is a deliberate, documented step."
+    ],
+    "whyOthers": [
+      "DHCP servers lease addresses and are not time authorities.",
+      "Disk size has no role in time hierarchy placement.",
+      "",
+      "Member servers sync from the hierarchy; promoting an arbitrary one breaks the chain."
+    ]
+  },
+  "az802-q-263": {
+    "objective": "Review update error codes, Windows Update logs, service state, disk space, and connectivity when updates fail repeatedly.",
+    "objectiveId": "windows-update-troubleshooting",
+    "topic": "Windows Update",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows/deployment/update/windows-update-logs",
+      "https://learn.microsoft.com/en-us/powershell/module/windowsupdate/get-windowsupdatelog"
+    ],
+    "keyPoints": [
+      "Modern update logging uses ETL traces; Get-WindowsUpdateLog converts them into a readable WindowsUpdate.log.",
+      "Error codes plus service state separate service failures from payload, cache, and network causes.",
+      "Disk space and connectivity failures routinely masquerade as update errors."
+    ],
+    "whyOthers": [
+      "Checkpoint age is a Hyper-V concern, not an update-service diagnostic.",
+      "",
+      "Schema ownership affects directory changes only, not update servicing.",
+      "Namespace targets govern referrals and do not explain update failures."
+    ]
+  },
+  "az802-q-264": {
+    "objective": "Recover a failed boot after a driver change with Safe Mode or a recovery environment before destructive options.",
+    "objectiveId": "boot-recovery",
+    "topic": "Boot troubleshooting",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/bcdedit",
+      "https://learn.microsoft.com/en-us/windows-server/get-started/upgrade-in-place"
+    ],
+    "keyPoints": [
+      "Safe Mode and Windows RE let you remove or roll back the offending driver while preserving data.",
+      "Boot-recovery actions should target the most recent change first.",
+      "Confirm backups before aggressive recovery steps."
+    ],
+    "whyOthers": [
+      "",
+      "Deleting the AD database is destructive and unrelated to a driver boot failure.",
+      "Zone type is a DNS design choice, irrelevant to boot configuration.",
+      "DHCP scopes govern address allocation, nothing about booting."
+    ]
+  },
+  "az802-q-265": {
+    "objective": "Inspect and modify Boot Configuration Data with BCDEdit from recovery environments.",
+    "objectiveId": "boot-recovery",
+    "topic": "Boot troubleshooting",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/bcdedit",
+      "https://learn.microsoft.com/en-us/windows-server/get-started/upgrade-in-place"
+    ],
+    "keyPoints": [
+      "BCDEdit views and edits boot configuration entries, including safe-mode and recovery settings.",
+      "Always export the BCD store before edits so you can restore it.",
+      "Wrong BCD edits can make a system unbootable; verify each change carefully."
+    ],
+    "whyOthers": [
+      "nslookup resolves DNS names and never touches boot data.",
+      "dfsutil manages namespaces and roots, unrelated to boot entries.",
+      "DHCP scope cmdlets configure address pools, not boot configuration.",
+      ""
+    ]
+  },
+  "az802-q-266": {
+    "objective": "Correlate guest disk latency, host storage latency, queue depth, and VM storage configuration after a storage migration.",
+    "objectiveId": "storage-performance",
+    "topic": "Storage performance",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-performance-problems-in-windows",
+      "https://learn.microsoft.com/en-us/windows-server/storage/storage-spaces/troubleshooting-storage-spaces"
+    ],
+    "keyPoints": [
+      "Combine guest-visible latency counters with host-level storage counters to locate the bottleneck.",
+      "Queue depth reflects outstanding I/O and helps separate latency pressure from workload bursts.",
+      "Review VM storage configuration (VHDX placement, cache, per-host paths) after any migration."
+    ],
+    "whyOthers": [
+      "Password length is irrelevant to I/O performance.",
+      "AD site names describe replication topology, not storage latency.",
+      "",
+      "DNS TTL controls record caching, unrelated to VM storage."
+    ]
+  },
+  "az802-q-267": {
+    "objective": "Investigate a stopped service using service configuration, dependencies, startup type, and System event log evidence.",
+    "objectiveId": "service-troubleshooting",
+    "topic": "Service troubleshooting",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/server-manager/view-and-configure-performance-event-and-service-data",
+      "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-winevent"
+    ],
+    "keyPoints": [
+      "Startup type, dependencies, and logon account all determine whether a service starts.",
+      "System log events record failure, delay, and dependency reasons.",
+      "Differentiate intentional configuration, delayed start, and failure causes."
+    ],
+    "whyOthers": [
+      "Desktop wallpaper is cosmetic and carries no diagnostics.",
+      "",
+      "DNSSEC chain health does not stop local services.",
+      "DHCP reservations never affect service startup."
+    ]
+  },
+  "az802-q-268": {
+    "objective": "Query recent Windows events with Get-WinEvent, including filtered queries across logs.",
+    "objectiveId": "event-logs",
+    "topic": "Event logs",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-winevent",
+      "https://learn.microsoft.com/en-us/windows-server/administration/server-manager/view-and-configure-performance-event-and-service-data"
+    ],
+    "keyPoints": [
+      "Get-WinEvent supports log paths, provider filters, severity filters, and scripted repeat queries.",
+      "FilterHashtable queries are efficient and reproducible for investigation.",
+      "It complements Event Viewer for exploratory review of logs."
+    ],
+    "whyOthers": [
+      "",
+      "Get-ADReplicationSite manages replication-site objects, not event logs.",
+      "Get-Volume reports storage health, not log events.",
+      "Get-VMSwitch manages Hyper-V virtual switch objects; it never reads events."
+    ]
+  },
+  "az802-q-269": {
+    "objective": "Use repadmin as the first tool for detailed AD replication partner status.",
+    "objectiveId": "ad-replication-troubleshooting",
+    "topic": "AD replication",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/repadmin",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/diagnose-replication-failures"
+    ],
+    "keyPoints": [
+      "repadmin /replsummary and /showrepl reveal partner state, error codes, and last-success times.",
+      "Error codes and invocation IDs map to specific known remedies.",
+      "Confirm DNS and RPC connectivity before deeper replication repairs."
+    ],
+    "whyOthers": [
+      "robocopy copies files and folders, not directory replication metadata.",
+      "diskpart manages disks and partitions, unrelated to AD replication.",
+      "mstsc starts Remote Desktop sessions, not replication diagnostics.",
+      ""
+    ]
+  },
+  "az802-q-270": {
+    "objective": "Recognize DNS, RPC/firewall, time, and topology problems as common causes of AD replication failures.",
+    "objectiveId": "ad-replication-troubleshooting",
+    "topic": "AD replication",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/diagnose-replication-failures",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/dns-and-ad-ds"
+    ],
+    "keyPoints": [
+      "DC discovery failures via DNS commonly surface as replication failures.",
+      "Blocked RPC traffic, excessive clock skew, and broken site-link design all contribute.",
+      "repadmin and Directory Service log events localize causes."
+    ],
+    "whyOthers": [
+      "A full printer queue is a local spooler issue, unrelated to replication.",
+      "Screen savers have no network role in replication.",
+      "",
+      "Desktop shortcuts are shell items, not replication factors."
+    ]
+  },
+  "az802-q-271": {
+    "objective": "Check DFSR state, event logs, and initial synchronization when SYSVOL is not shared.",
+    "objectiveId": "dfsr-sysvol",
+    "topic": "SYSVOL replication",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/dfs-replication/dfsr-overview",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/diagnose-replication-failures"
+    ],
+    "keyPoints": [
+      "SYSVOL availability depends on DFSR reaching a healthy, initialized state on each DC.",
+      "DFSR events and diagnostics reveal membership, initial sync, and error states.",
+      "Do not rebuild SYSVOL without understanding member state first."
+    ],
+    "whyOthers": [
+      "The public DNS root has no bearing on local SYSVOL shares.",
+      "",
+      "DHCP reservations for printers are unrelated to SYSVOL.",
+      "VM display adapters do not control folder sharing."
+    ]
+  },
+  "az802-q-272": {
+    "objective": "Check DNS, time, secure channel, and domain-controller reachability when local logon works but domain logon fails.",
+    "objectiveId": "secure-channel-troubleshooting",
+    "topic": "Authentication troubleshooting",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/test-computersecurechannel",
+      "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/dns-and-ad-ds"
+    ],
+    "keyPoints": [
+      "Domain logon needs DC discovery (DNS), time tolerance, a valid machine-account trust, and network path.",
+      "Test-ComputerSecureChannel and nltest quickly expose trust problems.",
+      "Local logon success narrows the issue to domain dependencies, not credentials alone."
+    ],
+    "whyOthers": [
+      "",
+      "Deduplication governs file storage, unrelated to authentication.",
+      "GPU partitioning is a virtualization feature, not a logon factor.",
+      "FSRM file screens regulate file types, not logon ability."
+    ]
+  },
+  "az802-q-273": {
+    "objective": "Evaluate effective share and NTFS permissions against the user's security-token groups when access is denied to a share.",
+    "objectiveId": "effective-access",
+    "topic": "Permissions troubleshooting",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/file-server/ntfs-overview",
+      "https://learn.microsoft.com/en-us/windows/win32/secauthz/access-control-lists"
+    ],
+    "keyPoints": [
+      "Access requires passing both the share layer and NTFS for the groups in the user's token, including deny entries.",
+      "Effective access tools compute the intersection instead of manual guessing.",
+      "Group membership and deny ACEs often explain surprising denials."
+    ],
+    "whyOthers": [
+      "DNS TTL affects record lifetime only.",
+      "CPU frequency has nothing to do with file authorization.",
+      "DHCP lease age never modifies access checks.",
+      ""
+    ]
+  },
+  "az802-q-274": {
+    "objective": "Check disk signature conflicts, SAN policy, and shared-bus safety before bringing an offline disk online.",
+    "objectiveId": "disk-offline",
+    "topic": "Disk troubleshooting",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/backup-and-storage/troubleshoot-disk-management",
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/diskpart"
+    ],
+    "keyPoints": [
+      "Presented disks can arrive offline due to signature collision, SAN policy, or read-only status.",
+      "Bringing the wrong disk online can corrupt data, especially on shared or replicated LUNs.",
+      "Confirm disk identity uniqueness before online and format decisions."
+    ],
+    "whyOthers": [
+      "DNS scavenging cleans stale records, not offline disks.",
+      "Hyper-V Replica test mode provisions its own copies and never touches host disks.",
+      "",
+      "Password policy has no effect on disk state."
+    ]
+  },
+  "az802-q-275": {
+    "objective": "Use chkdsk to check file-system metadata and, with appropriate flags, scan for bad sectors.",
+    "objectiveId": "chkdsk",
+    "topic": "Disk troubleshooting",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/chkdsk",
+      "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/diskpart"
+    ],
+    "keyPoints": [
+      "chkdsk validates file-system metadata and can repair certain logical errors.",
+      "With /r it scans for bad sectors, which on large volumes takes significant time.",
+      "Run chkdsk deliberately on production volumes and schedule around operations."
+    ],
+    "whyOthers": [
+      "DHCP lease replication is not a file-system concept.",
+      "",
+      "DNS recursion is a resolver behavior, not disk maintenance.",
+      "Trust direction is an AD concept, unrelated to chkdsk."
+    ]
+  },
+  "az802-q-276": {
+    "objective": "Follow supported resiliency repair steps (health review, disk replacement, rebuild) for degraded Storage Spaces virtual disks.",
+    "objectiveId": "storage-spaces-health",
+    "topic": "Storage Spaces",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/windows-server/storage/storage-spaces/troubleshooting-storage-spaces",
+      "https://learn.microsoft.com/en-us/powershell/module/storage/get-physicaldisk"
+    ],
+    "keyPoints": [
+      "Get-PhysicalDisk, Get-VirtualDisk, and health status identify which physical disk degraded the space.",
+      "Replace failed media and allow resiliency to rebuild rather than deleting the pool.",
+      "Verify rebuild completion and healthy status after replacement."
+    ],
+    "whyOthers": [
+      "",
+      "Deleting the pool destroys all virtual disks on it, a catastrophic shortcut.",
+      "Formatting every disk erases data needlessly and does not address the failure.",
+      "Disabling monitoring removes the tooling that detects degradation."
+    ]
+  },
+  "az802-q-277": {
+    "objective": "Compare OS support, agent version, permissions, connectivity, and extension logs when an Arc extension fails on one server.",
+    "objectiveId": "arc-troubleshooting",
+    "topic": "Azure Arc troubleshooting",
+    "difficulty": "hard",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/azure-arc/servers/troubleshoot-vm-extensions",
+      "https://learn.microsoft.com/en-us/azure/azure-arc/servers/troubleshoot-agent-onboard"
+    ],
+    "keyPoints": [
+      "Host-specific failures usually mean a prerequisite, version, identity, or connectivity difference.",
+      "Extension logs and Connected Machine agent state localize extension and platform causes.",
+      "Verify endpoint and proxy connectivity for the affected server."
+    ],
+    "whyOthers": [
+      "Desktop themes are client-shell cosmetics, unrelated to extension success.",
+      "AD group scope alone would not explain a server-local failure pattern.",
+      "DNS TTL does not change extension download or install behavior.",
+      ""
+    ]
+  },
+  "az802-q-278": {
+    "objective": "Capture evidence and change one variable at a time to preserve causality during troubleshooting.",
+    "objectiveId": "troubleshooting-methodology",
+    "topic": "Troubleshooting methodology",
+    "difficulty": "easy",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-performance-problems-in-windows",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-high-cpu-usage-guidance"
+    ],
+    "keyPoints": [
+      "Evidence-first workflows keep logs intact and maintain reproducibility.",
+      "One variable at a time makes cause and effect separable.",
+      "Document each change so rollback remains possible."
+    ],
+    "whyOthers": [
+      "Deleting logs destroys the evidence trail needed for diagnosis.",
+      "Bundled changes confuse cause with effect and cannot be reproduced.",
+      "",
+      "Reboot loops waste time and can worsen the problem."
+    ]
+  },
+  "az802-q-279": {
+    "objective": "Frame intermittent failures around timestamps, affected scope, recurrence pattern, and correlated logs.",
+    "objectiveId": "troubleshooting-methodology",
+    "topic": "Troubleshooting methodology",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-performance-problems-in-windows",
+      "https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-high-cpu-usage-guidance"
+    ],
+    "keyPoints": [
+      "Intermittent problems need correlation across time, systems, and dependencies.",
+      "Establish affected scope and recurrence before hunting root cause.",
+      "Use event timestamps and monitoring to anchor the failure window."
+    ],
+    "whyOthers": [
+      "Rebuilding a forest is a catastrophic last-resort recovery, not an opening move.",
+      "",
+      "Assigning blame by machine age ignores evidence and wastes effort.",
+      "Disabling security controls to simplify testing creates a second, worse problem."
+    ]
+  },
+  "az802-q-280": {
+    "objective": "Judge alerts by threshold duration, recurrence, workload impact, and corroboration, not by a lone incident.",
+    "objectiveId": "alerts",
+    "topic": "Monitoring alerts",
+    "difficulty": "medium",
+    "sourceRefs": [
+      "https://learn.microsoft.com/en-us/azure/azure-monitor/data-collection/data-collection-rule-overview",
+      "https://learn.microsoft.com/en-us/azure/azure-monitor/overview"
+    ],
+    "keyPoints": [
+      "Alert quality is a design property: which threshold, over which window, with which recurrence.",
+      "Short-lived single incidents may reflect transient spikes; corroborate before acting.",
+      "Tune thresholds with operational data to balance noise and missed events."
+    ],
+    "whyOthers": [
+      "",
+      "The alert name alone never carries enough context to decide.",
+      "Computer-account passwords are authentication state, unrelated to alert triage.",
+      "DNS zone serials track zone changes, not alert validity."
+    ]
+  }
+}
