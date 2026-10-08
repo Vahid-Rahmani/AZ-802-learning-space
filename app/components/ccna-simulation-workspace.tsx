@@ -171,6 +171,28 @@ function isSnapshot(value: unknown): value is WorkspaceSnapshot {
   return (snapshot.version === 1 || snapshot.version === 2) && Boolean(snapshot.state && Array.isArray(snapshot.state.nodes) && Array.isArray(snapshot.state.links));
 }
 
+/**
+ * A saved session must not silently replace a newly published topology. Older
+ * sessions may contain the former three-node starter graph, while a lab can
+ * now have a full router/switch/server topology. Restore only when device
+ * kinds, ports and link ids still match; otherwise start from the current
+ * pack while retaining checklist progress.
+ */
+function hasCompatibleTopology(snapshot: WorkspaceSnapshot, pack: SimulationPack) {
+  if (snapshot.state.nodes.length !== pack.devices.length) return false;
+  const expectedNodes = new Map(pack.devices.map((node) => [node.id, node]));
+  const nodesMatch = snapshot.state.nodes.every((node) => {
+    const expected = expectedNodes.get(node.id);
+    if (!expected || expected.kind !== node.kind) return false;
+    const expectedPorts = expected.ports.map((port) => port.id).sort().join("|");
+    const savedPorts = node.ports.map((port) => port.id).sort().join("|");
+    return expectedPorts === savedPorts;
+  });
+  if (!nodesMatch) return false;
+  const expectedLinks = new Set((pack.links ?? []).map((link) => link.id));
+  return snapshot.state.links.every((link) => expectedLinks.has(link.id));
+}
+
 const simModeLabels: Record<SimMode, string> = {
   user: "user",
   privileged: "privileged",
@@ -327,32 +349,37 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     } catch {
       // A private window or invalid local data should not prevent the lab opening.
     }
+    const compatibleSnapshot = snapshot && hasCompatibleTopology(snapshot, pack) ? snapshot : null;
     const timer = window.setTimeout(() => {
-      if (snapshot) {
-        setState(snapshot.state);
-        setCheckedItems(new Set(snapshot.checkedItems ?? []));
-        const firstDevice = snapshot.state.nodes[0];
-        const savedSessions = snapshot.sessions ?? {};
-        terminalSessions.current = Object.fromEntries(snapshot.state.nodes.map((node) => {
+      if (compatibleSnapshot) {
+        setState(compatibleSnapshot.state);
+        setCheckedItems(new Set(compatibleSnapshot.checkedItems ?? []));
+        const firstDevice = compatibleSnapshot.state.nodes[0];
+        const savedSessions = compatibleSnapshot.sessions ?? {};
+        terminalSessions.current = Object.fromEntries(compatibleSnapshot.state.nodes.map((node) => {
           const saved = savedSessions[node.id];
           if (saved) return [node.id, createTerminalRuntime(node, saved)];
-          return [node.id, createTerminalRuntime(node, node.id === firstDevice?.id && snapshot?.terminalEntries ? {
+          return [node.id, createTerminalRuntime(node, node.id === firstDevice?.id && compatibleSnapshot.terminalEntries ? {
             kind: node.kind,
             hostname: node.label,
             mode: "user",
             closed: false,
-            history: snapshot.terminalEntries.map((entry) => entry.input),
-            entries: snapshot.terminalEntries.map((entry) => ({ ...entry, promptBefore: `${node.label}>`, promptAfter: `${node.label}>`, mode: "user" })),
+            history: compatibleSnapshot.terminalEntries.map((entry) => entry.input),
+            entries: compatibleSnapshot.terminalEntries.map((entry) => ({ ...entry, promptBefore: `${node.label}>`, promptAfter: `${node.label}>`, mode: "user" })),
             device: { hostname: node.label, vlans: [], interfaces: [] },
             selected: { interfaces: [], vlan: null },
             config: { startup: null },
           } : undefined)];
         }));
-        setTerminalViews(Object.fromEntries(snapshot.state.nodes.map((node) => [node.id, terminalView(terminalSessions.current[node.id])] )));
-        const restoredActiveId = snapshot.activeDeviceId && snapshot.state.nodes.some((node) => node.id === snapshot?.activeDeviceId) ? snapshot.activeDeviceId : firstDevice?.id ?? null;
+        setTerminalViews(Object.fromEntries(compatibleSnapshot.state.nodes.map((node) => [node.id, terminalView(terminalSessions.current[node.id])] )));
+        const restoredActiveId = compatibleSnapshot.activeDeviceId && compatibleSnapshot.state.nodes.some((node) => node.id === compatibleSnapshot?.activeDeviceId) ? compatibleSnapshot.activeDeviceId : firstDevice?.id ?? null;
         setActiveDeviceId(restoredActiveId);
         setTerminalDraft(restoredActiveId ? terminalSessions.current[restoredActiveId]?.draft ?? "" : "");
       } else {
+        // Migrate progress from an older graph, but never keep its stale
+        // nodes/links or terminal sessions after a topology definition changes.
+        setState(cloneSimulationState(pack));
+        setCheckedItems(new Set(snapshot?.checkedItems ?? []));
         const defaults = Object.fromEntries(pack.devices.map((node) => {
           const runtime = createTerminalRuntime(node);
           terminalSessions.current[node.id] = runtime;
