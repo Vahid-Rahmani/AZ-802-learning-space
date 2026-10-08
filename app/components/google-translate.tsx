@@ -75,11 +75,12 @@ export function GoogleSubtitle({ text, className = "", subtitleClassName = "", e
 
   const translation = result.key === lookupKey ? result.translation : undefined;
   const pending = Boolean(lookupKey) && translation === undefined;
+  const showTranslation = Boolean(language && enabled && (pending || translation));
 
   const translationDirection = isRtlLanguage(language) ? "rtl" : "ltr";
   return <span className={`google-subtitle ${className}`} dir="ltr">
     <span className="google-subtitle-original">{text}</span>
-    {language && enabled && <span className={`google-subtitle-translation ${subtitleClassName}`} dir={translationDirection} lang={language}>{translation ?? (pending ? "Translating…" : "Translation unavailable")}</span>}
+    {showTranslation && <span className={`google-subtitle-translation ${subtitleClassName}`} dir={translationDirection} lang={language}>{translation ?? "Translating…"}</span>}
   </span>;
 }
 
