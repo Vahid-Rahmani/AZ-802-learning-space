@@ -43,15 +43,28 @@ export function CcnaLabPath({ initialBandId }: { initialBandId?: string } = {}) 
   const [review, setReview] = useState(ALL);
   const [troubleshootingOnly, setTroubleshootingOnly] = useState(false);
   const filtered = useMemo(() => {
-    const needle = query.trim().toLowerCase();
+    const needles = query.normalize("NFKC").trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
     return ccnaLabPath.filter((lab) =>
       filters.band(lab, band) && filters.tier(lab, tier) && filters.scenario(lab, scenario) && filters.review(lab, review)
       && (!troubleshootingOnly || lab.troubleshootingFocus === "primary")
-      && (!needle || [lab.title, lab.id, scenarioLabel(lab.scenarioType), lab.objectives.join(" "), lab.tier, lab.scenario.context, lab.scenario.requirement, lab.catalogSummary ?? ""].join(" ").toLowerCase().includes(needle)));
+      && (!needles.length || needles.every((needle) => [
+        lab.title,
+        lab.id,
+        scenarioLabel(lab.scenarioType),
+        lab.objectives.join(" "),
+        lab.tier,
+        lab.scenario.role,
+        lab.scenario.context,
+        lab.scenario.requirement,
+        lab.fault.failure,
+        lab.fault.recovery,
+        lab.verification.join(" "),
+        lab.catalogSummary ?? "",
+      ].join(" ").normalize("NFKC").toLocaleLowerCase().includes(needle))));
   }, [query, band, tier, scenario, review, troubleshootingOnly]);
-  const active = query !== "" || band !== ALL || tier !== ALL || scenario !== ALL || review !== ALL || troubleshootingOnly;
+  const active = query.trim() !== "" || band !== ALL || tier !== ALL || scenario !== ALL || review !== ALL || troubleshootingOnly;
   const clear = () => { setQuery(""); setBand(ALL); setTier(ALL); setScenario(ALL); setReview(ALL); setTroubleshootingOnly(false); };
-  const troubleshootingLabs = ccnaLabPath.filter((lab) => lab.troubleshootingFocus === "primary");
+  const troubleshootingLabs = filtered.filter((lab) => lab.troubleshootingFocus === "primary");
   const shownDiagrams = filtered.filter((lab) => lab.diagram).length;
   return <section id="ccna-library" className="server-labs-workspace ccna-lab-path" aria-label="CCNA lab library">
     <header className="server-labs-heading">
