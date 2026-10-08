@@ -392,7 +392,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
       setHydrated(true);
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [pack.devices, storageKey]);
+  }, [pack, storageKey]);
 
   useEffect(() => {
     if (!hydrated || hydratedKey.current !== storageKey) return;
