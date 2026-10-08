@@ -46,3 +46,6 @@ next-env.d.ts
 /work/
 # Graphify's local code graph is generated and should stay out of deployments.
 /graphify-out/
+# Scratch space for authoring and citation-fetching work. The tracked outputs
+# live in content/, so nothing here needs to be committed.
+/.tmpwork/

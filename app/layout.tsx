@@ -8,6 +8,7 @@ export const metadata: Metadata = { title: "CertPath · Learn. Practice. Progres
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return <html lang="en" dir="ltr" data-theme="fluent" suppressHydrationWarning>
     <head>
+      <meta name="google-adsense-account" content="ca-pub-6627132366359242" />
       {/* Read the tiny saved preference before paint to avoid flashing the wrong theme. */}
       {/* eslint-disable-next-line @next/next/no-sync-scripts */}
       <script src="/theme-init.js" />

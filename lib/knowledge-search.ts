@@ -10,6 +10,14 @@ export type KnowledgeQuestion = {
   correct: number;
   source: string;
   rationale: { en: string; fa: string; de: string };
+  /**
+   * Optional teaching context. When present it is indexed alongside the stem so
+   * a natural-language question can match the topic it covers rather than only
+   * the exact wording of the stem.
+   */
+  objective?: string;
+  topic?: string;
+  keyPoints?: string[];
 };
 
 export type KnowledgeItem = {
@@ -30,6 +38,7 @@ export type KnowledgeItem = {
   rationaleSearch: string;
   domainSearch: string;
   optionsSearch: string;
+  contextSearch: string;
   searchCorpus: string;
 };
 
@@ -59,6 +68,7 @@ function toKnowledgeItem(question: KnowledgeQuestion): KnowledgeItem {
   const normalizedRationale = normalizeSearchText(rationale);
   const normalizedDomain = normalizeSearchText(question.domain);
   const normalizedOptions = normalizeSearchText([...question.options, ...(question.optionsFa ?? [])].join(" "));
+  const normalizedContext = normalizeSearchText([question.objective ?? "", question.topic ?? "", ...(question.keyPoints ?? [])].join(" "));
   return {
     id: question.id,
     domain: question.domain,
@@ -77,7 +87,8 @@ function toKnowledgeItem(question: KnowledgeQuestion): KnowledgeItem {
     rationaleSearch: normalizedRationale,
     domainSearch: normalizedDomain,
     optionsSearch: normalizedOptions,
-    searchCorpus: [normalizedQuestion, normalizedQuestionFa, normalizedAnswer, normalizedAnswerFa, normalizedRationale, normalizedDomain, normalizedOptions].join(" "),
+    contextSearch: normalizedContext,
+    searchCorpus: [normalizedQuestion, normalizedQuestionFa, normalizedAnswer, normalizedAnswerFa, normalizedRationale, normalizedDomain, normalizedOptions, normalizedContext].join(" "),
   };
 }
 
@@ -97,13 +108,14 @@ export function createKnowledgeSearch(questionBank: readonly KnowledgeQuestion[]
     useTokenSearch: true,
     ignoreFieldNorm: true,
     keys: [
-      { name: "questionSearch", weight: 0.35 },
-      { name: "questionFaSearch", weight: 0.3 },
+      { name: "questionSearch", weight: 0.32 },
+      { name: "contextSearch", weight: 0.16 },
+      { name: "questionFaSearch", weight: 0.24 },
       { name: "answerSearch", weight: 0.12 },
       { name: "answerFaSearch", weight: 0.1 },
-      { name: "rationaleSearch", weight: 0.07 },
-      { name: "domainSearch", weight: 0.04 },
-      { name: "optionsSearch", weight: 0.02 },
+      { name: "rationaleSearch", weight: 0.04 },
+      { name: "domainSearch", weight: 0.02 },
+      { name: "optionsSearch", weight: 0.01 },
     ],
   });
 

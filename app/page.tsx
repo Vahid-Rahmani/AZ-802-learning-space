@@ -2,7 +2,8 @@
 
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { copy, learningGraphStages, lessons, questions, trainingStages } from "@/lib/course-data";
-import { AccountPanel, AuthPanel, Cards, Dashboard, ExamChooser, Labs, Lesson, PracticalExam, Quiz } from "@/app/components/learning-views";
+import { AccountPanel, AuthPanel, Cards, ExamChooser, Labs, Lesson, PracticalExam, Quiz } from "@/app/components/learning-views";
+import { Dashboard } from "@/app/components/promoted-dashboard";
 import { SkillGraphImproved } from "@/app/components/skill-graph-improved";
 import { StageProgressStrip, TrainingHub } from "@/app/components/training-views";
 import { Az802QuestionBank } from "@/app/components/az802-question-bank";

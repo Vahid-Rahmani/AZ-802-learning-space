@@ -1,0 +1,14 @@
+{
+  "az802-q-094": {
+    "reviewedOn": "2026-10-07",
+    "reason": "Read in full. azure/update-manager/scheduled-patching documents maintenance windows, recurring schedules, and splitting machines across separate schedules at different times, which is the phased deployment the answer describes. The lexical score is low only because the key points are worded as practice advice rather than as the product's own vocabulary."
+  },
+  "az802-q-130": {
+    "reviewedOn": "2026-10-07",
+    "reason": "Read in full. azure/virtual-machines/windows/attach-managed-disk-portal documents the exact sequence in the answer: create and attach the new data disk, initialize it in Disk Management, format it, then confirm it appears Online and Healthy with an assigned drive letter."
+  },
+  "az802-q-279": {
+    "reviewedOn": "2026-10-07",
+    "reason": "Read in full. troubleshoot/windows-server/networking/troubleshoot-dhcp-guidance opens with the checklist this question generalises: when the problem started, whether it is persistent or intermittent, whether it affects all clients or only some, and which event logs to read."
+  }
+}

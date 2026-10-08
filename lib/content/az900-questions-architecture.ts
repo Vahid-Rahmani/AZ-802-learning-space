@@ -1,0 +1,2511 @@
+/**
+ * Authored AZ-900 questions for "Describe Azure architecture and services".
+ *
+ * Each draft is written against the Learn pages listed for its objective in
+ * `az900-build.ts`. Distractors are real adjacent Azure concepts, not filler, so
+ * a wrong answer reflects a specific misconception rather than an obviously
+ * unrelated option.
+ */
+
+import type { AuthoredBank } from "./az900-build.ts";
+
+export const architectureDrafts: AuthoredBank = {
+  "regions-pairs-sovereign": [
+    {
+      question: "What is an Azure region?",
+      correct: "A geographic area that contains one or more Azure datacenters, used as a deployment location for resources",
+      wrong: [
+        "A single physical rack inside a datacenter",
+        "A set of three availability zones within a datacenter",
+        "A management scope that groups subscriptions for policy",
+      ],
+      rationale: "An Azure region is a geographic area made up of one or more datacenters. Service availability varies by region, and customers choose regions for latency, residency, and resilience.",
+      keyPoints: [
+        "A region is a geographic deployment location, not a single facility.",
+        "Not every Azure service is available in every region.",
+        "Region choice affects latency, data residency, and service availability.",
+      ],
+      whyOthers: [
+        "A rack is a facility component well below the region level.",
+        "Availability zones are the separate datacenter groupings inside a region.",
+        "Grouping subscriptions is management group governance, not a deployment location.",
+      ],
+      difficulty: "easy",
+      topic: "Regions",
+    },
+    {
+      question: "What is the primary purpose of region pairs?",
+      correct: "To provide a paired region for resilience planning, so an application can recover in another geography if a region is unavailable",
+      wrong: [
+        "To make both regions always fail simultaneously",
+        "To guarantee automatic, application-transparent failover between regions",
+        "To reduce the price of resources in the second region",
+      ],
+      rationale: "Azure maintains region pairs with a separation of enough distance to reduce correlated failure risk. The pairing informs recovery design; it does not make applications fail over automatically.",
+      keyPoints: [
+        "Region pairing is a resilience and disaster recovery consideration.",
+        "Applications must be architected to fail over; pairing does not do it for them.",
+        "Paired regions are separated to reduce the chance of a simultaneous outage.",
+      ],
+      whyOthers: [
+        "Pairing reduces correlated outage risk rather than causing simultaneous failure.",
+        "Automatic transparent application failover is not provided by the pairing itself.",
+        "Region pairing is not a pricing mechanism.",
+      ],
+      difficulty: "easy",
+      topic: "Region pairs",
+    },
+    {
+      question: "A government workload must run in infrastructure operated by a national authority under local law. Which Azure concept applies?",
+      correct: "A sovereign cloud region",
+      wrong: [
+        "An availability zone inside a commercial region",
+        "A region pair in a commercial region",
+        "An Azure region with a special SLA",
+      ],
+      rationale: "Sovereign cloud regions are operated by or for a specific government or jurisdiction to meet local legal and operational requirements, and are legally distinct from commercial regions.",
+      keyPoints: [
+        "Sovereign clouds are separated by law and operation from commercial regions.",
+        "They exist to meet specific jurisdictional data and operational requirements.",
+        "Availability zones and region pairs are resilience concepts within ordinary regions.",
+      ],
+      whyOthers: [
+        "Availability zones address datacenter-level failures, not legal jurisdiction.",
+        "Region pairs are a resilience relationship, not a jurisdictional boundary.",
+        "An SLA does not change who operates the infrastructure or which law applies.",
+      ],
+      difficulty: "medium",
+      topic: "Sovereign regions",
+    },
+    {
+      question: "A customer deploys an application into two regions so it can fail over between them. Which statement about this multi-region design is correct?",
+      correct: "It improves resilience across geographies, but the application must be designed to handle failover because Azure does not replicate application state automatically",
+      wrong: [
+        "Azure automatically replicates the application and its data between the regions",
+        "Two regions in the same subscription guarantee zero downtime",
+        "Multi-region deployment is only for cost optimization",
+      ],
+      rationale: "Running in multiple regions removes a regional single point of failure, but state, traffic routing, and data handling still have to be designed. The platform provides infrastructure, not application-aware failover.",
+      keyPoints: [
+        "Multi-region deployment addresses regional outage risk.",
+        "Data synchronization, traffic routing, and state handling are application design work.",
+        "Resource placement alone does not produce automatic recovery.",
+      ],
+      whyOthers: [
+        "Azure does not replicate an application's code and state between regions for you.",
+        "Co-locating in one subscription provides no regional isolation and no zero-downtime guarantee.",
+        "Multi-region is a resilience decision; cost optimization is a separate consideration.",
+      ],
+      difficulty: "medium",
+      topic: "Regions",
+    },
+    {
+      question: "A company must keep regulated data within country boundaries. Which Azure feature most directly supports this?",
+      correct: "Selecting a region, or a sovereign region, whose location and jurisdiction satisfy the residency requirement",
+      wrong: [
+        "Using an availability zone within a region",
+        "Applying a resource lock to the data",
+        "Storing the data in a geographically redundant storage account",
+      ],
+      rationale: "Data residency is satisfied by choosing a location whose legal jurisdiction meets the requirement. Zones, locks, and geo-redundancy address availability and protection, not residency boundaries.",
+      keyPoints: [
+        "Residency constraints determine which regions and jurisdictions are acceptable.",
+        "A sovereign region exists for exactly this kind of legal requirement.",
+        "Zonal design and redundancy affect durability, not legal location.",
+      ],
+      whyOthers: [
+        "An availability zone is still inside the same region and jurisdiction.",
+        "A lock prevents deletion or modification; it does not change where data is stored.",
+        "Geo-redundant storage replicates to another region, which may be outside the required jurisdiction.",
+      ],
+      difficulty: "medium",
+      topic: "Sovereign regions",
+    },
+    {
+      question: "Why should a customer check service availability in a region before choosing it?",
+      correct: "Because Azure services and features are not available in every region, and a required feature may limit the choice",
+      wrong: [
+        "Because every service is available in every region at the same price",
+        "Because availability in a region guarantees the service will never have issues",
+        "Because region availability determines a customer's billing currency",
+      ],
+      rationale: "Regional availability differs by service and feature, including availability zones. Checking first avoids designing around a service that is not offered in the required location.",
+      keyPoints: [
+        "Service and feature availability varies by region.",
+        "Zone availability also varies and constrains zonal designs.",
+        "Availability is a constraint to check, not a performance guarantee.",
+      ],
+      whyOthers: [
+        "Availability differs between regions and between services; pricing also varies.",
+        "A service being available in a region says nothing about its reliability there.",
+        "Billing currency is set by the customer's agreement, not by regional service availability.",
+      ],
+      difficulty: "easy",
+      topic: "Regions",
+    },
+  ],
+
+  "availability-zones": [
+    {
+      question: "What is an Azure availability zone?",
+      correct: "A physically separate grouping of datacenters within a region, with independent power, cooling, and networking",
+      wrong: [
+        "A separate region on another continent",
+        "A management group that groups subscriptions",
+        "A storage account with geo-redundant replication",
+      ],
+      rationale: "Availability zones are physically separated datacenter groupings inside a single region. Their independent infrastructure means a failure in one zone does not take down the others, which is why zonal designs survive a facility-level outage.",
+      keyPoints: [
+        "Zones are separate facilities within one region, not separate regions.",
+        "Independent power, cooling, and networking isolate zone failures.",
+        "Only services and regions with zone support can be deployed across zones.",
+      ],
+      requirements: "Availability zones are offered only in supported regions, and a given Azure service must support zone-redundant deployment there. Premium SSD v2 and Ultra disks are the disk types commonly used with zone-redundant virtual machine deployment.",
+      whyOthers: [
+        "Zones stay inside a single region; moving between regions is a separate concept.",
+        "Management groups organize subscriptions for governance.",
+        "Geo-redundant storage replicates across regions, which is a different resilience approach.",
+      ],
+      difficulty: "easy",
+      topic: "Availability zones",
+    },
+    {
+      question: "A customer deploys an application to three availability zones in one region. What failure does this design primarily address?",
+      correct: "The failure of a single datacenter facility within that region",
+      wrong: [
+        "A regional outage affecting the entire region",
+        "An accidental deletion of a resource group",
+        "A compromised administrator identity",
+      ],
+      rationale: "Zonal deployment addresses facility-level failures inside a region. Regional outages and identity or deletion problems need different controls, such as multi-region design, locks, and role-based access.",
+      keyPoints: [
+        "Zones isolate datacenter failures within a region.",
+        "Regional resilience needs a second region.",
+        "Deletion and identity risks are handled by locks and RBAC.",
+      ],
+      whyOthers: [
+        "A regional outage is not mitigated by deploying across zones inside that region.",
+        "A resource lock, not zone placement, protects against accidental deletion.",
+        "Least-privilege RBAC addresses compromised identities.",
+      ],
+      difficulty: "easy",
+      topic: "Availability zones",
+    },
+    {
+      question: "What must be true for a service to be deployed across availability zones?",
+      correct: "The service must support zone-redundant deployment in that specific region",
+      wrong: [
+        "The customer must own the physical datacenters in the region",
+        "The subscription must be a premium subscription",
+        "The workload must be a container-based application",
+      ],
+      rationale: "Zone support depends on the service and the region offering it. Designs that assume zone redundancy must verify support rather than assume it.",
+      keyPoints: [
+        "Zone support is a property of the service and region.",
+        "Assuming zone redundancy without checking leads to designs that do not provide it.",
+        "Subscription tier and application type do not determine zone availability.",
+      ],
+      whyOthers: [
+        "Customers never own Azure datacenters.",
+        "Subscription tier does not determine service zone support.",
+        "Zone support is independent of whether the workload is containerized.",
+      ],
+      difficulty: "medium",
+      topic: "Availability zones",
+    },
+    {
+      question: "Why is a single virtual machine spanning zones not possible, and what is the correct alternative?",
+      correct: "A single VM cannot span zones, so deploy multiple instances across zones and load balance between them",
+      wrong: [
+        "A single VM can span zones automatically if it has zone redundancy enabled",
+        "Deploy one VM per region with a public IP",
+        "Use a storage account with zone redundancy instead of extra compute",
+      ],
+      rationale: "Zone resilience requires independent instances placed in different zones, because a single instance lives in one zone. Distribution and failover come from multiple instances plus load balancing or zone-redundant services.",
+      keyPoints: [
+        "Resilience across zones needs separate instances, not one stretched instance.",
+        "Load balancing or a zone-redundant managed service distributes traffic across zones.",
+        "Storage zone redundancy does not add compute instances.",
+      ],
+      whyOthers: [
+        "A single virtual machine is placed in one zone; there is no zone-spanning VM.",
+        "Multiple regions address regional outages, not zonal resilience inside one region.",
+        "Storage redundancy protects data, not compute availability.",
+      ],
+      difficulty: "medium",
+      topic: "Availability zones",
+    },
+  ],
+
+  datacenters: [
+    {
+      question: "What do Azure datacenters contain?",
+      correct: "The physical buildings and infrastructure - servers, storage, networking, power, and cooling - that run Azure services",
+      wrong: [
+        "Resource groups, which organize Azure resources logically",
+        "Availability zones, which group datacenters within a region",
+        "Subscriptions, which own Azure resources",
+      ],
+      rationale: "Datacenters are the physical facilities behind Azure. Logical constructs such as resource groups, zones, and subscriptions organize resources on top of that physical layer.",
+      keyPoints: [
+        "Datacenters are physical: buildings, servers, power, cooling, and networking.",
+        "Regions group datacenters; zones group datacenters within a region.",
+        "Resource groups, subscriptions, and management groups are logical constructs.",
+      ],
+      whyOthers: [
+        "Resource groups are logical containers, not physical facilities.",
+        "Availability zones are groupings of datacenters, not the datacenters themselves.",
+        "Subscriptions are logical management and billing boundaries.",
+      ],
+      difficulty: "easy",
+      topic: "Datacenters",
+    },
+    {
+      question: "How are Azure datacenters related to regions?",
+      correct: "A region contains one or more datacenters located close enough together to serve the same geography",
+      wrong: [
+        "A datacenter spans multiple regions for global load balancing",
+        "Each region contains exactly one datacenter",
+        "Datacenters and regions are unrelated concepts in Azure",
+      ],
+      rationale: "Regions are made up of one or more datacenters within a geographic area. Spreading a service across several datacenters in a region is what allows zonal designs to exist.",
+      keyPoints: [
+        "A region is a geographic area made of one or more datacenters.",
+        "Multiple datacenters per region enable availability zones.",
+        "Regions are the customer-facing location concept.",
+      ],
+      whyOthers: [
+        "A datacenter serves one region; it does not span regions.",
+        "A region can contain several datacenters, not exactly one.",
+        "They are directly related: datacenters are grouped into regions.",
+      ],
+      difficulty: "easy",
+      topic: "Datacenters",
+    },
+    {
+      question: "A customer deploys an application into one Azure region and wants to know which datacenters physically serve it. What determines that?",
+      correct: "The region is made up of one or more datacenters within that geographic area, and service availability decides which of them can host the resource",
+      wrong: [
+        "Every region is served by a single datacenter in its capital city",
+        "Datacenters are allocated per subscription so each customer gets a dedicated facility",
+        "Availability zones are separate regions with their own datacenters",
+      ],
+      rationale: "A region contains one or more datacenters close enough together to serve the same geography. Availability zones are separate facilities inside that region, and service availability varies per region and per service.",
+      keyPoints: [
+        "A region contains one or more datacenters.",
+        "Zones are the separate datacenter groupings inside a region.",
+        "Service availability constrains which facilities can host a given resource.",
+      ],
+      whyOthers: [
+        "A region can span several datacenters and is not tied to a single city facility.",
+        "Datacenters are shared provider infrastructure, never allocated per subscription.",
+        "Zones are within a region, not separate regions.",
+      ],
+      difficulty: "medium",
+      topic: "Datacenters",
+    },
+    {
+      question: "Who is responsible for the physical security of Azure datacenters?",
+      correct: "Microsoft, as part of the provider's responsibilities in the shared responsibility model",
+      wrong: [
+        "The customer, who selects the datacenter when choosing a region",
+        "The internet service provider connecting the customer to the region",
+        "The customer's own security team through an Azure Policy assignment",
+      ],
+      rationale: "Datacenter physical security is a provider responsibility. Customers choose a region but do not secure or access the facilities themselves.",
+      keyPoints: [
+        "Physical datacenter security belongs to Microsoft.",
+        "Customers choose locations, not the security of the buildings.",
+        "Policy can enforce location rules but cannot secure a facility.",
+      ],
+      whyOthers: [
+        "Choosing a region does not transfer physical security responsibility to the customer.",
+        "The ISP carries traffic and has no role in datacenter physical security.",
+        "Policy evaluates resource configuration; it does not provide physical security.",
+      ],
+      difficulty: "easy",
+      topic: "Datacenters",
+    },
+  ],
+
+  "resources-and-resource-groups": [
+    {
+      question: "What is an Azure resource?",
+      correct: "A manageable entity in Azure such as a virtual machine, storage account, or virtual network",
+      wrong: [
+        "A management scope that contains subscriptions",
+        "A geographic location containing datacenters",
+        "A billing document issued monthly",
+      ],
+      rationale: "Resources are the individual services you create and manage in Azure. They are organized into resource groups, which live in subscriptions, which sit under management groups.",
+      keyPoints: [
+        "Resources are the addressable units of Azure: VMs, disks, storage accounts, VNets, and so on.",
+        "Every resource belongs to exactly one resource group.",
+        "Resources are managed through ARM using portal, CLI, PowerShell, or templates.",
+      ],
+      whyOthers: [
+        "A scope that contains subscriptions is a management group.",
+        "A geographic location containing datacenters is a region.",
+        "A billing document is an invoice, not a resource.",
+      ],
+      difficulty: "easy",
+      topic: "Resources and resource groups",
+    },
+    {
+      question: "What is the purpose of an Azure resource group?",
+      correct: "To group related resources so they can be managed, deployed, and removed as a unit",
+      wrong: [
+        "To restrict resources to a single Azure region",
+        "To set the price of the resources it contains",
+        "To grant user permissions to the resources it contains",
+      ],
+      rationale: "A resource group is a logical container for resources with a common lifecycle. It provides organizational and deployment grouping, and it is the scope at which access and policy are commonly applied.",
+      keyPoints: [
+        "Resource groups organize resources by lifecycle rather than by region.",
+        "It is a standard scope for role assignments and policy assignments.",
+        "Resources in one group can be in different regions.",
+      ],
+      whyOthers: [
+        "A resource group can span regions; resources may even be in different regions within one group.",
+        "Pricing is determined by the resource, region, and tier, not by the group.",
+        "Permissions come from RBAC assignments, which may be scoped to a group but are not the group's purpose.",
+      ],
+      difficulty: "easy",
+      topic: "Resource groups",
+    },
+    {
+      question: "Which statement about Azure resource groups is correct?",
+      correct: "A resource can belong to only one resource group, and moving it between groups requires an explicit move operation",
+      wrong: [
+        "A resource can belong to several resource groups at the same time",
+        "Resource groups are automatically created per region",
+        "Resource groups can contain subscriptions",
+      ],
+      rationale: "A resource has exactly one resource group at a time. Reassigning it is a deliberate move operation that can affect access, policy, and deployments.",
+      keyPoints: [
+        "Membership is one-to-one: one group per resource.",
+        "Moving a resource changes which group-scoped role and policy assignments apply.",
+        "Resource groups live inside a subscription, not the other way around.",
+      ],
+      whyOthers: [
+        "Belonging to multiple groups simultaneously is not possible; only one applies.",
+        "Resource groups are created explicitly and do not map to regions.",
+        "Resource groups cannot contain subscriptions; subscriptions contain resource groups.",
+      ],
+      difficulty: "medium",
+      topic: "Resource groups",
+    },
+    {
+      question: "A team wants to delete an entire application and all of its components. What makes that practical in Azure?",
+      correct: "Placing all of the application's resources in a single resource group so they share one lifecycle",
+      wrong: [
+        "Tagging every resource with the same tag value",
+        "Putting the resources in one availability zone",
+        "Creating one management group per application",
+      ],
+      rationale: "Lifecycle grouping is exactly what resource groups provide: one delete operation removes the whole set. Tags help find and attribute resources, and zones or management groups address resilience and governance instead.",
+      keyPoints: [
+        "Resource groups model shared lifecycle and enable bulk operations.",
+        "Tags aid discovery and cost allocation, not bulk deletion.",
+        "Zones manage failure domains; management groups manage governance.",
+      ],
+      whyOthers: [
+        "Tags are metadata for filtering and reporting; they do not group resources for deletion.",
+        "An availability zone is a failure-domain concept unrelated to lifecycle grouping.",
+        "Management groups organize subscriptions, not individual resources.",
+      ],
+      difficulty: "easy",
+      topic: "Resource groups",
+    },
+  ],
+
+  subscriptions: [
+    {
+      question: "What are the primary purposes of an Azure subscription?",
+      correct: "To provide a billing, quota, and access management boundary for Azure resources",
+      wrong: [
+        "To define a geographic region for resources",
+        "To group datacenters for high availability",
+        "To store data in a specific compliance jurisdiction",
+      ],
+      rationale: "A subscription is the unit of billing and of access management. It also carries quotas and limits. Regions and datacenters are physical concepts, and residency is handled by choosing the right region or sovereign cloud.",
+      keyPoints: [
+        "Subscriptions separate billing, quotas, and access boundaries.",
+        "Different subscriptions are a common way to separate environments or owners.",
+        "Location and residency are properties of regions, not subscriptions.",
+      ],
+      whyOthers: [
+        "A subscription is not tied to a region; resources in one subscription can be in several regions.",
+        "Datacenter grouping defines regions and zones, not subscriptions.",
+        "Data residency follows the region chosen for the resources.",
+      ],
+      difficulty: "easy",
+      topic: "Subscriptions",
+    },
+    {
+      question: "Why do many organizations use separate Azure subscriptions?",
+      correct: "To separate billing, access, and quota boundaries, for example between development, testing, and production",
+      wrong: [
+        "Because a subscription determines which region resources run in",
+        "Because resources can only belong to one subscription across all tenants",
+        "Because subscriptions provide higher availability for resources",
+      ],
+      rationale: "Separating subscriptions isolates billing, permissions, and quotas, which makes governance and cost allocation per environment practical. Availability comes from architecture, not from the subscription boundary.",
+keyPoints: [
+        "Subscriptions separate billing, access, and quota.",
+        "Environment separation is the standard use case.",
+        "A subscription is a logical boundary, not a physical resilience mechanism.",
+      ],
+      requirements: "Azure service limits and quotas apply per subscription, per region, and per resource type, so a high quota in one subscription does not apply to another. Quota increases are requested through Azure Support and are subject to regional capacity.",
+      whyOthers: [
+        "Subscriptions do not dictate region; each resource chooses its own region.",
+        "A resource belongs to exactly one subscription, but that is not the reason for separation.",
+        "Availability is designed with zones and redundancy, not with subscription boundaries.",
+      ],
+      difficulty: "easy",
+      topic: "Subscriptions",
+    },
+    {
+      question: "An administrator wants to grant a team write access only to production resources. What is the correct approach?",
+      correct: "Assign a role at the production subscription or resource group scope so the permission is limited to production",
+      wrong: [
+        "Grant the role at the tenant root so the team can see all resources",
+        "Assign the role definition to the team without a scope",
+        "Give every team member the built-in Owner role on their own subscription",
+      ],
+      rationale: "Least privilege means assigning a role at the narrowest scope that covers the need. Root or tenant-wide assignment and role definitions without a scope both grant more access than required.",
+      keyPoints: [
+        "Every role assignment needs a principal, a role, and a scope.",
+        "Scope should be the narrowest one that satisfies the requirement.",
+        "A role definition alone defines permissions and grants nothing by itself.",
+      ],
+      whyOthers: [
+        "Tenant-root assignment grants access far beyond production.",
+        "A role definition without a scope is not an assignment and grants no access.",
+        "Owner is the most permissive role and violates least privilege.",
+      ],
+      difficulty: "medium",
+      topic: "Subscriptions",
+    },
+    {
+      question: "Which statement about Azure subscriptions is accurate?",
+      correct: "A subscription is associated with a single directory tenant, and multiple subscriptions can exist in that tenant",
+      wrong: [
+        "A subscription can belong to several tenants simultaneously",
+        "A tenant can contain only one subscription",
+        "Subscriptions exist only for enterprise agreements",
+      ],
+      rationale: "Subscriptions live in a Microsoft Entra tenant, and a tenant can hold many subscriptions. Subscription types such as pay-as-you-go, Azure for Students, and Enterprise Agreement are all common.",
+      keyPoints: [
+        "A subscription belongs to one tenant.",
+        "A tenant can contain many subscriptions, which is how enterprises separate environments.",
+        "Different subscription types exist for different agreement types.",
+      ],
+      whyOthers: [
+        "A subscription cannot be shared across tenants.",
+        "Tenants commonly contain many subscriptions.",
+        "Pay-as-you-go and other subscription types exist alongside enterprise agreements.",
+      ],
+      difficulty: "medium",
+      topic: "Subscriptions",
+    },
+  ],
+
+  "management-groups": [
+    {
+      question: "What is the purpose of an Azure management group?",
+      correct: "To organize subscriptions into a hierarchy so governance and policy can be applied consistently and inherited downward",
+      wrong: [
+        "To define a billing relationship between two subscriptions",
+        "To group datacenters for availability zones",
+        "To store configuration for a single resource group",
+      ],
+      rationale: "Management groups are a logical scope above subscriptions. Assigning policy or role assignments at a management group applies them to every subscription beneath it, which is how large estates are governed consistently.",
+      keyPoints: [
+        "Management groups sit above subscriptions in the scope hierarchy.",
+        "Assignments at that level inherit down to every subscription and resource beneath.",
+        "They provide governance, not physical resilience or per-subscription billing.",
+      ],
+      whyOthers: [
+        "Billing relationships between subscriptions are handled by agreements and cost management, not management groups.",
+        "Datacenter grouping defines regions and availability zones.",
+        "Resource group configuration is scoped to the resource group itself.",
+      ],
+      difficulty: "easy",
+      topic: "Management groups",
+    },
+    {
+      question: "What is the order of Azure management scopes from broadest to narrowest?",
+      correct: "Management group, subscription, resource group, resource",
+      wrong: [
+        "Resource group, subscription, management group, resource",
+        "Subscription, management group, resource group, resource",
+        "Region, resource group, subscription, management group",
+      ],
+      rationale: "Azure scopes nest from broad to narrow: management group, then subscription, then resource group, then resource. Role and policy assignments made higher in this hierarchy inherit down to the scopes below.",
+      keyPoints: [
+        "The hierarchy is management group → subscription → resource group → resource.",
+        "Assignments inherit downward unless excluded.",
+        "Choosing the right scope is how least privilege and consistent governance are achieved.",
+      ],
+      whyOthers: [
+        "This ordering reverses the hierarchy.",
+        "A subscription is below a management group, not above it.",
+        "Regions are physical locations and are not part of the management scope chain.",
+      ],
+      difficulty: "easy",
+      topic: "Management groups",
+    },
+    {
+      question: "A company must apply one policy to 400 subscriptions. What is the most appropriate scope?",
+      correct: "A management group that contains those subscriptions",
+      wrong: [
+        "A resource group inside each subscription",
+        "One policy assignment per resource in each subscription",
+        "An availability set spanning the subscriptions",
+      ],
+      rationale: "Management groups exist for exactly this scale problem: one assignment at the management group applies to all contained subscriptions. Resource groups do not span subscriptions, and per-resource assignment is unmanageable at that scale.",
+      keyPoints: [
+        "Management groups apply governance across many subscriptions with one assignment.",
+        "Resource groups cannot span subscriptions.",
+        "Policies assigned at a parent scope inherit to children.",
+      ],
+      whyOthers: [
+        "A resource group only exists inside one subscription, so it cannot cover all of them.",
+        "Per-resource assignment across 400 subscriptions is impractical and error-prone.",
+        "Availability sets are a compute redundancy concept with no governance role.",
+      ],
+      difficulty: "easy",
+      topic: "Management groups",
+    },
+    {
+      question: "A tenant contains several management groups. Which statement is correct?",
+      correct: "Each subscription can be associated with exactly one management group, and a tenant has a single root management group",
+      wrong: [
+        "A subscription can belong to several management groups at once",
+        "A tenant can have multiple root management groups",
+        "Management groups cannot be nested",
+      ],
+      rationale: "The hierarchy has one root management group per tenant, and a subscription belongs to a single management group. Nesting is how you structure the estate, which is why each management group normally has one parent.",
+      keyPoints: [
+        "One root management group exists per tenant.",
+        "A subscription is associated with a single management group.",
+        "Management groups nest to structure the estate.",
+      ],
+      whyOthers: [
+        "Belonging to multiple management groups would make inherited assignments ambiguous.",
+        "There is a single root, not multiple roots.",
+        "Nesting is the primary feature of management group hierarchies.",
+      ],
+      difficulty: "medium",
+      topic: "Management groups",
+    },
+  ],
+
+  "scope-hierarchy": [
+    {
+      question: "An administrator assigns a role at the management group level. Where does that permission take effect?",
+      correct: "On the management group and every subscription, resource group, and resource beneath it",
+      wrong: [
+        "Only on the management group itself",
+        "Only on resources in the same region as the administrator",
+        "Only on resources that already have a matching policy assignment",
+      ],
+      rationale: "Role assignments inherit down the scope hierarchy. An assignment at a management group grants the role to all child scopes unless explicitly excluded.",
+      keyPoints: [
+        "Assignments flow down from broad scopes to narrow ones.",
+        "Exclusions can limit inheritance where it is not wanted.",
+        "Role assignment inheritance is independent of policy assignments.",
+      ],
+      whyOthers: [
+        "An assignment applies to descendant scopes, not only the scope it is assigned at.",
+        "Region is not part of the role assignment inheritance chain.",
+        "Role and policy assignments are independent mechanisms.",
+      ],
+      difficulty: "easy",
+      topic: "Scope hierarchy",
+    },
+    {
+      question: "A resource group policy must apply to only two of the twelve subscriptions under a management group. How should this be achieved?",
+      correct: "Use exclusions on the management group assignment, then assign the policy directly on the two subscriptions",
+      wrong: [
+        "Assign the policy at the tenant root and rely on region restrictions",
+        "Assign the policy to each resource in the two subscriptions only",
+        "Move the ten other subscriptions out of the tenant",
+      ],
+      rationale: "Exclusions let a broad assignment skip selected child scopes, and direct assignment restores the rule where it is wanted. That combination is the standard pattern for partial coverage.",
+      keyPoints: [
+        "Exclusions are the designed mechanism for partial inheritance.",
+        "Direct assignment at the exception scope re-applies the rule.",
+        "Hierarchy scope choices, not resource-level repetition, govern coverage.",
+      ],
+      whyOthers: [
+        "A root assignment with a region restriction is a different control and does not express subscription-level coverage.",
+        "Per-resource assignment is impractical and produces inconsistent results.",
+        "Moving subscriptions out of the tenant is an extreme and invalid workaround.",
+      ],
+      difficulty: "hard",
+      topic: "Scope hierarchy",
+    },
+    {
+      question: "Why does scope selection matter when assigning a role?",
+      correct: "Because the scope determines which resources the permission actually reaches, so the narrowest workable scope gives least privilege",
+      wrong: [
+        "Because Azure requires every role assignment to use the tenant root scope",
+        "Because scope changes the role's permission set regardless of the role chosen",
+        "Because roles cannot be assigned below the resource group level",
+      ],
+      rationale: "Scope is the boundary of an assignment. Picking the narrowest scope that satisfies the requirement is how least privilege is implemented, while choosing a broad scope grants far more access than intended.",
+      keyPoints: [
+        "Scope defines where the role's permissions apply.",
+        "Narrow scopes implement least privilege.",
+        "Roles can be assigned at management group, subscription, resource group, or resource scope.",
+      ],
+      whyOthers: [
+        "Tenant root assignment is optional and is the broadest scope, not a requirement.",
+        "The role definition determines the permissions; scope determines where they apply.",
+        "Assignments can be made at resource scope as well as broader scopes.",
+      ],
+      difficulty: "easy",
+      topic: "Scope hierarchy",
+    },
+    {
+      question: "Which statement correctly describes how Azure Policy assignments inherit?",
+      correct: "A policy assignment at a scope applies to resources beneath it, and exclusions can limit which child scopes inherit it",
+      wrong: [
+        "Policy assignments apply only to resources created after the assignment",
+        "Policy assignments never inherit to child scopes",
+        "Policy assignments apply globally regardless of the scope chosen",
+      ],
+      rationale: "Policy assignments evaluate existing and future resources within their scope and inherit to children. Exclusions allow scoped carve-outs, which is what makes hierarchical governance practical.",
+      keyPoints: [
+        "Policy evaluates both existing and new resources in scope.",
+        "Inheritance to child scopes is standard behavior.",
+        "Exclusions provide controlled carve-outs.",
+      ],
+      whyOthers: [
+        "Policy evaluates existing resources as well as new ones, which is what makes audits meaningful.",
+        "Inheritance is the core behavior of policy assignment.",
+        "Scope determines where a policy applies; it is not always global.",
+      ],
+      difficulty: "medium",
+      topic: "Scope hierarchy",
+    },
+  ],
+
+  "compare-compute-types": [
+    {
+      question: "Which statement correctly compares virtual machines, containers, and functions?",
+      correct: "Virtual machines provide full OS control, containers package applications with a shared host kernel, and functions run code in response to events",
+      wrong: [
+        "Containers always require a dedicated virtual machine per container",
+        "Functions require the customer to patch a guest operating system",
+        "Virtual machines do not include an operating system",
+      ],
+      rationale: "The three differ in how much of the stack is exposed and how execution is triggered. VMs include an OS you manage, containers share a host OS kernel, and functions are event-driven with no server management.",
+      keyPoints: [
+        "VMs expose an operating system the customer patches.",
+        "Containers package the application and share the host kernel.",
+        "Functions execute in response to triggers and scale to zero.",
+      ],
+      whyOthers: [
+        "Many containers can run on one host; a VM per container is not required.",
+        "Serverless means the customer does not patch a guest OS.",
+        "Azure VMs include an operating system; that is the point of IaaS.",
+      ],
+      difficulty: "easy",
+      topic: "Compute types",
+    },
+    {
+      question: "A team must deploy a stateless microservice that auto-scales to zero between requests. Which compute option best matches that requirement?",
+      correct: "Azure Functions, where billing follows executions and idle capacity scales to zero",
+      wrong: [
+        "Azure Virtual Machines, where each instance bills for as long as it is allocated",
+        "Azure Virtual Desktop, which provides hosted desktop sessions for users",
+        "Azure Availability Sets, which spread virtual machines across fault domains",
+      ],
+      rationale: "Serverless functions scale to zero between requests, so an intermittent stateless service is billed only for the executions it performs. Virtual machines hold allocated capacity continuously, and the other two options address desktops and fault domains rather than elastic execution.",
+      keyPoints: [
+        "Functions are the event-driven, scale-to-zero compute option.",
+        "Stateless code scales cleanly because any instance can serve any request.",
+        "A virtual machine is billed for allocated capacity whether or not it is busy.",
+      ],
+      whyOthers: [
+        "Virtual machines keep allocated capacity and bill for it even when idle.",
+        "Virtual Desktop delivers interactive desktops and applications to users, not request-driven compute.",
+        "An availability set provides fault-domain separation for virtual machines and adds no elasticity.",
+      ],
+      difficulty: "easy",
+      topic: "Compute types",
+    },
+    {
+      question: "What is the key difference between running an application in a container and running it in a virtual machine?",
+      correct: "A container packages the application and shares the host operating system kernel, while a virtual machine includes its own guest operating system",
+      wrong: [
+        "A container includes a full guest operating system, while a virtual machine shares the host kernel",
+        "Containers require a dedicated hypervisor per container, while virtual machines share one kernel",
+        "Containers cannot be deployed to Azure, while virtual machines can",
+      ],
+      rationale: "Containers isolate the application and its dependencies while sharing the host kernel, which is why they start quickly. Virtual machines include a guest operating system, giving more isolation and control at a larger operational and resource cost.",
+      keyPoints: [
+        "Containers share the host kernel; virtual machines have their own guest OS.",
+        "Sharing the kernel makes containers lighter and faster to start.",
+        "Custom kernel modules generally require a virtual machine.",
+      ],
+      whyOthers: [
+        "This reverses the two models.",
+        "Containers run on a shared host and do not each need a hypervisor.",
+        "Containers are fully supported on Azure, including through Azure Container Apps.",
+      ],
+      difficulty: "easy",
+      topic: "Compute types",
+    },
+    {
+      question: "A team must run an application that requires a specific kernel module and custom OS tuning. Which compute option fits?",
+      correct: "Azure virtual machines",
+      wrong: [
+        "Azure Functions, which abstract the operating system entirely",
+        "Azure Container Apps, which share the host kernel",
+        "Azure App Service, which manages the runtime for you",
+      ],
+      rationale: "Kernel-level and OS tuning requirements need full OS control, which only a virtual machine gives. Managed compute and serverless deliberately remove that layer.",
+      keyPoints: [
+        "OS-level control is the deciding requirement.",
+        "Functions and App Service remove OS responsibility from the customer.",
+        "Containers share the host kernel and cannot load arbitrary kernel modules.",
+      ],
+      whyOthers: [
+        "Functions are serverless; there is no guest OS to tune.",
+        "Containers share the host kernel, so custom kernel modules are not generally possible.",
+        "App Service manages the OS and runtime, so custom OS configuration is not supported.",
+      ],
+      difficulty: "medium",
+      topic: "Compute types",
+    },
+  ],
+
+  "virtual-machine-options": [
+    {
+      question: "What is the purpose of an availability set?",
+      correct: "To distribute virtual machines across fault domains so a host or rack failure does not affect all of them",
+      wrong: [
+        "To automatically add virtual machines as demand increases",
+        "To place virtual machines in separate Azure regions",
+        "To provide faster disk performance for virtual machines",
+      ],
+      rationale: "An availability set spreads VMs across separate fault and update domains within a single datacenter, improving resilience to host-level failures. Scaling is the job of scale sets, and regional resilience needs multiple regions.",
+      keyPoints: [
+        "Availability sets provide fault-domain separation within one datacenter.",
+        "They do not scale; scale sets manage and scale instance counts.",
+        "They do not span regions, so a regional outage still affects them.",
+      ],
+      whyOthers: [
+        "Automatic instance addition is scale set behavior.",
+        "Availability sets stay within a single datacenter; zone-redundant designs use availability zones.",
+        "Disk performance is determined by disk type, not by availability sets.",
+      ],
+      difficulty: "easy",
+      topic: "Virtual machine options",
+    },
+    {
+      question: "What is a virtual machine scale set?",
+      correct: "A group of similar virtual machines that Azure manages and scales as a unit",
+      wrong: [
+        "A single virtual machine with a larger CPU and memory allocation",
+        "A group of datacenters in different regions for disaster recovery",
+        "An availability set with automatic disk replication",
+      ],
+      rationale: "Scale sets manage a collection of identical VMs with automatic or manual scaling rules. They are the standard choice when a stateless tier needs to grow and shrink with demand.",
+      keyPoints: [
+        "Scale sets manage a fleet of similar VMs as one unit.",
+        "They implement horizontal scaling through scaling rules.",
+        "They are distinct from single VMs and from multi-region designs.",
+      ],
+      whyOthers: [
+        "Increasing size on one VM is vertical scaling, not a scale set.",
+        "Multiple regions is a resilience architecture, not a scale set.",
+        "Disk replication is a storage feature, not scale set behavior.",
+      ],
+      difficulty: "easy",
+      topic: "Virtual machine options",
+    },
+    {
+      question: "Which Azure service provides managed, scalable hosted desktops and applications for remote users?",
+      correct: "Azure Virtual Desktop",
+      wrong: [
+        "Azure Virtual Machine Scale Sets, which manage a fleet of server VMs",
+        "Azure App Service, which hosts web applications",
+        "Azure Kubernetes Service, which orchestrates containers",
+      ],
+      rationale: "Azure Virtual Desktop delivers virtualized desktop and application experiences on demand with session hosts managed by Azure. Scale sets manage general-purpose compute rather than desktops for users.",
+      keyPoints: [
+        "Azure Virtual Desktop provides hosted desktop and application experiences.",
+        "It supports session hosts and multi-session for many users.",
+        "It is a distinct service from general compute scale sets.",
+      ],
+      whyOthers: [
+        "Scale sets manage similar VMs but are not a hosted desktop service for end users.",
+        "App Service hosts web applications, not interactive desktops.",
+        "AKS orchestrates containers, not user desktop sessions.",
+      ],
+      difficulty: "easy",
+      topic: "Virtual machine options",
+    },
+    {
+      question: "What must be considered when choosing between an availability set and zone-redundant deployment?",
+      correct: "Whether the workload must survive a single datacenter facility failure, which zone-redundant deployment addresses and an availability set does not",
+      wrong: [
+        "Whether the workload is a web tier or a batch job",
+        "Whether the customer prefers Linux or Windows",
+        "Whether the VM has a managed disk",
+      ],
+      rationale: "An availability set separates VMs across fault domains inside one datacenter. Surviving a facility-level failure requires placing instances in different availability zones in the same region.",
+      keyPoints: [
+        "Availability sets address host and rack faults within a datacenter.",
+        "Availability zones address datacenter facility failures within a region.",
+        "The deciding factor is the required failure domain, not the workload type.",
+      ],
+      whyOthers: [
+        "Workload type does not determine which resilience mechanism is needed.",
+        "Operating system choice is unrelated to fault-domain placement.",
+        "Managed disks affect performance and cost, not fault-domain selection.",
+      ],
+      difficulty: "medium",
+      topic: "Virtual machine options",
+    },
+  ],
+
+  "virtual-machine-resources": [
+    {
+      question: "Which resources are required to deploy an Azure virtual machine?",
+      correct: "A network interface in a subnet, storage for its OS and data disks, and an assigned size",
+      wrong: [
+        "Only the virtual machine itself, with everything else provided automatically",
+        "A storage account, a virtual network, and a load balancer",
+        "A resource group, a subscription, and a management group",
+      ],
+      rationale: "A virtual machine depends on a network interface attached to a subnet in a virtual network, on storage for its operating system and data, and on a size that determines its capacity and cost.",
+      keyPoints: [
+        "Every VM needs a network interface and connectivity to a subnet.",
+        "OS and data storage must exist for the VM to boot and function.",
+        "Size determines vCPU, memory, and therefore cost.",
+      ],
+      whyOthers: [
+        "Azure does not create a VM's network interface and disks implicitly in every case; the design must include them.",
+        "Storage accounts and load balancers are optional depending on the workload.",
+        "Resource groups, subscriptions, and management groups are organizational scopes, not VM runtime dependencies.",
+      ],
+      difficulty: "easy",
+      topic: "Virtual machine resources",
+    },
+    {
+      question: "Why does changing the size of a virtual machine affect its cost?",
+      correct: "Because size determines vCPU, memory, and related capabilities that the service meters and bills for",
+      wrong: [
+        "Because larger virtual machines are billed per physical core owned by the customer",
+        "Because size determines the number of resource groups the VM belongs to",
+        "Because size determines how many availability zones the VM spans",
+      ],
+      rationale: "Virtual machine price scales with the selected size's compute and memory capacity, plus any premium capabilities it includes. Storage and networking are billed separately.",
+      keyPoints: [
+        "Cost follows the compute and memory capacity of the size.",
+        "Storage, networking, and licenses are billed independently of size.",
+        "Size is one of the main levers for right-sizing cost.",
+      ],
+      whyOthers: [
+        "Customers do not own physical cores; they rent capacity.",
+        "A VM belongs to exactly one resource group regardless of size.",
+        "A single VM lives in one zone; size does not change that.",
+      ],
+      difficulty: "easy",
+      topic: "Virtual machine resources",
+    },
+    {
+      question: "A VM has no network interface attached. What is the result?",
+      correct: "It cannot communicate on any virtual network because every VM needs a NIC in a subnet to reach Azure networking",
+      wrong: [
+        "It automatically receives a public IP address",
+        "It can communicate only within its resource group",
+        "It uses the resource group's address space for its traffic",
+      ],
+      rationale: "Virtual machine networking is provided through a network interface attached to a subnet. Without a NIC there is no private connectivity, and the resource group provides no addressing of its own.",
+      keyPoints: [
+        "The network interface is the VM's connection to a subnet.",
+        "Resource groups do not supply IP addressing.",
+        "Public connectivity is granted by a separate public IP resource.",
+      ],
+      whyOthers: [
+        "A public IP is an explicit resource, not an automatic fallback.",
+        "Resource groups are logical containers with no network role.",
+        "Addressing comes from the virtual network and subnet, not the resource group.",
+      ],
+      difficulty: "medium",
+      topic: "Virtual machine resources",
+    },
+    {
+      question: "What does the availability set concept not provide for virtual machines?",
+      correct: "It does not distribute VMs across availability zones or protect against a datacenter-wide failure",
+      wrong: [
+        "It does not spread VMs across fault and update domains",
+        "It does not keep a service running when a host fails",
+        "It does not group VMs that share a common lifecycle",
+      ],
+      rationale: "Availability sets operate within a single datacenter. They spread VMs across fault and update domains there, which protects against host-level failures but not facility-level outages, which require zones.",
+      keyPoints: [
+        "Availability sets are a single-datacenter fault-domain control.",
+        "Zone-redundant placement is required for facility-level resilience.",
+        "Both host failure and update maintenance are covered inside the datacenter.",
+      ],
+      whyOthers: [
+        "Spreading across fault and update domains is precisely what an availability set does.",
+        "Host-failure resilience is the availability set's core purpose.",
+        "Shared lifecycle grouping is what resource groups provide, and availability sets are separate from that.",
+      ],
+      difficulty: "medium",
+      topic: "Virtual machine resources",
+    },
+  ],
+
+  "application-hosting-options": [
+    {
+      question: "Which hosting option should a team choose for a web application that needs only runtime support, no OS management, and automatic scaling?",
+      correct: "Azure App Service",
+      wrong: [
+        "Azure virtual machines managed manually by the team",
+        "Azure Virtual Desktop session hosts",
+        "Azure Storage with static website hosting only",
+      ],
+      rationale: "App Service is managed web hosting with built-in scaling, deployment slots, and runtime patching. VMs require OS management, Virtual Desktop serves interactive desktops, and static website hosting does not run a server-side application.",
+      keyPoints: [
+        "App Service hosts web applications with a managed runtime.",
+        "It scales automatically based on configuration.",
+        "It removes OS management from the customer.",
+      ],
+      whyOthers: [
+        "Manually managed VMs reintroduce the OS patching the team wants to avoid.",
+        "Virtual Desktop is for interactive desktop sessions, not web hosting.",
+        "Static website hosting serves files, not a server-side application runtime.",
+      ],
+      difficulty: "easy",
+      topic: "Application hosting",
+    },
+    {
+      question: "A team must run a containerized application and wants Azure to manage orchestration without writing a cluster. Which service fits?",
+      correct: "Azure Container Apps",
+      wrong: [
+        "Azure virtual machines running Docker manually",
+        "Azure App Service, which hosts only single containers",
+        "Microsoft Entra ID, which is an identity service",
+      ],
+      rationale: "Container Apps is a managed serverless container platform that handles scaling and revisions. Managing Docker on VMs means owning orchestration and hosting, and App Service's container support is limited to a single container per app.",
+      keyPoints: [
+        "Container Apps removes cluster management.",
+        "Managed scaling and revisions come with the platform.",
+        "VMs plus manual Docker means operating the platform yourself.",
+      ],
+      whyOthers: [
+        "Running Docker on VMs means managing the container host and orchestration.",
+        "App Service can run a single container in a container app but is not a general container orchestration platform.",
+        "Entra ID is an identity service with no container hosting role.",
+      ],
+      difficulty: "easy",
+      topic: "Application hosting",
+    },
+    {
+      question: "A team must run an application that needs full operating system control and custom kernel configuration. Which hosting option fits?",
+      correct: "Azure virtual machines",
+      wrong: [
+        "Azure App Service, which manages the operating system",
+        "Azure Container Apps, which shares a host kernel",
+        "Azure Functions, which abstract server management",
+      ],
+      rationale: "Operating system and kernel control is only available with virtual machines. Every managed hosting option deliberately removes that layer.",
+      keyPoints: [
+        "Only virtual machines expose the guest OS for the customer to manage.",
+        "App Service, Container Apps, and Functions all manage or abstract the OS.",
+        "OS-level requirements are the classic IaaS decision trigger.",
+      ],
+      whyOthers: [
+        "App Service patches and manages the OS for you.",
+        "Container Apps share the host kernel, so custom kernel configuration is not available.",
+        "Functions remove server management altogether.",
+      ],
+      difficulty: "easy",
+      topic: "Application hosting",
+    },
+    {
+      question: "What is a key trade-off when hosting an application on Azure App Service instead of on virtual machines?",
+      correct: "Less operational work but less control over the operating system and host configuration",
+      wrong: [
+        "More control over the host with more operational work",
+        "The same control with less operational work",
+        "No difference in either control or operational work",
+      ],
+      rationale: "App Service manages the host, so the customer loses host-level control while gaining lower administrative burden. Virtual machines invert that trade-off.",
+      keyPoints: [
+        "Managed hosting reduces operational work.",
+        "Managed hosting removes OS and host control.",
+        "The right choice depends on whether that control is genuinely needed.",
+      ],
+      whyOthers: [
+        "App Service gives less host control and less operational work, the opposite of this option.",
+        "Control decreases when moving from VMs to App Service; it does not stay the same.",
+        "The two options differ meaningfully in both control and effort.",
+      ],
+      difficulty: "medium",
+      topic: "Application hosting",
+    },
+  ],
+
+  "virtual-networking": [
+    {
+      question: "What is the purpose of an Azure virtual network?",
+      correct: "To provide private address space and network isolation in which virtual machines and other resources communicate",
+      wrong: [
+        "To provide internet access to resources without any configuration",
+        "To provide DNS zones and name resolution for public websites",
+        "To replace virtual network peering between networks",
+      ],
+      rationale: "A virtual network is a logically isolated network in Azure that provides private IP addressing and segmentation. Peering, VPN, and ExpressRoute connect networks; they do not replace the VNet itself.",
+      keyPoints: [
+        "VNets provide private addressing and isolation.",
+        "Subnets segment the VNet for routing and policy purposes.",
+        "Peering, VPN Gateway, and ExpressRoute are connectivity options built on VNets.",
+      ],
+      whyOthers: [
+        "Public connectivity requires an explicit public IP or other public-facing resource.",
+        "Azure DNS provides name resolution; it is not a replacement for network segmentation.",
+        "Peering connects VNets and presupposes they exist.",
+      ],
+      difficulty: "easy",
+      topic: "Virtual networking",
+    },
+    {
+      question: "What does virtual network peering allow?",
+      correct: "Direct low-latency connectivity between two virtual networks, letting resources communicate as if they were on one network",
+      wrong: [
+        "Connectivity from on-premises networks to Azure over a private circuit",
+        "Public internet access to resources inside a virtual network",
+        "Automatic assignment of public IP addresses to all resources",
+      ],
+      rationale: "Peering connects two VNets directly within Azure with low latency and no public IP requirement. ExpressRoute connects on-premises to Azure, and public access requires explicit public endpoints.",
+      keyPoints: [
+        "Peering links two virtual networks directly.",
+        "Traffic flows privately without traversing the public internet.",
+        "Peering is regional, and peered networks should have non-overlapping address spaces.",
+      ],
+      whyOthers: [
+        "On-premises connectivity is provided by VPN Gateway or ExpressRoute.",
+        "Peering provides private, not public, connectivity.",
+        "Peering assigns no public IP addresses.",
+      ],
+      difficulty: "easy",
+      topic: "Virtual networking",
+    },
+    {
+      question: "A company needs a private dedicated connection from its on-premises network to Azure that does not traverse the internet. Which service provides it?",
+      correct: "ExpressRoute",
+      wrong: [
+        "Virtual network peering",
+        "Azure DNS",
+        "A public IP address on the virtual network",
+      ],
+      rationale: "ExpressRoute provides private dedicated connectivity between on-premises networks and Azure through a connectivity provider, bypassing the public internet. Peering connects VNets inside Azure only.",
+      keyPoints: [
+        "ExpressRoute is a private circuit to Azure through a provider.",
+        "It avoids the public internet for that traffic.",
+        "It is the standard answer for dedicated hybrid connectivity.",
+      ],
+      whyOthers: [
+        "Peering connects virtual networks to each other, not on-premises to Azure.",
+        "Azure DNS resolves names; it does not provide connectivity.",
+        "A public IP provides public reachability, which is the opposite requirement.",
+      ],
+      difficulty: "easy",
+      topic: "Virtual networking",
+    },
+    {
+      question: "What is the role of Azure DNS in a virtual network deployment?",
+      correct: "It provides name resolution for resources, using Azure-provided DNS servers or custom DNS forwarders, with private zones for internal names",
+      wrong: [
+        "It assigns private IP addresses to network interfaces",
+        "It connects peered virtual networks together",
+        "It provides a private dedicated circuit to Azure",
+      ],
+      rationale: "Azure DNS handles name resolution. Private DNS zones let names resolve only inside a virtual network, which is how internal services get internal names.",
+      keyPoints: [
+        "Azure DNS maps names to records for public and private zones.",
+        "Private zones provide resolution only within a virtual network.",
+        "Addressing, peering, and connectivity are separate concerns.",
+      ],
+      whyOthers: [
+        "IP addressing comes from the virtual network and subnet configuration.",
+        "Peering is a connectivity feature of virtual networks, not of DNS.",
+        "A dedicated circuit is ExpressRoute's role.",
+      ],
+      difficulty: "easy",
+      topic: "Virtual networking",
+    },
+  ],
+
+  "public-and-private-endpoints": [
+    {
+      question: "What is a private endpoint?",
+      correct: "A network interface with a private IP inside a virtual network that reaches a supported Azure service over a private link",
+      wrong: [
+        "A public IP address attached to a virtual machine",
+        "A management group that restricts access to one subscription",
+        "A subnet reserved for private traffic",
+      ],
+      rationale: "A private endpoint places an Azure service inside the customer's virtual network with a private IP, so access stays on private addressing through Private Link. It is not the same as adding a public IP.",
+      keyPoints: [
+        "Private endpoints give supported services a private IP inside the VNet.",
+        "Traffic uses Private Link rather than public addressing.",
+        "The service keeps its public endpoint unless that access is also restricted.",
+      ],
+      requirements: "Private endpoints are supported only for specific Azure services and resource types. Each private endpoint receives its own private IP from a subnet in the virtual network, and a private DNS zone is typically required so names resolve to that private address.",
+      whyOthers: [
+        "A public IP is the opposite of a private endpoint.",
+        "Management groups organize subscriptions for governance.",
+        "A subnet is an address segment, not an endpoint.",
+      ],
+      difficulty: "easy",
+      topic: "Endpoints",
+    },
+    {
+      question: "A security team requires that a storage account be reachable only from inside a virtual network. What should be configured?",
+      correct: "A private endpoint for the storage account, plus disabling or restricting public network access",
+      wrong: [
+        "Only a public IP address on the virtual network",
+        "Only a resource lock on the storage account",
+        "Only a tag naming the environment as internal",
+      ],
+      rationale: "Creating a private endpoint adds private access but does not by itself remove public access. Restricting or disabling public network access is what enforces the requirement.",
+      keyPoints: [
+        "Private endpoint provides the private path.",
+        "Disabling or limiting public network access enforces the requirement.",
+        "Locks, tags, and public IPs do not restrict who can reach the service.",
+      ],
+      whyOthers: [
+        "A public IP would increase public reachability rather than restrict it.",
+        "A lock prevents deletion or modification, not network access.",
+        "A tag is metadata and has no access-control effect.",
+      ],
+      difficulty: "medium",
+      topic: "Endpoints",
+    },
+    {
+      question: "What is a public endpoint?",
+      correct: "A network access point exposed to the internet through a public IP address, subject to network and access controls",
+      wrong: [
+        "An endpoint inside a virtual network with a private IP address",
+        "A DNS record that resolves an internal name",
+        "A subnet used only for public-facing resources",
+      ],
+      rationale: "A public endpoint is reachable over the internet through a public IP. It exists by default for many Azure services, and firewalls, authentication, and Conditional Access are what limit who can use it.",
+      keyPoints: [
+        "Public endpoints are reached via public IP addresses.",
+        "They are common by default and must be protected with controls.",
+        "Private endpoints are the private counterpart.",
+      ],
+      whyOthers: [
+        "An endpoint inside a VNet with a private IP is a private endpoint.",
+        "A private DNS record resolves internal names and is unrelated to public reachability.",
+        "A subnet does not define whether its endpoints are public or private.",
+      ],
+      difficulty: "easy",
+      topic: "Endpoints",
+    },
+    {
+      question: "Why is creating a private endpoint alone insufficient to fully secure a service?",
+      correct: "Because the service usually keeps its public endpoint unless public network access is separately disabled or restricted",
+      wrong: [
+        "Because private endpoints require a public IP to function",
+        "Because private endpoints are only available in sovereign clouds",
+        "Because private endpoints do not support identity-based access",
+      ],
+      rationale: "A private endpoint adds a private path; it does not remove the public one. Enforcing private-only access requires also disabling or restricting public network access and using private DNS.",
+      keyPoints: [
+        "Private endpoint adds connectivity; restricting public access enforces isolation.",
+        "Private DNS zones are typically needed so private addresses resolve correctly.",
+        "Identity-based access still applies on the private path.",
+      ],
+      whyOthers: [
+        "Private endpoints work without any public IP.",
+        "They are generally available, not sovereign-cloud only.",
+        "Identity-based access is fully supported on private endpoints.",
+      ],
+      difficulty: "medium",
+      topic: "Endpoints",
+    },
+  ],
+
+  "compare-storage-services": [
+    {
+      question: "Which Azure Storage service should a developer use for unstructured objects such as images, videos, and backups?",
+      correct: "Azure Blob Storage",
+      wrong: [
+        "Azure Files",
+        "Azure Queue Storage",
+        "Azure Table Storage",
+      ],
+      rationale: "Blob Storage is the object store for unstructured data with tiering and object lifecycle features. Files provides SMB file shares, Queue Storage provides message buffering, and Table Storage is a NoSQL key-value store.",
+      keyPoints: [
+        "Blob Storage handles unstructured objects.",
+        "Files provides SMB file shares for file-based workloads.",
+        "Queues provide messaging and work buffering; tables provide key-value data.",
+      ],
+      whyOthers: [
+        "Azure Files is a managed file share over SMB, not an object store.",
+        "Queue Storage buffers messages between components rather than storing arbitrary objects.",
+        "Table Storage is for structured key-value data, not large unstructured objects.",
+      ],
+      difficulty: "easy",
+      topic: "Storage services",
+    },
+    {
+      question: "A company needs a managed SMB file share that Linux and Windows applications can mount directly. Which service fits?",
+      correct: "Azure Files",
+      wrong: ["Azure Blob Storage", "Azure Queue Storage", "Azure Managed Disks"],
+      rationale: "Azure Files exposes a fully managed file share over SMB that clients mount like a network drive. Blob Storage is accessed through an API or blob endpoint, and managed disks are attached to VMs rather than mounted as shares.",
+      keyPoints: [
+        "Azure Files provides SMB-based file shares.",
+        "Files integrates with identity-based access and can be backed by Azure File Sync.",
+        "Blob Storage is object storage, not an SMB share.",
+      ],
+      whyOthers: [
+        "Blob Storage is an object store accessed through APIs, not mounted over SMB.",
+        "Queue Storage is for message passing.",
+        "Managed disks attach to a VM as block devices rather than being shared file systems.",
+      ],
+      difficulty: "easy",
+      topic: "Storage services",
+    },
+    {
+      question: "Which storage service is designed to hold messages that decouple application components?",
+      correct: "Azure Queue Storage",
+      wrong: ["Azure Blob Storage", "Azure Table Storage", "Azure Files"],
+      rationale: "Queue Storage holds messages so producers and consumers can be decoupled and processed at different rates. Blobs store objects, tables store key-value entities, and files store file shares.",
+      keyPoints: [
+        "Queues decouple producers from consumers.",
+        "Messages are processed asynchronously at independent rates.",
+        "Storage Explorer and AzCopy work with queues alongside the other storage services.",
+      ],
+      whyOthers: [
+        "Blob Storage is an object store, not a message broker.",
+        "Table Storage is a NoSQL key-value store for entity data.",
+        "Azure Files is a file share, not a message queue.",
+      ],
+      difficulty: "easy",
+      topic: "Storage services",
+    },
+    {
+      question: "A web application needs to store flexible, schemaless entities with fast key lookups. Which service is designed for this?",
+      correct: "Azure Table Storage",
+      wrong: [
+        "Azure Blob Storage",
+        "Azure Queue Storage",
+        "Azure Files",
+      ],
+      rationale: "Table Storage is a NoSQL key-value store built for schemaless entity data with fast lookups by partition and row key. Blobs store objects, queues store messages, and files store file shares.",
+      keyPoints: [
+        "Table Storage targets schemaless key-value entity data.",
+        "Partition key and row key define access paths.",
+        "It is one of the four core storage services alongside blobs, files, and queues.",
+      ],
+      whyOthers: [
+        "Blob Storage is a general object store rather than a keyed entity store.",
+        "Queue Storage holds messages, not queryable entities.",
+        "Azure Files provides SMB file shares, not entity tables.",
+      ],
+      difficulty: "easy",
+      topic: "Storage services",
+    },
+  ],
+
+  "storage-tiers": [
+    {
+      question: "A company stores audit logs that are rarely read but must be kept for seven years at the lowest cost. Which tier fits best?",
+      correct: "Archive tier, accepting longer retrieval times for the lowest storage cost",
+      wrong: [
+        "Hot tier, which has the lowest storage cost",
+        "Cool tier, which is optimized for frequent access",
+        "Premium page blob tier, which is optimized for low latency",
+      ],
+      rationale: "Access tiers trade storage cost against access and retrieval characteristics. Archive offers the lowest storage cost with the longest retrieval time, which suits data that is rarely read but must be retained.",
+      keyPoints: [
+        "Hot optimizes for frequent access; cool, cold, and archive reduce storage cost progressively.",
+        "Archive has the lowest storage cost and the longest retrieval delay.",
+        "Retrieval charges and timing must be considered when selecting a tier.",
+      ],
+      requirements: "For block blobs, cool has a minimum 30-day retention and archive a minimum 180-day retention. Reclassifying or deleting earlier than that minimum incurs an early-deletion charge. Early-deletion rules do not apply to transaction-optimized blob tiers.",
+      whyOthers: [
+        "Hot has the highest storage cost among the standard tiers.",
+        "Cool is optimized for infrequent access, not frequent access, and costs more than archive.",
+        "Premium tiers optimize for low latency and performance, which is the opposite of cheap long-term retention.",
+      ],
+      difficulty: "easy",
+      topic: "Storage tiers",
+    },
+    {
+      question: "What is the main trade-off when moving blob data to a colder access tier?",
+      correct: "Lower storage cost in exchange for slower access and possible early-deletion charges",
+      wrong: [
+        "Higher storage cost in exchange for faster access",
+        "Lower storage cost with no change in retrieval behavior",
+        "Faster access in exchange for reduced durability",
+      ],
+      rationale: "Colder tiers reduce per-gigabyte storage cost and add retrieval delays, minimum retention periods, and early-deletion penalties. Durability is set by redundancy, not by the tier.",
+      keyPoints: [
+        "Colder tiers cost less per GB and take longer to retrieve.",
+        "Early deletion before the minimum retention period incurs charges.",
+        "Durability is controlled by the redundancy option, independent of tier.",
+      ],
+      whyOthers: [
+        "This inverts the actual trade-off direction.",
+        "Retrieval behavior does change with the tier.",
+        "Access tier affects cost and latency, not durability.",
+      ],
+      difficulty: "easy",
+      topic: "Storage tiers",
+    },
+    {
+      question: "Which storage account setting must change before block blob data can be placed in different access tiers?",
+      correct: "The hierarchical namespace setting, because per-blob access tiers require hierarchical namespace",
+      wrong: [
+        "The redundancy setting, which must be geo-redundant",
+        "The storage account kind, which must be premium",
+        "The replication policy, which must be disabled",
+      ],
+      rationale: "Blob access tiers are available on accounts configured with hierarchical namespace, which enables blob-level operations. Redundancy, kind, and replication are separate choices.",
+      keyPoints: [
+        "Access tiers are a blob-level feature enabled by hierarchical namespace.",
+        "Redundancy controls durability, not tier availability.",
+        "Account kind affects performance characteristics rather than tier support.",
+      ],
+      whyOthers: [
+        "Redundancy is chosen independently and does not gate access tiers.",
+        "Premium accounts target performance; standard accounts commonly host tiered blobs.",
+        "Replication settings relate to backup, not access tiers.",
+      ],
+      difficulty: "hard",
+      topic: "Storage tiers",
+    },
+    {
+      question: "What happens when data is automatically moved to a colder tier by a lifecycle management policy?",
+      correct: "Storage cost falls for that data, but access becomes slower and retrieval may incur charges",
+      wrong: [
+        "Durability is reduced because the data leaves the primary region",
+        "The data becomes unavailable permanently",
+        "No cost change occurs because tiering does not affect billing",
+      ],
+      rationale: "Lifecycle policies automate tier movement to lower per-unit storage cost. Access becomes slower and retrieval may be billed, while durability is governed by the account's redundancy setting.",
+      keyPoints: [
+        "Automatic tiering reduces storage cost over time.",
+        "Access latency and retrieval charges are the cost of the saving.",
+        "Redundancy, not tier, determines durability.",
+      ],
+      whyOthers: [
+        "Tiering does not change where data is replicated or its durability.",
+        "Data remains accessible; retrieval is slow, not impossible.",
+        "Tiering exists specifically to change billing.",
+      ],
+      difficulty: "medium",
+      topic: "Storage tiers",
+    },
+  ],
+
+  "storage-redundancy": [
+    {
+      question: "Which redundancy option stores three copies within a single datacenter?",
+      correct: "Locally redundant storage (LRS)",
+      wrong: [
+        "Zone-redundant storage (ZRS)",
+        "Geo-redundant storage (GRS)",
+        "Geo-zone-redundant storage (GZRS)",
+      ],
+      rationale: "LRS keeps three copies in a single datacenter, protecting against local hardware failure only. ZRS spreads across zones, GRS replicates to a paired region, and GZRS combines zones with a secondary region.",
+      keyPoints: [
+        "LRS: three copies, one datacenter.",
+        "ZRS: spread across availability zones in the primary region.",
+        "GRS and GZRS add a secondary region, with GZRS also zone-redundant.",
+      ],
+      requirements: "Replication to the secondary region is asynchronous. RA-GRS and RA-GZRS add read access to the secondary copy. Azure pairs regions within the same geography, and LRS and ZRS do not provide protection against a regional outage.",
+      whyOthers: [
+        "ZRS spans availability zones, not a single facility.",
+        "GRS replicates to a secondary region.",
+        "GZRS is both zone-redundant and geo-redundant.",
+      ],
+      difficulty: "easy",
+      topic: "Storage redundancy",
+    },
+    {
+      question: "A customer needs storage that survives the loss of an entire datacenter in its primary region but does not require a secondary region. Which option fits?",
+      correct: "Zone-redundant storage (ZRS)",
+      wrong: [
+        "Locally redundant storage (LRS)",
+        "Geo-redundant storage (GRS)",
+        "Read-only geo-redundant storage (RA-GRS)",
+      ],
+      rationale: "ZRS places copies across availability zones inside the primary region, so a single facility loss is survivable without geographic replication. LRS stays in one facility, and the geo-redundant options replicate to a second region.",
+      keyPoints: [
+        "ZRS covers datacenter facility failure within a region.",
+        "GRS and RA-GRS replicate to a secondary region.",
+        "Choosing less redundancy lowers cost but narrows the failure scope covered.",
+      ],
+      whyOthers: [
+        "LRS does not survive the loss of a datacenter.",
+        "GRS adds a secondary region, which the requirement explicitly excludes.",
+        "RA-GRS also uses a secondary region and adds read access to it.",
+      ],
+      difficulty: "easy",
+      topic: "Storage redundancy",
+    },
+    {
+      question: "What is the key characteristic of geo-redundant storage?",
+      correct: "Data is replicated asynchronously to a paired secondary region, protecting against a regional loss",
+      wrong: [
+        "Data is replicated synchronously across zones within one datacenter",
+        "Data is replicated to the nearest datacenter over an ExpressRoute circuit",
+        "Data is replicated only within the same availability zone",
+      ],
+      rationale: "Geo-redundant storage maintains a copy in a paired secondary region using asynchronous replication, which protects against a regional outage. Synchronous replication across zones is what ZRS does.",
+      keyPoints: [
+        "Geo-redundancy means a copy exists in another region.",
+        "Replication to the secondary region is asynchronous.",
+        "It protects against regional failure, not just local hardware failure.",
+      ],
+      whyOthers: [
+        "Synchronous zonal replication describes ZRS.",
+        "ExpressRoute is connectivity, not a storage replication mechanism.",
+        "Same-zone replication offers no datacenter-level protection.",
+      ],
+      difficulty: "easy",
+      topic: "Storage redundancy",
+    },
+    {
+      question: "Why would a customer choose LRS over GRS despite the lower durability scope?",
+      correct: "To reduce cost when the workload can tolerate loss of a facility-level failure or can be recovered elsewhere",
+      wrong: [
+        "Because LRS provides stronger durability guarantees than GRS",
+        "Because GRS is not available in the customer's region",
+        "Because LRS automatically replicates to a secondary region",
+      ],
+      rationale: "Redundancy options trade cost against the failure scope covered. LRS is cheaper because it keeps copies in one facility, which is defensible when data is reproducible or has other copies.",
+      keyPoints: [
+        "More redundancy means more copies and higher cost.",
+        "LRS protects against local hardware failure only.",
+        "The choice depends on data criticality and recoverability.",
+      ],
+      whyOthers: [
+        "LRS has a narrower durability scope than GRS, not a stronger one.",
+        "Regional availability varies by service and configuration, but that is not the cost trade-off.",
+        "LRS explicitly does not replicate to a secondary region.",
+      ],
+      difficulty: "medium",
+      topic: "Storage redundancy",
+    },
+  ],
+
+  "storage-account-options": [
+    {
+      question: "What does a storage account provide in Azure?",
+      correct: "A namespace and configuration boundary for storage services such as blobs, files, queues, and tables",
+      wrong: [
+        "Compute capacity for running virtual machines",
+        "A DNS zone for resolving internal names",
+        "A governance scope for subscriptions",
+      ],
+      rationale: "A storage account is the top-level resource that owns and configures storage services. It defines performance, redundancy, access, and which services it supports.",
+      keyPoints: [
+        "The storage account owns blobs, file shares, queues, and tables.",
+        "Account type and configuration determine supported features and performance.",
+        "Access to everything in the account is controlled at this boundary.",
+      ],
+      whyOthers: [
+        "Compute capacity comes from virtual machines, not storage accounts.",
+        "DNS zones belong to Azure DNS.",
+        "Subscription governance belongs to management groups.",
+      ],
+      difficulty: "easy",
+      topic: "Storage accounts",
+    },
+    {
+      question: "What is the primary purpose of a storage account's performance tier?",
+      correct: "To determine the capabilities and performance characteristics available for its storage services",
+      wrong: [
+        "To control how many storage accounts a subscription may create",
+        "To determine which regions the account's data can be stored in",
+        "To set the account's billing currency",
+      ],
+      rationale: "Storage account type sets the trade-off between performance, features, and cost, which then determines what the account can do, including which storage services and access tiers it supports.",
+      keyPoints: [
+        "Account type gates features such as supported services and tiers.",
+        "Premium and standard accounts target different performance needs.",
+        "Region is chosen independently through the account's replication settings.",
+      ],
+      whyOthers: [
+        "The number of accounts is governed by subscription limits, not performance tier.",
+        "Data location is controlled by the redundancy and replication configuration.",
+        "Billing currency comes from the customer's agreement.",
+      ],
+      difficulty: "medium",
+      topic: "Storage accounts",
+    },
+    {
+      question: "Which factor should determine the redundancy choice for a storage account?",
+      correct: "The failure scenarios the data must survive and whether a copy exists elsewhere, weighed against cost",
+      wrong: [
+        "The name of the storage account",
+        "The number of containers in the account",
+        "The browser used to access Storage Explorer",
+      ],
+      rationale: "Redundancy should follow durability requirements and recovery capability, balanced against cost. Naming and tooling choices have no bearing on how data is replicated.",
+      keyPoints: [
+        "Redundancy choice follows the required failure tolerance.",
+        "More redundancy means higher cost and wider protection.",
+        "Geo-redundancy is appropriate when a regional failure must be survivable.",
+      ],
+      whyOthers: [
+        "Naming has no effect on data replication.",
+        "Container count is an organizational detail unrelated to redundancy.",
+        "The client tool used does not change how data is stored.",
+      ],
+      difficulty: "easy",
+      topic: "Storage accounts",
+    },
+    {
+      question: "A developer enables public network access on a storage account that should be private. What is the risk?",
+      correct: "The account remains reachable over the public internet, so it depends entirely on authentication and firewall rules for protection",
+      wrong: [
+        "The account's data becomes unreadable from inside the virtual network",
+        "The account automatically starts charging geo-redundant fees",
+        "The account's managed disks are deleted",
+      ],
+      rationale: "Public network access leaves the storage endpoint reachable from the internet. Private-only access requires disabling public access and using private endpoints with private DNS.",
+      keyPoints: [
+        "Public network access exposes the endpoint publicly.",
+        "Reachable does not mean open: authentication and firewall rules still apply.",
+        "Private-only designs disable public access and use private endpoints.",
+      ],
+      whyOthers: [
+        "Public access does not break virtual network connectivity.",
+        "Redundancy billing depends on the replication setting, not on public access.",
+        "Enabling public access deletes nothing; it changes reachability only.",
+      ],
+      difficulty: "medium",
+      topic: "Storage accounts",
+    },
+  ],
+
+  "file-movement-options": [
+    {
+      question: "Which tool should be used to copy large numbers of blobs from an on-premises server to Azure Storage from a script?",
+      correct: "AzCopy",
+      wrong: [
+        "Azure Policy",
+        "Microsoft Purview",
+        "Azure Advisor",
+      ],
+      rationale: "AzCopy is the command-line utility optimized for high-throughput, scriptable transfers to and from storage accounts. Policy governs configuration, Purview governs data, and Advisor gives recommendations.",
+      keyPoints: [
+        "AzCopy is a command-line tool for bulk data movement.",
+        "It is optimized for parallel transfer performance.",
+        "It works with storage accounts and containers.",
+      ],
+      whyOthers: [
+        "Policy evaluates resource configuration; it does not move data.",
+        "Purview discovers, classifies, and governs data assets.",
+        "Advisor recommends optimizations and does not transfer files.",
+      ],
+      difficulty: "easy",
+      topic: "File movement",
+    },
+    {
+      question: "A developer needs to browse a storage account's containers and download blobs from a desktop application. Which tool is appropriate?",
+      correct: "Azure Storage Explorer",
+      wrong: [
+        "Azure File Sync",
+        "Azure Migrate",
+        "Azure Backup",
+      ],
+      rationale: "Storage Explorer is a graphical client for managing storage accounts, containers, and blobs. File Sync synchronizes file shares, Migrate assesses and moves workloads, and Backup protects data.",
+      keyPoints: [
+        "Storage Explorer provides a GUI over storage accounts and blobs.",
+        "It is for interactive exploration and ad hoc transfer.",
+        "Bulk scripted transfers are better served by AzCopy.",
+      ],
+      whyOthers: [
+        "Azure File Sync keeps on-premises files synchronized with Azure file shares.",
+        "Azure Migrate is for workload assessment and migration.",
+        "Azure Backup is for data protection and recovery, not exploration.",
+      ],
+      difficulty: "easy",
+      topic: "File movement",
+    },
+    {
+      question: "What is the purpose of Azure File Sync?",
+      correct: "To synchronize on-premises file shares with Azure file shares, providing on-demand access to cloud-hosted data",
+      wrong: [
+        "To transfer a large server estate to Azure for migration",
+        "To provide a graphical browser for storage containers",
+        "To copy data offline using a shipped appliance",
+      ],
+      rationale: "File Sync bridges on-premises Windows file servers and Azure Files by caching and synchronizing files, so users keep local access to cloud-resident data. It is not a migration or transfer tool.",
+      keyPoints: [
+        "File Sync synchronizes between on-premises servers and Azure Files.",
+        "It enables cloud storage to appear as a locally accessible share.",
+        "It is continuous synchronization, not a one-time copy.",
+      ],
+      whyOthers: [
+        "Server migration is Azure Migrate's purpose.",
+        "A graphical storage browser is Storage Explorer.",
+        "Offline transfer using an appliance is Azure Data Box.",
+      ],
+      difficulty: "easy",
+      topic: "File movement",
+    },
+    {
+      question: "A company must move 100 TB of data to Azure where a network transfer would take months. Which option is designed for this?",
+      correct: "Azure Data Box, which ships an appliance for offline transfer",
+      wrong: [
+        "Azure File Sync, which synchronizes continuously over the network",
+        "AzCopy, which transfers over the network at high speed",
+        "Azure Storage Explorer, which moves small files manually",
+      ],
+      rationale: "When the data volume makes network transfer impractical, Data Box ships a physical appliance so the data travels offline and is then imported into Azure.",
+      keyPoints: [
+        "Data Box addresses volumes that cannot be moved over the network in reasonable time.",
+        "The appliance ships to the customer and is returned after import.",
+        "Network-based tools remain the right choice for smaller volumes.",
+      ],
+      whyOthers: [
+        "File Sync works over the network and would take the same time as the transfer problem implies.",
+        "AzCopy is a network transfer tool and cannot beat physical bandwidth limits.",
+        "Storage Explorer is for interactive small-scale work, not 100 TB.",
+      ],
+      difficulty: "easy",
+      topic: "File movement",
+    },
+  ],
+
+  "migration-options": [
+    {
+      question: "Which Azure service is used to assess on-premises servers before a migration?",
+      correct: "Azure Migrate",
+      wrong: [
+        "Azure Backup",
+        "Azure Site Recovery",
+        "Azure Policy",
+      ],
+      rationale: "Azure Migrate discovers and assesses existing workloads to determine readiness, dependencies, and sizing before moving them. Backup protects data, Site Recovery provides failover, and Policy governs configuration.",
+      keyPoints: [
+        "Assessment happens before migration to reduce risk.",
+        "Azure Migrate covers discovery, assessment, and execution.",
+        "Backup and Site Recovery are continuity services, not migration tools.",
+      ],
+      whyOthers: [
+        "Backup restores data; it does not plan or perform a migration.",
+        "Site Recovery provides disaster recovery for workloads already in Azure or supported on-premises setups.",
+        "Policy enforces configuration rules and has no migration function.",
+      ],
+      difficulty: "easy",
+      topic: "Migration",
+    },
+    {
+      question: "When is Azure Migrate preferred over Azure Data Box?",
+      correct: "When servers and applications need to be assessed and moved as workloads, rather than moving raw data volumes offline",
+      wrong: [
+        "When very large data volumes must move faster than the network allows",
+        "When a customer wants to avoid any assessment phase",
+        "When data must arrive physically without using the network",
+      ],
+      rationale: "Azure Migrate handles server and application migration with assessment and replication. Data Box is for moving large data volumes offline when network bandwidth is the constraint.",
+      keyPoints: [
+        "Azure Migrate is for workloads; Data Box is for bulk data transfer.",
+        "Assessment before migration is a core benefit of Azure Migrate.",
+        "The choice depends on whether you are moving servers or just data volume.",
+      ],
+      whyOthers: [
+        "Exceeding network capacity is the case Data Box addresses.",
+        "Azure Migrate explicitly includes assessment before execution.",
+        "Physical, offline arrival describes Data Box rather than Azure Migrate.",
+      ],
+      difficulty: "easy",
+      topic: "Migration",
+    },
+    {
+      question: "What does Azure Data Box provide?",
+      correct: "A physical appliance for transferring large volumes of data into Azure without depending on network bandwidth",
+      wrong: [
+        "A server assessment report for on-premises workloads",
+        "A service that automatically replicates virtual machines",
+        "A dashboard for tracking monthly Azure spend",
+      ],
+      rationale: "Data Box ships an appliance to the customer, data is copied to it, and it is returned for import into Azure. It addresses data volume, not server assessment or live replication.",
+      keyPoints: [
+        "Data Box is an offline transfer appliance.",
+        "It is chosen when the data set is too large for feasible network transfer.",
+        "It moves data, not running servers.",
+      ],
+      whyOthers: [
+        "Server assessment is Azure Migrate's job.",
+        "Automated live VM replication is also an Azure Migrate capability.",
+        "Cost dashboards come from Cost Management.",
+      ],
+      difficulty: "easy",
+      topic: "Migration",
+    },
+    {
+      question: "Why is assessment an important first step in a cloud migration?",
+      correct: "Because it reveals dependencies, sizes, and blockers, so the target design and migration approach can be corrected before anything moves",
+      wrong: [
+        "Because it produces the final Azure invoice",
+        "Because it automatically reduces the migrated workloads' running costs",
+        "Because it replaces the need to test the migrated workload",
+      ],
+      rationale: "Assessment surfaces application dependencies and infrastructure constraints that determine feasibility and target sizing. It does not produce billing, reduce cost automatically, or remove the need for post-migration validation.",
+      keyPoints: [
+        "Dependencies and sizing determine the correct target architecture.",
+        "Discovering blockers early reduces migration risk and rework.",
+        "Validation after migration is still required.",
+      ],
+      whyOthers: [
+        "Assessment informs cost estimates; it does not generate the invoice.",
+        "Cost reduction comes from design choices such as rightsizing and tiering.",
+        "Assessment reduces risk, but functional testing after migration remains essential.",
+      ],
+      difficulty: "easy",
+      topic: "Migration",
+    },
+  ],
+
+  "directory-services": [
+    {
+      question: "What is Microsoft Entra Domain Services?",
+      correct: "A managed service that provides traditional directory capabilities such as domain join, LDAP, Kerberos, and NTLM without customer-managed domain controllers",
+      wrong: [
+        "A customer-managed Active Directory domain controller running in a virtual network",
+        "A file server that provides SMB shares to domain-joined machines",
+        "An identity provider for external guest users only",
+      ],
+      rationale: "Entra Domain Services provides managed domain functionality for applications and devices that need traditional directory protocols. The customer does not run or patch domain controllers, which is the point of the managed service.",
+      keyPoints: [
+        "It supplies domain join, LDAP, Kerberos, and NTLM support as a managed service.",
+        "No customer-managed domain controllers are required.",
+        "It complements Microsoft Entra ID rather than replacing it.",
+      ],
+      whyOthers: [
+        "Running your own domain controllers is the traditional on-premises or self-managed approach, not this service.",
+        "File sharing is Azure Files; domain services concerns identity and directory protocols.",
+        "Guest and external identity is handled by external identities in Entra ID.",
+      ],
+      difficulty: "easy",
+      topic: "Directory services",
+    },
+    {
+      question: "A company needs its applications to authenticate with Kerberos and NTLM against Azure-hosted servers without managing domain controllers. Which service applies?",
+      correct: "Microsoft Entra Domain Services",
+      wrong: [
+        "Microsoft Entra ID alone",
+        "Azure Virtual Network peering",
+        "Azure Key Vault",
+      ],
+      rationale: "Kerberos and NTLM are legacy directory protocols, and Entra Domain Services provides them as a managed service so the company does not operate domain controllers.",
+      keyPoints: [
+        "Legacy authentication protocols require a managed domain.",
+        "Entra Domain Services provides that domain without customer-managed controllers.",
+        "Entra ID alone is a cloud identity service, not a Kerberos-capable domain.",
+      ],
+      whyOthers: [
+        "Entra ID provides cloud identity and does not serve Kerberos or NTLM.",
+        "Network peering has no authentication protocol role.",
+        "Key Vault stores secrets and keys, not directory services.",
+      ],
+      difficulty: "easy",
+      topic: "Directory services",
+    },
+    {
+      question: "What is the role of Microsoft Entra ID compared with Microsoft Entra Domain Services?",
+      correct: "Entra ID is the cloud identity and access service; Domain Services adds managed traditional domain capabilities on top of it",
+      wrong: [
+        "They are two names for the same service",
+        "Entra ID manages domain controllers while Domain Services manages identities",
+        "Domain Services replaces Entra ID for all authentication",
+      ],
+      rationale: "Entra ID is the cloud directory for identities, apps, and access. Domain Services adds the traditional domain features some workloads still require, using the same identities rather than replacing the directory.",
+      keyPoints: [
+        "Entra ID is the identity and access plane.",
+        "Domain Services adds domain join and legacy protocols as a managed service.",
+        "The two work together rather than competing.",
+      ],
+      whyOthers: [
+        "They serve different, complementary purposes.",
+        "Neither service asks the customer to manage domain controllers.",
+        "Domain Services complements Entra ID; it does not replace identity management.",
+      ],
+      difficulty: "medium",
+      topic: "Directory services",
+    },
+    {
+      question: "Which capability lets Azure services and applications authenticate to resources without storing credentials in code?",
+      correct: "Managed identities, which provide automatically managed credentials to Azure resources",
+      wrong: [
+        "Resource locks, which prevent deletion of a resource",
+        "Storage account keys, which are shared secrets stored in configuration",
+        "Availability zones, which spread resources across facilities",
+      ],
+      rationale: "Managed identities give Azure resources an identity in Microsoft Entra so they can authenticate to other Azure services through token-based access, removing the need to store secrets.",
+      keyPoints: [
+        "Managed identities issue tokens that Azure resources use to authenticate.",
+        "Credentials are rotated automatically and never appear in code.",
+        "They complement RBAC, which then grants what the identity may do.",
+      ],
+      whyOthers: [
+        "Locks protect against deletion or modification, not authentication.",
+        "Storage keys are the shared-secret pattern that managed identities replace.",
+        "Availability zones address failure domains, not authentication.",
+      ],
+      difficulty: "medium",
+      topic: "Directory services",
+    },
+  ],
+
+  "authentication-methods": [
+    {
+      question: "What is single sign-on in Microsoft Entra?",
+      correct: "A method that lets a user authenticate once and access multiple applications without re-entering credentials",
+      wrong: [
+        "A method that eliminates the need for any authentication",
+        "A method that requires entering credentials separately for each application",
+        "A method that disables multifactor authentication",
+      ],
+      rationale: "Single sign-on uses a token-based session so one successful authentication grants access to multiple applications. It does not remove authentication and does not disable multifactor authentication.",
+      keyPoints: [
+        "SSO authenticates once and reuses that session across applications.",
+        "It improves both convenience and security by reducing repeated credential entry.",
+        "SSO and MFA are complementary, not alternatives.",
+      ],
+      whyOthers: [
+        "SSO still authenticates the user; it does not skip authentication.",
+        "Entering credentials repeatedly per application is the opposite of SSO.",
+        "SSO has no effect on whether MFA is required.",
+      ],
+      difficulty: "easy",
+      topic: "Authentication methods",
+    },
+    {
+      question: "Why is multifactor authentication stronger than a single password?",
+      correct: "Because it requires proof of more than one factor, so a stolen password alone is not enough to sign in",
+      wrong: [
+        "Because it replaces the password with a longer password",
+        "Because it requires two passwords instead of one",
+        "Because it removes the need for a password entirely",
+      ],
+      rationale: "MFA combines factors from different categories, typically something you know plus something you have or are. Two passwords are the same factor and provide no additional protection.",
+      keyPoints: [
+        "MFA combines at least two different factor categories.",
+        "Something you know plus something you have defeats simple password theft.",
+        "Authentication strength policies can require MFA for sensitive sign-ins.",
+      ],
+      requirements: "Some multifactor methods and Conditional Access capabilities require a Microsoft Entra ID P1 or P2 licence; free-tier identities can still use the Microsoft Authenticator app and passkeys. Passwordless methods such as passkeys are generally available, while certificate-based methods may depend on your tenant configuration.",
+      whyOthers: [
+        "Lengthening a password does not add a second factor.",
+        "Two passwords are both the same factor and add no real security.",
+        "MFA supplements the password in most configurations rather than removing it.",
+      ],
+      difficulty: "easy",
+      topic: "Authentication methods",
+    },
+    {
+      question: "What is the main security advantage of passwordless authentication methods such as passkeys or security keys?",
+      correct: "They remove the phishable shared secret, so credential theft and replay become far less effective",
+      wrong: [
+        "They allow sign-in without any verification of the user's identity",
+        "They automatically grant administrator privileges",
+        "They remove the need for any conditional access policy",
+      ],
+      rationale: "Passwordless methods bind authentication to cryptographic keys or biometrics verified by the device, removing the shared secret that phishing and reuse attacks target. Verification still occurs, and privileges and policies are unaffected.",
+      keyPoints: [
+        "Passwordless removes the phishable shared secret.",
+        "Verification is still required, using keys or biometrics.",
+        "Authorization and policy are unchanged by the sign-in method.",
+      ],
+      whyOthers: [
+        "Passwordless methods verify identity rigorously rather than skipping verification.",
+        "Sign-in method does not confer administrative privileges.",
+        "Conditional Access remains applicable and is often paired with passwordless.",
+      ],
+      difficulty: "medium",
+      topic: "Authentication methods",
+    },
+    {
+      question: "A security team wants to require phishing-resistant sign-in only for administrators. What should it use?",
+      correct: "Authentication strength policies combined with Conditional Access targeted at administrator roles",
+      wrong: [
+        "A resource lock on the subscription",
+        "A management group with a policy assignment",
+        "A storage account access policy",
+      ],
+      rationale: "Requiring stronger methods for specific groups is an identity policy. Authentication strength policies define method requirements, and Conditional Access applies them based on the user's role, group, device, or risk.",
+      keyPoints: [
+        "Authentication strength policies define which methods satisfy which strength.",
+        "Conditional Access scopes the requirement to administrators.",
+        "This is identity governance, not resource configuration.",
+      ],
+      whyOthers: [
+        "Resource locks prevent deletion or modification, not sign-in methods.",
+        "Management groups organize subscriptions for governance; they do not enforce authentication strength.",
+        "Storage access policies govern blob permissions, not authentication.",
+      ],
+      difficulty: "hard",
+      topic: "Authentication methods",
+    },
+  ],
+
+  "external-identities": [
+    {
+      question: "What problem do external identities in Microsoft Entra solve?",
+      correct: "They let organizations give partner, customer, or guest users access to specific resources without creating full internal employee accounts",
+      wrong: [
+        "They let employees access Azure resources from home networks",
+        "They automatically promote guest users to administrators",
+        "They replace multifactor authentication for internal users",
+      ],
+      rationale: "External identities cover the guest and partner access scenarios. The guest can authenticate and reach authorized applications while the organization keeps its internal directory boundaries and governance.",
+      keyPoints: [
+        "External identities support B2B collaboration with partners and customers.",
+        "Guests receive access to assigned resources, not the whole tenant.",
+        "Policies such as Conditional Access still apply to guests.",
+      ],
+      whyOthers: [
+        "Remote employee access is standard workforce identity, not external identity.",
+        "Guests are never automatically promoted; access is granted explicitly.",
+        "External identities do not replace MFA for internal users.",
+      ],
+      difficulty: "easy",
+      topic: "External identities",
+    },
+    {
+      question: "A supplier needs temporary access to a single Azure application. What is the most appropriate Microsoft Entra capability?",
+      correct: "Guest user access through external identities, with access limited to that one application",
+      wrong: [
+        "Adding the supplier's users to an existing internal department",
+        "Assigning the Owner role at the subscription",
+        "Sharing the organization's administrator credentials",
+      ],
+      rationale: "Guest access lets the supplier sign in with their own identity while being scoped to one application. Granting Owner or sharing admin credentials would violate least privilege and destroy accountability.",
+      keyPoints: [
+        "B2B guest access preserves the supplier's own identity.",
+        "Access should be scoped to the specific application.",
+        "Least privilege and auditability favor guest accounts over shared credentials.",
+      ],
+      whyOthers: [
+        "Adding external users to an internal department blurs organizational boundaries unnecessarily.",
+        "Owner at subscription scope grants far more access than the supplier requires.",
+        "Sharing administrator credentials prevents individual accountability and audit.",
+      ],
+      difficulty: "easy",
+      topic: "External identities",
+    },
+    {
+      question: "Which statement about Conditional Access and guest users is correct?",
+      correct: "Conditional Access policies apply to guest users, so guest sign-ins can be subject to the same controls as internal users",
+      wrong: [
+        "Guest users bypass Conditional Access because they are external",
+        "Conditional Access cannot evaluate external identities at all",
+        "Guests are exempt from multifactor authentication requirements",
+      ],
+      rationale: "Guests are identities in the tenant, so Conditional Access evaluates their sign-ins using the same signals and controls. External status is not a bypass.",
+      keyPoints: [
+        "Policies apply uniformly to guest and member identities.",
+        "Guest sign-ins can require MFA or be blocked by policy.",
+        "Guest access still follows least privilege and lifecycle review.",
+      ],
+      whyOthers: [
+        "Being external does not exempt a guest from policy evaluation.",
+        "External identities are fully supported in Conditional Access.",
+        "MFA requirements apply to guests unless explicitly excluded.",
+      ],
+      difficulty: "medium",
+      topic: "External identities",
+    },
+    {
+      question: "Why should guest access be reviewed and removed when a project ends?",
+      correct: "Because external accounts persist access after the business relationship ends, so stale guest accounts become a security risk",
+      wrong: [
+        "Because guest accounts consume Azure subscription quota",
+        "Because guests cannot be removed once they sign in",
+        "Because guest identities are converted to member identities automatically",
+      ],
+      rationale: "Guest accounts are directory identities with real access. Without lifecycle management, former partners and contractors retain access to applications and data they no longer need, which is a common source of breaches.",
+      keyPoints: [
+        "Guest access outlives the project unless it is explicitly removed.",
+        "Periodic access reviews identify orphaned guest accounts.",
+        "Removal is a directory operation available to administrators.",
+      ],
+      whyOthers: [
+        "Guest accounts do not consume subscription service limits.",
+        "Guests can be removed at any time.",
+        "Guest identities remain guests; they are not auto-converted to members.",
+      ],
+      difficulty: "medium",
+      topic: "External identities",
+    },
+  ],
+
+  "conditional-access": [
+    {
+      question: "When does Microsoft Entra Conditional Access evaluate an access decision?",
+      correct: "After the user has completed first-factor authentication, using signals such as user, device, location, and risk",
+      wrong: [
+        "Before any authentication has been attempted",
+        "Only after the user has already been granted full access",
+        "Only when an administrator manually requests an evaluation",
+      ],
+      rationale: "Conditional Access is a post-authentication decision. Once the first factor is satisfied, policies evaluate signals and can require MFA, block the sign-in, grant access, or limit the session.",
+      keyPoints: [
+        "Policies act after the first factor, as a second decision point.",
+        "Signals include user or group, device compliance, IP location, application, and risk.",
+        "Possible outcomes include allow, require MFA, block, and session controls.",
+      ],
+      whyOthers: [
+        "Evaluating before authentication would have no identity or device context to act on.",
+        "Conditional Access determines access; it does not run after access is fully granted.",
+        "Policies evaluate automatically on every matching sign-in.",
+      ],
+      difficulty: "easy",
+      topic: "Conditional Access",
+    },
+    {
+      question: "Which scenario is a typical Conditional Access use case?",
+      correct: "Requiring multifactor authentication when a sign-in comes from an unfamiliar country or an unmanaged device",
+      wrong: [
+        "Denying creation of resources in an unapproved region",
+        "Preventing accidental deletion of a resource group",
+        "Reducing the monthly cost of a storage account",
+      ],
+      rationale: "Conditional Access uses identity and context signals to gate access. Location and device compliance are classic signals. Region restrictions are Policy, locks protect against deletion, and cost is handled by Cost Management.",
+      keyPoints: [
+        "Conditional Access gates access using identity and context signals.",
+        "Location, device state, application, and risk are standard signals.",
+        "It complements Policy and locks rather than replacing them.",
+      ],
+      whyOthers: [
+        "Region restrictions on resource creation are Azure Policy's job.",
+        "Protection against accidental deletion is a resource lock.",
+        "Cost reduction is addressed by cost management, Advisor, and design choices.",
+      ],
+      difficulty: "easy",
+      topic: "Conditional Access",
+    },
+    {
+      question: "What is the risk of a Conditional Access policy that blocks all access for a broad group, such as all administrators?",
+      correct: "It can lock out every administrator, including the accounts needed to fix the policy",
+      wrong: [
+        "It grants the group more permissions than intended",
+        "It slows down sign-in performance for all users",
+        "It converts the group into guest identities",
+      ],
+      rationale: "Overly broad deny policies can remove access for everyone in scope, including break-glass accounts. Safe design uses pilot groups, exclusions for emergency accounts, and tested break-glass credentials.",
+      keyPoints: [
+        "A broad deny can lock out all administrators.",
+        "Emergency access accounts should be excluded from blocking policies.",
+        "Policies should be rolled out in report-only or pilot mode first.",
+      ],
+      whyOthers: [
+        "Conditional Access does not grant additional permissions.",
+        "Policy evaluation does not meaningfully slow sign-in performance.",
+        "Conditional Access does not change identity types.",
+      ],
+      difficulty: "medium",
+      topic: "Conditional Access",
+    },
+    {
+      question: "How does Conditional Access differ from Azure RBAC?",
+      correct: "Conditional Access decides whether a sign-in is allowed based on signals; RBAC decides what an authenticated principal may do at an Azure scope",
+      wrong: [
+        "Conditional Access grants resource permissions while RBAC blocks sign-ins",
+        "Both perform the same function at different scopes",
+        "RBAC evaluates device compliance while Conditional Access assigns roles",
+      ],
+      rationale: "They solve different problems. Conditional Access is an identity decision made during sign-in; RBAC is an authorization decision made against Azure resources. Both are needed for a sound security posture.",
+      keyPoints: [
+        "Conditional Access: should this sign-in proceed?",
+        "RBAC: what may this identity do on these resources?",
+        "The two are complementary rather than alternatives.",
+      ],
+      whyOthers: [
+        "This reverses the roles of the two services.",
+        "They address different decisions and are not the same function.",
+        "Device compliance signals belong to Conditional Access; role assignment belongs to RBAC.",
+      ],
+      difficulty: "medium",
+      topic: "Conditional Access",
+    },
+  ],
+
+  rbac: [
+    {
+      question: "What three components make up an Azure RBAC role assignment?",
+      correct: "A security principal, a role definition, and a scope",
+      wrong: [
+        "A resource group, a tag, and a region",
+        "A subscription, a policy, and a lock",
+        "A management group, an initiative, and a resource provider",
+      ],
+      rationale: "A role assignment binds who (principal), what (role definition), and where (scope). All three are required for the assignment to have any effect.",
+      keyPoints: [
+        "Principal, role definition, and scope are the three required elements.",
+        "Scope determines how far the permission reaches.",
+        "Built-in roles can be customized by creating custom role definitions.",
+      ],
+      whyOthers: [
+        "Tags and regions are metadata and location, not authorization elements.",
+        "Policy and locks are governance controls, not RBAC assignment components.",
+        "Management groups, initiatives, and resource providers belong to Policy and ARM, not RBAC.",
+      ],
+      difficulty: "easy",
+      topic: "RBAC",
+    },
+    {
+      question: "A team needs permission to restart virtual machines in one resource group but nothing else. What is the correct approach?",
+      correct: "Assign a role that permits restarting VMs at that resource group's scope, and nothing broader",
+      wrong: [
+        "Assign Contributor at the tenant root",
+        "Assign Owner at the subscription",
+        "Create a custom role and assign it at the management group",
+      ],
+      rationale: "Least privilege means granting only the needed action at the narrowest workable scope. Broad assignments such as tenant Contributor or subscription Owner grant far more than restarting VMs.",
+      keyPoints: [
+        "Scope must be the narrowest that covers the requirement.",
+        "Role choice should match the specific action needed.",
+        "Owner and Contributor are broad roles that break least privilege.",
+      ],
+      whyOthers: [
+        "Tenant-root Contributor grants permission across every subscription.",
+        "Subscription Owner grants full control including role management.",
+        "A management-group scope is far broader than one resource group.",
+      ],
+      difficulty: "easy",
+      topic: "RBAC",
+    },
+    {
+      question: "What is the difference between Contributor and Owner in Azure RBAC?",
+      correct: "Owner can also manage access control, such as creating role assignments, while Contributor can manage resources but not access",
+      wrong: [
+        "They are identical and interchangeable",
+        "Contributor manages access control while Owner cannot",
+        "Owner is read-only while Contributor can modify resources",
+      ],
+      rationale: "Both roles allow broad resource management, but Owner additionally includes authorization management. Contributor lacks permission to create role assignments, which is why Owner should be reserved for a small number of administrators.",
+      keyPoints: [
+        "Owner includes roleAssignments and role definition management.",
+        "Contributor can manage resources but not access control.",
+        "Reader is the read-only role.",
+      ],
+      whyOthers: [
+        "They differ precisely in access to access control.",
+        "This reverses the distinction between the two roles.",
+        "Owner is the most permissive role, not a read-only one.",
+      ],
+      difficulty: "easy",
+      topic: "RBAC",
+    },
+    {
+      question: "What does a role definition specify?",
+      correct: "The set of permitted actions, expressed as data actions, such as restarting a virtual machine",
+      wrong: [
+        "The resources the role applies to",
+        "The user or group receiving the permissions",
+        "The subscription billing owner",
+      ],
+      rationale: "A role definition is the permission set. The principal and scope come from the assignment that uses the definition, so the same definition can be assigned many times to different people in different places.",
+      keyPoints: [
+        "Role definitions enumerate allowed actions.",
+        "Built-in roles can be used as-is or cloned into custom roles.",
+        "The same definition can be reused across many assignments.",
+      ],
+      whyOthers: [
+        "Resources covered are determined by the assignment scope.",
+        "The person or group receiving permissions is the principal.",
+        "Billing ownership is separate from RBAC role definitions.",
+      ],
+      difficulty: "easy",
+      topic: "RBAC",
+    },
+  ],
+
+  "zero-trust": [
+    {
+      question: "Which statement best describes the Zero Trust model?",
+      correct: "Verify explicitly, use least privilege, and assume breach, applying these continuously rather than trusting network location",
+      wrong: [
+        "Trust all traffic that originates inside the corporate network",
+        "Block every request that is not explicitly approved in advance",
+        "Rely on a single strong perimeter firewall with no internal controls",
+      ],
+      rationale: "Zero Trust replaces implicit trust based on location with continuous verification and least-privilege access. It is not a blanket deny policy, and it does not abandon layered defense.",
+      keyPoints: [
+        "No implicit trust is granted based on network position.",
+        "Access is verified per request and scoped to least privilege.",
+        "Assume breach drives segmentation and monitoring.",
+      ],
+      whyOthers: [
+        "Implicitly trusting internal traffic is the model Zero Trust replaces.",
+        "Zero Trust is not a default-deny policy; it is continuous verification with least privilege.",
+        "Relying on a single perimeter control is the opposite of defense in depth.",
+      ],
+      difficulty: "easy",
+      topic: "Zero Trust",
+    },
+    {
+      question: "How does Zero Trust change how a company treats its internal network?",
+      correct: "Internal network location no longer grants trust; every request is authenticated and authorized on its own merits",
+      wrong: [
+        "Internal traffic becomes fully trusted and needs no verification",
+        "Only external traffic is verified, while internal traffic is exempt",
+        "The internal network must be replaced with public addressing",
+      ],
+      rationale: "A core Zero Trust principle is removing trust based on network location, so internal requests are treated the same as external ones: identified, authorized, and scoped narrowly.",
+      keyPoints: [
+        "Location-based trust is removed from the design.",
+        "Internal requests are verified individually.",
+        "Segmentation and least privilege protect internal systems too.",
+      ],
+      whyOthers: [
+        "Implicit internal trust is precisely what Zero Trust eliminates.",
+        "Exempting internal traffic would leave the largest attack surface unprotected.",
+        "The address plan may change, but the model's point is verification, not renumbering.",
+      ],
+      difficulty: "medium",
+      topic: "Zero Trust",
+    },
+    {
+      question: "A company wants to reduce the blast radius of a compromised workstation. Which Zero Trust principle supports this?",
+      correct: "Assume breach, using segmentation and least-privilege access so one compromised endpoint cannot reach everything",
+      wrong: [
+        "Verify explicitly, by checking the identity of the endpoint owner",
+        "Use least privilege, by limiting the endpoint owner's own permissions",
+        "Block every request from the endpoint network",
+      ],
+      rationale: "Assume breach means designing as though an endpoint will eventually be compromised, and containing the consequences through segmentation and narrowly scoped permissions.",
+      keyPoints: [
+        "Assume breach drives containment rather than prevention alone.",
+        "Segmentation limits lateral movement after a compromise.",
+        "Least privilege reduces what a compromised identity can reach.",
+      ],
+      whyOthers: [
+        "Identity verification authenticates the user but does not contain lateral movement.",
+        "Limiting the owner's permissions is part of least privilege, which does help, but containment of a compromised endpoint comes from segmentation under assume breach.",
+        "Blanket blocking is not the assume-breach principle; containment through scoping is.",
+      ],
+      difficulty: "medium",
+      topic: "Zero Trust",
+    },
+    {
+      question: "Why does Zero Trust complement defense in depth rather than replace it?",
+      correct: "Because it applies layered verification and least privilege, which only work when multiple controls exist across identity, network, and data",
+      wrong: [
+        "Because Zero Trust is a single control that removes the need for others",
+        "Because defense in depth applies only to physical security",
+        "Because Zero Trust is enforced only at the network perimeter",
+      ],
+      rationale: "Zero Trust is a design mindset expressed through layered controls. Defense in depth supplies those layers; neither replaces the other.",
+      keyPoints: [
+        "Zero Trust principles are realized through multiple controls.",
+        "Defense in depth provides the layering those principles rely on.",
+        "Both address the assumption that some control will eventually fail.",
+      ],
+      whyOthers: [
+        "Zero Trust depends on multiple controls rather than replacing them with one.",
+        "Defense in depth covers identity, network, application, and data, not only physical security.",
+        "Zero Trust is enforced across identity and application layers, not only at the perimeter.",
+      ],
+      difficulty: "medium",
+      topic: "Zero Trust",
+    },
+  ],
+
+  "defense-in-depth": [
+    {
+      question: "What does the defense-in-depth model aim to achieve?",
+      correct: "To protect a workload with multiple independent control layers so the failure of one control does not expose it",
+      wrong: [
+        "To rely on a single, very strong perimeter control",
+        "To apply the same control at multiple layers",
+        "To eliminate the need to patch and configure systems",
+      ],
+      rationale: "Defense in depth layers distinct controls across physical, identity, network, compute, application, and data. Because the layers are independent, defeating one does not yield access.",
+      keyPoints: [
+        "Layers must be independent, not duplicated.",
+        "Coverage spans identity, network, compute, application, and data.",
+        "The goal is that no single failure exposes the workload.",
+      ],
+      whyOthers: [
+        "A single strong control is a single point of failure, the opposite of the model.",
+        "Repeating the same control does not create independent layers.",
+        "Patching and configuration remain necessary within every layer.",
+      ],
+      difficulty: "easy",
+      topic: "Defense in depth",
+    },
+    {
+      question: "Which combination is an example of defense in depth for a web application?",
+      correct: "Identity-based access control plus network segmentation plus encryption at rest, none of which relies on the others",
+      wrong: [
+        "Three identical firewalls in front of the application",
+        "A strong password policy repeated on every account",
+        "Three identical monitoring tools collecting the same logs",
+      ],
+      rationale: "Real defense in depth uses different control types addressing different failure modes. Three copies of one control still leave the same gap if that control fails.",
+      keyPoints: [
+        "Independent layers address independent failure modes.",
+        "Identity, network, and data controls are distinct in what they protect.",
+        "Duplication of a single control adds cost without closing gaps.",
+      ],
+      whyOthers: [
+        "Identical firewalls are the same control repeated, which is not layered defense.",
+        "Password policy is an identity control; repeating it does not add a network or data layer.",
+        "Monitoring is important but duplicating one tool does not create defense in depth.",
+      ],
+      difficulty: "medium",
+      topic: "Defense in depth",
+    },
+    {
+      question: "A customer's only protection for a critical database is a perimeter firewall. What is the main weakness?",
+      correct: "A single control failure exposes the database, because there is no independent inner layer",
+      wrong: [
+        "Firewalls are too slow for database workloads",
+        "The database will refuse connections from the firewall's subnet",
+        "Perimeter firewalls are no longer supported in Azure",
+      ],
+      rationale: "Relying on one perimeter control leaves no fallback. If the firewall is bypassed, misconfigured, or compromised, the database is directly exposed, which is the classic failure of single-layer security.",
+      keyPoints: [
+        "A single control is a single point of failure.",
+        "Inner layers such as private networking, identity, and encryption provide fallback.",
+        "Perimeter controls remain useful but should not be the only layer.",
+      ],
+      whyOthers: [
+        "Firewall performance is not the structural weakness being described.",
+        "A database accepts connections based on its own networking and identity rules.",
+        "Perimeter controls remain a supported and useful part of defense in depth.",
+      ],
+      difficulty: "medium",
+      topic: "Defense in depth",
+    },
+    {
+      question: "How does the shared responsibility model relate to defense in depth?",
+      correct: "Each layer of the stack has an owner, so defense in depth means both provider and customer implement controls at their respective layers",
+      wrong: [
+        "It means only the customer implements security controls",
+        "It means the provider implements all layers and the customer implements none",
+        "It means security is divided evenly across every layer",
+      ],
+      rationale: "Defense in depth spans layers, and the shared responsibility model says who owns each one. The result is a joint control set: provider controls the infrastructure layers and the customer controls the layers above.",
+      keyPoints: [
+        "Layers and their owners are defined together.",
+        "Both parties control their own layers.",
+        "The denser the customer-side layers, the deeper the defense.",
+      ],
+      whyOthers: [
+        "The customer implements substantial controls in IaaS and PaaS.",
+        "The provider does not implement the customer's application and identity layers.",
+        "Responsibility is allocated by layer, not divided evenly.",
+      ],
+      difficulty: "medium",
+      topic: "Defense in depth",
+    },
+  ],
+
+  "defender-for-cloud": [
+    {
+      question: "What is the primary purpose of Microsoft Defender for Cloud?",
+      correct: "To assess the security posture of cloud environments and provide recommendations and protection against threats",
+      wrong: [
+        "To manage customer billing and invoices",
+        "To transfer data between storage accounts",
+        "To provide virtual desktops to end users",
+      ],
+      rationale: "Defender for Cloud provides cloud security posture management and workload protection. It surfaces misconfigurations and threats so they can be remediated.",
+      keyPoints: [
+        "It combines posture assessment with threat protection.",
+        "Recommendations identify specific improvements and their impact.",
+        "Plans enable paid protections for particular resource types.",
+      ],
+      whyOthers: [
+        "Billing is handled by Cost Management and Billing.",
+        "Data movement is handled by AzCopy, Storage Explorer, and Data Box.",
+        "Hosted desktops are provided by Azure Virtual Desktop.",
+      ],
+      difficulty: "easy",
+      topic: "Defender for Cloud",
+    },
+    {
+      question: "What does a high-severity Defender for Cloud recommendation indicate?",
+      correct: "A configuration or security weakness that increases exposure and should be remediated",
+      wrong: [
+        "An Azure billing anomaly",
+        "A planned maintenance window for the customer",
+        "A confirmed security incident in the customer's data",
+      ],
+      rationale: "Recommendations describe risks and improvements rather than billing or confirmed compromise. Severity reflects potential impact, so prioritizing remediation is the correct response.",
+      keyPoints: [
+        "Recommendations describe weaknesses, not incidents.",
+        "Severity is based on the potential impact of leaving the issue unresolved.",
+        "Remediation guidance is provided with each recommendation.",
+      ],
+      whyOthers: [
+        "Billing anomalies are surfaced by Cost Management, not Defender for Cloud recommendations.",
+        "Planned maintenance is reported through Service Health.",
+        "A recommendation indicates risk, not confirmed compromise of data.",
+      ],
+      difficulty: "easy",
+      topic: "Defender for Cloud",
+    },
+    {
+      question: "Why is Microsoft Defender for Cloud described as a cloud security posture management service?",
+      correct: "Because it continuously assesses configurations against security standards and reports gaps to fix",
+      wrong: [
+        "Because it migrates workloads into the cloud",
+        "Because it monitors application performance traces",
+        "Because it enforces organization-wide configuration rules",
+      ],
+      rationale: "Posture management means continuously evaluating configuration and surfacing deviations from best practice. Enforcing rules is Azure Policy's job, and application telemetry is Application Insights.",
+      keyPoints: [
+        "Posture management assesses and reports configuration gaps.",
+        "Policy enforces rules; Defender for Cloud advises.",
+        "The two work together: enforce with Policy, discover with Defender for Cloud.",
+      ],
+      whyOthers: [
+        "Workload migration is Azure Migrate's function.",
+        "Application performance monitoring is Azure Monitor Application Insights.",
+        "Enforcement of configuration rules is Azure Policy.",
+      ],
+      difficulty: "medium",
+      topic: "Defender for Cloud",
+    },
+    {
+      question: "A security team wants to see how its Azure environment compares with security best practices. Which service should it use?",
+      correct: "Microsoft Defender for Cloud, which reports the current posture and recommendations",
+      wrong: [
+        "Azure Pricing Calculator",
+        "Azure Service Health",
+        "Azure Advisor cost recommendations only",
+      ],
+      rationale: "Defender for Cloud reports the security posture and the gaps to close. The pricing calculator estimates cost, Service Health reports platform events, and Advisor's cost recommendations address optimization rather than security posture.",
+      keyPoints: [
+        "Security posture assessment is Defender for Cloud's core function.",
+        "Other services answer different questions about cost or platform status.",
+        "Remediation closes the gaps the assessment identifies.",
+      ],
+      whyOthers: [
+        "The pricing calculator is a cost estimation tool with no security assessment.",
+        "Service Health reports Azure platform incidents and planned maintenance.",
+        "Advisor does provide recommendations, but cost recommendations alone do not assess security posture.",
+      ],
+      difficulty: "easy",
+      topic: "Defender for Cloud",
+    },
+  ],
+};

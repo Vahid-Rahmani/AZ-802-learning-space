@@ -92,7 +92,7 @@ const enriched = questions.filter(
 );
 const pending = questions.filter((question) => !enriched.includes(question));
 
-// Anything added beyond the original bank must be fully sourced and reasoned:
+// Anything added beyond the original 300 must be fully sourced and reasoned:
 // a question that cannot prove its answer never enters the learning flow.
 const baselineMax = 300;
 const questionNumber = (id) => Number(String(id).split("-").pop());

@@ -1,0 +1,10 @@
+{
+  "az802-q-134": {
+    "reviewedOn": "2026-10-07",
+    "reason": "q-134 asks for the record that maps a name to an IPv4 address and answers A. q-135 asks for the record that maps a name to an IPv6 address and answers AAAA. Both belong to objective net-dns, but they test different record types with different distractors, so neither replaces the other. The stems were rewritten to make the IPv4-only versus dual-stack scenario explicit, which removed the wording overlap the duplicate detector had flagged. Both IDs are kept so saved answers and Leitner boxes stay valid."
+  },
+  "az802-q-135": {
+    "reviewedOn": "2026-10-07",
+    "reason": "Paired with q-134. This item tests the IPv6 mapping and its distractors (SRV, PTR, CNAME), which are a different set from q-134's MX, PTR, AAAA. Both IDs are kept so saved answers and Leitner boxes stay valid."
+  }
+}

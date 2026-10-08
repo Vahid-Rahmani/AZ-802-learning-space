@@ -102,32 +102,66 @@ for (const [index, question] of questions.entries()) {
 }
 
 if (questions.length !== EXPECTED_QUESTION_COUNT) errors.push(`Expected ${EXPECTED_QUESTION_COUNT} questions, found ${questions.length}`);
+// "invalid" means the bank is broken. "valid-with-warnings" means the shape is
+// sound but outstanding review items remain, which is reported rather than
+// folded into a single "draft" label that contradicted the per-question state.
 const result = {
   generatedAt: new Date().toISOString(),
   expectedQuestionCount: EXPECTED_QUESTION_COUNT,
   actualQuestionCount: questions.length,
-  status: errors.length ? "invalid" : "draft",
+  status: errors.length ? "invalid" : "valid-with-warnings",
+  reviewStatusCounts: Object.fromEntries(
+    [...new Set(questions.map((question) => question.reviewStatus ?? "draft"))].map((status) => [
+      status,
+      questions.filter((question) => (question.reviewStatus ?? "draft") === status).length,
+    ]),
+  ),
   errors,
   warnings,
   questions: audit,
 };
 
+/**
+ * Groups the warning text so a category is reported as a count instead of as
+ * several hundred separate lines. A warning that is not grouped still appears
+ * verbatim, so nothing is hidden by the categorisation.
+ */
+function summarizeWarnings(entries) {
+  const known = [
+    ["german-question-text", "German question translation is pending review"],
+    ["german-options", "exactly four German options are required before publication"],
+    ["german-rationale-template", "German rationale is still a template and needs content review"],
+  ];
+  const counts = {};
+  const unmatched = [];
+  for (const warning of entries) {
+    const message = warning.replace(/^az802-q-\d+:\s*/, "");
+    const match = known.find(([, prefix]) => message === prefix || message.startsWith(prefix));
+    if (match) counts[match[0]] = (counts[match[0]] ?? 0) + 1;
+    else unmatched.push(warning);
+  }
+  return { byCategory: counts, ungrouped: unmatched };
+}
+
 const writeIndex = process.argv.indexOf("--write");
 if (writeIndex >= 0 && process.argv[writeIndex + 1]) {
   const outputPath = path.resolve(root, process.argv[writeIndex + 1]);
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-  fs.writeFileSync(outputPath, `${JSON.stringify(result, null, 2)}\n`, "utf8");
-  console.log(`Wrote ${audit.length} draft audit records to ${path.relative(root, outputPath)}`);
+  fs.writeFileSync(outputPath, `${JSON.stringify({ ...result, warningSummary: summarizeWarnings(warnings) }, null, 2)}\n`, "utf8");
+  console.log(`Wrote ${audit.length} audit records to ${path.relative(root, outputPath)}`);
 }
 
-if (process.argv.includes("--apply-draft")) {
+// Kept as an explicit reset for re-reviewing a batch. It is never part of a
+// normal run, and it is documented as destructive because it clears a status
+// that the review checks earned.
+if (process.argv.includes("--reset-to-draft")) {
   const rewritten = lines.map((line) => {
     if (!line.trimStart().startsWith("{")) return line;
     const question = JSON.parse(line.trim().replace(/,$/, ""));
     const comma = line.trimEnd().endsWith(",") ? "," : "";
     question.reviewStatus = "draft";
     question.audit = {
-      sourceRefs: typeof question.source === "string" ? [question.source] : [],
+      sourceRefs: Array.isArray(question.sourceRefs) ? question.sourceRefs : typeof question.source === "string" ? [question.source] : [],
       sourceVerified: false,
       answerVerified: false,
       originalityVerified: false,
@@ -139,8 +173,19 @@ if (process.argv.includes("--apply-draft")) {
     return JSON.stringify(question) + comma;
   });
   fs.writeFileSync(sourcePath, `${rewritten.join("\n")}\n`, "utf8");
-  console.log(`Marked ${audit.length} questions as draft and added audit metadata.`);
+  console.log(`Reset ${audit.length} questions to draft. Re-run the review checks before trusting their status.`);
 }
 
-console.log(JSON.stringify({ status: result.status, questions: result.actualQuestionCount, errors: errors.length, warnings: warnings.length }));
+const warningSummary = summarizeWarnings(warnings);
+console.log(
+  JSON.stringify({
+    status: result.status,
+    questions: result.actualQuestionCount,
+    errors: errors.length,
+    warnings: warnings.length,
+    warningsByCategory: warningSummary.byCategory,
+    ungroupedWarnings: warningSummary.ungrouped.length,
+  }),
+);
+if (warningSummary.ungrouped.length) console.log(JSON.stringify({ ungroupedWarnings: warningSummary.ungrouped }, null, 2));
 if (errors.length) process.exitCode = 1;

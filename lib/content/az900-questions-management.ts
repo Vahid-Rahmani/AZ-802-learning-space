@@ -1,0 +1,1591 @@
+/**
+ * Authored AZ-900 questions for "Describe Azure management and governance".
+ *
+ * Each draft is written against the Learn pages listed for its objective in
+ * `az900-build.ts`. Where an objective maps to a command-line or template
+ * workflow, `commandPath` shows the concrete path so the explanation teaches
+ * the action rather than only naming the tool.
+ */
+
+import type { AuthoredBank } from "./az900-build.ts";
+
+export const managementDrafts: AuthoredBank = {
+  "cost-factors": [
+    {
+      question: "Two teams deploy what they believe is the same workload, but one has a much larger bill. What are the most likely reasons?",
+      correct: "Differences in region, VM size, usage volume, or purchased pricing option such as reservations or savings plans",
+      wrong: [
+        "Differences in the tenant name or administrator count",
+        "Differences in the color of the resource group",
+        "Differences in whether the resources were created by a template",
+      ],
+      rationale: "Azure cost follows configuration and consumption: region, size, hours running, disks, data transfer, and the purchasing option. Identical-looking deployments can cost very different amounts.",
+      keyPoints: [
+        "Cost drivers include region, SKU or size, hours of use, and data transfer.",
+        "Reservation, savings plan, and spot pricing change the effective rate.",
+        "Idle or stopped-but-allocated resources still incur charges.",
+      ],
+      requirements: "Rates are published per region and per service, and a stop on a virtual machine without a deallocation still bills compute. Data transfer out of Azure is billed separately from inbound transfer, and negotiated discounts are not reflected in list rates.",
+      whyOthers: [
+        "Tenant name and administrator count have no bearing on resource cost.",
+        "Naming and display conventions do not affect billing.",
+        "Deployment method does not change price; the resulting configuration does.",
+      ],
+      difficulty: "easy",
+      topic: "Cost factors",
+    },
+    {
+      question: "A developer leaves ten test virtual machines running over a weekend. Why is this a cost risk?",
+      correct: "Compute billing continues for allocated capacity, including stopped-but-allocated virtual machines",
+      wrong: [
+        "Idle virtual machines are never billed",
+        "Only the resource group owner is billed for unused capacity",
+        "Test environments are automatically free in Azure",
+      ],
+      rationale: "Consumption billing applies to allocated capacity. A stopped virtual machine still reserves capacity and incurs compute charges unless it is deallocated, and deallocation loses local state and the IP by default.",
+      keyPoints: [
+        "Stopped-but-allocated VMs still incur compute charges.",
+        "Deallocation stops compute charges but releases the allocation.",
+        "Automation such as schedules or auto-shutdown reduces this waste.",
+      ],
+      whyOthers: [
+        "Idle allocated capacity is billed; that is what makes deallocation matter.",
+        "Billing follows the subscription owner, not which team created the resource.",
+        "No Azure service is automatically free for test environments.",
+      ],
+      difficulty: "easy",
+      topic: "Cost factors",
+    },
+    {
+      question: "Which action can reduce cost without changing application functionality?",
+      correct: "Right-size underused virtual machines and move infrequently accessed blob data to a colder access tier",
+      wrong: [
+        "Disable security monitoring to reduce resource count",
+        "Move data to a less durable redundancy option without checking requirements",
+        "Store data unencrypted to avoid encryption processing overhead",
+      ],
+      rationale: "Right-sizing and tiering reduce cost without changing what the application does. Disabling monitoring, weakening durability, or removing encryption all trade away security or resilience.",
+      keyPoints: [
+        "Right-sizing and access tiering are the standard safe cost levers.",
+        "Advisor recommendations identify underused resources.",
+        "Weakening security or durability is not an acceptable cost lever.",
+      ],
+      whyOthers: [
+        "Disabling monitoring removes visibility needed to operate safely.",
+        "Reducing redundancy below requirements can cause unacceptable data loss.",
+        "Removing encryption is a security regression, not an optimization.",
+      ],
+      difficulty: "easy",
+      topic: "Cost factors",
+    },
+    {
+      question: "Why can deploying to different Azure regions change the price of the same service?",
+      correct: "Pricing is set per region and can reflect differences in demand, power, and local operating conditions",
+      wrong: [
+        "Because region determines the resource's availability SLA",
+        "Because resources in different regions use different encryption algorithms",
+        "Because a subscription covers only one region",
+      ],
+      rationale: "Azure prices services by region, and rates can vary between regions for the same SKU. Region choice therefore affects both latency and cost, which is why pricing should be checked per region.",
+      keyPoints: [
+        "Rates differ by region and can change over time.",
+        "Region selection trades latency and residency against price.",
+        "A subscription can hold resources in many regions at once.",
+      ],
+      whyOthers: [
+        "SLA and pricing are independent attributes of a service.",
+        "Encryption applies uniformly and does not vary by region.",
+        "Subscriptions span regions; a subscription is not limited to one.",
+      ],
+      difficulty: "medium",
+      topic: "Cost factors",
+    },
+    {
+      question: "A customer wants to reduce the cost of steady, always-on virtual machine usage that is unlikely to change. Which option gives the best result?",
+      correct: "A savings plan or reserved instance covering the expected usage",
+      wrong: [
+        "Deploy the same VMs with larger sizes",
+        "Use spot instances for the production workload",
+        "Stop the VMs during business hours only",
+      ],
+      rationale: "Savings plans and reserved instances discount steady, predictable usage in exchange for a commitment. Larger sizes cost more, spot capacity can be evicted, and partial-day schedules fit intermittent rather than steady workloads.",
+      keyPoints: [
+        "Commitments suit stable, predictable usage.",
+        "Savings plans apply across instances; reservations are scoped by region and size family.",
+        "Spot is for interruptible work only.",
+      ],
+      whyOthers: [
+        "Increasing size raises cost and is not a discount mechanism.",
+        "Spot capacity can be evicted, which is unsuitable for steady production workloads.",
+        "Scheduled shutdowns fit intermittent workloads; steady always-on usage needs commitment pricing.",
+      ],
+      difficulty: "medium",
+      topic: "Cost factors",
+    },
+  ],
+
+  "pricing-calculator": [
+    {
+      question: "What is the Azure Pricing Calculator used for?",
+      correct: "Estimating the cost of Azure services before deployment, based on region, tier, and expected usage",
+      wrong: [
+        "Viewing the final monthly invoice",
+        "Diagnosing why an Azure service is unavailable",
+        "Applying security policy to resources",
+      ],
+      rationale: "The pricing calculator produces pre-deployment estimates from the configuration you enter. It is a planning tool, not an invoice, status page, or policy engine.",
+      keyPoints: [
+        "Estimates depend on the region, SKU, quantity, and usage assumptions you enter.",
+        "It is used before deployment to compare architectural options.",
+        "Actual cost can differ once real usage is known.",
+      ],
+      whyOthers: [
+        "Invoices come from Cost Management and Billing.",
+        "Service status comes from Service Health.",
+        "Configuration enforcement comes from Azure Policy.",
+      ],
+      difficulty: "easy",
+      topic: "Pricing calculator",
+    },
+    {
+      question: "A team is comparing two architectures and needs to know which will cost less. What should they use?",
+      correct: "The pricing calculator, modelling both designs with the same usage assumptions",
+      wrong: [
+        "Azure Service Health, which shows historical billing",
+        "A resource lock, which applies discounts automatically",
+        "An availability set, which reduces compute charges",
+      ],
+      rationale: "The pricing calculator is designed for exactly this comparison. Using consistent assumptions makes the comparison meaningful. Nothing else in the platform estimates cost.",
+      keyPoints: [
+        "Model both architectures with identical assumptions for a fair comparison.",
+        "Include storage, networking, and data transfer, not only compute.",
+        "Validate the estimate against actual spend after deployment.",
+      ],
+      whyOthers: [
+        "Service Health reports incidents, not costs.",
+        "Locks protect resources and have no pricing effect.",
+        "Availability sets change resilience, not price.",
+      ],
+      difficulty: "easy",
+      topic: "Pricing calculator",
+    },
+    {
+      question: "What is the main limitation of a pricing calculator estimate?",
+      correct: "It reflects the assumptions entered, so actual usage and price changes can make real cost differ",
+      wrong: [
+        "It always overestimates, so results should be doubled",
+        "It only works for public cloud regions and excludes all discounts",
+        "It cannot model any usage-based service",
+      ],
+      rationale: "An estimate is only as good as its inputs. Usage assumptions, discounts, reservations, and changing rates all cause the final figure to differ, so estimates are for planning rather than billing.",
+      keyPoints: [
+        "Estimate accuracy depends on realistic usage inputs.",
+        "Commitments and negotiated discounts are not reflected in a standard estimate.",
+        "Track actual spend in Cost Management to validate the estimate.",
+      ],
+      whyOthers: [
+        "Estimates are not systematically biased upward.",
+        "Estimates can model reservations and discounts when configured appropriately.",
+        "Usage-based services can be modelled by entering expected usage.",
+      ],
+      difficulty: "medium",
+      topic: "Pricing calculator",
+    },
+    {
+      question: "Which items should a cost estimate include besides compute?",
+      correct: "Storage, networking and data transfer, backup, and any licensing or support costs",
+      wrong: [
+        "Only the virtual machine SKU and region",
+        "Only compute, since other services are always free",
+        "Only the number of subscriptions",
+      ],
+      rationale: "A complete estimate covers every metered component: compute, disks and storage, egress and transfer, backup, plus licensing and support where they apply. Omitting them produces a badly understated figure.",
+      keyPoints: [
+        "Include storage, transfer, and supporting services in the estimate.",
+        "Licensing and support can be significant line items.",
+        "Estimate recurring and one-off charges separately.",
+      ],
+      whyOthers: [
+        "Compute alone is rarely the whole bill.",
+        "Storage and networking are metered and are not free.",
+        "Subscription count is an organizational fact, not a metered cost.",
+      ],
+      difficulty: "easy",
+      topic: "Pricing calculator",
+    },
+  ],
+
+  "cost-management-capabilities": [
+    {
+      question: "A finance team needs to be notified before a project's monthly Azure spend exceeds a threshold. What should they configure?",
+      correct: "A budget in Cost Management with an alert action tied to it",
+      wrong: [
+        "An Azure Policy that denies resource creation above a cost",
+        "A resource lock on the project's resource group",
+        "A Service Health alert for the project's region",
+      ],
+      rationale: "Budgets in Cost Management track actual and forecast spend and can raise alerts when thresholds are crossed. A budget notifies; it does not stop resources.",
+      keyPoints: [
+        "Budgets define a spending threshold for a scope.",
+        "Alert actions notify the configured recipients when thresholds are reached.",
+        "Budgets monitor and notify; they do not automatically stop or delete resources.",
+      ],
+      whyOthers: [
+        "Policy evaluates configuration compliance, not spend thresholds.",
+        "Locks prevent deletion or modification and have no cost notification role.",
+        "Service Health alerts report platform events, not customer spend.",
+      ],
+      difficulty: "easy",
+      topic: "Cost management",
+    },
+    {
+      question: "Which capability in Cost Management helps a business unit see what it spent?",
+      correct: "Cost analysis, grouped or filtered by tags such as cost center or environment",
+      wrong: [
+        "Resource locks, which record spending per group",
+        "Azure Policy, which allocates costs automatically",
+        "Service Health, which itemizes monthly charges",
+      ],
+      rationale: "Cost analysis breaks spend down over time and by dimensions such as resource, group, or tag. Applying consistent tags is what makes allocation meaningful.",
+      keyPoints: [
+        "Cost analysis provides actual and forecast spend breakdowns.",
+        "Tags make cost allocation to business units possible.",
+        "Consistent tag discipline is a prerequisite for useful allocation.",
+      ],
+      whyOthers: [
+        "Locks protect resources; they record no spending.",
+        "Policy governs configuration and does not allocate cost.",
+        "Service Health reports platform status, not billing detail.",
+      ],
+      difficulty: "easy",
+      topic: "Cost management",
+    },
+    {
+      question: "What is the relationship between budgets and alerts in Azure Cost Management?",
+      correct: "A budget defines thresholds and an alert action is what notifies recipients when those thresholds are crossed",
+      wrong: [
+        "A budget automatically deletes resources when it is exceeded",
+        "An alert automatically increases the budget",
+        "They are unrelated features in different subscriptions",
+      ],
+      rationale: "A budget is the threshold definition; alert actions are the notification mechanism attached to it. Together they give proactive warning without changing resource state.",
+      keyPoints: [
+        "Budgets define thresholds; alerts send notifications.",
+        "Budgets do not enforce or change resource usage.",
+        "Multiple alert actions can be attached with different recipients and timing.",
+      ],
+      whyOthers: [
+        "A budget alerts; it never deletes or stops resources.",
+        "Alerts inform people, they do not modify the budget definition.",
+        "They are a single connected feature set within Cost Management.",
+      ],
+      difficulty: "easy",
+      topic: "Cost management",
+    },
+    {
+      question: "Which factor is required before costs can be reliably attributed to a specific department?",
+      correct: "Consistently applied tags on the department's resources",
+      wrong: [
+        "A management group named after the department",
+        "An availability set in the department's subscription",
+        "A policy that denies unapproved regions",
+      ],
+      rationale: "Cost allocation depends on metadata that identifies the owner. Tags are the mechanism; without consistent application, allocation reports are incomplete or wrong.",
+      keyPoints: [
+        "Tags such as costCenter or owner drive cost allocation.",
+        "Consistent tag application is an operational discipline.",
+        "Automation and policy can enforce tagging to keep it reliable.",
+      ],
+      whyOthers: [
+        "A management group organizes subscriptions for governance; it does not tag individual costs.",
+        "An availability set is a compute resilience construct.",
+        "A region policy constrains where resources may be created and allocates no cost.",
+      ],
+      difficulty: "easy",
+      topic: "Cost management",
+    },
+    {
+      question: "A manager wants to see actual spending trends over time, not just a threshold notification. What provides this?",
+      correct: "Cost analysis with time-series reporting and grouping",
+      wrong: [
+        "A budget alert",
+        "An availability zone",
+        "A resource lock",
+      ],
+      rationale: "Cost analysis reports actual spend over time with filters and groupings, which supports trend analysis and forecasting. A budget alert only signals a threshold crossing.",
+      keyPoints: [
+        "Cost analysis shows actual and forecast spend over a date range.",
+        "Grouping and filters make trends visible by team, resource, or tag.",
+        "Budget alerts answer a different question: is a limit approaching.",
+      ],
+      whyOthers: [
+        "A budget alert sends a notification; it does not present trends.",
+        "Availability zones are a resilience concept.",
+        "Locks protect resources from change.",
+      ],
+      difficulty: "medium",
+      topic: "Cost management",
+    },
+  ],
+
+  tags: [
+    {
+      question: "What is an Azure resource tag?",
+      correct: "A name-value metadata pair attached to a resource for organization, reporting, and filtering",
+      wrong: [
+        "A permission that grants a principal access to the resource",
+        "A rule that automatically deletes the resource",
+        "A configuration setting that determines the resource's price",
+      ],
+      rationale: "Tags are metadata. They support filtering in the portal, cost allocation, and automation, but they do not grant access, delete anything, or set price.",
+      keyPoints: [
+        "Tags are key-value metadata on resources, resource groups, and subscriptions.",
+        "They enable filtering, reporting, and cost allocation.",
+        "They have no effect on access control or pricing.",
+      ],
+      whyOthers: [
+        "Access comes from RBAC assignments, not tags.",
+        "Tags do not delete resources; locks limit deletion.",
+        "Price is determined by the resource, region, and tier.",
+      ],
+      difficulty: "easy",
+      topic: "Tags",
+    },
+    {
+      question: "A team applies tags at the resource group level. What should they know about inheritance?",
+      correct: "Tags do not automatically propagate from a resource group to resources created inside it, so they are usually applied by policy or automation",
+      wrong: [
+        "Tags automatically apply to every resource in the group and to new resources forever",
+        "Tags inherit upward from resources to the subscription",
+        "Tags are inherited only by storage accounts",
+      ],
+      rationale: "Tag inheritance is not automatic. Tags set on a resource group are not automatically applied to resources within it, so reliable tagging needs automation, policy, or pipeline steps.",
+      keyPoints: [
+        "Resources do not inherit tags from their resource group by default.",
+        "Azure Policy with a modify effect can enforce tags at scale.",
+        "Automation and pipelines can apply tags during deployment.",
+      ],
+      whyOthers: [
+        "Automatic inheritance to resources does not happen, so relying on it leaves resources untagged.",
+        "Tags do not flow upward to subscriptions.",
+        "Inheritance behavior is not service-specific.",
+      ],
+      difficulty: "medium",
+      topic: "Tags",
+    },
+    {
+      question: "Which is a good set of tags for a production workload in a cost-conscious organization?",
+      correct: "Environment, application or cost center, and owner",
+      wrong: [
+        "Virtual machine size, password, and private IP address",
+        "Region, subscription ID, and resource provider",
+        "Administrator name, login timestamp, and session ID",
+      ],
+      rationale: "Useful tags describe ownership and context: environment, application, cost center, owner, and lifecycle. Secret material and volatile values belong elsewhere.",
+      keyPoints: [
+        "Environment, application, cost center, and owner are practical governance tags.",
+        "Tag values should be consistent and low cardinality.",
+        "Secrets and session data must never be stored in tags.",
+      ],
+      whyOthers: [
+        "Passwords and addresses are either configuration or sensitive data, not governance metadata.",
+        "Region, subscription, and provider are already known properties of the resource.",
+        "Administrator names and session identifiers are personal or ephemeral data and are poor tag choices.",
+      ],
+      difficulty: "easy",
+      topic: "Tags",
+    },
+    {
+      question: "How can an organization require that every resource carry a cost center tag?",
+      correct: "Assign an Azure Policy that audits or denies resources missing the required tag",
+      wrong: [
+        "Create a resource lock on the subscription",
+        "Set a budget in Cost Management",
+        "Use Advisor to apply tags automatically",
+      ],
+      rationale: "Policy evaluates resource configuration and can deny, audit, or remediate, which is how tag requirements are enforced. Locks, budgets, and Advisor do not apply tags to resources.",
+      keyPoints: [
+        "Azure Policy enforces configuration requirements such as required tags.",
+        "The modify effect can remediate existing non-compliant resources.",
+        "Combining policy with deployment-time tags keeps compliance continuous.",
+      ],
+      whyOthers: [
+        "Locks prevent deletion or modification; they do not apply or require tags.",
+        "Budgets monitor spend and alert; they do not enforce metadata.",
+        "Advisor recommends improvements and does not write tags to resources.",
+      ],
+      difficulty: "medium",
+      topic: "Tags",
+    },
+    {
+      question: "What is a practical reason to limit tag values to a controlled list?",
+      correct: "Consistent values make filtering, reporting, and cost allocation reliable rather than producing near-duplicate spellings",
+      wrong: [
+        "Azure rejects resources with more than a fixed number of tags",
+        "Controlled values reduce the monthly cost of each resource",
+        "Tags with limited values are automatically inherited by child resources",
+      ],
+      rationale: "Uncontrolled values such as prod, production, and PROD fragment reporting. A governed vocabulary keeps queries and allocation dependable.",
+      keyPoints: [
+        "Cardinality control prevents reporting fragmentation.",
+        "A small, defined set of values per tag name is easier to query.",
+        "Inheritance remains a separate concern from value governance.",
+      ],
+      whyOthers: [
+        "Azure does not impose a fixed tag count limit that requires controlled values.",
+        "Tag values do not change resource pricing.",
+        "Value governance does not cause inheritance.",
+      ],
+      difficulty: "medium",
+      topic: "Tags",
+    },
+  ],
+
+  "purview-purpose": [
+    {
+      question: "What is Microsoft Purview used for in Azure?",
+      correct: "To discover, classify, and govern an organization's data across its data estate, including risk and compliance",
+      wrong: [
+        "To create virtual machines and storage accounts",
+        "To manage DNS zones and private endpoints",
+        "To enforce configuration rules on Azure resources",
+      ],
+      rationale: "Purview is a data governance platform: it helps organizations find where sensitive data lives, classify it, and manage access and compliance for that data.",
+      keyPoints: [
+        "Purview addresses data governance rather than infrastructure governance.",
+        "Discovery and classification inform downstream protection.",
+        "It works across sources, not only Azure resources.",
+      ],
+      whyOthers: [
+        "Provisioning compute and storage is done with compute and storage services.",
+        "Networking and DNS are separate Azure services.",
+        "Configuration rules on resources are enforced by Azure Policy.",
+      ],
+      difficulty: "easy",
+      topic: "Purview",
+    },
+    {
+      question: "A company needs to find where customer personal data is stored across its estate. Which capability addresses this?",
+      correct: "Microsoft Purview data discovery and classification",
+      wrong: [
+        "Azure Policy",
+        "Azure Advisor",
+        "Resource tags",
+      ],
+      rationale: "Data discovery and classification is Purview's purpose: locating sensitive data and labeling it so protection and governance can be applied. Policy governs resource configuration, Advisor recommends improvements, and tags are user-supplied metadata.",
+      keyPoints: [
+        "Purview scans and classifies data across connected sources.",
+        "Classification is what makes downstream governance possible.",
+        "Uncovering data locations is the discovery problem Purview solves.",
+      ],
+      whyOthers: [
+        "Policy evaluates resource configuration, not data content.",
+        "Advisor recommends configuration improvements and does not scan data.",
+        "Tags are manually applied metadata and do not classify existing data.",
+      ],
+      difficulty: "easy",
+      topic: "Purview",
+    },
+    {
+      question: "How does Purview differ from Azure Policy?",
+      correct: "Purview governs data, while Policy governs Azure resource configuration and can enforce rules",
+      wrong: [
+        "They are two names for the same governance service",
+        "Purview enforces resource rules while Policy classifies data",
+        "Policy discovers data across systems while Purview denies deployments",
+      ],
+      rationale: "They govern different things: Purview is about data assets, classification, and compliance; Policy is about resource configuration compliance. Organizations commonly use both.",
+      keyPoints: [
+        "Purview: data discovery, classification, and governance.",
+        "Policy: resource configuration compliance and enforcement.",
+        "Using both covers data and infrastructure governance.",
+      ],
+      whyOthers: [
+        "They are distinct services with different scopes.",
+        "This reverses each service's responsibility.",
+        "Policy does not discover data, and Purview does not block deployments.",
+      ],
+      difficulty: "medium",
+      topic: "Purview",
+    },
+    {
+      question: "Why does a security team classify data before applying access controls?",
+      correct: "Because classification indicates sensitivity, which determines what protections, access levels, and retention rules are appropriate",
+      wrong: [
+        "Because classification changes the storage cost of the data",
+        "Because classification automatically applies RBAC role assignments",
+        "Because unclassified data cannot be encrypted",
+      ],
+      rationale: "Classification provides the input for governance decisions: who may access the data, what encryption and monitoring it needs, and how long it must be kept. It does not itself change cost, assign roles, or gate encryption.",
+      keyPoints: [
+        "Classification drives access, protection, and retention decisions.",
+        "It is an input to governance, not an enforcement mechanism.",
+        "Automated classification scales to data volumes humans cannot review.",
+      ],
+      whyOthers: [
+        "Classification does not alter storage pricing.",
+        "Role assignments are made through RBAC; classification informs which roles are appropriate.",
+        "Encryption can be applied regardless of classification state.",
+      ],
+      difficulty: "medium",
+      topic: "Purview",
+    },
+  ],
+
+  "policy-purpose": [
+    {
+      question: "What does Azure Policy do?",
+      correct: "It evaluates Azure resources against organizational rules and can audit, deny, modify, or remediate them",
+      wrong: [
+        "It grants users permission to perform actions on resources",
+        "It sends notifications about Azure platform incidents",
+        "It transfers data between storage accounts",
+      ],
+      rationale: "Azure Policy is the governance service for resource configuration. It evaluates existing and new resources against rules and applies the effect the rule specifies.",
+      keyPoints: [
+        "Policy evaluates resource configuration against rules.",
+        "Effects include audit, deny, modify, append, and deployIfNotExists.",
+        "Policy is not an authorization mechanism; RBAC grants permission.",
+      ],
+      whyOthers: [
+        "Granting permissions is RBAC's role.",
+        "Platform incident notifications come from Service Health.",
+        "Data transfer is handled by AzCopy, Storage Explorer, and Data Box.",
+      ],
+      difficulty: "easy",
+      topic: "Policy",
+    },
+    {
+      question: "An organization must prevent any resource from being created in a region it does not use. What is the correct control?",
+      correct: "An Azure Policy location restriction assigned at an appropriate scope, with a deny effect",
+      wrong: [
+        "A resource lock on each subscription",
+        "An RBAC assignment denying the create action",
+        "A tag applied to every resource",
+      ],
+      rationale: "A deny-effect policy on allowed locations blocks creation outside the approved set. Locks prevent modification or deletion of existing resources, and RBAC restricts a principal rather than enforcing configuration standards.",
+      keyPoints: [
+        "Location restriction with a deny effect blocks non-compliant creation.",
+        "Assignment scope determines how widely the rule applies.",
+        "Policy is the correct control for configuration standards.",
+      ],
+      whyOthers: [
+        "Locks do not prevent creation of new resources.",
+        "An RBAC denial applies to specific principals and actions, not to all users creating resources.",
+        "Tags record metadata and do not enforce anything.",
+      ],
+      difficulty: "easy",
+      topic: "Policy",
+    },
+    {
+      question: "Which policy effect reports non-compliance without blocking anything?",
+      correct: "Audit",
+      wrong: ["Deny", "Modify", "Append"],
+      rationale: "Audit records compliance state and appears in the policy dashboard without changing or blocking resources. Deny blocks, modify changes properties, and append adds to existing properties.",
+      keyPoints: [
+        "Audit is the safe starting effect when assessing existing estates.",
+        "Deny blocks, modify alters, append adds to resource properties.",
+        "Moving from audit to deny is a normal staged rollout.",
+      ],
+      whyOthers: [
+        "Deny blocks the operation, which is the opposite of a non-intrusive effect.",
+        "Modify changes the resource's properties automatically.",
+        "Append adds tags or properties to the resource.",
+      ],
+      difficulty: "easy",
+      topic: "Policy",
+    },
+    {
+      question: "How are multiple policy rules grouped for consistent assignment?",
+      correct: "In an initiative, which is a definition that groups policies and can be assigned as a unit",
+      wrong: [
+        "In a management group, which contains the policy rules themselves",
+        "In a resource group, which holds policy definitions",
+        "In a subscription, which stores policy definitions directly",
+      ],
+      rationale: "An initiative definition groups related policy definitions into a single assignable unit. Management groups, resource groups, and subscriptions are scopes, not containers for policy rules.",
+      keyPoints: [
+        "Initiatives bundle policy definitions for one assignment.",
+        "Initiative parameters let the same bundle be reused with different values.",
+        "Scopes and definitions are different concepts.",
+      ],
+      whyOthers: [
+        "Management groups provide assignment scope, not policy rule grouping.",
+        "Resource groups organize resources, not policy definitions.",
+        "Subscriptions hold resources and are a scope for assignments, not a definition store.",
+      ],
+      difficulty: "medium",
+      topic: "Policy",
+    },
+    {
+      question: "What is the difference between Azure Policy and Azure RBAC?",
+      correct: "RBAC controls who may perform actions; Policy controls whether a resource configuration is acceptable",
+      wrong: [
+        "Policy controls who may perform actions; RBAC controls configuration acceptability",
+        "Both enforce the same thing at different scopes",
+        "RBAC blocks deployments while Policy grants permissions",
+      ],
+      rationale: "The two address different questions. RBAC answers whether an identity may do something; Policy answers whether a resource's configuration complies with organizational standards.",
+      keyPoints: [
+        "RBAC: authorization for principals at a scope.",
+        "Policy: configuration governance for resources.",
+        "Both are needed: authorized users can still create non-compliant resources.",
+      ],
+      whyOthers: [
+        "This reverses the two services' responsibilities.",
+        "They govern different things: access versus configuration.",
+        "RBAC grants permissions and Policy enforces standards; neither does the other's job.",
+      ],
+      difficulty: "medium",
+      topic: "Policy",
+    },
+  ],
+
+  "resource-locks": [
+    {
+      question: "What do Azure resource locks protect against?",
+      correct: "Accidental deletion or modification of resources, by users who otherwise have permission to change them",
+      wrong: [
+        "Unauthorized users who lack RBAC permissions",
+        "Azure billing errors on the subscription",
+        "Data loss caused by an application bug",
+      ],
+      rationale: "Locks are a safety net for authorized users. They stop accidental deletion or read-only changes even for someone with the permission, but they are not a security control against attackers.",
+      keyPoints: [
+        "CanNotDelete prevents removal; ReadOnly blocks modifications.",
+        "Locks apply to authorized users, complementing RBAC rather than replacing it.",
+        "Locks are removed by an owner or contributor who deletes the lock itself.",
+      ],
+      whyOthers: [
+        "Users without permission are already blocked by RBAC.",
+        "Locks do not affect billing.",
+        "Locks do not restore deleted data and are not a backup mechanism.",
+      ],
+      difficulty: "easy",
+      topic: "Resource locks",
+    },
+    {
+      question: "What is the difference between CanNotDelete and ReadOnly locks?",
+      correct: "CanNotDelete blocks deletion but allows modification; ReadOnly blocks modification but allows deletion",
+      wrong: [
+        "CanNotDelete blocks both operations; ReadOnly allows both",
+        "Both locks block only modification",
+        "CanNotDelete allows deletion only; ReadOnly blocks everything",
+      ],
+      rationale: "The two locks protect against different accidents: CanNotDelete stops removal while permitting configuration changes, and ReadOnly stops configuration changes while still permitting deletion. CanNotDelete is normally the safer choice.",
+      keyPoints: [
+        "CanNotDelete = no delete, yes modify.",
+        "ReadOnly = no modify, delete still possible.",
+        "CanNotDelete is generally preferred for critical resources.",
+      ],
+      whyOthers: [
+        "CanNotDelete explicitly allows modification, and ReadOnly is not fully permissive.",
+        "They differ from each other rather than both blocking only modification.",
+        "This description inverts both locks.",
+      ],
+      difficulty: "easy",
+      topic: "Resource locks",
+    },
+    {
+      question: "An administrator needs to delete a resource that has a CanNotDelete lock. What must happen first?",
+      correct: "The lock must be removed by someone with permission, and then the resource can be deleted",
+      wrong: [
+        "Nothing; locks can be bypassed by using the CLI",
+        "The resource group must be moved to another subscription",
+        "A policy assignment must be deleted first",
+      ],
+      rationale: "Locks are enforced by the control plane and apply regardless of the tool used. The lock itself must be deleted by an authorized principal before the resource can be removed, which is exactly the safety behavior intended.",
+      keyPoints: [
+        "Locks apply to portal, CLI, PowerShell, and templates alike.",
+        "Deleting the lock requires an owner or contributor at the appropriate scope.",
+        "The lock exists precisely to force a deliberate, visible action.",
+      ],
+      whyOthers: [
+        "The control plane enforces locks uniformly; there is no bypass.",
+        "Moving a resource group between subscriptions does not remove a lock.",
+        "Policy is unrelated to lock removal.",
+      ],
+      difficulty: "easy",
+      topic: "Resource locks",
+    },
+    {
+      question: "How do locks interact with the scope hierarchy?",
+      correct: "A lock applied at a higher scope affects resources beneath it, so a subscription-level lock covers all resource groups in it",
+      wrong: [
+        "A lock affects only resources at the exact scope where it is applied",
+        "Locks inherit upward from resources to subscriptions",
+        "Locks apply only to storage resources",
+      ],
+      rationale: "Locks follow scope. Applying one at a subscription or resource group extends protection to everything beneath, which is how critical environments are guarded as a whole.",
+      keyPoints: [
+        "Locks inherit down to contained scopes.",
+        "Scope choice determines the blast radius of the protection.",
+        "Deleting the higher-scope lock releases the protection below.",
+      ],
+      whyOthers: [
+        "A lock at a scope applies to descendants, not only to that exact scope.",
+        "Locks flow downward, not upward.",
+        "Locks work on any resource type, not just storage.",
+      ],
+      difficulty: "medium",
+      topic: "Resource locks",
+    },
+    {
+      question: "Why is a resource lock not a replacement for backup?",
+      correct: "Because a lock prevents deletion or modification by authorized users but cannot restore data that was already lost to corruption, failure, or a successful attack",
+      wrong: [
+        "Because locks expire automatically after 90 days",
+        "Because locks only work on resource groups",
+        "Because locks are stored only in the Azure portal",
+      ],
+      rationale: "Locks protect against accidental change, not against data loss that has already occurred. Recovery from corruption, failure, or compromise still depends on backups and recovery design.",
+      keyPoints: [
+        "Locks are a preventive control against accidental deletion.",
+        "Backups and recovery are the controls that address actual data loss.",
+        "Lock behavior is independent of the client used.",
+      ],
+      whyOthers: [
+        "Locks do not expire; they persist until removed.",
+        "Locks apply to any resource or scope.",
+        "Locks are control-plane objects, not a portal-only feature.",
+      ],
+      difficulty: "medium",
+      topic: "Resource locks",
+    },
+  ],
+
+  "azure-portal": [
+    {
+      question: "What is the Azure portal?",
+      correct: "A browser-based graphical interface for creating, configuring, and monitoring Azure resources",
+      wrong: [
+        "A command-line client that runs only on the local machine",
+        "A service that hosts customer web applications",
+        "The physical management interface inside Azure datacenters",
+      ],
+      rationale: "The portal is the graphical front end to Azure Resource Manager. It is one of several equivalent ways to manage resources, alongside the CLI, PowerShell, and templates.",
+      keyPoints: [
+        "The portal is a browser client over Azure Resource Manager.",
+        "It supports creation, configuration, monitoring, and cost views.",
+        "It is not the only interface; scripts and templates are preferred for repeatability.",
+      ],
+      whyOthers: [
+        "Command-line clients are Azure CLI and Azure PowerShell, not the portal.",
+        "Hosting customer web applications is App Service or other hosting services.",
+        "The portal is a management interface for customers, not a physical interface.",
+      ],
+      difficulty: "easy",
+      topic: "Azure portal",
+    },
+    {
+      question: "Why is the portal usually not the best tool for deploying many similar environments?",
+      correct: "Because manual portal work is not repeatable or reviewable, unlike templates and pipelines",
+      wrong: [
+        "Because the portal cannot create any Azure resources",
+        "Because the portal only supports existing resources",
+        "Because portal deployments are always more expensive",
+      ],
+      rationale: "The portal is convenient for exploration and one-off changes. Repeated, consistent deployments belong in templates and pipelines that can be reviewed, versioned, and rerun.",
+      keyPoints: [
+        "The portal is designed for interactive work, not repeatable pipelines.",
+        "Templates and pipelines give review, versioning, and consistency.",
+        "Both interfaces drive the same Azure Resource Manager API.",
+      ],
+      whyOthers: [
+        "The portal can create any resource type the customer has permission for.",
+        "The portal creates as well as configures resources.",
+        "Cost depends on the resources created, not on the interface used.",
+      ],
+      difficulty: "easy",
+      topic: "Azure portal",
+    },
+    {
+      question: "A team wants to deploy a development environment, then an identical production environment with different values. Which approach suits this?",
+      correct: "An ARM template with parameters, deployed through the portal or a pipeline",
+      wrong: [
+        "Creating every resource manually in the portal and renaming them",
+        "Copying the portal's browser history to a new environment",
+        "Applying a resource lock to each resource",
+      ],
+      rationale: "Parameterized templates express one deployment definition that can be reused with different inputs, which is the reproducible way to create consistent environments.",
+      keyPoints: [
+        "Templates separate deployment definition from environment-specific values.",
+        "The same template produces dev, test, and prod consistently.",
+        "Manual duplication drifts over time and cannot be reviewed.",
+      ],
+      whyOthers: [
+        "Manual creation is not repeatable and drifts between environments.",
+        "Browser history has no relationship to deployed configuration.",
+        "Locks restrict changes; they do not create environments.",
+      ],
+      difficulty: "easy",
+      topic: "Azure portal",
+    },
+    {
+      question: "What can an administrator review in the Azure portal's cost view?",
+      correct: "Actual spending, trends, and cost allocation for the resources in scope",
+      wrong: [
+        "Azure platform incidents affecting the subscription",
+        "Security posture recommendations for the environment",
+        "Only the resource metadata configured with tags",
+      ],
+      rationale: "The portal surfaces cost analysis alongside governance and monitoring views, so spending trends and allocation can be reviewed in one place. Incidents and security posture are reported by other services.",
+      keyPoints: [
+        "Cost analysis shows actual and forecast spend with filters and groupings.",
+        "Service Health covers platform incidents.",
+        "Defender for Cloud reports security posture recommendations.",
+      ],
+      whyOthers: [
+        "Service Health reports platform status, not spending.",
+        "Security posture recommendations come from Defender for Cloud.",
+        "Tag data is metadata that can filter the view, not the whole of it.",
+      ],
+      difficulty: "medium",
+      topic: "Azure portal",
+    },
+  ],
+
+  "cloud-shell-cli-powershell": [
+    {
+      question: "What does Azure Cloud Shell provide?",
+      correct: "A browser-hosted shell environment with Azure CLI and Azure PowerShell available, without installing tools locally",
+      wrong: [
+        "A physical server installed in the customer's datacenter",
+        "A graphical interface equivalent to the Azure portal",
+        "A service that deploys resources without authentication",
+      ],
+      rationale: "Cloud Shell is a managed shell in the browser with the Azure CLI and Azure PowerShell modules already installed and authenticated to the account. It is convenient for exploring commands without local setup.",
+      keyPoints: [
+        "Cloud Shell runs in the browser and requires no local installation.",
+        "Both Azure CLI and Azure PowerShell are available in the same environment.",
+        "It is intended for interactive use; automation belongs in pipelines.",
+      ],
+      requirements: "Cloud Shell creates a default storage account in a chosen location to persist its home directory and requires an existing subscription to use. Persistent sessions incur storage charges, and it can also run in an ephemeral mode with no state retained.",
+      whyOthers: [
+        "Cloud Shell is a hosted service, not customer hardware.",
+        "The graphical interface is the Azure portal.",
+        "Cloud Shell authenticates with the user's identity and requires sign-in.",
+      ],
+      difficulty: "easy",
+      topic: "Cloud Shell",
+    },
+    {
+      question: "What is the Azure CLI used for?",
+      correct: "Managing Azure resources from a cross-platform terminal using commands such as az group list",
+      wrong: [
+        "Managing Windows servers with PowerShell cmdlets",
+        "Editing DNS zone files directly",
+        "Compiling application source code",
+      ],
+      rationale: "The Azure CLI is the cross-platform command-line tool for Azure resource management. It is the same control plane the portal and ARM templates use, exposed as az commands.",
+      keyPoints: [
+        "The CLI provides automation for Azure resource management.",
+        "It works on Linux, macOS, and Windows.",
+        "Commands follow a noun-verb pattern under the az command.",
+      ],
+      whyOthers: [
+        "Managing on-premises Windows servers is done with PowerShell or remote management tools.",
+        "DNS zone content is managed through Azure DNS commands or the portal, not by editing files locally.",
+        "Compilation is a developer toolchain task unrelated to the Azure CLI.",
+      ],
+      difficulty: "easy",
+      topic: "Azure CLI",
+      commandPath: [
+        { label: "Sign in interactively", command: "az login" },
+        { label: "List resource groups in the subscription", command: "az group list --output table" },
+        { label: "List virtual machines and their power state", command: "az vm list --query \"[].{name:name, power:powerState}\" --output table" },
+        { label: "Deallocate a VM so compute billing stops", command: "az vm deallocate --resource-group rg-app --name vm-web-01" },
+      ],
+    },
+    {
+      question: "What is Azure PowerShell used for?",
+      correct: "Managing Azure resources from a Windows or PowerShell environment using the Az PowerShell module",
+      wrong: [
+        "Replacing the need for any GUI management tool",
+        "Managing only on-premises Active Directory",
+        "Running SQL queries against Azure databases",
+      ],
+      rationale: "The Az PowerShell module gives Azure resource management from PowerShell, which is the natural choice in Windows automation contexts such as runbooks and scheduled tasks.",
+      keyPoints: [
+        "The Az module is the current generation of Azure PowerShell cmdlets.",
+        "It suits Windows-centric automation and scripting.",
+        "It drives the same Azure Resource Manager control plane as the CLI.",
+      ],
+      whyOthers: [
+        "It complements the portal rather than replacing all graphical tools.",
+        "Azure PowerShell manages Azure resources, not on-premises Active Directory.",
+        "Querying databases is done with database tooling, not Azure PowerShell.",
+      ],
+      difficulty: "easy",
+      topic: "Azure PowerShell",
+      commandPath: [
+        { label: "Sign in", command: "Connect-AzAccount" },
+        { label: "List resource groups", command: "Get-AzResourceGroup | Format-Table" },
+        { label: "Check the current context and subscription", command: "Get-AzContext | Format-List" },
+        { label: "Remove a resource lock after approval", command: "Remove-AzResourceLock -LockName protect-data -ResourceGroupName rg-data" },
+      ],
+    },
+    {
+      question: "Why should repeatable deployments be run from a pipeline rather than typed into Cloud Shell?",
+      correct: "Because pipelines give version control, review, audit, and automatic re-execution that an interactive shell does not",
+      wrong: [
+        "Because Cloud Shell cannot create Azure resources",
+        "Because Cloud Shell has a monthly cost per session",
+        "Because pipelines are the only way to use the Azure CLI",
+      ],
+      rationale: "Interactive shells are for exploration. Production changes belong in pipelines where they are versioned, reviewed, logged, and repeatable. The CLI itself is used in both contexts.",
+      keyPoints: [
+        "Pipelines add review, versioning, and auditability.",
+        "Cloud Shell is fine for exploration and learning.",
+        "The CLI is the same in both; the surrounding process differs.",
+      ],
+      whyOthers: [
+        "Cloud Shell can create and manage resources using the same APIs.",
+        "Cloud Shell has no per-session charge.",
+        "The CLI is commonly used interactively and in pipelines alike.",
+      ],
+      difficulty: "medium",
+      topic: "Cloud Shell",
+    },
+    {
+      question: "What is the relationship between Cloud Shell, the Azure CLI, and Azure PowerShell?",
+      correct: "Cloud Shell is a hosted environment that already includes the Azure CLI and the Az PowerShell module",
+      wrong: [
+        "They are three competing ways to manage Azure with no overlap",
+        "The CLI installs Cloud Shell automatically",
+        "Azure PowerShell is a browser interface like the portal",
+      ],
+      rationale: "They are complementary layers: Cloud Shell is where you run things, and the CLI and PowerShell module are the tools you run. All three use Azure Resource Manager.",
+      keyPoints: [
+        "Cloud Shell is the environment; CLI and PowerShell are the clients.",
+        "Both clients manage the same Azure resources through ARM.",
+        "Choosing between them depends on shell preference and environment.",
+      ],
+      whyOthers: [
+        "They overlap and complement each other rather than competing.",
+        "The CLI does not install Cloud Shell; Cloud Shell includes the CLI.",
+        "Azure PowerShell is a command-line module, not a graphical interface.",
+      ],
+      difficulty: "easy",
+      topic: "Cloud Shell",
+    },
+  ],
+
+  "azure-arc-purpose": [
+    {
+      question: "What is the purpose of Azure Arc?",
+      correct: "To extend Azure management, governance, and security capabilities to resources outside Azure, such as on-premises servers and Kubernetes clusters",
+      wrong: [
+        "To move all resources automatically into Azure datacenters",
+        "To replace the Azure portal",
+        "To provide free compute capacity",
+      ],
+      rationale: "Azure Arc projects supported non-Azure resources into Azure Resource Manager so existing servers and clusters can be managed and governed with Azure tools, policies, and monitoring.",
+      keyPoints: [
+        "Arc brings Azure management to resources without moving them.",
+        "Onboarding installs an agent on the resource.",
+        "After onboarding, Policy, configuration, and monitoring apply consistently.",
+      ],
+      whyOthers: [
+        "Arc does not migrate workloads; it manages them where they are.",
+        "Arc extends, and does not replace, the portal.",
+        "Arc provides management, not compute capacity.",
+      ],
+      difficulty: "easy",
+      topic: "Azure Arc",
+    },
+    {
+      question: "A company wants to apply Azure Policy to on-premises servers without moving them to Azure. What should it use?",
+      correct: "Azure Arc for servers, then assign Azure Policy to the projected resources",
+      wrong: [
+        "Azure Migrate, which must complete the move first",
+        "Azure Data Box, which transfers the servers physically",
+        "A management group containing on-premises servers",
+      ],
+      rationale: "Arc-enabled servers appear as resources in Azure Resource Manager, so Azure Policy assignments can govern them in place. Migrate and Data Box are about moving workloads or data.",
+      keyPoints: [
+        "Arc onboarding creates Azure-managed representations of on-premises resources.",
+        "Policy then applies to those projected resources.",
+        "No data center move is required to gain governance.",
+      ],
+      whyOthers: [
+        "Azure Migrate is for moving workloads to Azure, which the requirement avoids.",
+        "Data Box transfers data volumes, not servers to be governed in place.",
+        "Management groups organize Azure subscriptions; they do not project on-premises resources into Azure.",
+      ],
+      difficulty: "medium",
+      topic: "Azure Arc",
+    },
+    {
+      question: "How does an organization gain consistent security posture management across on-premises and Azure servers?",
+      correct: "By onboarding both to Azure governance, including Arc for on-premises servers, so policies and Defender for Cloud plans apply uniformly",
+      wrong: [
+        "By migrating all on-premises servers to Azure",
+        "By keeping separate tools for each environment",
+        "By applying tags consistently in each environment",
+      ],
+      rationale: "Consistency comes from managing both environments through the same Azure governance plane. Arc brings on-premises servers into that plane so policies, configurations, and security assessments behave the same way everywhere.",
+      keyPoints: [
+        "Arc-enabled servers join the same management and governance model.",
+        "Policy and security assessments then apply across environments.",
+        "Consistency reduces duplicated tooling and gap risk.",
+      ],
+      whyOthers: [
+        "Migration is not required; Arc manages servers in place.",
+        "Separate tools per environment create inconsistency rather than removing it.",
+        "Tags are metadata and do not unify security posture management.",
+      ],
+      difficulty: "medium",
+      topic: "Azure Arc",
+    },
+    {
+      question: "Which statement about Azure Arc is accurate?",
+      correct: "It requires installing an agent on supported resources, which then connect to Azure control plane endpoints",
+      wrong: [
+        "It requires migrating the resource into an Azure region",
+        "It is a portal feature with no agent involved",
+        "It works only with virtual machines already in Azure",
+      ],
+      rationale: "Arc onboarding installs an agent that establishes a connection to Azure. The resource stays where it is while becoming manageable with Azure tools, which is what distinguishes Arc from migration.",
+      keyPoints: [
+        "Onboarding uses an agent installed on the resource.",
+        "Outbound connectivity to Azure control plane endpoints is required.",
+        "Arc-enabled resources remain in their original location.",
+      ],
+      whyOthers: [
+        "Arc explicitly avoids requiring a migration into Azure.",
+        "Arc is not merely a portal feature; the agent is what creates the connection.",
+        "Arc's purpose is to govern resources outside Azure.",
+      ],
+      difficulty: "medium",
+      topic: "Azure Arc",
+    },
+  ],
+
+  "infrastructure-as-code": [
+    {
+      question: "What is infrastructure as code?",
+      correct: "Defining infrastructure in machine-readable, version-controlled files so environments are created repeatably",
+      wrong: [
+        "Writing application source code that provisions infrastructure at runtime",
+        "Manually configuring resources through the portal",
+        "Documenting infrastructure changes in a wiki",
+      ],
+      rationale: "Infrastructure as code expresses desired infrastructure declaratively in files that can be committed, reviewed, and applied consistently. Documentation describes; IaC applies.",
+      keyPoints: [
+        "IaC makes infrastructure reviewable and repeatable like application code.",
+        "Files are version controlled and deployed through tooling.",
+        "Consistency and reviewability are the main benefits.",
+      ],
+      whyOthers: [
+        "Application source code is not a definition of infrastructure.",
+        "Manual portal configuration is exactly what IaC replaces.",
+        "Documentation records intent but does not create resources.",
+      ],
+      difficulty: "easy",
+      topic: "Infrastructure as code",
+    },
+    {
+      question: "What is the main benefit of storing infrastructure definitions in a source control system?",
+      correct: "Changes can be reviewed, approved, and traced before they are applied",
+      wrong: [
+        "It makes infrastructure changes free",
+        "It removes the need to test changes",
+        "It guarantees deployments never fail",
+      ],
+      rationale: "Version control gives a change history, peer review, and rollback of the definition. It does not change cost, eliminate testing, or guarantee success.",
+      keyPoints: [
+        "Review and approval gates reduce production risk.",
+        "History makes it possible to see and revert what changed.",
+        "Validation and testing are still required before production.",
+      ],
+      whyOthers: [
+        "Version control does not affect the price of resources.",
+        "Testing remains necessary; source control is not a substitute for it.",
+        "Deployments can still fail; review reduces risk without eliminating it.",
+      ],
+      difficulty: "easy",
+      topic: "Infrastructure as code",
+    },
+    {
+      question: "Which Azure technology is a recommended way to author infrastructure as code?",
+      correct: "Bicep, Azure's native declarative language for Azure resources",
+      wrong: [
+        "Azure Advisor cost recommendations",
+        "Microsoft Purview data classification",
+        "Azure Service Health notifications",
+      ],
+      rationale: "Bicep is the recommended declarative language for defining Azure resources and compiles to ARM templates. Advisor, Purview, and Service Health are advisory services, not authoring tools.",
+      keyPoints: [
+        "Bicep is a recommended, more readable alternative to raw ARM JSON.",
+        "Bicep compiles to ARM templates and works with the same tooling.",
+        "Only authoring tools define infrastructure declaratively.",
+      ],
+      whyOthers: [
+        "Advisor recommends improvements; it does not author infrastructure.",
+        "Purview classifies data.",
+        "Service Health reports platform events.",
+      ],
+      difficulty: "easy",
+      topic: "Infrastructure as code",
+    },
+    {
+      question: "An organization wants to detect infrastructure changes that were made directly in the portal and were not reviewed. What addresses this?",
+      correct: "Policy-based controls that deny unapproved configurations, combined with reviewing IaC definitions as the source of truth",
+      wrong: [
+        "Cost budgets, which detect configuration drift",
+        "Resource tags, which record who changed a resource",
+        "Service Health alerts, which report manual changes",
+      ],
+      rationale: "Preventing unreviewed change is a governance problem: policies deny configurations that violate standards, and IaC remains the sanctioned change path. Cost, tags, and platform alerts do not enforce configuration.",
+      keyPoints: [
+        "Deny-effect policies block non-compliant changes at submission.",
+        "IaC defines the approved change path for normal operations.",
+        "Tagging helps attribute ownership but does not prevent drift.",
+      ],
+      whyOthers: [
+        "Budgets track spending, not configuration changes.",
+        "Tags record metadata and do not record who made a change or prevent one.",
+        "Service Health reports Azure platform events, not customer-initiated changes.",
+      ],
+      difficulty: "medium",
+      topic: "Infrastructure as code",
+    },
+  ],
+
+  "arm-and-templates": [
+    {
+      question: "What is Azure Resource Manager?",
+      correct: "The service that processes resource requests and performs all resource write, read, delete, and control-plane operations",
+      wrong: [
+        "The physical hardware layer that runs Azure datacenters",
+        "The virtual machine operating system a customer installs",
+        "A billing service that issues monthly invoices",
+      ],
+      rationale: "Azure Resource Manager is the control plane. Every management interface - portal, CLI, PowerShell, and templates - goes through it, which is why they see the same resources and states.",
+      keyPoints: [
+        "ARM is the API layer that manages all Azure resources.",
+        "Portal, CLI, PowerShell, and templates are clients of ARM.",
+        "Templates describe desired state; ARM performs the operations.",
+      ],
+      whyOthers: [
+        "Physical hardware is the infrastructure layer, not a control-plane API.",
+        "The guest OS belongs to a customer's VM, not to ARM.",
+        "Billing is handled by Cost Management and Billing.",
+      ],
+      difficulty: "easy",
+      topic: "Azure Resource Manager",
+    },
+    {
+      question: "What is an ARM template?",
+      correct: "A declarative JSON file that describes the Azure resources to create and how they relate",
+      wrong: [
+        "An imperative script that runs a series of commands in order",
+        "A backup of resources created by Azure Backup",
+        "A policy definition that evaluates compliance",
+      ],
+      rationale: "ARM templates declare desired state, including parameters and dependencies, so Azure Resource Manager can figure out the order of operations. They are not sequential command scripts.",
+      keyPoints: [
+        "Templates are declarative and describe resources, not commands.",
+        "Parameters allow one template to serve multiple environments.",
+        "Dependencies are declared, and ARM determines the sequence.",
+      ],
+      whyOthers: [
+        "Templates are declarative; they are not step-by-step command scripts.",
+        "Backup captures data protection points, not resource definitions.",
+        "Policy definitions govern configuration compliance, not deployment.",
+      ],
+      difficulty: "easy",
+      topic: "ARM templates",
+    },
+    {
+      question: "What is the benefit of using parameters in an ARM template?",
+      correct: "It allows one template to be reused across environments with different values",
+      wrong: [
+        "It makes the deployment faster",
+        "It automatically selects the cheapest region",
+        "It removes the need to review the template",
+      ],
+      rationale: "Parameters separate the deployment definition from environment-specific values, so the same reviewed template can create dev, test, and prod consistently. They do not affect speed, cost, or review requirements.",
+      keyPoints: [
+        "Parameters carry environment-specific values such as names and sizes.",
+        "One reviewed definition serves many deployments.",
+        "Parameter files can hold values per environment.",
+      ],
+      whyOthers: [
+        "Parameter substitution has no meaningful effect on deployment speed.",
+        "Region selection is a value you supply, not something parameters optimize.",
+        "Templates still require review regardless of parameterization.",
+      ],
+      difficulty: "easy",
+      topic: "ARM templates",
+    },
+    {
+      question: "What deployment mode does ARM use when it re-applies a template and changes nothing?",
+      correct: "Incremental mode, which applies only the changes described without deleting unlisted resources",
+      wrong: [
+        "Complete mode, which deletes resources absent from the template",
+        "A mode that always recreates every resource",
+        "A mode that requires manual approval for each resource",
+      ],
+      rationale: "Incremental mode is the default and is additive: it creates and updates what the template describes and leaves other resources alone. Complete mode is the destructive alternative that removes resources no longer in the template.",
+      keyPoints: [
+        "Incremental mode applies described changes and preserves other resources.",
+        "Complete mode removes resources not present in the template.",
+        "Choosing complete mode requires care to avoid unintended deletion.",
+      ],
+      requirements: "Incremental is the default mode for ARM template deployments and leaves undeclared resources untouched. Complete mode deletes resources that existed at the scope but are absent from the template, so it should be used only when that deletion is intended.",
+      whyOthers: [
+        "Complete mode is destructive; it is not the default re-apply behavior.",
+        "ARM does not recreate everything on every deployment.",
+        "Approval requirements are a pipeline concern, not a deployment mode.",
+      ],
+      difficulty: "medium",
+      topic: "ARM templates",
+      commandPath: [
+        { label: "Validate a template without deploying it", command: "az deployment group validate --resource-group rg-app --template-file main.bicep" },
+        { label: "Preview what an incremental deployment would create", command: "az deployment group what-if --resource-group rg-app --template-file main.bicep" },
+        { label: "Deploy the template to a resource group", command: "az deployment group create --resource-group rg-app --template-file main.bicep --parameters env=prod" },
+      ],
+    },
+    {
+      question: "Why is ARM template deployment preferable to clicking through the portal for a repeatable environment?",
+      correct: "Because the template captures the exact intended configuration, so it can be reviewed, reused, and reproduced consistently",
+      wrong: [
+        "Because portal deployments are not permitted for production resources",
+        "Because templates guarantee a lower monthly bill",
+        "Because the portal cannot deploy multi-resource configurations",
+      ],
+      rationale: "Templates are an auditable definition of the environment. Portal clicks can create the same resources but leave no reviewable record of intent, which makes drift and manual error likely.",
+      keyPoints: [
+        "Templates are reviewable source, not an action log.",
+        "Reproducibility means any environment can be rebuilt identically.",
+        "Portal and templates use the same underlying ARM operations.",
+      ],
+      whyOthers: [
+        "Portal deployment is fully supported for any resource type.",
+        "Cost depends on the deployed resources, not the deployment method.",
+        "The portal can create many resources at once; that is not the deciding factor.",
+      ],
+      difficulty: "medium",
+      topic: "Azure Resource Manager",
+    },
+  ],
+
+  "advisor-purpose": [
+    {
+      question: "What does Azure Advisor provide?",
+      correct: "Personalized recommendations to improve reliability, security, performance, operational excellence, and cost",
+      wrong: [
+        "Alerts about Azure platform incidents affecting your subscription",
+        "Application performance traces and request telemetry",
+        "Configuration rules that deny non-compliant resource creation",
+      ],
+      rationale: "Advisor analyzes deployed resources and configuration to recommend improvements across five categories. It advises; it does not report platform incidents, collect application telemetry, or enforce rules.",
+      keyPoints: [
+        "Recommendations span reliability, security, performance, operations, and cost.",
+        "Recommendations are specific to the resources in the customer's estate.",
+        "Advisor advises; Policy enforces.",
+      ],
+      whyOthers: [
+        "Service Health reports platform incidents and maintenance.",
+        "Application Insights collects application telemetry.",
+        "Azure Policy enforces configuration standards.",
+      ],
+      difficulty: "easy",
+      topic: "Advisor",
+    },
+    {
+      question: "A team sees an Advisor recommendation to move a virtual machine to a cheaper size. What should they consider first?",
+      correct: "Whether the workload's actual performance needs still fit the smaller size, and whether the saving justifies the change",
+      wrong: [
+        "Applying the recommendation immediately, since Advisor is always correct",
+        "Ignoring all cost recommendations, since performance matters more",
+        "Applying it only to production workloads",
+      ],
+      rationale: "Advisor recommendations are advice based on observed metrics. Acting on a rightsizing recommendation requires validating that current and expected workload performance still fit the smaller size.",
+      keyPoints: [
+        "Rightsizing recommendations come from observed utilization data.",
+        "Validate performance headroom before downsizing.",
+        "Test the change in a non-production environment first.",
+      ],
+      whyOthers: [
+        "Recommendations are informed advice, not automatic truth; they should be validated.",
+        "Ignoring cost recommendations entirely forfeits legitimate savings.",
+        "The recommendation is validated and applied in test before production, not only in production.",
+      ],
+      difficulty: "medium",
+      topic: "Advisor",
+    },
+    {
+      question: "What is the difference between an Advisor recommendation and an Azure Policy rule?",
+      correct: "Advisor suggests improvements; Policy evaluates compliance and can enforce rules on resource configuration",
+      wrong: [
+        "Advisor enforces rules while Policy only advises",
+        "Both enforce rules automatically",
+        "Advisor is for on-premises resources while Policy is for Azure only",
+      ],
+      rationale: "The distinction is advisory versus enforcement. Advisor recommends, Policy can audit, deny, or remediate. Teams often use Advisor to find gaps and Policy to close them.",
+      keyPoints: [
+        "Advisor is guidance based on analysis of the customer's own resources.",
+        "Policy is enforcement based on assigned rules and scope.",
+        "Advisory findings can become policy rules once accepted as standards.",
+      ],
+      whyOthers: [
+        "This reverses advisory and enforcement roles.",
+        "Advisor does not enforce; Policy can.",
+        "Both operate on Azure resources; Advisor's scope is not on-premises systems.",
+      ],
+      difficulty: "easy",
+      topic: "Advisor",
+    },
+    {
+      question: "A customer wants to reduce monthly cost using Advisor. Which recommendation type should they prioritize?",
+      correct: "Cost recommendations, such as rightsizing or identifying idle resources",
+      wrong: [
+        "Security recommendations only",
+        "Availability zone recommendations only",
+        "Log Analytics retention recommendations only",
+      ],
+      rationale: "Advisor separates recommendations by category. Cost recommendations address underused or idle resources and suboptimal configurations. Security and reliability recommendations serve different goals even when they overlap financially.",
+      keyPoints: [
+        "Cost recommendations target underutilization and inefficient configuration.",
+        "Security recommendations target risk reduction, which may also affect cost indirectly.",
+        "Prioritizing by goal keeps the review focused.",
+      ],
+      whyOthers: [
+        "Security recommendations are not primarily cost advice.",
+        "Availability recommendations address resilience, not spend reduction.",
+        "Retention recommendations are specific to a data service, not a general cost strategy.",
+      ],
+      difficulty: "easy",
+      topic: "Advisor",
+    },
+  ],
+
+  "service-health": [
+    {
+      question: "What does Azure Service Health report?",
+      correct: "Azure service incidents, planned maintenance, and advisories that may affect the customer's specific subscriptions, services, and regions",
+      wrong: [
+        "Application performance problems in the customer's own code",
+        "Cost overruns on the monthly bill",
+        "Configuration recommendations for improving resources",
+      ],
+      rationale: "Service Health is personalized to the customer's Azure footprint, reporting issues that affect the services and regions the customer actually uses. Application problems, cost, and optimization advice come from other services.",
+      keyPoints: [
+        "Service Health is scoped to the customer's subscriptions, services, and regions.",
+        "It covers incidents, planned maintenance, and health or security advisories.",
+        "It reports provider-side status, not customer application faults.",
+      ],
+      whyOthers: [
+        "Application performance is diagnosed with Application Insights.",
+        "Cost analysis is handled by Cost Management.",
+        "Optimization advice comes from Advisor.",
+      ],
+      difficulty: "easy",
+      topic: "Service Health",
+    },
+    {
+      question: "An administrator must confirm whether a regional Azure outage is affecting their services. Which source should they check?",
+      correct: "Azure Service Health, filtered to the affected region and services",
+      wrong: [
+        "Application Insights, which tracks service incidents",
+        "Azure Advisor, which lists current outages",
+        "The resource group's activity log for platform incidents",
+      ],
+      rationale: "Service Health is the authoritative source for Azure platform status. Application Insights describes the customer's own application behavior, Advisor recommends improvements, and the activity log records control-plane operations.",
+      keyPoints: [
+        "Service Health reports platform-side impact for the customer's own scope.",
+        "Filtering by region and service narrows the relevant events.",
+        "Planning a business response should follow confirming platform status.",
+      ],
+      whyOthers: [
+        "Application Insights reports the customer's application telemetry, not Azure platform incidents.",
+        "Advisor provides recommendations, not incident status.",
+        "The activity log records who changed resources, not platform health.",
+      ],
+      difficulty: "easy",
+      topic: "Service Health",
+    },
+    {
+      question: "How does Azure Service Health differ from the Azure status page?",
+      correct: "Service Health is personalized to your subscriptions, services, and regions, while the status page shows general global availability",
+      wrong: [
+        "They are identical and show the same data",
+        "Service Health shows global availability while the status page is personalized",
+        "The status page requires a subscription and Service Health does not",
+      ],
+      rationale: "The public status page describes broad regional service availability. Service Health filters events to the resources a given customer actually has, which makes it the operationally useful source.",
+      keyPoints: [
+        "Status pages are broad and global; Service Health is scoped to the customer.",
+        "Personalization requires knowing the customer's subscriptions and regions.",
+        "Both describe platform status at different levels of detail.",
+      ],
+      whyOthers: [
+        "They present different scopes rather than identical data.",
+        "This reverses the relationship.",
+        "Personalized views depend on the customer's subscription context.",
+      ],
+      difficulty: "medium",
+      topic: "Service Health",
+    },
+    {
+      question: "Why does an organization configure Service Health alerts?",
+      correct: "To be notified about incidents or planned maintenance affecting the services and regions it depends on",
+      wrong: [
+        "To automatically remediate resource misconfigurations",
+        "To receive application performance alerts",
+        "To receive Azure Advisor cost recommendations",
+      ],
+      rationale: "Service Health alerts deliver targeted notifications about provider-side events for the customer's own resources, so operations can respond early. Remediation, application alerting, and cost advice come from other services.",
+      keyPoints: [
+        "Alerts are scoped to specific services and regions.",
+        "Early notification of planned maintenance supports proactive action.",
+        "Service Health alerts do not change resource configuration.",
+      ],
+      whyOthers: [
+        "Alerts inform; they do not modify resources.",
+        "Application alerts come from Azure Monitor alerts.",
+        "Advisor recommendations are surfaced through Advisor, not Service Health.",
+      ],
+      difficulty: "medium",
+      topic: "Service Health",
+    },
+    {
+      question: "A planned maintenance event is announced for a region a company uses. What is the appropriate response?",
+      correct: "Review whether the workloads are affected, plan for the announced impact, and validate their availability approach before the event",
+      wrong: [
+        "Move all resources to a different subscription immediately",
+        "Ignore the notice because planned maintenance never causes impact",
+        "Delete and recreate the affected resources",
+      ],
+      rationale: "Planned maintenance is communicated in advance precisely so customers can assess impact, confirm redundancy or failover arrangements, and adjust schedules. Wholesale moves are not a response.",
+      keyPoints: [
+        "Advance notice allows impact assessment and mitigation planning.",
+        "Redundant or multi-region designs reduce the effect of maintenance.",
+        "Sporadic resource recreation would cause more disruption than it prevents.",
+      ],
+      whyOthers: [
+        "Moving subscriptions does not relocate resources out of the affected region and adds risk.",
+        "Planned maintenance can affect workloads and must be assessed.",
+        "Recreating resources during an event adds unnecessary risk and downtime.",
+      ],
+      difficulty: "medium",
+      topic: "Service Health",
+    },
+  ],
+
+  "azure-monitor-tools": [
+    {
+      question: "What is Azure Monitor?",
+      correct: "A monitoring platform that collects metrics, logs, and application telemetry and supports querying, alerting, and dashboards",
+      wrong: [
+        "A service that only displays the Azure portal",
+        "A cost management tool for tracking monthly spend",
+        "A configuration service that enforces Azure Policy",
+      ],
+      rationale: "Azure Monitor is the monitoring platform. It collects platform metrics, logs, and application telemetry through Application Insights, stores and queries them with Log Analytics, and raises alerts on defined conditions.",
+      keyPoints: [
+        "Metrics, logs, and Application Insights telemetry all feed Azure Monitor.",
+        "Log Analytics stores and queries collected data.",
+        "Alerts notify when defined conditions are met.",
+      ],
+      whyOthers: [
+        "Azure Monitor is much broader than the portal and provides alerting and querying.",
+        "Cost monitoring is a separate capability in Cost Management.",
+        "Policy enforcement is a governance service, not monitoring.",
+      ],
+      difficulty: "easy",
+      topic: "Azure Monitor",
+    },
+    {
+      question: "A developer needs to query application logs and traces to find a slow request. Which service should they use?",
+      correct: "Log Analytics, which queries data collected by Azure Monitor",
+      wrong: [
+        "Azure Advisor",
+        "Microsoft Purview",
+        "Azure Policy",
+      ],
+      rationale: "Log Analytics stores and queries log and trace data collected by Azure Monitor and Application Insights, making it the tool for investigating individual slow requests. Advisor, Purview, and Policy serve other purposes.",
+      keyPoints: [
+        "Log Analytics queries telemetry such as requests, traces, and logs.",
+        "Application Insights supplies the application telemetry.",
+        "Querying is the appropriate way to investigate specific behavior.",
+      ],
+      whyOthers: [
+        "Advisor recommends configuration improvements.",
+        "Purview governs and classifies data assets.",
+        "Policy enforces configuration standards.",
+      ],
+      difficulty: "easy",
+      topic: "Log Analytics",
+    },
+    {
+      question: "What is the purpose of an Azure Monitor alert?",
+      correct: "To evaluate a condition on metrics, logs, or activity and take a configured action when it is met",
+      wrong: [
+        "To store telemetry data for later querying",
+        "To enforce configuration rules on resources",
+        "To estimate the cost of a service before deployment",
+      ],
+      rationale: "An alert watches a signal against a threshold or condition and fires an action group when triggered. Storing and querying data are separate parts of Azure Monitor.",
+      keyPoints: [
+        "Alerts evaluate conditions and trigger actions through action groups.",
+        "Signals can be metrics, log queries, or activity log events.",
+        "Alerting and data storage are distinct capabilities.",
+      ],
+      whyOthers: [
+        "Storage and querying are Log Analytics and workspace functions.",
+        "Configuration enforcement is Azure Policy.",
+        "Pre-deployment estimation is the pricing calculator.",
+      ],
+      difficulty: "easy",
+      topic: "Azure Monitor alerts",
+    },
+    {
+      question: "How does Application Insights differ from Log Analytics?",
+      correct: "Application Insights collects application telemetry such as requests, traces, and dependencies; Log Analytics stores and queries data including that telemetry",
+      wrong: [
+        "They are identical features with different names",
+        "Application Insights stores data while Log Analytics collects it",
+        "Log Analytics is for cost data while Application Insights is for security",
+      ],
+      rationale: "Application Insights is the application monitoring layer that produces telemetry. Log Analytics is the query and storage layer that holds and analyzes that data. They are commonly used together.",
+      keyPoints: [
+        "Application Insights instruments the application and produces telemetry.",
+        "Log Analytics stores and queries telemetry across sources.",
+        "The two are complementary parts of the Azure Monitor platform.",
+      ],
+      whyOthers: [
+        "They are distinct components, not duplicate names.",
+        "The roles are reversed in this option.",
+        "Log Analytics is not a cost or security service.",
+      ],
+      difficulty: "medium",
+      topic: "Application Insights",
+    },
+    {
+      question: "Which Azure Monitor feature would you use to track how often a specific HTTP status code appears in web requests?",
+      correct: "An Application Insights or Log Analytics query over request telemetry, optionally with an alert on the result",
+      wrong: [
+        "Azure Service Health, which records response codes",
+        "Azure Advisor, which counts failed requests",
+        "Azure Policy, which blocks failing requests",
+      ],
+      rationale: "Request telemetry, including status codes and durations, is captured by Application Insights and queryable in Log Analytics. Service Health reports platform status, Advisor recommends improvements, and Policy evaluates configuration.",
+      keyPoints: [
+        "Request telemetry includes URL, status code, duration, and dependency data.",
+        "Log Analytics queries can group or filter by status code.",
+        "Alerts can be created from the query results for proactive response.",
+      ],
+      whyOthers: [
+        "Service Health reports platform incidents, not application response codes.",
+        "Advisor does not count application requests.",
+        "Policy evaluates configuration and does not observe requests.",
+      ],
+      difficulty: "medium",
+      topic: "Application Insights",
+    },
+  ],
+};
