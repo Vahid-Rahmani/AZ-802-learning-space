@@ -22,7 +22,12 @@ export default function CcnaSimPage() {
   const pack = getCcnaSimulationPack(lab.id);
   return <section className="ccna-sim-page">
     <nav className="ccna-sim-view-tabs" aria-label="Lab workspace">
-      <span className="ccna-sim-view-label">Interactive topology · device consoles</span>
+      <span className="ccna-sim-view-summary">
+        <span className="ccna-sim-view-course">CCNA</span>
+        <strong>Interactive CCNA lab</strong>
+        <span aria-hidden="true">·</span>
+        <span>Topology · device consoles</span>
+      </span>
       <a href="/ccna/library">Back to lab library</a>
     </nav>
     {pack ? <CcnaSimulationWorkspace key={`graph-${lab.id}`} pack={pack} persistKey={`ccna:${lab.id}`} /> : <p className="ccna-sim-meta">This lab does not have an interactive pack yet.</p>}

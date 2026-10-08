@@ -725,7 +725,6 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   return <section className={`ccna-simulation-workspace${className ? ` ${className}` : ""}`} aria-labelledby="ccna-simulation-title">
     <header className="ccna-simulation-header">
       <div>
-        <p className="ccna-simulation-eyebrow">Interactive CCNA lab</p>
         <h2 id="ccna-simulation-title">{pack.title}</h2>
         {pack.summary && <p className="ccna-simulation-summary">{pack.summary}</p>}
       </div>

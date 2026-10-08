@@ -1,7 +1,10 @@
 /* Generic interactive CCNA workspace. Import this file from the CCNA shell or root stylesheet. */
 .ccna-sim-page { min-width: 0; }
-.ccna-sim-view-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem; margin: 0 0 1rem; padding: .35rem; border: 1px solid rgba(77, 213, 255, .18); border-radius: 12px; background: rgba(8, 17, 31, .72); }
-.ccna-sim-view-label { min-height: 42px; display: inline-flex; align-items: center; padding: .55rem .85rem; color: #d9f8ff; font-weight: 700; }
+.ccna-sim-view-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; margin: 0 0 .65rem; padding: .25rem .35rem; border: 1px solid rgba(77, 213, 255, .18); border-radius: 8px; background: rgba(8, 17, 31, .72); }
+.ccna-sim-view-summary { display: inline-flex; min-width: 0; align-items: center; gap: .4rem; padding: .3rem .5rem; color: #d9f8ff; font-size: .78em; line-height: 1.2; white-space: nowrap; }
+.ccna-sim-view-summary strong { font-weight: 750; }
+.ccna-sim-view-summary > span:last-child { overflow: hidden; color: #a7b6ca; text-overflow: ellipsis; }
+.ccna-sim-view-course { color: #4dd5ff; font-size: .88em; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .ccna-sim-view-tabs button,
 .ccna-sim-view-tabs a { min-height: 42px; padding: .55rem .85rem; border: 1px solid transparent; border-radius: 8px; color: #a7b6ca; background: transparent; font: inherit; text-decoration: none; cursor: pointer; }
 .ccna-sim-view-tabs button:hover,
@@ -387,10 +390,11 @@
 }
 
 @media (max-width: 560px) {
-  .ccna-sim-view-tabs { align-items: stretch; }
-  .ccna-sim-view-label { flex: 1 1 100%; justify-content: center; text-align: center; }
-  .ccna-sim-view-tabs button,
-  .ccna-sim-view-tabs a { flex: 1 1 100%; margin-left: 0; text-align: center; }
+  .ccna-sim-view-tabs { flex-wrap: nowrap; align-items: center; gap: .2rem; }
+  .ccna-sim-view-summary { flex: 1 1 auto; overflow: hidden; }
+  .ccna-sim-view-summary > span:nth-last-child(2),
+  .ccna-sim-view-summary > span:last-child { display: none; }
+  .ccna-sim-view-tabs a { flex: 0 0 auto; margin-left: auto; padding-inline: .5rem; font-size: .73em; white-space: nowrap; }
   .ccna-simulation-header,
   .ccna-simulation-panel { border-radius: 10px; padding: .8rem; }
   .ccna-simulation-header h2 { font-size: 1.3rem; }
