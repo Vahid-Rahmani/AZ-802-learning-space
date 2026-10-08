@@ -1,0 +1,240 @@
+/* SwitchLab-inspired product skin: dense panels, near-black canvas and cyan
+   controls. This is a visual layer only; course and simulator behaviour stays
+   in the existing components. */
+:root {
+  --switchlab-bg:#040608;
+  --switchlab-surface:#08131b;
+  --switchlab-surface-raised:#0d202c;
+  --switchlab-surface-soft:#102b3a;
+  --switchlab-line:#164457;
+  --switchlab-line-bright:#1d8297;
+  --switchlab-cyan:#08e4f4;
+  --switchlab-cyan-soft:#7aeef6;
+  --switchlab-text:#edfaff;
+  --switchlab-muted:#9ab7c1;
+  --switchlab-green:#41e89a;
+  --switchlab-amber:#ffb454;
+  --switchlab-red:#ff7180;
+}
+
+html[data-theme="classic"] body {
+  background:var(--switchlab-bg);
+  color:var(--switchlab-text);
+  font-family:"Segoe UI", Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  letter-spacing:-.006em;
+}
+
+html[data-theme="classic"] .study-app {
+  background:
+    radial-gradient(circle at 50% -14rem, rgba(8,228,244,.12), transparent 30rem),
+    linear-gradient(180deg, #030507 0%, #050b10 55%, #07151c 100%);
+  color:var(--switchlab-text);
+}
+
+html[data-theme="classic"] .study-app .app-shell {
+  background:rgba(3,8,12,.72);
+  border-inline:1px solid rgba(29,130,151,.16);
+}
+
+html[data-theme="classic"] .study-app .app-sidebar {
+  background:linear-gradient(180deg, #061016 0%, #04080b 100%);
+  border-color:var(--switchlab-line);
+  box-shadow:12px 0 32px rgba(0,0,0,.32);
+}
+
+html[data-theme="classic"] .study-app .app-sidebar a,
+html[data-theme="classic"] .study-app .app-sidebar button {
+  color:var(--switchlab-muted);
+  border-color:transparent;
+  border-radius:6px;
+}
+
+html[data-theme="classic"] .study-app .app-sidebar a:hover,
+html[data-theme="classic"] .study-app .app-sidebar button:hover,
+html[data-theme="classic"] .study-app .app-sidebar a[aria-current="page"],
+html[data-theme="classic"] .study-app .app-sidebar button[aria-current="page"] {
+  color:var(--switchlab-cyan-soft);
+  border-color:rgba(8,228,244,.35);
+  background:rgba(8,228,244,.1);
+}
+
+html[data-theme="classic"] .study-app .app-content,
+html[data-theme="classic"] .study-app .study-content {
+  padding-block:1rem;
+}
+
+html[data-theme="classic"] .certpath-header {
+  min-height:56px;
+  margin-bottom:1rem;
+  padding:.55rem .75rem;
+  border:1px solid var(--switchlab-line);
+  border-radius:6px;
+  background:linear-gradient(180deg, rgba(13,32,44,.92), rgba(7,18,25,.94));
+  box-shadow:0 8px 24px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.035);
+}
+
+html[data-theme="classic"] .certpath-header h1 {
+  font-size:clamp(1.15rem,2vw,1.55rem);
+  letter-spacing:-.025em;
+}
+
+html[data-theme="classic"] .header-eyebrow,
+html[data-theme="classic"] .header-eyebrow span {
+  font-size:.66rem;
+  color:var(--switchlab-cyan-soft);
+}
+
+html[data-theme="classic"] .header-eyebrow span { color:var(--switchlab-muted); }
+
+html[data-theme="classic"] .account-button,
+html[data-theme="classic"] .reading-settings-toggle,
+html[data-theme="classic"] .sidebar-toggle-button,
+html[data-theme="classic"] .course-switcher-toggle {
+  min-height:38px;
+  border-color:var(--switchlab-line);
+  border-radius:5px;
+  background:#091b25;
+  color:var(--switchlab-text);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+html[data-theme="classic"] .account-button:hover,
+html[data-theme="classic"] .reading-settings-toggle:hover,
+html[data-theme="classic"] .sidebar-toggle-button:hover,
+html[data-theme="classic"] .course-switcher-toggle:hover {
+  border-color:var(--switchlab-cyan);
+  color:var(--switchlab-cyan);
+  background:#0b2935;
+}
+
+html[data-theme="classic"] .study-controls,
+html[data-theme="classic"] .course-switcher-menu {
+  border-color:var(--switchlab-line-bright);
+  border-radius:6px;
+  background:#07131b;
+  box-shadow:0 18px 44px rgba(0,0,0,.62), inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+html[data-theme="classic"] .course-switcher-menu a {
+  border-color:var(--switchlab-line);
+  border-radius:5px;
+  background:#0a1e29;
+  color:var(--switchlab-text);
+}
+
+html[data-theme="classic"] .course-switcher-menu a:hover,
+html[data-theme="classic"] .course-switcher-menu a.is-active {
+  border-color:var(--switchlab-cyan);
+  background:rgba(8,228,244,.12);
+  color:var(--switchlab-cyan-soft);
+}
+
+html[data-theme="classic"] .study-app .study-context {
+  margin-top:.75rem;
+  margin-bottom:1rem;
+  padding:.55rem .7rem;
+  border-left:2px solid var(--switchlab-cyan);
+  border-radius:0 5px 5px 0;
+  background:rgba(8,24,32,.72);
+  color:var(--switchlab-muted);
+  font-size:.78rem;
+  box-shadow:none;
+}
+
+html[data-theme="classic"] .study-app article,
+html[data-theme="classic"] .study-app section > .rounded-3xl,
+html[data-theme="classic"] .study-app section > .rounded-2xl,
+html[data-theme="classic"] .study-app .reading-panel,
+html[data-theme="classic"] .study-app .question-learning-tools,
+html[data-theme="classic"] .study-app .question-explanation-summary,
+html[data-theme="classic"] .study-app .question-explanation-section {
+  border-color:var(--switchlab-line);
+  border-radius:6px;
+  background:linear-gradient(145deg, rgba(10,28,38,.96), rgba(5,13,18,.98));
+  box-shadow:0 10px 26px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.025);
+  backdrop-filter:none;
+}
+
+html[data-theme="classic"] .study-app .rounded-3xl,
+html[data-theme="classic"] .study-app .rounded-2xl { border-radius:6px; }
+
+html[data-theme="classic"] .study-app button,
+html[data-theme="classic"] .study-app input,
+html[data-theme="classic"] .study-app select,
+html[data-theme="classic"] .study-app textarea {
+  border-radius:5px;
+}
+
+html[data-theme="classic"] .study-app input,
+html[data-theme="classic"] .study-app select,
+html[data-theme="classic"] .study-app textarea {
+  border-color:var(--switchlab-line);
+  background:#07151d;
+  color:var(--switchlab-text);
+}
+
+html[data-theme="classic"] .study-app .bg-cyan-300,
+html[data-theme="classic"] .study-app .bg-cyan-400 {
+  background:var(--switchlab-cyan);
+  color:#031116;
+}
+
+html[data-theme="classic"] .study-app .text-cyan-300,
+html[data-theme="classic"] .study-app .text-cyan-200,
+html[data-theme="classic"] .study-app .text-cyan-100 { color:var(--switchlab-cyan-soft); }
+
+html[data-theme="classic"] .study-app .text-slate-500 { color:#7895a0; }
+html[data-theme="classic"] .study-app .text-slate-400 { color:var(--switchlab-muted); }
+html[data-theme="classic"] .study-app .text-slate-300 { color:#c6dbe1; }
+
+html[data-theme="classic"] .study-app nav[aria-label="Mobile navigation"] {
+  border-color:var(--switchlab-line);
+  border-radius:6px 6px 0 0;
+  background:#061119;
+  box-shadow:0 -12px 28px rgba(0,0,0,.5);
+}
+
+/* The simulator is the visual reference: compact three-column workspace,
+   thin cyan dividers and no oversized card radii. */
+html[data-theme="classic"] .ccna-simulation-workspace {
+  font-family:"Segoe UI", Inter, ui-sans-serif, system-ui, sans-serif;
+  --simulation-bg:#04090d;
+  --simulation-surface:#08151e;
+  --simulation-surface-raised:#0c202c;
+  --simulation-line:#164457;
+  --simulation-text:#edfaff;
+  --simulation-muted:#9ab7c1;
+  --simulation-accent:var(--switchlab-cyan);
+  --simulation-success:var(--switchlab-green);
+  --simulation-danger:var(--switchlab-red);
+  font-size:calc(.92rem * var(--wincraft-font-scale, 1));
+}
+
+html[data-theme="classic"] .ccna-simulation-header,
+html[data-theme="classic"] .ccna-simulation-panel {
+  border-color:var(--switchlab-line);
+  border-radius:6px;
+  background:linear-gradient(145deg, #0b2230, #061119);
+  box-shadow:0 12px 26px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.035);
+}
+
+html[data-theme="classic"] .ccna-simulation-header { padding:.85rem 1rem; }
+html[data-theme="classic"] .ccna-simulation-layout { gap:.65rem; margin-top:.65rem; }
+html[data-theme="classic"] .ccna-simulation-panel { padding:.75rem; }
+html[data-theme="classic"] .ccna-simulation-panel-heading { margin-bottom:.6rem; }
+html[data-theme="classic"] .ccna-simulation-panel-heading h3 { font-size:.9em; }
+html[data-theme="classic"] .ccna-simulation-canvas-wrap { border-color:var(--switchlab-line); border-radius:5px; background:#050f15; }
+html[data-theme="classic"] .ccna-simulation-terminal-panel { background:#050d12; }
+html[data-theme="classic"] .ccna-simulation-device-tabs { border-color:var(--switchlab-line); background:#071923; }
+html[data-theme="classic"] .ccna-simulation-device-tab { border-color:#1a5265; border-radius:5px; background:#0a2230; }
+html[data-theme="classic"] .ccna-simulation-device-tab[aria-selected="true"] { border-color:var(--switchlab-cyan); background:rgba(8,228,244,.13); box-shadow:inset 0 -2px 0 var(--switchlab-cyan); }
+html[data-theme="classic"] .ccna-simulation-terminal-screen { padding:.7rem .85rem; font-size:.82em; line-height:1.45; background:#03080b; }
+html[data-theme="classic"] .ccna-simulation-terminal-form { border-color:var(--switchlab-line); background:#06131b; }
+html[data-theme="classic"] .ccna-simulation-terminal-form input { border-color:#1a5265; border-radius:4px; background:#02090d; }
+html[data-theme="classic"] .ccna-simulation-terminal-form button { border-radius:4px; background:var(--switchlab-cyan); }
+html[data-theme="classic"] .ccna-simulation-terminal-actions { border-color:var(--switchlab-line); }
+
+@media (max-width:899px) {
+  html[data-theme="classic"] .certpath-header { padding:.5rem; }
+  html[data-theme="classic"] .ccna-simulation-layout { gap:.55rem; }
+}

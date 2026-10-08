@@ -4,16 +4,16 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 
 type Theme = "fluent" | "classic";
 const STORAGE_KEY = "certpath-theme";
-const AppearanceContext = createContext<{ theme: Theme; setTheme: (theme: Theme) => void }>({ theme: "fluent", setTheme: () => undefined });
+const AppearanceContext = createContext<{ theme: Theme; setTheme: (theme: Theme) => void }>({ theme: "classic", setTheme: () => undefined });
 
 export function AppearanceProvider({ children }: { children: ReactNode }) {
-  const [theme, setCurrentTheme] = useState<Theme>("fluent");
+  const [theme, setCurrentTheme] = useState<Theme>("classic");
 
   useEffect(() => {
     const sync = () => {
       let stored: string | null = document.documentElement.dataset.theme ?? null;
       try { stored = localStorage.getItem(STORAGE_KEY) ?? stored; } catch { /* Use the current theme when storage is disabled. */ }
-      const next = stored === "classic" ? "classic" : "fluent";
+      const next = stored === "fluent" ? "fluent" : "classic";
       document.documentElement.dataset.theme = next;
       setCurrentTheme(next);
     };
