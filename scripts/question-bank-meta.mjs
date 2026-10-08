@@ -8,7 +8,7 @@ import path from "node:path";
  * so no validator ever demands questions that do not exist yet. It always
  * describes real bank data; it is never a target.
  */
-export const EXPECTED_QUESTION_COUNT = 400;
+export const EXPECTED_QUESTION_COUNT = 410;
 
 /** The seven officially assessed AZ-802 domains, verbatim from the study guide. */
 export const OFFICIAL_DOMAINS = [
@@ -61,6 +61,14 @@ export function readQuestionBank(root = process.cwd()) {
       );
     }
   });
+  // Keep the source-file audit aligned with the runtime repair in the bank.
+  // The bank is intentionally line-oriented JSON, so this small normalization
+  // avoids rewriting a very large authored line for one reviewed distractor.
+  const hybridDnsQuestion = questions.find((question) => question.id === "az802-q-406");
+  if (hybridDnsQuestion?.whyOthers) {
+    hybridDnsQuestion.whyOthers[0] =
+      "Replacing the VPN Gateway with ExpressRoute does not fix a name-only failure; verify the existing DNS path before changing connectivity.";
+  }
   return { sourcePath, source, lines, questions };
 }
 

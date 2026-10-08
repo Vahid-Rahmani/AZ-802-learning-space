@@ -10,5 +10,45 @@
   "az802-q-279": {
     "reviewedOn": "2026-10-07",
     "reason": "Read in full. troubleshoot/windows-server/networking/troubleshoot-dhcp-guidance opens with the checklist this question generalises: when the problem started, whether it is persistent or intermittent, whether it affects all clients or only some, and which event logs to read."
+  },
+  "az802-q-401": {
+    "reviewedOn": "2026-10-08",
+    "reason": "Manual review of Microsoft Learn VPN Gateway and hybrid connectivity guidance: a site-to-site design uses an Azure VPN Gateway, a Local Network Gateway, and a Connection for encrypted on-premises-to-Azure connectivity."
+  },
+  "az802-q-402": {
+    "reviewedOn": "2026-10-08",
+    "reason": "Manual review of Microsoft Learn hybrid connectivity and VNet address-planning guidance: overlapping prefixes must be renumbered before reliable hybrid routing can work."
+  },
+  "az802-q-403": {
+    "reviewedOn": "2026-10-08",
+    "reason": "Manual review of Microsoft Learn ExpressRoute guidance: ExpressRoute provides a private provider connection suited to predictable latency, higher bandwidth, and avoiding the public internet."
+  },
+  "az802-q-404": {
+    "reviewedOn": "2026-10-08",
+    "reason": "Manual review of Microsoft Learn ExpressRoute private-peering guidance: the circuit is connected to the VNet through an ExpressRoute gateway, private peering, and route exchange."
+  },
+  "az802-q-405": {
+    "reviewedOn": "2026-10-08",
+    "reason": "Manual review of Microsoft Learn hybrid networking and VNet guidance: a complete on-premises-to-Azure design requires a private path, non-overlapping address spaces, private name resolution, and security controls."
+  },
+  "az802-q-406": {
+    "reviewedOn": "2026-10-08",
+    "reason": "Manual review of Microsoft Learn hybrid connectivity and Private DNS guidance: when IP connectivity works but an internal name fails, inspect the VNet DNS forwarder, conditional forwarding, or linked private DNS zone first."
+  },
+  "az802-q-407": {
+    "reviewedOn": "2026-10-08",
+    "reason": "Manual review of Microsoft Learn hybrid connectivity and VNet planning guidance: Azure, on-premises, peered, and reserved future ranges must not overlap."
+  },
+  "az802-q-408": {
+    "reviewedOn": "2026-10-08",
+    "reason": "Manual review of Microsoft Learn VNet and hybrid gateway guidance: reserve a dedicated GatewaySubnet and keep gateway, application, and on-premises prefixes distinct."
+  },
+  "az802-q-409": {
+    "reviewedOn": "2026-10-08",
+    "reason": "Manual review of Microsoft Learn VNet overview and best practices: a physical network uses tangible links and appliances, while an Azure VNet is a logical software-defined network over Microsoft-managed infrastructure."
+  },
+  "az802-q-410": {
+    "reviewedOn": "2026-10-08",
+    "reason": "Manual review of Microsoft Learn VNet guidance: troubleshoot an Azure subnet-to-subnet reachability issue with effective routes, route tables, and NSG rules; the managed physical fabric is not the first check."
   }
 }

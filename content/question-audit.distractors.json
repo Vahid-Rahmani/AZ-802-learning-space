@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-07T08:43:01.500Z",
+  "generatedAt": "2026-10-08T12:10:06.778Z",
   "source": "lib/content/questions.ts",
-  "questionsChecked": 400,
-  "distractorReasonsChecked": 1200,
+  "questionsChecked": 410,
+  "distractorReasonsChecked": 1230,
   "problems": [],
   "aligned": [
     "az802-q-001",
@@ -404,6 +404,16 @@
     "az802-q-397",
     "az802-q-398",
     "az802-q-399",
-    "az802-q-400"
+    "az802-q-400",
+    "az802-q-401",
+    "az802-q-402",
+    "az802-q-403",
+    "az802-q-404",
+    "az802-q-405",
+    "az802-q-406",
+    "az802-q-407",
+    "az802-q-408",
+    "az802-q-409",
+    "az802-q-410"
   ]
 }

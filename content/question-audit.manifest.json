@@ -1,18 +1,18 @@
 {
-  "generatedAt": "2026-10-07T08:43:01.815Z",
+  "generatedAt": "2026-10-08T12:11:08.758Z",
   "source": "lib/content/questions.ts",
   "definitions": {
     "structurally-ready": "every required field is present and well formed; computed from the file alone",
     "technical-approved": "an objective, topic, difficulty, key points, and index-aligned distractor reasons are present, and the answer, citations, distractors, translations, and originality have each passed a tracked review check"
   },
-  "total": 400,
+  "total": 410,
   "published": 0,
-  "structurallyReady": 400,
+  "structurallyReady": 410,
   "structurallyIncomplete": 0,
-  "technicalApproved": 400,
+  "technicalApproved": 410,
   "pendingTechnicalReview": 0,
   "reviewStatusCounts": {
-    "technical-approved": 400
+    "technical-approved": 410
   },
   "byStructuralIssue": {},
   "byTechnicalIssue": {},
@@ -6811,6 +6811,176 @@
       "checks": {
         "sourceVerified": true,
         "sourceBasis": "content-match",
+        "answerVerified": true,
+        "originalityVerified": true,
+        "translationVerified": true,
+        "distractorsReviewed": true
+      }
+    },
+    {
+      "id": "az802-q-401",
+      "domain": "Implement and manage on-premises and hybrid networking",
+      "structurallyReady": true,
+      "technicalApproved": true,
+      "reviewStatus": "technical-approved",
+      "structuralIssues": [],
+      "technicalIssues": [],
+      "checks": {
+        "sourceVerified": true,
+        "sourceBasis": "manual-review",
+        "answerVerified": true,
+        "originalityVerified": true,
+        "translationVerified": true,
+        "distractorsReviewed": true
+      }
+    },
+    {
+      "id": "az802-q-402",
+      "domain": "Implement and manage on-premises and hybrid networking",
+      "structurallyReady": true,
+      "technicalApproved": true,
+      "reviewStatus": "technical-approved",
+      "structuralIssues": [],
+      "technicalIssues": [],
+      "checks": {
+        "sourceVerified": true,
+        "sourceBasis": "manual-review",
+        "answerVerified": true,
+        "originalityVerified": true,
+        "translationVerified": true,
+        "distractorsReviewed": true
+      }
+    },
+    {
+      "id": "az802-q-403",
+      "domain": "Implement and manage on-premises and hybrid networking",
+      "structurallyReady": true,
+      "technicalApproved": true,
+      "reviewStatus": "technical-approved",
+      "structuralIssues": [],
+      "technicalIssues": [],
+      "checks": {
+        "sourceVerified": true,
+        "sourceBasis": "manual-review",
+        "answerVerified": true,
+        "originalityVerified": true,
+        "translationVerified": true,
+        "distractorsReviewed": true
+      }
+    },
+    {
+      "id": "az802-q-404",
+      "domain": "Implement and manage on-premises and hybrid networking",
+      "structurallyReady": true,
+      "technicalApproved": true,
+      "reviewStatus": "technical-approved",
+      "structuralIssues": [],
+      "technicalIssues": [],
+      "checks": {
+        "sourceVerified": true,
+        "sourceBasis": "manual-review",
+        "answerVerified": true,
+        "originalityVerified": true,
+        "translationVerified": true,
+        "distractorsReviewed": true
+      }
+    },
+    {
+      "id": "az802-q-405",
+      "domain": "Implement and manage on-premises and hybrid networking",
+      "structurallyReady": true,
+      "technicalApproved": true,
+      "reviewStatus": "technical-approved",
+      "structuralIssues": [],
+      "technicalIssues": [],
+      "checks": {
+        "sourceVerified": true,
+        "sourceBasis": "manual-review",
+        "answerVerified": true,
+        "originalityVerified": true,
+        "translationVerified": true,
+        "distractorsReviewed": true
+      }
+    },
+    {
+      "id": "az802-q-406",
+      "domain": "Implement and manage on-premises and hybrid networking",
+      "structurallyReady": true,
+      "technicalApproved": true,
+      "reviewStatus": "technical-approved",
+      "structuralIssues": [],
+      "technicalIssues": [],
+      "checks": {
+        "sourceVerified": true,
+        "sourceBasis": "manual-review",
+        "answerVerified": true,
+        "originalityVerified": true,
+        "translationVerified": true,
+        "distractorsReviewed": true
+      }
+    },
+    {
+      "id": "az802-q-407",
+      "domain": "Implement and manage on-premises and hybrid networking",
+      "structurallyReady": true,
+      "technicalApproved": true,
+      "reviewStatus": "technical-approved",
+      "structuralIssues": [],
+      "technicalIssues": [],
+      "checks": {
+        "sourceVerified": true,
+        "sourceBasis": "manual-review",
+        "answerVerified": true,
+        "originalityVerified": true,
+        "translationVerified": true,
+        "distractorsReviewed": true
+      }
+    },
+    {
+      "id": "az802-q-408",
+      "domain": "Implement and manage on-premises and hybrid networking",
+      "structurallyReady": true,
+      "technicalApproved": true,
+      "reviewStatus": "technical-approved",
+      "structuralIssues": [],
+      "technicalIssues": [],
+      "checks": {
+        "sourceVerified": true,
+        "sourceBasis": "manual-review",
+        "answerVerified": true,
+        "originalityVerified": true,
+        "translationVerified": true,
+        "distractorsReviewed": true
+      }
+    },
+    {
+      "id": "az802-q-409",
+      "domain": "Implement and manage on-premises and hybrid networking",
+      "structurallyReady": true,
+      "technicalApproved": true,
+      "reviewStatus": "technical-approved",
+      "structuralIssues": [],
+      "technicalIssues": [],
+      "checks": {
+        "sourceVerified": true,
+        "sourceBasis": "manual-review",
+        "answerVerified": true,
+        "originalityVerified": true,
+        "translationVerified": true,
+        "distractorsReviewed": true
+      }
+    },
+    {
+      "id": "az802-q-410",
+      "domain": "Implement and manage on-premises and hybrid networking",
+      "structurallyReady": true,
+      "technicalApproved": true,
+      "reviewStatus": "technical-approved",
+      "structuralIssues": [],
+      "technicalIssues": [],
+      "checks": {
+        "sourceVerified": true,
+        "sourceBasis": "manual-review",
         "answerVerified": true,
         "originalityVerified": true,
         "translationVerified": true,

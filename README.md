@@ -42,7 +42,7 @@ Each lab has step-specific Explain, Microsoft references, account-scoped server 
 
 Only disposable learner-owned VMs are in scope. Shared exercise passwords, EICAR bytes, original Classroom files and personal class metadata are not included. Dangerous optional source variations (disabling antivirus, clearing logs, forced shutdown and changing time) are not mandatory. Use unique lab passwords and preserve protection/evidence. Run the data/rubric checks with `node --experimental-strip-types scripts/validate-server-labs.mjs`.
 
-- **AZ-802** keeps the existing 300-question Windows Server learning, exam, graph, lab, search, and Leitner experience. All 300 original IDs are unchanged, so saved answers, checkpoint cursors, and Leitner boxes remain valid; questions 301–400 extend the same domains.
+- **AZ-802** keeps the existing 300-question Windows Server learning, exam, graph, lab, search, and Leitner experience. All 300 original IDs are unchanged, so saved answers, checkpoint cursors, and Leitner boxes remain valid; questions 301–410 extend the same domains, including a dedicated Azure hybrid-connectivity scenario topic.
 
 ### AZ-802 structure and Explain (October 6, 2026)
 
@@ -62,14 +62,14 @@ New questions are stored in English only and translated for display by the exist
 
 Validate the shape and the coverage with `npm run validate:questions` and `npm run validate:az802`. `npm run audit:questions` runs the citation check, the distractor check, the audit, the status sync, and the audit again. Reviewed enrichment batches are applied with `node scripts/enrich-question-bank.mjs <patch.json>`, which refuses to change a question ID, its options, or its answer unless you pass `--allow-answer-fixes` deliberately. New questions are added with `node scripts/append-questions.mjs <batch.json>`, which appends without reformatting the existing lines and rejects duplicate IDs or stems.
 
-The bank now holds 400 sourced questions. A question that cannot prove its answer with a page-specific Microsoft Learn source does not enter the flow.
+The bank now holds 410 sourced questions. A question that cannot prove its answer with a page-specific Microsoft Learn source does not enter the flow.
 - **AZ-900** adds 180 original Microsoft Learn-sourced questions across all 57 objectives in the July 20, 2026 blueprint, distributed 50/68/62 across the three official domains. It includes 11 lessons, 11 stages, four review modes, smart search, a course graph, three guided labs, translations, session resume, and Leitner review.
 - No Microsoft exam or Practice Assessment question is copied into the repository. Official Practice Assessment and Exam Sandbox experiences are linked separately.
 
 ## What is included
 
 - Eight staged learning domains with lesson, practice, progress, and lock/unlock flow.
-- A 400-question original, scenario-based practice bank. Questions are aligned to the official Microsoft Learn AZ-802 study guide; they are not copied exam questions.
+- A 410-question original, scenario-based practice bank. Questions are aligned to the official Microsoft Learn AZ-802 study guide; they are not copied exam questions.
 - English, فارسی, and Deutsch interface support. The application shell stays left-to-right; Persian content uses RTL spans where needed.
 - Four exam modes: Quick Check (8 questions/18 minutes), Stage Assessment (up to 40), Mixed Mock (60), and Full Endurance & Comprehensive Review (120/120 minutes). Full is explicitly an internal endurance review, not the official Microsoft exam format.
 - Every question reports its review state as two separate facts: structurally ready and technical approved. The tracked audit manifest is `content/question-audit.manifest.json`, and it is regenerated with `npm run audit:questions`, which also runs the citation and distractor checks and syncs the stored `reviewStatus`.
@@ -77,7 +77,7 @@ The bank now holds 400 sourced questions. A question that cannot prove its answe
 - Leitner intervals of 1, 3, 7, 14, and 30 days, including compatibility with the legacy `ipsec-connection-rule` card ID.
 - Persistent text-size control from 85% to 130%, responsive mobile layout, practical lab evidence, authentication, and progress synchronization APIs.
 - Every answered practice question exposes an internal, question-specific Explain panel built from that question's reviewed answer, rationale, options, domain, decision schematic, official visual reference (where useful), and Microsoft Learn source. It requires no popup, copy/paste flow, browser extension, or external AI service.
-- The **Ask** workspace performs typo-tolerant English/Persian search across all 400 questions, correct answers, rationales, domains, and options. It answers only from matched bank evidence, links the Microsoft Learn source, opens the exact question for practice, and refuses unsupported queries instead of inventing a response.
+- The **Ask** workspace performs typo-tolerant English/Persian search across all 410 questions, correct answers, rationales, domains, and options. It answers only from matched bank evidence, links the Microsoft Learn source, opens the exact question for practice, and refuses unsupported queries instead of inventing a response.
 - The redesigned Skill Graph connects `AZ-802 → domain → objective → lesson → question → source/lab/Leitner` and remains keyboard- and mobile-friendly.
 
 ## Eight stages
@@ -95,7 +95,7 @@ Questions are ordered by domain, so a stage owns a contiguous block of IDs.
 | 7 | Monitoring and Troubleshooting | 246–280, 381–393 | 48 |
 | 8 | Capstone (cross-domain) | 281–300, 394–400 | 27 |
 
-The original 300 IDs are unchanged, so saved answers, checkpoint cursors, and Leitner boxes stay valid. Questions 301–400 were added per domain and per official objective that had only one or two existing items.
+The original 300 IDs are unchanged, so saved answers, checkpoint cursors, and Leitner boxes stay valid. Questions 301–410 were added per domain and per official objective that had only one or two existing items. Questions 401–410 form the Azure hybrid-connectivity scenario topic inside the official networking domain.
 
 The official weighting remains the seven assessed AZ-802 domains. Capstone questions are assigned a `primaryDomain` for weighting and do not create an eighth weighted domain.
 
@@ -149,7 +149,7 @@ To enable **Continue with Google**, create a Google Cloud OAuth **Web applicatio
 
 Google's stable subject ID (`sub`) is stored in `google_accounts`. When Google returns a verified email that already belongs to an email/password account, the app links that Google identity to the existing account and signs the user in; if that account is already linked to a different Google identity, it shows a clear conflict message. The user can also explicitly link Google from the account panel. The app does not receive or store the Google password. The account panel also provides working sign-out. For password recovery in production, configure `APP_ORIGIN` plus either `RESEND_API_KEY`/`RESET_FROM_EMAIL` or a trusted `RESET_EMAIL_WEBHOOK_URL`. Without a delivery provider, the app reports a configuration error instead of claiming a reset email was sent.
 
-The generated bank lives in [lib/content/questions.ts](lib/content/questions.ts); the 300 original Persian question, option, and rationale fields in that file were refreshed through Google Translate, and questions 301–400 are marked `translations: "runtime-google"` so the display-time translation flow renders them without a second stored translation set. The stage map lives in [lib/content/training.ts](lib/content/training.ts). The older `scripts/localize-question-bank.mjs` file is retained as a legacy offline fallback and should not overwrite the Google-translated bank.
+The generated bank lives in [lib/content/questions.ts](lib/content/questions.ts); the 300 original Persian question, option, and rationale fields in that file were refreshed through Google Translate, and questions 301–410 are marked `translations: "runtime-google"` so the display-time translation flow renders them without a second stored translation set. The stage map lives in [lib/content/training.ts](lib/content/training.ts). The older `scripts/localize-question-bank.mjs` file is retained as a legacy offline fallback and should not overwrite the Google-translated bank.
 
 ## Complete question bank (questions 1–300)
 
@@ -468,7 +468,7 @@ The content is written from the official [AZ-802 certification study guide](http
 - `app/components/training-views.tsx`: eight-stage hub and text-size control.
 - `app/components/learning-views.tsx`: bilingual lessons, quizzes, practical exam, labs, graph, and Leitner cards.
 - `lib/content/training.ts`: stage metadata and question-to-stage mapping.
-- `lib/content/questions.ts`: the complete 400-question content bank.
+- `lib/content/questions.ts`: the complete 410-question content bank.
 - `content/question-audit.manifest.json`: per-question structural and technical review state, regenerated by `npm run audit:questions`.
 - `content/question-audit.source-relevance.json`: the content-based citation check output.
 - `content/question-audit.distractors.json`: the distractor index-alignment check output.
