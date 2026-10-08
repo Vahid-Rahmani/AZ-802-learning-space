@@ -145,6 +145,12 @@ function endpointLabel(state: SimulationState, endpoint: SimulationEndpoint) {
   return `${node?.label ?? endpoint.deviceId} · ${port?.label ?? endpoint.portId}`;
 }
 
+function linkPortLabel(state: SimulationState, link: SimulationLink) {
+  const source = findSimulationPort(state, link.source)?.label ?? link.source.portId;
+  const target = findSimulationPort(state, link.target)?.label ?? link.target.portId;
+  return link.label ? `${link.label} · ${source} ↔ ${target}` : `${source} ↔ ${target}`;
+}
+
 function curvedLinkPath(source: { x: number; y: number }, target: { x: number; y: number }) {
   const dx = target.x - source.x;
   const dy = target.y - source.y;
@@ -784,7 +790,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
                 return <g key={link.id} className="ccna-simulation-link" data-status={link.status ?? "up"} role="button" tabIndex={0} aria-label={`Disconnect cable between ${endpointLabel(state, link.source)} and ${endpointLabel(state, link.target)}`} onPointerDown={(event) => event.stopPropagation()} onClick={() => handleLink(link)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); handleLink(link); } }}>
                   <path className="ccna-simulation-link-hitbox" d={path} />
                   <path className="ccna-simulation-link-line" d={path} />
-                  <text className="ccna-simulation-link-label" x={middle.x} y={middle.y - 8}>{link.label ?? "connected"}</text>
+                  <text className="ccna-simulation-link-label" x={middle.x} y={middle.y - 8}>{linkPortLabel(state, link)}</text>
                 </g>;
               })}
               {state.nodes.map((node) => <g key={node.id} className={`ccna-simulation-node${selectedNode === node.id ? " is-selected" : ""}`} data-device-kind={node.kind} transform={`translate(${node.x} ${node.y})`} role="button" tabIndex={0} aria-pressed={selectedNode === node.id} aria-label={`${node.label}, ${DEVICE_META[node.kind].label}. Press Enter to select the device.`} onPointerDown={(event) => handleNodePointerDown(event, node)} onKeyDown={(event) => handleNodeKey(event, node)}>
@@ -807,6 +813,15 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
 
       <section id="ccna-panel-terminal" className="ccna-simulation-panel ccna-simulation-terminal-panel" data-panel="terminal" role="tabpanel" aria-labelledby="ccna-panel-tab-terminal" tabIndex={-1}>
         <div className="ccna-simulation-panel-heading"><span className="ccna-simulation-panel-icon">3</span><h3 id="ccna-terminal-title">Device console</h3><span className="ccna-simulation-terminal-host">{selectedNodeData ? `${selectedNodeData.label} · ${activeView ? simModeLabels[activeView.mode] : "user"}` : "Select a device"}</span></div>
+        <div className="ccna-simulation-device-tabs" role="tablist" aria-label="Device consoles">
+          {state.nodes.map((node) => {
+            const view = terminalViews[node.id] ?? defaultTerminalView(node);
+            const selected = node.id === selectedNodeData?.id;
+            return <button key={node.id} type="button" role="tab" aria-selected={selected} aria-controls="ccna-active-device-console" className={`ccna-simulation-device-tab${selected ? " is-active" : ""}`} onClick={() => selectDevice(node)}>
+              <span>{node.label}</span><small>{simModeLabels[view.mode]}</small>
+            </button>;
+          })}
+        </div>
         {guidedStages.length > 0 && <section className="ccna-simulation-guide" aria-label="Guided lab steps">
           <div className="ccna-simulation-guide-heading"><div><span className="ccna-simulation-guide-kicker">Guided path</span><strong>{activeStage ? `Stage ${nextStageIndex + 1} of ${guidedStages.length}` : "Lab complete"}</strong></div><span className="ccna-simulation-guide-score">{completedStageIds.size}/{guidedStages.length} verified</span></div>
           <ol className="ccna-simulation-stage-list">
@@ -828,15 +843,6 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
           </div>}
           {!activeStage && <p className="ccna-simulation-guide-complete">All guided stages are verified. You completed this lab path.</p>}
         </section>}
-        <div className="ccna-simulation-device-tabs" role="tablist" aria-label="Device consoles">
-          {state.nodes.map((node) => {
-            const view = terminalViews[node.id] ?? defaultTerminalView(node);
-            const selected = node.id === selectedNodeData?.id;
-            return <button key={node.id} type="button" role="tab" aria-selected={selected} aria-controls="ccna-active-device-console" className={`ccna-simulation-device-tab${selected ? " is-active" : ""}`} onClick={() => selectDevice(node)}>
-              <span>{node.label}</span><small>{simModeLabels[view.mode]}</small>
-            </button>;
-          })}
-        </div>
         <div ref={terminalSurfaceRef} id="ccna-active-device-console" className="ccna-simulation-terminal-screen" role="textbox" aria-multiline="false" aria-label={`Type commands for ${selectedNodeData?.label ?? "the selected device"}`} tabIndex={0} onPointerDown={() => terminalSurfaceRef.current?.focus()} onKeyDown={handleTerminalKeyDown}>
           <div className="ccna-simulation-terminal-output" role="log" aria-live="polite">
             {!activeView?.entries.length && <>
