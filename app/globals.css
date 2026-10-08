@@ -112,6 +112,7 @@ body { top:0 !important; }
 .google-subtitle { display:block; min-width:0; direction:ltr; text-align:left; }
 .google-subtitle-original { display:block; direction:ltr; text-align:left; }
 .google-subtitle-translation { display:block; margin-top:.35rem; color:#a5f3fc; font-size:.92em; font-weight:400; line-height:1.65; direction:ltr; text-align:left; unicode-bidi:plaintext; }
+.google-subtitle-translation[dir="rtl"] { direction:rtl; text-align:right; }
 .question-schematic { margin-top:1.25rem; padding:1rem; border:1px solid rgba(34,211,238,.2); border-radius:1rem; background:linear-gradient(145deg,rgba(7,18,29,.95),rgba(4,7,12,.85)); box-shadow:inset 0 1px 0 rgba(255,255,255,.04); }
 .question-schematic-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; }
 .question-schematic-kicker { margin:0; color:#67e8f9; font-size:calc(.7rem * var(--wincraft-font-scale, 1)); font-weight:800; letter-spacing:.12em; text-transform:uppercase; }

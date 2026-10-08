@@ -14,6 +14,7 @@ function keyFor(language: string, text: string) {
 }
 
 function isRtlLanguage(language: string) {
+  if (language.toLowerCase() === "ur-latn") return false;
   return /^(ar|ckb|dv|fa|he|ps|sd|ur)(?:-|$)/i.test(language);
 }
 

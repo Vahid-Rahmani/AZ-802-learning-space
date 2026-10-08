@@ -99,6 +99,28 @@ export const cloudConceptDrafts: AuthoredBank = {
       difficulty: "medium",
       topic: "Cloud computing",
     },
+    {
+      question: "A three-person startup must ship a product next month but cannot buy servers or hire a datacenter team. It signs up for a service where servers, storage, and databases are delivered over the internet and billed for the time they are used. Which term describes what the startup adopted?",
+      correct: "Cloud computing, because computing services are delivered on demand over the internet from a provider's pooled infrastructure",
+      wrong: [
+        "Co-location, because rented space still contains dedicated hardware the startup owns",
+        "Server consolidation, because several workloads share one physical host the startup operates",
+        "Desktop virtualization, because end users reach their applications from a thin client",
+      ],
+      rationale: "Cloud computing means computing services - compute, storage, networking, and applications - are delivered over the internet, on demand, from a provider's pooled infrastructure. The startup consumes capacity as a service instead of buying and operating hardware, which matches the described sign-up model.",
+      keyPoints: [
+        "Cloud computing is a delivery model for services over the internet, not a hardware purchase.",
+        "The provider owns and operates the pooled infrastructure; the customer consumes it on demand.",
+        "Consumption replaces upfront ownership, which is why a small team can ship without servers.",
+      ],
+      whyOthers: [
+        "Co-location rents space for customer-owned hardware, so it keeps the purchase and operations the startup could not take on.",
+        "Server consolidation still assumes hardware the startup operates, and it is an optimization of owned capacity rather than a service delivery model.",
+        "Desktop virtualization changes how users reach applications; it does not provide the internet-delivered compute and storage the startup needs.",
+      ],
+      difficulty: "medium",
+      topic: "Cloud computing",
+    },
   ],
 
   "shared-responsibility-model": [
@@ -186,6 +208,50 @@ export const cloudConceptDrafts: AuthoredBank = {
       difficulty: "medium",
       topic: "Shared responsibility model",
     },
+    {
+      question: "A team runs its own Windows Server virtual machines in Azure. Which security task always remains the customer's responsibility under the shared responsibility model?",
+      correct: "Patching the guest operating system and configuring the workloads that run on the virtual machines",
+      wrong: [
+        "Maintaining the physical hosts and the datacenter network fabric",
+        "Replacing failed disks in the storage cluster that backs the virtual machines",
+        "Keeping the hypervisor patched on the host that runs the virtual machines",
+      ],
+      rationale: "In IaaS the provider is responsible for the physical layer - datacenters, hosts, and the network fabric - while the customer keeps everything from the guest operating system upward: OS patching, configuration, applications, data, and identity. The scenario keeps the servers in IaaS scope, so OS patching stays with the customer.",
+      keyPoints: [
+        "The shared responsibility split changes with the service model, and IaaS leaves the most with the customer.",
+        "In IaaS the customer patches the guest OS and manages applications, data, and accounts.",
+        "The provider always owns the physical datacenter, hosts, and network fabric.",
+      ],
+      whyOthers: [
+        "Physical hosts are the provider's responsibility in every cloud service model, including IaaS.",
+        "Replacing failed disks in the provider's storage cluster is physical hardware maintenance, which the provider performs.",
+        "Hypervisor patching happens on the provider's host layer, below the guest operating system the customer controls.",
+      ],
+      difficulty: "medium",
+      topic: "Shared responsibility model",
+    },
+    {
+      question: "A company moves from self-hosted messaging servers to a complete hosted email service where it only configures user accounts. Which statement correctly describes the responsibility change?",
+      correct: "The provider now manages almost everything, while the company remains responsible for its data, accounts, and the devices that access the service",
+      wrong: [
+        "The company remains responsible for patching the messaging application and its servers",
+        "Responsibility is unchanged, because the shared responsibility model applies only to virtual machines",
+        "The provider becomes responsible for the accuracy and retention of the company's mailbox data",
+      ],
+      rationale: "A complete hosted application is SaaS: the provider manages the infrastructure, the operating system, and the application, while the customer stays accountable for its own data, the accounts it grants, and the devices and access it controls. That is the smallest customer footprint of the three service models.",
+      keyPoints: [
+        "SaaS leaves the provider with the infrastructure, platform, and application layers.",
+        "Even in SaaS, the customer keeps its data, identities, and endpoint devices.",
+        "The shared responsibility model applies to every service model, not only to virtual machines.",
+      ],
+      whyOthers: [
+        "Patching the application and its servers is exactly the work the SaaS provider takes over.",
+        "The model applies to all cloud service types, and the split shifts further toward the provider as the service model moves up.",
+        "Data classification, retention decisions, and content remain with the customer; the provider secures the platform that stores them.",
+      ],
+      difficulty: "medium",
+      topic: "Shared responsibility model",
+    },
   ],
 
   "cloud-models": [
@@ -265,6 +331,28 @@ export const cloudConceptDrafts: AuthoredBank = {
         "Deploying to the nearest public region ignores the stated jurisdictional constraint.",
         "Private cloud in the organization's own datacenter does not use a sovereign provider environment.",
         "Community cloud shares infrastructure between organizations with common interests, not with a government authority.",
+      ],
+      difficulty: "medium",
+      topic: "Cloud models",
+    },
+    {
+      question: "An organization needs cloud-style resource pooling and self-service, but a regulation requires that the platform serve only this one organization and never share capacity with other tenants. Which cloud model fits?",
+      correct: "A private cloud, because the cloud infrastructure is provisioned for use by a single organization",
+      wrong: [
+        "A public cloud, because pooled multi-tenant capacity is what makes cloud computing efficient",
+        "A hybrid cloud, because keeping any resource outside the provider's datacenter makes a deployment hybrid",
+        "A community cloud, because several regulated organizations can share one dedicated platform",
+      ],
+      rationale: "A private cloud is cloud infrastructure operated for a single organization; it can sit in the organization's own datacenter or be hosted by a third party, but it is not shared with other tenants. That matches the regulation described in the scenario.",
+      keyPoints: [
+        "Private cloud serves a single organization and is not pooled with other tenants.",
+        "A private cloud may be on premises or hosted by a third-party provider.",
+        "It still provides cloud characteristics such as self-service and resource pooling within that single organization.",
+      ],
+      whyOthers: [
+        "Public cloud capacity is shared with other tenants, which the regulation forbids.",
+        "Hybrid cloud combines public and private environments; the requirement is a single-tenant platform, not simply a mixed one.",
+        "Community cloud is shared by several organizations with common concerns, so it is still multi-tenant for this organization.",
       ],
       difficulty: "medium",
       topic: "Cloud models",
@@ -418,6 +506,28 @@ export const cloudConceptDrafts: AuthoredBank = {
       difficulty: "medium",
       topic: "Cloud model use cases",
     },
+    {
+      question: "A retailer has predictable, low-traffic internal systems in its own datacenter and a customer portal whose traffic spikes tenfold during holiday sales. Which approach uses the cloud models appropriately?",
+      correct: "Keep the internal systems on premises and run the customer portal in public cloud so extra capacity is added only when demand requires it",
+      wrong: [
+        "Move everything to a community cloud shared with other retailers so peak demand is pooled",
+        "Run both systems in a private cloud hosted in a single datacenter so tenancy is never shared",
+        "Keep the portal on premises and move the internal systems to a reserved public cloud capacity",
+      ],
+      rationale: "Hybrid and public cloud choices follow the workload. A steady internal system can stay on premises while a public cloud front end absorbs variable demand without buying hardware for the peak; that combination is the classic hybrid use case for bursty public workloads.",
+      keyPoints: [
+        "Match the model to the workload: steady private workloads versus variable public demand.",
+        "Public cloud is the fit when capacity must flex with unpredictable demand.",
+        "Hybrid keeps control of stable systems while using cloud elasticity for spiky ones.",
+      ],
+      whyOthers: [
+        "A community cloud is shared by organizations with common concerns and does not provide per-retailer elasticity for a shopping peak.",
+        "A single-datacenter private cloud cannot provide the scale-out capacity a tenfold holiday spike needs.",
+        "Keeping the spike-prone portal on premises and reserving capacity for steady systems solves the opposite problem and still requires peak hardware.",
+      ],
+      difficulty: "medium",
+      topic: "Cloud model use cases",
+    },
   ],
 
   "consumption-based-model": [
@@ -505,6 +615,28 @@ export const cloudConceptDrafts: AuthoredBank = {
         "Serverless platforms run on shared provider infrastructure, not dedicated customer hardware.",
         "Serverless avoids a capacity charge rather than offering a fixed lower base charge.",
         "An idle virtual machine still incurs compute charges, which is exactly the cost serverless avoids.",
+      ],
+      difficulty: "medium",
+      topic: "Consumption-based model",
+    },
+    {
+      question: "A finance team asks why the monthly Azure bill changes even though no new resources were added. Which explanation reflects the consumption-based model?",
+      correct: "Charges follow metered usage of each resource, so running more hours, storing more data, or transferring more traffic costs more",
+      wrong: [
+        "The bill changes because Azure hardware is bought on the customer's behalf and depreciated monthly",
+        "The bill is a flat subscription fee per resource that only changes when a resource is deleted",
+        "The bill varies because every subscription is charged a fixed share of the region's total capacity",
+      ],
+      rationale: "Under the consumption-based model each resource is metered and billed by what it actually consumes - time, storage, transactions, or data transfer - so usage changes move the bill even when the resource list is unchanged. That is also why the model has no upfront hardware purchase.",
+      keyPoints: [
+        "Consumption-based billing meters usage such as runtime, storage, and data transfer.",
+        "There is no upfront hardware cost; the customer pays for what is used.",
+        "The same resource set can cost more in a heavier month.",
+      ],
+      whyOthers: [
+        "The provider owns and depreciates its own hardware; the customer is not billed for equipment purchases.",
+        "Flat per-resource fees describe a fixed subscription, not consumption metering.",
+        "Subscriptions are not charged a share of regional datacenter capacity.",
       ],
       difficulty: "medium",
       topic: "Consumption-based model",
@@ -601,6 +733,50 @@ export const cloudConceptDrafts: AuthoredBank = {
       difficulty: "medium",
       topic: "Cloud pricing models",
     },
+    {
+      question: "A platform team knows one production virtual machine will run continuously in the same region for the next three years. Which pricing option reduces that cost the most without changing the workload?",
+      correct: "A reserved instance, because committing to a one-year or three-year term on the same resource type lowers the rate",
+      wrong: [
+        "Spot pricing, because unused Azure capacity is sold at a large discount",
+        "Pay-as-you-go, because hourly billing always costs less than a commitment",
+        "The Azure Hybrid Benefit, because it removes the cost of the underlying compute host",
+      ],
+      rationale: "A reservation trades a one-year or three-year commitment on a specific resource type and region for a lower unit price, which suits a continuously running production VM. Spot pricing is cheaper still, but it can be evicted at any time, so it does not suit a steady production workload.",
+      keyPoints: [
+        "Reservations discount steady-state usage by committing to a one-year or three-year term.",
+        "Spot pricing uses spare capacity and can be evicted, so it fits interruptible work.",
+        "The Hybrid Benefit applies existing Windows Server and SQL Server licenses, not new compute.",
+      ],
+      whyOthers: [
+        "Spot virtual machines can be evicted when Azure needs the capacity, which is unacceptable for this production workload.",
+        "Hourly pay-as-you-go is the flexible default rate and is more expensive than a reservation for constant use.",
+        "The Hybrid Benefit reuses licenses the customer already owns; it does not reduce the cost of the compute host itself.",
+      ],
+      difficulty: "medium",
+      topic: "Pricing models",
+    },
+    {
+      question: "A research group runs large simulation jobs that can be interrupted and restarted, and cost is the main concern. Which pricing model fits the workload?",
+      correct: "Spot pricing, because the jobs tolerate eviction in exchange for a much lower rate on spare capacity",
+      wrong: [
+        "A three-year reservation, because the group wants the lowest per-hour rate",
+        "Pay-as-you-go listed prices, because interruptible jobs must never be discounted",
+        "Azure Hybrid Benefit, because research subscriptions qualify for licence reuse",
+      ],
+      rationale: "Spot pricing sells unused Azure capacity at a steep discount on the condition that the workload can be reclaimed when that capacity is needed, which matches jobs that can be interrupted and restarted. A reservation would require a long commitment for capacity the workload does not need continuously.",
+      keyPoints: [
+        "Spot pricing is the cheapest option when interruptions are acceptable.",
+        "Reservations lower rates for steady usage but require a term commitment.",
+        "Choosing a pricing model depends on how tolerant the workload is of eviction.",
+      ],
+      whyOthers: [
+        "A three-year reservation is for continuous usage and would over-commit for interruptible jobs.",
+        "Pay-as-you-go is the baseline rate and ignores the workload's tolerance for interruption.",
+        "The Hybrid Benefit is about reusing existing licences, not about pricing interruptible compute.",
+      ],
+      difficulty: "medium",
+      topic: "Pricing models",
+    },
   ],
 
   serverless: [
@@ -688,6 +864,28 @@ export const cloudConceptDrafts: AuthoredBank = {
         "Serverless functions can call external endpoints over the network.",
         "Functions support external packages and bindings.",
         "Serverless services deploy to many regions.",
+      ],
+      difficulty: "medium",
+      topic: "Serverless",
+    },
+    {
+      question: "An events team needs a service that runs a small piece of code each time an image lands in a storage account, scales automatically, and charges only when code executes. Which compute choice matches?",
+      correct: "Azure Functions, because it runs event-driven code on demand and bills per execution without server management",
+      wrong: [
+        "Azure Virtual Machines, because virtual machines scale automatically with incoming events",
+        "Azure Kubernetes Service, because a Kubernetes cluster removes the need to manage servers",
+        "Azure Virtual Desktop, because it delivers the code to each user's session on demand",
+      ],
+      rationale: "Azure Functions is the serverless compute service for event-driven code: a trigger such as a new blob invokes the function, the platform scales it, and consumption billing charges for executions and execution time. No server is provisioned or patched by the team.",
+      keyPoints: [
+        "Serverless compute runs code without provisioning or managing servers.",
+        "Azure Functions is triggered by events such as a blob being written.",
+        "Consumption plans charge for executions, and the platform scales automatically.",
+      ],
+      whyOthers: [
+        "Virtual machines must be provisioned and scaled by the customer; they are not automatically event-driven.",
+        "A Kubernetes cluster still has nodes and configuration to manage, so it is not serverless in the way the scenario requires.",
+        "Azure Virtual Desktop is a desktop and application virtualization service, not an event-driven code runner.",
       ],
       difficulty: "medium",
       topic: "Serverless",
@@ -849,6 +1047,28 @@ export const cloudConceptDrafts: AuthoredBank = {
       difficulty: "medium",
       topic: "Availability and scalability benefits",
     },
+    {
+      question: "A web application slows down when a virtual machine runs out of CPU and memory. Which change is vertical scaling?",
+      correct: "Resize the virtual machine to a larger size that provides more CPU and memory",
+      wrong: [
+        "Add more virtual machines behind the load balancer",
+        "Deploy an identical virtual machine in a second availability zone",
+        "Enable a read-only copy of the database in a paired region",
+      ],
+      rationale: "Vertical scaling, also called scaling up, increases the capacity of an existing resource, such as moving a virtual machine to a larger size with more CPU and memory. Horizontal scaling, or scaling out, adds more instances instead, and zone or region copies address availability rather than capacity.",
+      keyPoints: [
+        "Vertical scaling increases the size or power of an existing resource.",
+        "Horizontal scaling adds more instances of a resource.",
+        "Availability features such as extra zones affect uptime, not the capacity of one machine.",
+      ],
+      whyOthers: [
+        "Adding more virtual machines behind a load balancer is horizontal scaling, which changes instance count rather than size.",
+        "A second availability zone improves resilience to a datacenter failure, not the CPU and memory available to one machine.",
+        "A database read copy in another region is a disaster recovery and read-scale pattern, not vertical scaling of the web server.",
+      ],
+      difficulty: "medium",
+      topic: "Scalability",
+    },
   ],
 
   "reliability-and-predictability-benefits": [
@@ -939,6 +1159,28 @@ export const cloudConceptDrafts: AuthoredBank = {
       ],
       difficulty: "medium",
       topic: "Reliability and predictability benefits",
+    },
+    {
+      question: "A financial services team must prove that month-end batch processing finishes within a three-hour window, and its costs must stay within a forecast. Which pair of cloud benefits addresses both requirements?",
+      correct: "Performance predictability, so capacity can be scaled to match the workload, and cost predictability, so spend can be forecast and tracked",
+      wrong: [
+        "High availability, so the batch continues during a datacenter outage, and versioning, so code can be rolled back",
+        "Elasticity, so resources shrink automatically, and data residency, so records stay in one country",
+        "Fault tolerance, so a failed node is replaced, and encryption, so data cannot be read at rest",
+      ],
+      rationale: "Predictability covers both dimensions described by the team: performance predictability uses features such as autoscaling, load balancing, and high availability to meet a defined target, while cost predictability uses forecasting and tracking tools to keep spend within a budget. The other pairs address security, resilience, or compliance topics.",
+      keyPoints: [
+        "Performance predictability means meeting a defined performance target with scaling and balancing features.",
+        "Cost predictability means forecasting and tracking spend before the invoice arrives.",
+        "Predictability is separate from security, governance, and resilience topics.",
+      ],
+      whyOthers: [
+        "High availability and versioning answer outage tolerance and rollback, not a batch deadline or a spend forecast.",
+        "Elasticity is one mechanism behind performance predictability; data residency is a compliance concern, so neither answers the cost requirement.",
+        "Fault tolerance and encryption are resilience and security controls, and neither predicts performance or cost.",
+      ],
+      difficulty: "hard",
+      topic: "Predictability",
     },
   ],
 
@@ -1031,6 +1273,28 @@ export const cloudConceptDrafts: AuthoredBank = {
       difficulty: "medium",
       topic: "Security and governance benefits",
     },
+    {
+      question: "A regulated company wants every new storage account to be blocked from creation unless it carries a required tag, without reviewing each deployment request manually. Which cloud benefit makes this possible?",
+      correct: "Governance controls such as Azure Policy, which can audit or deny non-compliant deployments at the platform level",
+      wrong: [
+        "Elasticity, which adds capacity when storage demand grows",
+        "Fault tolerance, which keeps the storage account available after a hardware failure",
+        "Serverless computing, which removes the need to patch storage infrastructure",
+      ],
+      rationale: "Governance in the cloud is enforced by platform features rather than manual review: Azure Policy can audit or deny a deployment that does not meet a rule such as requiring a tag, and the same rule applies automatically to every attempt. Elasticity, fault tolerance, and serverless computing do not evaluate resource configuration.",
+      keyPoints: [
+        "Cloud governance applies rules at the platform level to every deployment.",
+        "Azure Policy can deny a non-compliant creation request such as a missing tag.",
+        "Automatic enforcement replaces manual per-request review.",
+      ],
+      whyOthers: [
+        "Elasticity changes capacity with demand and never inspects resource tags or configuration.",
+        "Fault tolerance keeps a service running after hardware failure and does not enforce configuration rules.",
+        "Serverless computing changes who manages servers; it does not evaluate resource compliance.",
+      ],
+      difficulty: "medium",
+      topic: "Governance benefits",
+    },
   ],
 
   "manageability-benefits": [
@@ -1121,6 +1385,28 @@ export const cloudConceptDrafts: AuthoredBank = {
       ],
       difficulty: "medium",
       topic: "Manageability benefits",
+    },
+    {
+      question: "Which pair correctly separates management of the cloud from management in the cloud?",
+      correct: "Management of the cloud is what the platform does for you, such as autoscaling and automatic patching, while management in the cloud is how you control resources, such as the portal, CLI, and APIs",
+      wrong: [
+        "Management of the cloud is the portal and CLI, while management in the cloud is autoscaling and templates",
+        "Management of the cloud applies only to IaaS, while management in the cloud applies only to SaaS",
+        "Management of the cloud is done by the provider's staff, while management in the cloud is impossible for customers",
+      ],
+      rationale: "Learn separates the two: management of the cloud covers what the platform handles automatically - autoscaling, preconfigured templates, health monitoring, and self-healing - while management in the cloud covers the tools you use to control your resources, including the portal, CLI, PowerShell, and APIs.",
+      keyPoints: [
+        "Management of the cloud means platform-provided automation such as autoscale and patching.",
+        "Management in the cloud means the tools a customer uses to operate resources.",
+        "Web portal, CLI, PowerShell, and APIs are management-in-the-cloud options.",
+      ],
+      whyOthers: [
+        "The portal and CLI are management-in-the-cloud tools, and autoscaling and templates are management-of-the-cloud automation, so the pair is reversed.",
+        "Both ideas apply across service models; manageability is not tied to one service type.",
+        "Customers manage their own resources in the cloud constantly; only the underlying platform is the provider's.",
+      ],
+      difficulty: "hard",
+      topic: "Manageability",
     },
   ],
 
@@ -1213,6 +1499,28 @@ export const cloudConceptDrafts: AuthoredBank = {
       difficulty: "medium",
       topic: "IaaS",
     },
+    {
+      question: "A company must move a legacy application to Azure next quarter with no code changes, and its vendor supports only a specific operating system version with custom middleware. Which service type should it choose?",
+      correct: "IaaS, because virtual machines give the company full control of the operating system and installed software",
+      wrong: [
+        "PaaS, because the platform runs the application without any server configuration",
+        "SaaS, because subscribing to a finished product removes migration work",
+        "Serverless, because code can be triggered whenever the application receives a request",
+      ],
+      rationale: "IaaS provides virtualized compute where the customer controls the guest operating system, middleware, and runtime, which is what a vendor-pinned legacy application requires. Moving to PaaS or serverless would force changes the vendor does not support, and SaaS is a finished product rather than a host for this application.",
+      keyPoints: [
+        "IaaS gives the most control of the operating system and software stack.",
+        "Lift-and-shift migrations with no code changes fit virtual machines.",
+        "PaaS and serverless require the application to fit the managed runtime.",
+      ],
+      whyOthers: [
+        "PaaS hides the operating system and runtime, so a vendor-pinned OS and middleware combination cannot be reproduced.",
+        "SaaS means consuming the provider's application; it is not a hosting model for the company's own legacy code.",
+        "Serverless requires the application to be rewritten around triggers and short executions, which the no-code-change constraint forbids.",
+      ],
+      difficulty: "medium",
+      topic: "IaaS",
+    },
   ],
 
   "describe-paas": [
@@ -1294,6 +1602,28 @@ export const cloudConceptDrafts: AuthoredBank = {
         "Azure Storage stores and serves data; it does not host the customer's application runtime.",
       ],
       difficulty: "easy",
+      topic: "PaaS",
+    },
+    {
+      question: "A development team wants to publish an internal web application and use an Azure SQL database, but does not want to patch operating systems, manage database servers, or tune storage. Which service type matches?",
+      correct: "PaaS, because the provider manages the platform, operating system, and database engine while the team deploys application code",
+      wrong: [
+        "IaaS, because the team should install and patch its own database server on a virtual machine",
+        "SaaS, because the internal web application is delivered as a finished product to the team",
+        "On-premises hosting, because managed database services cannot be reached from the cloud",
+      ],
+      rationale: "PaaS delivers a managed environment for applications and data: App Service hosts the web application, and Azure SQL Database is a managed database engine. The provider patches the operating system and database platform, which is exactly the work the team wants to avoid.",
+      keyPoints: [
+        "PaaS removes operating system and platform management from the customer.",
+        "App Service and Azure SQL Database are managed PaaS offerings.",
+        "The development team still owns its application code and data.",
+      ],
+      whyOthers: [
+        "Running and patching a database server on a virtual machine is the IaaS approach the team wants to avoid.",
+        "SaaS is a finished application the customer consumes, not a runtime for the team's own web application.",
+        "Managed cloud database services are reachable from cloud applications; there is no such limitation.",
+      ],
+      difficulty: "medium",
       topic: "PaaS",
     },
   ],
@@ -1383,6 +1713,28 @@ export const cloudConceptDrafts: AuthoredBank = {
       difficulty: "medium",
       topic: "SaaS",
     },
+    {
+      question: "A company subscribes to a hosted productivity suite that its staff open in a browser, pays for per user each month, and never patches. Which service model is this?",
+      correct: "SaaS, because the provider operates the complete application and the customer consumes it by subscription",
+      wrong: [
+        "PaaS, because a hosted application is always a development platform",
+        "IaaS, because per-user subscriptions are a form of server rental",
+        "A private cloud, because only the company's staff can sign in to the suite",
+      ],
+      rationale: "SaaS is the model where the provider hosts and operates the whole application for subscribers. The company pays per user, uses the application through a browser or client, and takes no responsibility for patching the application or its platform, which is the smallest customer footprint of the three service models.",
+      keyPoints: [
+        "SaaS delivers a complete, provider-operated application to subscribers.",
+        "Per-user subscription pricing is typical of SaaS.",
+        "The customer manages only its users, data, and access, not the application or servers.",
+      ],
+      whyOthers: [
+        "PaaS provides a runtime for the customer's own applications rather than a finished product to use.",
+        "IaaS supplies virtualized infrastructure for the customer to configure, not a complete application subscription.",
+        "Restricting sign-in to staff is access control, not a cloud deployment model; the application remains multi-tenant SaaS.",
+      ],
+      difficulty: "easy",
+      topic: "SaaS",
+    },
   ],
 
   "service-type-use-cases": [
@@ -1470,6 +1822,50 @@ export const cloudConceptDrafts: AuthoredBank = {
         "Refactoring to serverless is a substantial redesign, the opposite of minimal change.",
         "Replacing applications with SaaS products changes the business function entirely.",
         "Moving to managed containers requires application re-architecture.",
+      ],
+      difficulty: "medium",
+      topic: "Service type use cases",
+    },
+    {
+      question: "A startup needs three things: a managed runtime for its own web app, a desktop email suite for staff, and a place for one legacy component that must run an unsupported operating system. Which mapping of workloads to service types is correct?",
+      correct: "PaaS for the web app, SaaS for the email suite, and IaaS for the unsupported legacy component",
+      wrong: [
+        "SaaS for the web app, IaaS for the email suite, and PaaS for the unsupported legacy component",
+        "IaaS for the web app, PaaS for the email suite, and SaaS for the unsupported legacy component",
+        "PaaS for all three, because a managed platform can host any workload",
+      ],
+      rationale: "Each workload matches the model that removes the right amount of work: a managed runtime for the team's own web application is PaaS, a finished email product consumed by subscription is SaaS, and an unsupported operating system demands full control of a virtual machine, which is IaaS.",
+      keyPoints: [
+        "Match the service type to how much control the workload needs.",
+        "PaaS fits the customer's own application code on a managed runtime.",
+        "IaaS is required when the operating system itself must be controlled.",
+      ],
+      whyOthers: [
+        "A finished suite is not a development platform, and an unsupported operating system cannot be reproduced on a managed platform, so this pairing inverts the models.",
+        "Virtual machines for a standard web app add management work, while a subscription email suite is not IaaS.",
+        "A single managed platform cannot reproduce an unsupported operating system or deliver a finished product.",
+      ],
+      difficulty: "hard",
+      topic: "Service type use cases",
+    },
+    {
+      question: "A team wants to deploy container images without managing any cluster nodes or servers behind them. Which choice fits best?",
+      correct: "A managed container platform such as Azure Container Apps, because the platform runs and scales the containers for the team",
+      wrong: [
+        "A virtual machine scale set where the team installs and patches its own container runtime",
+        "A SaaS product, because containers are always delivered as finished software",
+        "An availability set of virtual machines, because it removes the need to manage nodes",
+      ],
+      rationale: "Managed container platforms sit in the PaaS family: the team supplies the container image, and the platform handles the host infrastructure, scaling, and revisions. A scale set or availability set of virtual machines would leave node patching and runtime management with the team.",
+      keyPoints: [
+        "Managed container services remove node and cluster management from the customer.",
+        "Azure Container Apps runs containers on a serverless, managed platform.",
+        "Running containers on your own virtual machines keeps operating system work with you.",
+      ],
+      whyOthers: [
+        "A scale set of virtual machines still requires the team to install, patch, and scale its own runtime.",
+        "SaaS is a finished application for end users, not a place to deploy the team's container images.",
+        "An availability set only distributes virtual machines for resilience; it does not remove node management.",
       ],
       difficulty: "medium",
       topic: "Service type use cases",
