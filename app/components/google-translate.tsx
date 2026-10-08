@@ -13,6 +13,10 @@ function keyFor(language: string, text: string) {
   return `${language}\u0000${text}`;
 }
 
+function isRtlLanguage(language: string) {
+  return /^(ar|ckb|dv|fa|he|ps|sd|ur)(?:-|$)/i.test(language);
+}
+
 function flushQueue() {
   queueTimer = null;
   const firstKey = waiting.keys().next().value as string | undefined;
@@ -71,9 +75,10 @@ export function GoogleSubtitle({ text, className = "", subtitleClassName = "", e
   const translation = result.key === lookupKey ? result.translation : undefined;
   const pending = Boolean(lookupKey) && translation === undefined;
 
+  const translationDirection = isRtlLanguage(language) ? "rtl" : "ltr";
   return <span className={`google-subtitle ${className}`} dir="ltr">
     <span className="google-subtitle-original">{text}</span>
-    {language && enabled && <span className={`google-subtitle-translation ${subtitleClassName}`} dir="ltr">{translation ?? (pending ? "Translating…" : "Translation unavailable")}</span>}
+    {language && enabled && <span className={`google-subtitle-translation ${subtitleClassName}`} dir={translationDirection} lang={language}>{translation ?? (pending ? "Translating…" : "Translation unavailable")}</span>}
   </span>;
 }
 

@@ -27,6 +27,7 @@ type Props = {
   question: QuestionForExplanation;
   selectedAnswer: number;
   showTranslations: boolean;
+  sourceLabel?: string;
   /**
    * AZ-802 replaced the generic domain schematic with question-specific
    * evidence (deciding facts, real command path, exact Learn pages). Other
@@ -45,7 +46,7 @@ function learnLabel(reference: string) {
  * answer and rationale already stored with that question, so all questions work
  * inside CertPath without an API, extension, popup, or copy/paste flow.
  */
-export function QuestionExplanation({ question, selectedAnswer, showTranslations, showSchematic = true }: Props) {
+export function QuestionExplanation({ question, selectedAnswer, showTranslations, sourceLabel = "Microsoft Learn source ↗", showSchematic = true }: Props) {
   const [open, setOpen] = useState(false);
   const correctAnswer = question.options[question.correct] ?? "Correct answer";
   const selectedOption = question.options[selectedAnswer] ?? "No answer";
@@ -72,7 +73,7 @@ export function QuestionExplanation({ question, selectedAnswer, showTranslations
     {open && <div className="question-explanation-body">
       <div className="question-explanation-summary">
         <span className="question-explanation-provider">Built into CertPath · question-specific</span>
-        <strong>Correct answer: {correctAnswer}</strong>
+        <strong>Correct answer: <GoogleSubtitle text={correctAnswer} enabled={showTranslations} /></strong>
         <GoogleSubtitle text={question.rationale.en} enabled={showTranslations} />
       </div>
 
@@ -90,7 +91,7 @@ export function QuestionExplanation({ question, selectedAnswer, showTranslations
 
       <div className={`question-explanation-choice ${selectedAnswer === question.correct ? "is-correct" : "is-incorrect"}`}>
         <h4>Your answer</h4>
-        <strong>{selectedOption}</strong>
+        <strong><GoogleSubtitle text={selectedOption} enabled={showTranslations} /></strong>
         <GoogleSubtitle
           text={selectedAnswer === question.correct
             ? `Your choice matches the required result: ${correctAnswer}.`
@@ -102,7 +103,7 @@ export function QuestionExplanation({ question, selectedAnswer, showTranslations
       <div className="question-explanation-section">
         <h4>Why the other options do not fit</h4>
         <div className="question-distractor-list">{distractors.map((item) => <article key={item.optionIndex} className="question-distractor">
-          <strong>{item.option}</strong>
+          <strong><GoogleSubtitle text={item.option} enabled={showTranslations} /></strong>
           <p className="question-distractor-reason">
             <GoogleSubtitle
               text={item.reason || `${item.option} does not satisfy the requirement in this scenario. The reviewed answer is ${correctAnswer}. ${question.rationale.en}`}
@@ -129,7 +130,7 @@ export function QuestionExplanation({ question, selectedAnswer, showTranslations
 
       {showSchematic && <QuestionSchematic domain={question.domain} questionText={question.text} showTranslations={showTranslations} />}
       <QuestionReferenceMedia media={media} />
-      <a className="question-explanation-source" href={question.source} target="_blank" rel="noreferrer"><GoogleSubtitle text="AZ-802 study guide ↗" enabled={showTranslations} /></a>
+      <a className="question-explanation-source" href={question.source} target="_blank" rel="noreferrer"><GoogleSubtitle text={sourceLabel} enabled={showTranslations} /></a>
     </div>}
   </section>;
 }
