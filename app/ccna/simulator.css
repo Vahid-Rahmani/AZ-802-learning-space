@@ -299,6 +299,38 @@
 
 .ccna-simulation-terminal-panel { overflow: hidden; padding: 0; background: #07111f; }
 .ccna-simulation-terminal-panel .ccna-simulation-panel-heading { margin: 0; padding: .8rem 1rem; border-bottom: 1px solid #25415f; }
+.ccna-simulation-guide { margin: .7rem .8rem 0; padding: .7rem; border: 1px solid var(--simulation-line); border-radius: 8px; background: rgba(5, 15, 22, .74); }
+.ccna-simulation-guide-heading { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: .55rem; }
+.ccna-simulation-guide-heading > div { display: grid; gap: .15rem; min-width: 0; }
+.ccna-simulation-guide-kicker { color: var(--simulation-accent); font-size: .65em; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.ccna-simulation-guide-heading strong { color: var(--simulation-text); font-size: .84em; }
+.ccna-simulation-guide-score { color: var(--simulation-success); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .72em; white-space: nowrap; }
+.ccna-simulation-stage-list { display: flex; gap: .35rem; margin: 0 !important; padding: 0 !important; overflow-x: auto; list-style: none; scrollbar-width: thin; }
+.ccna-simulation-stage { display: flex; flex: 1 1 0; min-width: 7.5rem; align-items: center; gap: .35rem; padding: .4rem .45rem; border: 1px solid var(--simulation-line); border-radius: 6px; background: rgba(12, 32, 44, .68); }
+.ccna-simulation-stage > span:last-child { display: grid; min-width: 0; gap: .08rem; }
+.ccna-simulation-stage strong { overflow: hidden; color: var(--simulation-muted); font-size: .7em; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.ccna-simulation-stage small { color: #7595a3; font-size: .62em; line-height: 1.2; }
+.ccna-simulation-stage-marker { display: inline-grid; flex: 0 0 1.35rem; width: 1.35rem; height: 1.35rem; place-items: center; border: 1px solid var(--simulation-line); border-radius: 50%; color: var(--simulation-muted); font-size: .7em; font-weight: 800; }
+.ccna-simulation-stage.is-current { border-color: var(--simulation-accent); background: rgba(8, 228, 244, .1); box-shadow: inset 0 -2px 0 var(--simulation-accent); }
+.ccna-simulation-stage.is-current strong { color: var(--simulation-text); }
+.ccna-simulation-stage.is-current .ccna-simulation-stage-marker { border-color: var(--simulation-accent); color: var(--simulation-accent); }
+.ccna-simulation-stage.is-complete { border-color: rgba(65, 232, 154, .45); }
+.ccna-simulation-stage.is-complete strong { color: var(--simulation-success); }
+.ccna-simulation-stage.is-complete .ccna-simulation-stage-marker { border-color: var(--simulation-success); color: var(--simulation-success); }
+.ccna-simulation-stage.is-locked { opacity: .52; }
+.ccna-simulation-current-stage { margin-top: .65rem; padding: .65rem .7rem; border-left: 2px solid var(--simulation-accent); border-radius: 0 6px 6px 0; background: rgba(8, 228, 244, .06); }
+.ccna-simulation-current-stage p { margin: .35rem 0; font-size: .76em; line-height: 1.45; }
+.ccna-simulation-current-stage-title { color: var(--simulation-text) !important; font-weight: 750; }
+.ccna-simulation-stage-why { color: var(--simulation-muted) !important; }
+.ccna-simulation-stage-command { display: flex; align-items: center; gap: .45rem; margin-top: .5rem; }
+.ccna-simulation-stage-command code { min-width: 0; flex: 1 1 auto; overflow-x: auto; padding: .42rem .55rem; border: 1px solid var(--simulation-line); border-radius: 5px; color: var(--simulation-accent); background: #02090d; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .78em; white-space: nowrap; }
+.ccna-simulation-stage-command button { min-height: 30px; padding: .3rem .55rem; border: 1px solid var(--simulation-accent); border-radius: 5px; color: #031116; background: var(--simulation-accent); font: inherit; font-size: .7em; font-weight: 750; cursor: pointer; white-space: nowrap; }
+.ccna-simulation-stage-command button:hover, .ccna-simulation-stage-command button:focus-visible { filter: brightness(1.12); outline: 2px solid rgba(8, 228, 244, .3); outline-offset: 1px; }
+.ccna-simulation-stage-expected { display: block; margin-top: .45rem; color: var(--simulation-muted); font-size: .66em; line-height: 1.4; }
+.ccna-simulation-guide-complete { margin: .55rem 0 0 !important; color: var(--simulation-success) !important; font-size: .78em !important; font-weight: 700; }
+.ccna-simulation-checklist-status { color: var(--simulation-accent) !important; font-size: .7em !important; }
+.ccna-simulation-checklist button:disabled { cursor: default; opacity: .96; }
+.ccna-simulation-checklist button:disabled:hover { border-color: transparent; background: transparent; }
 .ccna-simulation-terminal-host { min-width: 0; margin-inline-start: auto; color: #8de9ff; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .78em; overflow-wrap: anywhere; }
 .ccna-simulation-device-tabs { display: flex; max-width: 100%; gap: .35rem; overflow-x: auto; padding: .55rem .7rem; border-bottom: 1px solid #25415f; background: rgba(8, 17, 31, .86); overscroll-behavior-inline: contain; scrollbar-width: thin; }
 .ccna-simulation-device-tab { display: inline-flex; min-width: 7.5rem; flex: 0 0 auto; flex-direction: column; align-items: flex-start; gap: .15rem; min-height: 42px; padding: .45rem .65rem; border: 1px solid #2e4968; border-radius: 8px; color: var(--simulation-muted); background: rgba(21, 39, 64, .82); font: inherit; font-size: .78em; text-align: start; cursor: pointer; }

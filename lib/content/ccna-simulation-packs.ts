@@ -1,6 +1,6 @@
 import { ccnaLabs } from "./ccna.ts";
 import { ccnaLabBands, ccnaLabPath, ccnaLabPathStats, type CcnaLabEntry } from "./ccna-lab-path.ts";
-import type { SimulationPack, SimulationNode, SimulationPort, SimulationLink, SimulationChecklistItem } from "@/lib/ccna-sim/topology";
+import type { SimulationPack, SimulationNode, SimulationPort, SimulationLink, SimulationChecklistItem, SimulationStage } from "@/lib/ccna-sim/topology";
 import type { ServerLab } from "./server-labs.ts";
 
 /**
@@ -201,6 +201,58 @@ function checklistFor(lab: CcnaLabEntry): SimulationChecklistItem[] {
   ];
 }
 
+const supportedReadCommands = [
+  "show version",
+  "show ip interface brief",
+  "show interfaces status",
+  "show interfaces switchport",
+  "show vlan brief",
+  "show running-config",
+] as const;
+
+/** Turn long catalog verification prose into a command that the local IOS
+ * model can actually execute.  The prose remains visible in the scenario;
+ * the guided step only offers a safe, deterministic command for this slice. */
+function guidedCommandFor(text: string, index: number) {
+  const value = text.trim().toLowerCase();
+  if (value.startsWith("show version")) return "show version";
+  if (value.startsWith("show ip interface")) return "show ip interface brief";
+  if (value.startsWith("show interfaces switchport")) return "show interfaces switchport";
+  if (value.startsWith("show interfaces status")) return "show interfaces status";
+  if (value.startsWith("show vlan")) return "show vlan brief";
+  if (value.startsWith("show running-config")) return "show running-config";
+  if (value.includes("vlan")) return "show vlan brief";
+  if (value.includes("interface")) return "show ip interface brief";
+  return supportedReadCommands[(index + 1) % supportedReadCommands.length];
+}
+
+function guideFor(lab: CcnaLabEntry, checklist: SimulationChecklistItem[]): SimulationStage[] {
+  return checklist.map((item, index) => {
+    const command = item.id === "evidence"
+      ? "show running-config"
+      : guidedCommandFor(item.detail ?? item.title, index);
+    const isTopology = item.id === "topology";
+    const isFault = item.id === "fault";
+    return {
+      id: item.id,
+      title: item.title,
+      instruction: isTopology
+        ? "Read the reference diagram, select the device you are working on, then run the command below in its console."
+        : isFault
+          ? `${item.detail ?? "Reproduce the lab fault"} Use the recovery note as your target, then verify the resulting device state.`
+          : item.detail ?? "Run the guided verification command and compare the output with the success criteria.",
+      why: isTopology
+        ? "A topology is a plan: identify the device and its role before changing configuration."
+        : isFault
+          ? "Troubleshooting is evidence-led. Confirm the state after the recovery instead of trusting a typed command."
+          : "The output is the evidence that the step is complete; the next stage stays locked until it is produced.",
+      command,
+      expected: `A valid ${command} response appears in the selected device console.`,
+      hint: isTopology ? "Start with the device selected in the topology." : "You can use the command as written or an unambiguous IOS abbreviation.",
+    } satisfies SimulationStage;
+  });
+}
+
 function terminalFor(lab: CcnaLabEntry) {
   const verification = lab.verification.slice(0, 8);
   const commands: Record<string, string[]> = {
@@ -219,6 +271,7 @@ function createPack(lab: CcnaLabEntry): CcnaSimulationPack {
   const devices = createDevices(lab);
   const topology = handsOn?.topology;
   const sources = lab.sourceRefs.map((source) => ({ title: source.title, url: source.url }));
+  const checklist = checklistFor(lab);
   return {
     id: `ccna-sim-${slug(lab.id)}`,
     labId: lab.id,
@@ -238,7 +291,8 @@ function createPack(lab: CcnaLabEntry): CcnaSimulationPack {
     },
     devices,
     links: createLinks(devices, lab),
-    checklist: checklistFor(lab),
+    checklist,
+    stages: guideFor(lab, checklist),
     terminal: terminalFor(lab),
     references: sources,
     sourceSummary: lab.reviewStatus === "reviewed" ? "Objectives and sources were reviewed for this learning-path entry." : `Draft fallback: ${lab.reviewNote ?? "The catalog mapping still needs review."}`,

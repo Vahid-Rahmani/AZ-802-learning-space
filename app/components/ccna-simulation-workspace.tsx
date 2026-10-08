@@ -16,13 +16,14 @@ import {
   type SimulationLink,
   type SimulationNode,
   type SimulationPack,
+  type SimulationStage,
   type SimulationState,
   updateSimulationViewport,
 } from "@/lib/ccna-sim/topology";
 
 type WorkspacePanel = "scenario" | "topology" | "terminal" | "reference";
 type Notice = { kind: "info" | "success" | "error"; text: string };
-type TerminalEntry = { input: string; output: string[]; promptBefore: string; promptAfter: string; mode: SimMode };
+type TerminalEntry = { input: string; output: string[]; promptBefore: string; promptAfter: string; mode: SimMode; matched?: string | null };
 type PersistedTerminalSession = {
   kind: SimulationNode["kind"];
   hostname: string;
@@ -71,9 +72,10 @@ type TerminalView = {
   draft: string;
 };
 type WorkspaceSnapshot = {
-  version: 1 | 2;
+  version: 1 | 2 | 3;
   state: SimulationState;
   checkedItems: string[];
+  completedStages?: string[];
   activeDeviceId?: string | null;
   sessions?: Record<string, PersistedTerminalSession>;
   /** Version 1 compatibility: the old single terminal transcript is assigned to the first device. */
@@ -168,7 +170,7 @@ function statusColor(status: SimulationNode["status"] = "healthy") {
 function isSnapshot(value: unknown): value is WorkspaceSnapshot {
   if (!value || typeof value !== "object") return false;
   const snapshot = value as Partial<WorkspaceSnapshot>;
-  return (snapshot.version === 1 || snapshot.version === 2) && Boolean(snapshot.state && Array.isArray(snapshot.state.nodes) && Array.isArray(snapshot.state.links));
+  return (snapshot.version === 1 || snapshot.version === 2 || snapshot.version === 3) && Boolean(snapshot.state && Array.isArray(snapshot.state.nodes) && Array.isArray(snapshot.state.links));
 }
 
 /**
@@ -245,6 +247,7 @@ function createTerminalRuntime(node: SimulationNode, saved?: PersistedTerminalSe
     promptBefore: entry.promptBefore || session.prompt,
     promptAfter: entry.promptAfter || session.prompt,
     mode: isSimMode(entry.mode) ? entry.mode : session.state.mode,
+    matched: typeof entry.matched === "string" ? entry.matched : null,
   }));
   return {
     nodeId: node.id,
@@ -304,6 +307,18 @@ function terminalResponse(pack: SimulationPack, command: string) {
   return [`% Unknown command: ${command.trim() || "(empty)"}`, "% Type help to see the commands supported by this lab."];
 }
 
+function entryMatchesStage(entry: TerminalEntry, stage: SimulationStage) {
+  const target = stage.command.trim().toLowerCase();
+  const matched = entry.matched?.trim().toLowerCase();
+  if (matched === target) return true;
+  const input = entry.input.trim().toLowerCase();
+  return input === target || input.startsWith(`${target} `);
+}
+
+function stageWasPassed(stage: SimulationStage, views: Record<string, TerminalView>) {
+  return Object.values(views).some((view) => view.entries.some((entry) => entryMatchesStage(entry, stage)));
+}
+
 export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplete, onDeviceSelect }: CcnaSimulationWorkspaceProps) {
   const storageKey = `ccna-simulation:${persistKey ?? pack.id}`;
   const [state, setState] = useState<SimulationState>(() => cloneSimulationState(pack));
@@ -324,7 +339,21 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   const completionNotified = useRef(false);
 
   const requiredItems = useMemo(() => (pack.checklist ?? []).filter((item) => item.required !== false), [pack.checklist]);
-  const completedRequired = requiredItems.filter((item) => checkedItems.has(item.id)).length;
+  const guidedStages = useMemo(() => pack.stages ?? [], [pack.stages]);
+  const completedStageIds = useMemo(() => {
+    const complete = new Set<string>();
+    let previousComplete = true;
+    for (const stage of guidedStages) {
+      const passed: boolean = previousComplete && stageWasPassed(stage, terminalViews);
+      if (passed) complete.add(stage.id);
+      previousComplete = passed;
+    }
+    return complete;
+  }, [guidedStages, terminalViews]);
+  const requiredCount = guidedStages.length || requiredItems.length;
+  const completedRequired = guidedStages.length ? completedStageIds.size : requiredItems.filter((item) => checkedItems.has(item.id)).length;
+  const nextStageIndex = guidedStages.findIndex((stage) => !completedStageIds.has(stage.id));
+  const activeStage = nextStageIndex >= 0 ? guidedStages[nextStageIndex] : null;
   const connectedCount = state.links.length;
   const selectedNode = activeDeviceId;
   const effectiveActiveDeviceId = activeDeviceId ?? state.nodes[0]?.id ?? null;
@@ -402,9 +431,10 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     if (!hydrated || hydratedKey.current !== storageKey) return;
     const sessions = Object.fromEntries(state.nodes.map((node) => [node.id, serializeTerminalRuntime(terminalSessions.current[node.id] ?? getTerminalRuntime(node))]));
     const snapshot: WorkspaceSnapshot = {
-      version: 2,
+      version: 3,
       state,
       checkedItems: [...checkedItems],
+      completedStages: [...completedStageIds],
       activeDeviceId,
       sessions,
     };
@@ -413,13 +443,13 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     } catch {
       // Persistence is best-effort; the current session remains usable.
     }
-  }, [activeDeviceId, checkedItems, getTerminalRuntime, hydrated, state, storageKey, terminalViews]);
+  }, [activeDeviceId, checkedItems, completedStageIds, getTerminalRuntime, hydrated, state, storageKey, terminalViews]);
 
   useEffect(() => {
-    if (!requiredItems.length || completedRequired !== requiredItems.length || completionNotified.current) return;
+    if (!requiredCount || completedRequired !== requiredCount || completionNotified.current) return;
     completionNotified.current = true;
     onComplete?.(pack.id);
-  }, [completedRequired, onComplete, pack.id, requiredItems.length]);
+  }, [completedRequired, onComplete, pack.id, requiredCount]);
 
   const canvasPoint = (event: ReactPointerEvent<SVGSVGElement>) => {
     const rect = svgRef.current?.getBoundingClientRect();
@@ -560,7 +590,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     if (input.toLowerCase() === "clear") {
       runtime.entries = [];
     } else {
-      runtime.entries = [...runtime.entries, { input, output: result.lines, promptBefore, promptAfter: result.prompt, mode: result.mode }];
+      runtime.entries = [...runtime.entries, { input, output: result.lines, promptBefore, promptAfter: result.prompt, mode: result.mode, matched: result.matched }];
     }
     setTerminalDraft("");
     setTerminalCursor(0);
@@ -597,6 +627,20 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     setTerminalDraft("");
     setTerminalCursor(0);
     setTerminalViews((current) => ({ ...current, [selectedNodeData.id]: terminalView(runtime) }));
+  };
+
+  const prepareStageCommand = (stage: SimulationStage) => {
+    const node = selectedNodeData ?? state.nodes[0];
+    if (!node) return;
+    const runtime = getTerminalRuntime(node);
+    runtime.draft = stage.command;
+    runtime.historyCursor = -1;
+    setActiveDeviceId(node.id);
+    setTerminalDraft(stage.command);
+    setTerminalCursor(stage.command.length);
+    setTerminalViews((current) => ({ ...current, [node.id]: terminalView(runtime) }));
+    setActivePanel("terminal");
+    window.requestAnimationFrame(() => terminalSurfaceRef.current?.focus());
   };
 
   const handleTerminalKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
@@ -699,14 +743,17 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
         <p>{pack.scenario.objective}</p>
         {pack.scenario.requirement && <><h4>Success criteria</h4><p>{pack.scenario.requirement}</p></>}
         {pack.scenario.prerequisites && pack.scenario.prerequisites.length > 0 && <><h4>Prerequisites</h4><ul>{pack.scenario.prerequisites.map((item) => <li key={item}>{item}</li>)}</ul></>}
-        <div className="ccna-simulation-progress" aria-label={`${completedRequired} of ${requiredItems.length} required checklist items complete`}>
-          <div><strong>{completedRequired}/{requiredItems.length || 0}</strong><span>required checks</span></div>
-          <div className="ccna-simulation-progress-track"><span style={{ width: `${requiredItems.length ? (completedRequired / requiredItems.length) * 100 : 0}%` }} /></div>
+        <div className="ccna-simulation-progress" aria-label={`${completedRequired} of ${requiredCount} required checklist items complete`}>
+          <div><strong>{completedRequired}/{requiredCount || 0}</strong><span>{guidedStages.length ? "guided stages" : "required checks"}</span></div>
+          <div className="ccna-simulation-progress-track"><span style={{ width: `${requiredCount ? (completedRequired / requiredCount) * 100 : 0}%` }} /></div>
         </div>
         <ul className="ccna-simulation-checklist">
-          {(pack.checklist ?? []).map((item) => <li key={item.id} className={checkedItems.has(item.id) ? "is-complete" : ""}>
-            <button type="button" aria-pressed={checkedItems.has(item.id)} onClick={() => toggleChecklist(item.id)}><span aria-hidden="true">{checkedItems.has(item.id) ? "✓" : "○"}</span><span><strong>{item.title}</strong>{item.detail && <small>{item.detail}</small>}</span></button>
-          </li>)}
+          {(pack.checklist ?? []).map((item) => {
+            const complete = guidedStages.length ? completedStageIds.has(item.id) : checkedItems.has(item.id);
+            return <li key={item.id} className={complete ? "is-complete" : ""}>
+              <button type="button" aria-pressed={complete} disabled={guidedStages.length > 0} onClick={() => toggleChecklist(item.id)}><span aria-hidden="true">{complete ? "✓" : "○"}</span><span><strong>{item.title}</strong>{item.detail && <small>{item.detail}</small>}{guidedStages.length > 0 && <small className="ccna-simulation-checklist-status">{complete ? "Verified from the terminal" : "Complete the guided step in the console"}</small>}</span></button>
+            </li>;
+          })}
         </ul>
         <button type="button" className="ccna-simulation-danger-button" onClick={resetLab}>Reset lab</button>
       </aside>
@@ -760,6 +807,27 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
 
       <section id="ccna-panel-terminal" className="ccna-simulation-panel ccna-simulation-terminal-panel" data-panel="terminal" role="tabpanel" aria-labelledby="ccna-panel-tab-terminal" tabIndex={-1}>
         <div className="ccna-simulation-panel-heading"><span className="ccna-simulation-panel-icon">3</span><h3 id="ccna-terminal-title">Device console</h3><span className="ccna-simulation-terminal-host">{selectedNodeData ? `${selectedNodeData.label} · ${activeView ? simModeLabels[activeView.mode] : "user"}` : "Select a device"}</span></div>
+        {guidedStages.length > 0 && <section className="ccna-simulation-guide" aria-label="Guided lab steps">
+          <div className="ccna-simulation-guide-heading"><div><span className="ccna-simulation-guide-kicker">Guided path</span><strong>{activeStage ? `Stage ${nextStageIndex + 1} of ${guidedStages.length}` : "Lab complete"}</strong></div><span className="ccna-simulation-guide-score">{completedStageIds.size}/{guidedStages.length} verified</span></div>
+          <ol className="ccna-simulation-stage-list">
+            {guidedStages.map((stage, index) => {
+              const complete = completedStageIds.has(stage.id);
+              const unlocked = index === 0 || completedStageIds.has(guidedStages[index - 1]?.id);
+              return <li key={stage.id} className={`ccna-simulation-stage${complete ? " is-complete" : ""}${activeStage?.id === stage.id ? " is-current" : ""}${!unlocked ? " is-locked" : ""}`}>
+                <span className="ccna-simulation-stage-marker" aria-hidden="true">{complete ? "✓" : index + 1}</span>
+                <span><strong>{stage.title}</strong><small>{complete ? "Verified" : unlocked ? "Ready" : "Locked until the previous stage passes"}</small></span>
+              </li>;
+            })}
+          </ol>
+          {activeStage && <div className="ccna-simulation-current-stage">
+            <p className="ccna-simulation-current-stage-title">Next: {activeStage.title}</p>
+            <p>{activeStage.instruction}</p>
+            <p className="ccna-simulation-stage-why"><strong>Why:</strong> {activeStage.why}</p>
+            <div className="ccna-simulation-stage-command"><code>{activeStage.command}</code><button type="button" onClick={() => prepareStageCommand(activeStage)}>Use command</button></div>
+            <small className="ccna-simulation-stage-expected">Expected: {activeStage.expected} {activeStage.hint}</small>
+          </div>}
+          {!activeStage && <p className="ccna-simulation-guide-complete">All guided stages are verified. You completed this lab path.</p>}
+        </section>}
         <div className="ccna-simulation-device-tabs" role="tablist" aria-label="Device consoles">
           {state.nodes.map((node) => {
             const view = terminalViews[node.id] ?? defaultTerminalView(node);

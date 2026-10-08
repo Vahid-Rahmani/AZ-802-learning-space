@@ -51,6 +51,22 @@ export type SimulationChecklistItem = {
   required?: boolean;
 };
 
+/**
+ * A small, ordered learning step for the browser lab.  The command is a
+ * canonical IOS command (or a deterministic read-only command in a generic
+ * endpoint console); completion is inferred from the terminal transcript,
+ * never from a learner ticking a box by hand.
+ */
+export type SimulationStage = {
+  id: string;
+  title: string;
+  instruction: string;
+  why: string;
+  command: string;
+  expected: string;
+  hint?: string;
+};
+
 export type SimulationScenario = {
   role?: string;
   context: string;
@@ -78,6 +94,7 @@ export type SimulationPack = {
   devices: SimulationNode[];
   links?: SimulationLink[];
   checklist?: SimulationChecklistItem[];
+  stages?: SimulationStage[];
   terminal?: SimulationTerminalPack;
   references?: Array<{ title: string; url: string }>;
 };
