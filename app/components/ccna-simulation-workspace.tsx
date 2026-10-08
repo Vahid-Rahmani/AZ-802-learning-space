@@ -725,13 +725,17 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   return <section className={`ccna-simulation-workspace${className ? ` ${className}` : ""}`} aria-labelledby="ccna-simulation-title">
     <header className="ccna-simulation-header">
       <div>
+        <p className="ccna-simulation-eyebrow"><span>CCNA</span><span aria-hidden="true">·</span><span>Interactive lab</span></p>
         <h2 id="ccna-simulation-title">{pack.title}</h2>
         {pack.summary && <p className="ccna-simulation-summary">{pack.summary}</p>}
       </div>
-      <div className="ccna-simulation-badges" aria-label="Lab details">
-        {pack.domain && <span>{pack.domain}</span>}
-        {pack.difficulty && <span>{pack.difficulty}</span>}
-        {pack.duration && <span>{pack.duration}</span>}
+      <div className="ccna-simulation-header-actions">
+        <a className="ccna-simulation-back" href="/ccna/library">Back to lab library</a>
+        <div className="ccna-simulation-badges" aria-label="Lab details">
+          {pack.domain && <span>{pack.domain}</span>}
+          {pack.difficulty && <span>{pack.difficulty}</span>}
+          {pack.duration && <span>{pack.duration}</span>}
+        </div>
       </div>
     </header>
 

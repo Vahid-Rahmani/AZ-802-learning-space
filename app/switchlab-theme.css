@@ -64,9 +64,9 @@ html[data-theme="classic"] .study-app .study-content {
 }
 
 html[data-theme="classic"] .certpath-header {
-  min-height:56px;
-  margin-bottom:1rem;
-  padding:.55rem .75rem;
+  min-height:48px;
+  margin-bottom:.55rem;
+  padding:.4rem .55rem;
   border:1px solid var(--switchlab-line);
   border-radius:6px;
   background:linear-gradient(180deg, rgba(13,32,44,.92), rgba(7,18,25,.94));
@@ -74,7 +74,7 @@ html[data-theme="classic"] .certpath-header {
 }
 
 html[data-theme="classic"] .certpath-header h1 {
-  font-size:clamp(1.15rem,2vw,1.55rem);
+  font-size:clamp(1.05rem,1.7vw,1.35rem);
   letter-spacing:-.025em;
 }
 
@@ -84,13 +84,14 @@ html[data-theme="classic"] .header-eyebrow span {
   color:var(--switchlab-cyan-soft);
 }
 
-html[data-theme="classic"] .header-eyebrow span { color:var(--switchlab-muted); }
+html[data-theme="classic"] .header-eyebrow span { display:none; }
 
 html[data-theme="classic"] .account-button,
 html[data-theme="classic"] .reading-settings-toggle,
 html[data-theme="classic"] .sidebar-toggle-button,
 html[data-theme="classic"] .course-switcher-toggle {
-  min-height:38px;
+  min-height:34px;
+  padding:.3rem .45rem;
   border-color:var(--switchlab-line);
   border-radius:5px;
   background:#091b25;

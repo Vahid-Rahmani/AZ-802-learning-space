@@ -43,7 +43,27 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1.25rem;
-  padding: 1.2rem 1.35rem;
+  padding: .85rem 1rem;
+}
+
+.ccna-simulation-header-actions {
+  display: grid;
+  justify-items: end;
+  gap: .45rem;
+  flex: 0 0 auto;
+}
+
+.ccna-simulation-back {
+  color: var(--simulation-accent);
+  font-size: .78em;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ccna-simulation-back:hover,
+.ccna-simulation-back:focus-visible {
+  color: var(--simulation-text);
+  text-decoration: underline;
 }
 
 .ccna-simulation-eyebrow {
@@ -378,6 +398,7 @@
 
 @media (max-width: 899px) {
   .ccna-simulation-header { display: block; }
+  .ccna-simulation-header-actions { display: flex; align-items: flex-start; justify-content: space-between; margin-top: .65rem; }
   .ccna-simulation-badges { justify-content: flex-start; margin-top: .8rem; }
   .ccna-simulation-tabs { display: flex; }
   .ccna-simulation-layout { display: block; }

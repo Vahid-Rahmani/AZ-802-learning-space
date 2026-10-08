@@ -4,7 +4,6 @@
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { BookOpen, Cloud, FlaskConical, LayoutDashboard, Layers, ListChecks, Library, Network, Search } from "lucide-react";
 import { AccountPanel, AuthPanel } from "@/app/components/learning-views";
-import { CourseSwitcher } from "@/app/components/course-switcher";
 import { AppBrand, StudyHeader } from "@/app/components/study-header";
 import { MobileNavigation } from "@/app/components/mobile-navigation";
 import { GoogleSubtitle, GoogleSubtitleProvider } from "@/app/components/google-translate";
@@ -214,7 +213,6 @@ export default function Az900Page() {
       </aside>
       <section className="study-content min-w-0 px-3 pb-44 pt-3 sm:p-7 lg:p-9">
         <StudyHeader title={navigation.find((item) => item.key === view)?.label ?? "Dashboard"} course="AZ-900" t={t} fontScale={fontScale} onFontScale={setFontScale} translationLanguage={translationLanguage} onTranslationLanguage={setTranslationLanguage} onAccount={() => setAuthOpen(true)} />
-        <CourseSwitcher active="az900" />
         <div className="study-context mt-5"><button type="button" onClick={() => setView("home")} className="text-cyan-100">CertPath</button><span>/</span><strong>AZ-900</strong><span className="ml-auto">{az900Questions.length} reviewed questions · {az900ObjectiveCount} objectives · {az900Stages.length} groups</span></div>
 
         {view === "home" && <Az900Dashboard progress={overallProgress} correctRate={correctRate} attempted={attemptedIds.length} stageProgress={stageProgress} onOpen={setView} onExam={startQuiz} />}

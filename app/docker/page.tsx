@@ -3,7 +3,6 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { BookOpen, Container } from "lucide-react";
 import { AccountPanel, AuthPanel } from "@/app/components/learning-views";
-import { CourseSwitcher } from "@/app/components/course-switcher";
 import { AppBrand, StudyHeader } from "@/app/components/study-header";
 import { GoogleSubtitle, GoogleSubtitleProvider } from "@/app/components/google-translate";
 import { LearningLabPath } from "@/app/components/windows-server-labs";
@@ -52,7 +51,6 @@ export default function DockerPage() {
       </aside>
       <section className="app-content min-w-0 p-4 sm:p-6 lg:p-8">
         <StudyHeader title="Docker Foundations" course="Docker" t={copy.en} fontScale={fontScale} onFontScale={setFontScale} translationLanguage={language} onTranslationLanguage={setLanguage} onAccount={() => setAuthOpen(true)} />
-        <div className="mb-6"><CourseSwitcher active="docker" /></div>
         <section id="docker-learning-path" aria-label="Docker lessons, practical labs and knowledge checks">
           <LearningLabPath key={userId} userId={userId} labs={dockerLabs} resumeLatest kicker="Docker · Linux containers" title="Learn Docker by building" intro="Study each lesson, run its scoped lab, verify the expected results and answer the knowledge check. Your checklist, answers and evidence save to your account." />
         </section>

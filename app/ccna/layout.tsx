@@ -4,7 +4,6 @@ import { createContext, useContext, useEffect, useMemo, useState, type CSSProper
 import { usePathname } from "next/navigation";
 import { BookOpen, ClipboardCheck, FlaskConical, Layers, Network, Search, Terminal } from "lucide-react";
 import { AccountPanel, AuthPanel } from "@/app/components/learning-views";
-import { CourseSwitcher } from "@/app/components/course-switcher";
 import { AppBrand, StudyHeader } from "@/app/components/study-header";
 import { GoogleSubtitle, GoogleSubtitleProvider } from "@/app/components/google-translate";
 import { ccnaQuestionCount } from "@/lib/content/ccna-bank";
@@ -97,7 +96,6 @@ export default function CcnaLayout({ children }: { children: ReactNode }) {
       </aside>
       <section className="app-content min-w-0 p-4 sm:p-6 lg:p-8">
         <StudyHeader title="CCNA Foundations" course="CCNA" t={copy.en} fontScale={fontScale} onFontScale={setFontScale} translationLanguage={language} onTranslationLanguage={setLanguage} onAccount={() => setAuthOpen(true)} />
-        <div className="mb-6"><CourseSwitcher active="ccna" /></div>
         <ShellContext.Provider value={shell}>{children}</ShellContext.Provider>
       </section>
     </div>{authOpen && <AccountPanel onClose={() => setAuthOpen(false)} onSignOut={signOut} />}
