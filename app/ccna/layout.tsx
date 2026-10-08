@@ -50,7 +50,19 @@ export default function CcnaLayout({ children }: { children: ReactNode }) {
   const simulatorLab = pathname === "/ccna/sim"
     ? ccnaLabPath.find((entry) => entry.id === requestedLab) ?? ccnaLabPath.find((entry) => entry.kind === "hands-on")
     : null;
-  const pageTitle = simulatorLab ? getCcnaSimulationPack(simulatorLab.id)?.title ?? simulatorLab.title : "CCNA Foundations";
+  const pageTitle = simulatorLab
+    ? getCcnaSimulationPack(simulatorLab.id)?.title ?? simulatorLab.title
+    : pathname.startsWith("/ccna/practice")
+      ? "Question practice & Explain"
+      : pathname.startsWith("/ccna/exams")
+        ? "Exam center"
+        : pathname.startsWith("/ccna/library")
+          ? "Lab library"
+          : pathname.startsWith("/ccna/search")
+            ? "Search questions"
+            : pathname.startsWith("/ccna/build")
+              ? "Guided build stages"
+              : "CCNA Foundations";
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [authOpen, setAuthOpen] = useState(false);
