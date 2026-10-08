@@ -161,7 +161,7 @@
 
 .ccna-simulation-layout {
   display: grid;
-  grid-template-columns: minmax(220px, .72fr) minmax(360px, 1.42fr) minmax(300px, .96fr);
+  grid-template-columns: minmax(210px, .72fr) minmax(380px, 1.25fr) minmax(320px, 1.05fr);
   grid-template-rows: minmax(0, 1fr) auto;
   grid-template-areas: "scenario terminal topology" "scenario terminal reference";
   gap: .75rem;
@@ -436,7 +436,7 @@
    column scrolling internally instead of pushing the whole page down. */
 @media (min-width: 1200px) {
   .ccna-sim-page { height: calc(100dvh - 9rem); overflow: hidden; }
-  .ccna-simulation-workspace { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: .75rem; height: 100%; }
+  .ccna-simulation-workspace { display: block; height: 100%; }
   .ccna-simulation-layout { height: 100%; margin-top: 0; }
   .ccna-simulation-reference-panel { max-height: 13rem; overflow: auto; }
 }

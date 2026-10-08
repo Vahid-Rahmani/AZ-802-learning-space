@@ -36,6 +36,8 @@ html[data-theme="fluent"], html[data-theme="fluent"] body { background:var(--bac
 .header-eyebrow { color:var(--cp-accent); font-size:.75rem; font-weight:700; letter-spacing:.06em; }
 .header-eyebrow span { display:none; }
 .certpath-header h1 { margin-top:.08rem; overflow:hidden; font-size:clamp(1.3rem,2vw,1.7rem); letter-spacing:-.035em; font-weight:750; text-overflow:ellipsis; white-space:nowrap; }
+.certpath-header--lab { min-height:38px; margin-bottom:.35rem; }
+.certpath-header--lab h1 { font-size:clamp(1.05rem,1.45vw,1.3rem); }
 .header-mobile-actions { display:flex; align-items:center; justify-content:flex-end; gap:.3rem; flex-wrap:nowrap; }
 .account-button, .reading-settings-toggle, .sidebar-toggle-button, .course-switcher-toggle { display:flex; justify-content:center; align-items:center; gap:.35rem; min-width:36px; min-height:36px; padding:.35rem .55rem; border:1px solid var(--cp-line); background:var(--cp-surface); color:var(--cp-text); border-radius:8px; transition:border-color .18s ease, background .18s ease, color .18s ease, transform .18s ease; }
 .account-button:hover, .reading-settings-toggle:hover, .sidebar-toggle-button:hover, .course-switcher-toggle:hover { border-color:var(--cp-accent); color:var(--cp-accent); transform:translateY(-1px); }

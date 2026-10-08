@@ -750,23 +750,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     window.requestAnimationFrame(() => document.getElementById(`ccna-panel-tab-${nextTab.id}`)?.focus());
   };
 
-  return <section className={`ccna-simulation-workspace${className ? ` ${className}` : ""}`} aria-labelledby="ccna-simulation-title">
-    <header className="ccna-simulation-header">
-      <div>
-        <p className="ccna-simulation-eyebrow"><span>CCNA</span><span aria-hidden="true">·</span><span>Interactive lab</span></p>
-        <h2 id="ccna-simulation-title">{pack.title}</h2>
-        {pack.summary && <p className="ccna-simulation-summary">{pack.summary}</p>}
-      </div>
-      <div className="ccna-simulation-header-actions">
-        <a className="ccna-simulation-back" href="/ccna/library">Back to lab library</a>
-        <div className="ccna-simulation-badges" aria-label="Lab details">
-          {pack.domain && <span>{pack.domain}</span>}
-          {pack.difficulty && <span>{pack.difficulty}</span>}
-          {pack.duration && <span>{pack.duration}</span>}
-        </div>
-      </div>
-    </header>
-
+  return <section className={`ccna-simulation-workspace${className ? ` ${className}` : ""}`} aria-label={`Interactive ${pack.title} lab`}>
     <nav className="ccna-simulation-tabs" aria-label="Simulation panels" role="tablist">
       {panelTabs.map((tab) => <button key={tab.id} id={`ccna-panel-tab-${tab.id}`} type="button" role="tab" aria-selected={activePanel === tab.id} aria-controls={`ccna-panel-${tab.id}`} tabIndex={activePanel === tab.id ? 0 : -1} onClick={() => setActivePanel(tab.id)} onKeyDown={(event) => handlePanelTabKey(event, tab.id)}>{tab.label}</button>)}
     </nav>
@@ -775,9 +759,14 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
       <aside id="ccna-panel-scenario" className="ccna-simulation-panel ccna-simulation-scenario" data-panel="scenario" role="tabpanel" aria-labelledby="ccna-panel-tab-scenario" tabIndex={-1}>
         <div className="ccna-simulation-panel-heading"><span className="ccna-simulation-panel-icon">1</span><h3>Scenario &amp; checklist</h3></div>
         {pack.scenario.role && <p className="ccna-simulation-role">{pack.scenario.role}</p>}
-        <p>{pack.scenario.context}</p>
-        <h4>Objective</h4>
-        <p>{pack.scenario.objective}</p>
+        <details className="ccna-simulation-detail">
+          <summary>Scenario context</summary>
+          <p>{pack.scenario.context}</p>
+        </details>
+        <details className="ccna-simulation-detail">
+          <summary>Objective</summary>
+          <p>{pack.scenario.objective}</p>
+        </details>
         {pack.scenario.requirement && <details className="ccna-simulation-detail"><summary>Success criteria</summary><p>{pack.scenario.requirement}</p></details>}
         {pack.scenario.prerequisites && pack.scenario.prerequisites.length > 0 && <details className="ccna-simulation-detail"><summary>Prerequisites</summary><ul>{pack.scenario.prerequisites.map((item) => <li key={item}>{item}</li>)}</ul></details>}
         <div className="ccna-simulation-progress" aria-label={`${completedRequired} of ${requiredCount} required checklist items complete`}>

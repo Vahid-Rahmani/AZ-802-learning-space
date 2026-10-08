@@ -1,14 +1,15 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { BookOpen, ClipboardCheck, FlaskConical, Layers, Network, Search, Terminal } from "lucide-react";
 import { AccountPanel, AuthPanel } from "@/app/components/learning-views";
 import { AppBrand, StudyHeader } from "@/app/components/study-header";
 import { GoogleSubtitle, GoogleSubtitleProvider } from "@/app/components/google-translate";
 import { ccnaQuestionCount } from "@/lib/content/ccna-bank";
 import { ccnaLabs, ccnaSources } from "@/lib/content/ccna";
-import { ccnaLabPathStats } from "@/lib/content/ccna-lab-path";
+import { ccnaLabPath, ccnaLabPathStats } from "@/lib/content/ccna-lab-path";
+import { getCcnaSimulationPack } from "@/lib/content/ccna-simulation-packs";
 import { copy } from "@/lib/course-data";
 import "./dashboard.css";
 
@@ -44,6 +45,12 @@ export function useCcnaShell() {
 
 export default function CcnaLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const requestedLab = searchParams.get("lab");
+  const simulatorLab = pathname === "/ccna/sim"
+    ? ccnaLabPath.find((entry) => entry.id === requestedLab) ?? ccnaLabPath.find((entry) => entry.kind === "hands-on")
+    : null;
+  const pageTitle = simulatorLab ? getCcnaSimulationPack(simulatorLab.id)?.title ?? simulatorLab.title : "CCNA Foundations";
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [authOpen, setAuthOpen] = useState(false);
@@ -95,7 +102,7 @@ export default function CcnaLayout({ children }: { children: ReactNode }) {
         <div className="sidebar-course-card mt-8 rounded-2xl border border-white/10 p-4"><p className="text-sm text-slate-400"><GoogleSubtitle text="Current track" /></p><h2 className="mt-2 font-bold">CCNA Foundations</h2><p className="mt-2 text-sm text-slate-400"><GoogleSubtitle text={`${ccnaLabPathStats.total} labs in ${ccnaLabPathStats.bands} bands · ${ccnaQuestionCount + ccnaLabs.reduce((count, lab) => count + lab.questions.length, 0)} learning questions · ${ccnaLabPathStats.withDiagram} topology diagrams`} /></p><a href={ccnaSources.packetTracer} target="_blank" rel="noreferrer" className="mt-5 flex items-center gap-2 text-sm text-cyan-200"><BookOpen size={16} /><GoogleSubtitle text="Official Packet Tracer course" /></a></div>
       </aside>
       <section className="app-content min-w-0 p-4 sm:p-6 lg:p-8">
-        <StudyHeader title="CCNA Foundations" course="CCNA" t={copy.en} fontScale={fontScale} onFontScale={setFontScale} translationLanguage={language} onTranslationLanguage={setLanguage} onAccount={() => setAuthOpen(true)} />
+        <StudyHeader title={pageTitle} course="CCNA" t={copy.en} fontScale={fontScale} onFontScale={setFontScale} translationLanguage={language} onTranslationLanguage={setLanguage} onAccount={() => setAuthOpen(true)} />
         <ShellContext.Provider value={shell}>{children}</ShellContext.Provider>
       </section>
     </div>{authOpen && <AccountPanel onClose={() => setAuthOpen(false)} onSignOut={signOut} />}

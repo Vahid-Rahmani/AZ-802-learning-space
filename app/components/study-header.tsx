@@ -52,7 +52,7 @@ export function StudyHeader({ title, course, t, fontScale, onFontScale, translat
   const [settingsOpen, setSettingsOpen] = useState(false);
   const controlsId = useId();
   const activeCourse: "az802" | "az900" | "docker" | "ccna" = course === "AZ-900" ? "az900" : course === "Docker" ? "docker" : course === "CCNA" ? "ccna" : "az802";
-  return <header className="certpath-header">
+  return <header className={`certpath-header${course === "CCNA" && title !== "CCNA Foundations" ? " certpath-header--lab" : ""}`}>
     <div className="header-title"><p className="header-eyebrow">{course} <span>Learning workspace</span></p><h1>{title}</h1></div>
     <div className="header-mobile-actions">
       <SidebarToggle />
