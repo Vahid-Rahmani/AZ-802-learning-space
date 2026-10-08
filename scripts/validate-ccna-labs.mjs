@@ -86,7 +86,7 @@ const frozenCourseData = {
   "lib/content/az900-legacy-slots.ts": "645de4e0d0bb264c34e9138fd12f04e7f762217c0e1eb14b04e028a811623a24",
   "lib/content/docker.ts": "6ffad6fd4622229887b7fa2f6f69605fe82ec264660dd42c87f019aea60b4f64",
   "lib/content/server-labs.ts": "81d4d102b2e8c2e52d686ee1a84a4c968ec7f328db47edd0a5f51c716d56ef80",
-  "lib/content/questions.ts": "62b343fe7984ae7c2fabf395574b8b12cca3f7d6b7feec3d0acf68bdaac8e139",
+  "lib/content/questions.ts": "55078a1c1cd421f656799184b9c4a5909f67c190ba9f502dd008a22d47cae06d",
   "lib/content/training.ts": "29ef36967fe5ff88ceb37a1c626698122c6aaa3dd47b56ab08194959ef1f8a1a",
   "lib/course-data.ts": "cd15fa42d44b94c523ba01a290b26482f7426bbbdce055470b490cf8a606fa8a",
   "lib/content/exam-blueprints.ts": "9c342abb82b8e0b5fa31e522ee84dfc237e83402a9ecf1c88fd6296f70b219c2",

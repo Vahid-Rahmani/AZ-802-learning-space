@@ -99,7 +99,15 @@ const rows = questions.map((question) => {
   // Technical approval is per check. A missing check is never treated as a
   // pass, which is why the counts stay honest while the bank is still being
   // reviewed.
-  const citation = sourceVerdict.get(question.id) ?? { verified: false, basis: "not-checked" };
+  // A reviewer can approve a page-specific Learn source even when the local
+  // fetcher cannot reach that page (for example, a transient CI egress block).
+  // Keep that decision explicit in source-relevance-reviewed.json instead of
+  // silently treating a missing row as verified.
+  const citation = sourceVerdict.get(question.id) ?? (
+    reviewedSources[question.id]
+      ? { verified: true, basis: "manual-review" }
+      : { verified: false, basis: "not-checked" }
+  );
   const translationReviewed = runtimeTranslated || Boolean(question.textFa && Array.isArray(question.optionsFa));
   // Index alignment comes from the tracked distractor report, not from the
   // presence of the array, so a shifted reason cannot read as reviewed.
