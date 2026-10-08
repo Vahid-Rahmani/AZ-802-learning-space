@@ -122,6 +122,28 @@ export const managementDrafts: AuthoredBank = {
       difficulty: "medium",
       topic: "Cost factors",
     },
+    {
+      question: "The same virtual machine size costs noticeably more in one region than another, and a third region is cheaper still. Which cost factor explains the difference?",
+      correct: "Geography, because prices for the same resource differ between regions and traffic between regions adds transfer cost",
+      wrong: [
+        "Maintenance, because regions with more customers charge less for support",
+        "Subscription type, because the free tier applies to selected regions only",
+        "Resource type, because the same size name means a different product in each region",
+      ],
+      rationale: "Geography is one of the factors that affect Azure cost: the price of a resource varies by region because local costs differ, and moving data between regions adds bandwidth charges. Subscription type, resource type, and maintenance are separate factors that do not explain a regional price difference for the same size.",
+      keyPoints: [
+        "Prices vary by region for the same resource type and size.",
+        "Cross-region traffic adds cost on top of the resource price.",
+        "Resource type, consumption, maintenance, geography, subscription type, and Marketplace are the main cost factors.",
+      ],
+      whyOthers: [
+        "Maintenance is the effort spent managing the environment, not a regional discount mechanism.",
+        "The free tier and billing agreement do not vary by region in this way.",
+        "A virtual machine size is the same product in every region where it is offered; only its price and availability differ.",
+      ],
+      difficulty: "medium",
+      topic: "Cost factors",
+    },
   ],
 
   "pricing-calculator": [
@@ -211,6 +233,28 @@ export const managementDrafts: AuthoredBank = {
         "Subscription count is an organizational fact, not a metered cost.",
       ],
       difficulty: "easy",
+      topic: "Pricing calculator",
+    },
+    {
+      question: "Before committing to a migration, a finance team wants to compare the fully loaded cost of its current datacenter with the equivalent cost of running the same workloads in Azure. Which tool is designed for that comparison?",
+      correct: "The Total Cost of Ownership calculator, because it is built to compare on-premises and Azure costs for the same workload",
+      wrong: [
+        "The Azure pricing calculator, because it only compares providers against each other",
+        "Microsoft Cost Management, because it reports historical spend after deployment",
+        "Azure Advisor, because it produces the upfront estimate for a migration",
+      ],
+      rationale: "The TCO calculator is designed for the on-premises-versus-Azure comparison: it takes the current server, storage, networking, and labour assumptions and reports the equivalent Azure cost plus a five-year cash-flow comparison. The pricing calculator estimates the cost of services you configure, Cost Management reports what you actually spent, and Advisor recommends after resources exist.",
+      keyPoints: [
+        "The pricing calculator estimates the cost of Azure services you configure before deploying.",
+        "The TCO calculator compares an existing datacenter with Azure for the same workload.",
+        "Cost Management tracks actual spend, not pre-deployment estimates.",
+      ],
+      whyOthers: [
+        "The pricing calculator estimates Azure service costs and does not take the current datacenter as its baseline.",
+        "Cost Management becomes useful once resources exist and start reporting usage.",
+        "Advisor analyses deployed resources, so it cannot produce a pre-migration comparison.",
+      ],
+      difficulty: "medium",
       topic: "Pricing calculator",
     },
   ],
@@ -322,6 +366,28 @@ export const managementDrafts: AuthoredBank = {
         "A budget alert sends a notification; it does not present trends.",
         "Availability zones are a resilience concept.",
         "Locks protect resources from change.",
+      ],
+      difficulty: "medium",
+      topic: "Cost management",
+    },
+    {
+      question: "A department must be warned automatically when its monthly Azure spend passes 80 percent of a fixed amount. Which capability provides this?",
+      correct: "A Microsoft Cost Management budget with an alert threshold, which notifies you as actual or forecast spending crosses the amount",
+      wrong: [
+        "Azure Advisor, because it stops resources when spending is too high",
+        "Azure Policy, because it denies deployments once the limit is reached",
+        "A resource lock, because it prevents new spending in the subscription",
+      ],
+      rationale: "Cost Management budgets define an amount and period, and alert when actual or forecast cost crosses a threshold such as 80 percent. Advisor gives optimization advice, Policy governs configuration rather than spend, and a lock prevents modification of a resource rather than controlling cost.",
+      keyPoints: [
+        "Budgets can trigger alerts on actual or forecast cost thresholds.",
+        "Cost analysis and exports report and share the underlying spending data.",
+        "Cost Management identifies spend but does not block deployments by itself.",
+      ],
+      whyOthers: [
+        "Advisor recommends cost optimizations; it does not monitor a spending threshold or stop resources on its own.",
+        "Azure Policy affects resource configuration, not the amount billed.",
+        "A resource lock blocks changes or deletion of a resource and does not limit cost.",
       ],
       difficulty: "medium",
       topic: "Cost management",
@@ -439,6 +505,28 @@ export const managementDrafts: AuthoredBank = {
       difficulty: "medium",
       topic: "Tags",
     },
+    {
+      question: "A team tags its resource group with a CostCenter value, then creates a virtual machine inside that group. What happens to the tag on the new virtual machine?",
+      correct: "The virtual machine does not inherit the tag, so the tag must be applied to it directly or enforced with Azure Policy",
+      wrong: [
+        "The virtual machine inherits the tag automatically from its resource group",
+        "The tag is applied to the virtual machine but removed at the next billing cycle",
+        "The tag cannot be used on virtual machines, so the resource group keeps the only copy",
+      ],
+      rationale: "Tags are not inherited: applying a tag to a resource group does not tag the resources inside it, which is why teams enforce required tags with Azure Policy and then apply them to resources as they are created. Tags remain editable after creation and can be applied to resources and resource groups.",
+      keyPoints: [
+        "Tags are name-value pairs that can be applied to resources and resource groups.",
+        "Tags are not inherited by child resources.",
+        "Azure Policy can enforce or append required tags at creation time.",
+      ],
+      whyOthers: [
+        "There is no automatic tag inheritance from a resource group to its resources in this model.",
+        "Tags persist unless someone edits them; they are not cleared at billing time.",
+        "Virtual machines support tags like other resource types.",
+      ],
+      difficulty: "medium",
+      topic: "Tags",
+    },
   ],
 
   "purview-purpose": [
@@ -529,6 +617,28 @@ export const managementDrafts: AuthoredBank = {
       ],
       difficulty: "medium",
       topic: "Purview",
+    },
+    {
+      question: "A company must discover, classify, and label sensitive data that lives in on-premises SQL databases, Azure storage, and a third-party SaaS application. Which service is designed for this?",
+      correct: "Microsoft Purview, because it maps and classifies data across on-premises, multicloud, and software-as-a-service sources",
+      wrong: [
+        "Microsoft Defender for Cloud, because it classifies sensitive data inside workloads",
+        "Azure Policy, because its effects label data and enforce retention",
+        "Azure Monitor, because it collects the data inventory from each source",
+      ],
+      rationale: "Purview is the data governance, risk, and compliance family: it builds a unified data map, classifies and applies sensitivity labels across sources that include on-premises databases, Azure services, and SaaS apps, and supports governance and compliance reporting. Defender for Cloud protects workloads, Policy governs resource configuration, and Monitor collects telemetry.",
+      keyPoints: [
+        "Purview discovers, classifies, and labels data across hybrid and multicloud sources.",
+        "A unified data map catalogues where data lives and how it moves.",
+        "Purview addresses governance, risk, and compliance rather than resource configuration.",
+      ],
+      whyOthers: [
+        "Defender for Cloud assesses and protects compute workloads; it is not the data governance catalog.",
+        "Azure Policy controls resource properties with effects such as audit and deny, not data classification labels.",
+        "Azure Monitor gathers metrics and logs for operations, not a data map with sensitivity labels.",
+      ],
+      difficulty: "medium",
+      topic: "Microsoft Purview",
     },
   ],
 
@@ -638,6 +748,28 @@ export const managementDrafts: AuthoredBank = {
       ],
       difficulty: "medium",
       topic: "Policy",
+    },
+    {
+      question: "A governance team wants to block the creation of any resource outside two approved regions, and to see which existing resources violate the rule. Which Azure Policy behaviour matches?",
+      correct: "A deny effect blocks non-compliant creations, while an audit effect records existing violations for compliance reporting",
+      wrong: [
+        "A modify effect blocks deployments and reports existing violations in one step",
+        "A resource lock evaluates each deployment request before it is created",
+        "An RBAC role assignment evaluates resource locations and denies the request",
+      ],
+      rationale: "Azure Policy evaluates resource properties against rules and applies effects: deny prevents a non-compliant request, and audit records the violation without blocking it. Together they deliver the enforcement and the reporting the team asked for, and the compliance view reports the results.",
+      keyPoints: [
+        "Azure Policy evaluates resource properties of existing and requested resources.",
+        "Effects such as deny, audit, and modify define what happens on a match.",
+        "Initiatives group several policy definitions as one assignable unit.",
+      ],
+      whyOthers: [
+        "Modify adds or updates properties; it does not block a deployment.",
+        "Resource locks prevent modification or deletion of resources that already exist and never evaluate location rules.",
+        "RBAC grants or withholds permissions on a scope; it does not evaluate resource properties.",
+      ],
+      difficulty: "medium",
+      topic: "Azure Policy",
     },
   ],
 
@@ -752,6 +884,28 @@ export const managementDrafts: AuthoredBank = {
       difficulty: "medium",
       topic: "Resource locks",
     },
+    {
+      question: "A production resource must stay fully usable for daily operations, but nobody may delete it by accident, including an administrator. Which lock should be applied?",
+      correct: "A CanNotDelete lock, because it allows read and modify operations while blocking deletion until the lock is removed",
+      wrong: [
+        "A ReadOnly lock, because it also blocks modification and deletion in one step",
+        "A management group policy with the deny effect, because policies protect single resources",
+        "An RBAC assignment with the Owner role, because owners cannot delete locked resources",
+      ],
+      rationale: "CanNotDelete prevents deletion while leaving read and modify operations available, which matches a resource that must stay in daily use. ReadOnly is stricter and can break operations that write data, and RBAC or Policy do not provide this per-resource protection.",
+      keyPoints: [
+        "CanNotDelete blocks deletion but allows reading and modifying the resource.",
+        "ReadOnly blocks modification as well as deletion.",
+        "Locks are inherited by child resources and must be removed before a blocked action is possible.",
+      ],
+      whyOthers: [
+        "ReadOnly would prevent the daily modifications the team needs, and it is stronger than the requirement.",
+        "Azure Policy governs resource properties with effects, and a deny rule is not the mechanism for protecting a specific resource from deletion.",
+        "An RBAC Owner can delete resources and can also remove a lock, so it does not protect against the stated risk.",
+      ],
+      difficulty: "medium",
+      topic: "Resource locks",
+    },
   ],
 
   "azure-portal": [
@@ -841,6 +995,28 @@ export const managementDrafts: AuthoredBank = {
         "Tag data is metadata that can filter the view, not the whole of it.",
       ],
       difficulty: "medium",
+      topic: "Azure portal",
+    },
+    {
+      question: "An administrator who does not use command-line tools must deploy resources across three subscriptions and keep a single view of their status. Which management tool fits?",
+      correct: "The Azure portal, because it is a browser-based graphical console that can manage multiple subscriptions and save customizable dashboards",
+      wrong: [
+        "Azure Cloud Shell, because it is the browser-based graphical interface for Azure",
+        "Azure Policy, because it presents all resources in one compliance view",
+        "Azure Advisor, because it manages deployments across subscriptions",
+      ],
+      rationale: "The Azure portal is the web-based graphical console: it can switch between subscriptions and directories, deploy resources through guided forms, and pin resources to customized dashboards for a single operational view. Cloud Shell is a terminal, Policy evaluates configuration, and Advisor gives recommendations.",
+      keyPoints: [
+        "The portal is a browser-based graphical management interface.",
+        "It supports multiple subscriptions and customizable dashboards.",
+        "Cloud Shell inside the portal provides a command-line alternative when scripts are needed.",
+      ],
+      whyOthers: [
+        "Cloud Shell is a browser-hosted terminal with Bash or PowerShell, not a graphical console.",
+        "Azure Policy reports and enforces compliance with rules; it is not a deployment and monitoring surface.",
+        "Advisor produces recommendations from resource telemetry and does not manage deployments.",
+      ],
+      difficulty: "easy",
       topic: "Azure portal",
     },
   ],
@@ -969,6 +1145,28 @@ export const managementDrafts: AuthoredBank = {
       difficulty: "easy",
       topic: "Cloud Shell",
     },
+    {
+      question: "An engineer needs Azure CLI and Azure PowerShell available in a browser session without installing anything locally, and wants files to persist between sessions. Which option fits?",
+      correct: "Azure Cloud Shell, because it provides a browser-based Bash or PowerShell session with persistent file storage",
+      wrong: [
+        "Azure Policy, because it runs scripts from a definition during evaluation",
+        "Azure Advisor, because it executes the remediation scripts it recommends",
+        "A deployment template, because templates run commands in the browser",
+      ],
+      rationale: "Cloud Shell is a browser-hosted terminal that offers both Bash with Azure CLI and PowerShell with Azure PowerShell, and it mounts an Azure Files share so scripts and files persist across sessions. No local installation or configuration is required.",
+      keyPoints: [
+        "Cloud Shell runs in the browser with Azure CLI or Azure PowerShell preinstalled.",
+        "Files persist because a storage share is mounted into the session.",
+        "Nothing needs to be installed on the administrator's workstation.",
+      ],
+      whyOthers: [
+        "Policy evaluates and enforces resource configuration; it is not an interactive shell.",
+        "Advisor identifies recommendations and does not run interactive commands.",
+        "ARM templates describe a desired deployment state; they are not an interactive terminal.",
+      ],
+      difficulty: "easy",
+      topic: "Cloud Shell",
+    },
   ],
 
   "azure-arc-purpose": [
@@ -1060,6 +1258,28 @@ export const managementDrafts: AuthoredBank = {
       difficulty: "medium",
       topic: "Azure Arc",
     },
+    {
+      question: "A company must apply the same Azure Policy assignments and monitoring to servers in its own datacenter and to a Kubernetes cluster in another public cloud. Which service enables this?",
+      correct: "Azure Arc, because it projects non-Azure resources into Azure so the same governance and monitoring can apply",
+      wrong: [
+        "Azure Migrate, because it keeps workloads running in their original location",
+        "Azure Policy alone, because a policy can be evaluated on any server",
+        "Microsoft Entra Domain Services, because it extends identity to other clouds",
+      ],
+      rationale: "Azure Arc connects servers, Kubernetes clusters, and data services outside Azure - on premises or in another cloud - and represents them as Azure resources, so tools such as Policy, Monitor, and Defender for Cloud can manage them with the same controls used inside Azure.",
+      keyPoints: [
+        "Azure Arc extends Azure management to resources outside Azure.",
+        "It supports on-premises and multicloud servers, clusters, and data services.",
+        "The connected resources then inherit governance and monitoring from Azure.",
+      ],
+      whyOthers: [
+        "Azure Migrate moves or assesses workloads; it does not apply Azure governance to resources that stay where they are.",
+        "Azure Policy needs resource representations to evaluate; Arc provides that for non-Azure machines.",
+        "Entra Domain Services provides managed domain services, not cross-cloud resource management.",
+      ],
+      difficulty: "medium",
+      topic: "Azure Arc",
+    },
   ],
 
   "infrastructure-as-code": [
@@ -1147,6 +1367,28 @@ export const managementDrafts: AuthoredBank = {
         "Budgets track spending, not configuration changes.",
         "Tags record metadata and do not record who made a change or prevent one.",
         "Service Health reports Azure platform events, not customer-initiated changes.",
+      ],
+      difficulty: "medium",
+      topic: "Infrastructure as code",
+    },
+    {
+      question: "A platform team must recreate an identical environment in three regions and prove no manual step was taken. Which approach meets this?",
+      correct: "Infrastructure as code, because the environment is defined in versioned files and deployed repeatably by automation",
+      wrong: [
+        "A runbook document that an engineer follows in the portal for each region",
+        "A resource lock applied to each region's resource groups before deployment",
+        "A snapshot of the first region's storage accounts copied to the others",
+      ],
+      rationale: "Infrastructure as code describes the target environment in versioned definition files and deploys it through automation, so the same definition produces the same result each time and no undocumented manual step exists. A portal runbook and copied snapshots leave configuration subject to human variation.",
+      keyPoints: [
+        "Infrastructure as code defines environments in versioned files.",
+        "The same definition can be redeployed to several regions repeatedly.",
+        "Automated deployment removes manual configuration drift.",
+      ],
+      whyOthers: [
+        "A manual runbook in the portal is exactly the undocumented variation the requirement forbids.",
+        "Locks protect resources from deletion or changes; they do not create environments.",
+        "Copying storage snapshots reproduces data, not the full environment definition.",
       ],
       difficulty: "medium",
       topic: "Infrastructure as code",
@@ -1270,6 +1512,28 @@ export const managementDrafts: AuthoredBank = {
       difficulty: "medium",
       topic: "Azure Resource Manager",
     },
+    {
+      question: "Which statement about Azure Resource Manager and ARM templates is correct?",
+      correct: "ARM templates are declarative JSON files that describe the desired resources, and a redeployment of the same template converges the environment to that state",
+      wrong: [
+        "ARM templates are imperative scripts that must be run in the exact order they were written",
+        "ARM templates can only be deployed from a local developer workstation",
+        "Resource Manager applies changes without validating them against the resource providers",
+      ],
+      rationale: "An ARM template declares the resources and their properties, and Resource Manager orchestrates the deployment through the resource providers, so the same template can be applied again to bring the environment back to the declared state. Templates can be deployed from the portal, CLI, PowerShell, or pipelines, not only from a workstation.",
+      keyPoints: [
+        "ARM templates are declarative JSON that describe the target resources.",
+        "Resource Manager coordinates the deployment through resource providers.",
+        "The same template can be redeployed to converge or recreate an environment.",
+      ],
+      whyOthers: [
+        "Templates are declarative, not ordered imperative scripts; dependencies are expressed in the template.",
+        "Deployments can run from the portal, command line, or automation pipelines.",
+        "Requests pass through the resource providers, which validate and apply the change.",
+      ],
+      difficulty: "hard",
+      topic: "ARM templates",
+    },
   ],
 
   "advisor-purpose": [
@@ -1360,6 +1624,28 @@ export const managementDrafts: AuthoredBank = {
       ],
       difficulty: "easy",
       topic: "Advisor",
+    },
+    {
+      question: "A team wants a single list of personalized recommendations that covers unused resources, reliability risks, and performance improvements for its deployed resources. Which service provides it?",
+      correct: "Azure Advisor, because it analyses resource configuration and usage and recommends actions across cost, security, reliability, performance, and operational excellence",
+      wrong: [
+        "Azure Service Health, because it recommends configuration changes for each resource",
+        "Microsoft Purview, because it evaluates resource configuration against best practice",
+        "Azure Monitor, because its dashboards recommend the changes to apply",
+      ],
+      rationale: "Advisor evaluates the resources in a subscription and produces five categories of recommendations: cost, security, reliability, performance, and operational excellence. Service Health reports platform events, Purview governs data, and Azure Monitor collects and visualizes telemetry.",
+      keyPoints: [
+        "Advisor's five categories are Cost, Security, Reliability, Performance, and Operational Excellence.",
+        "Recommendations are generated per subscription from resource configuration and usage.",
+        "Advisor recommends actions; the resource owner decides whether to apply them.",
+      ],
+      whyOthers: [
+        "Service Health communicates incidents and maintenance that affect your services.",
+        "Purview is the data governance and compliance service.",
+        "Azure Monitor displays metrics, logs, and alerts; recommendations come from Advisor.",
+      ],
+      difficulty: "medium",
+      topic: "Azure Advisor",
     },
   ],
 
@@ -1470,6 +1756,28 @@ export const managementDrafts: AuthoredBank = {
         "Moving subscriptions does not relocate resources out of the affected region and adds risk.",
         "Planned maintenance can affect workloads and must be assessed.",
         "Recreating resources during an event adds unnecessary risk and downtime.",
+      ],
+      difficulty: "medium",
+      topic: "Service Health",
+    },
+    {
+      question: "An operations team must know when a platform issue in their region affects the subscriptions they use, and also be informed in advance about planned maintenance. Which service provides that personalized view?",
+      correct: "Azure Service Health, because it reports service issues, planned maintenance, and health or security advisories scoped to your subscriptions",
+      wrong: [
+        "Azure Advisor, because it reports regional platform outages affecting a subscription",
+        "Azure Monitor, because it reports planned maintenance windows for every service",
+        "Microsoft Defender for Cloud, because it publishes platform incident notifications",
+      ],
+      rationale: "Service Health provides a personalized status view for the subscriptions and regions you use, covering active service issues, upcoming planned maintenance, health advisories, and security advisories, with alerts and history. Advisor recommends improvements, Monitor works with your own telemetry, and Defender for Cloud addresses security posture.",
+      keyPoints: [
+        "Service Health tracks service issues, planned maintenance, health advisories, and security advisories.",
+        "The view is personalized to the subscriptions, services, and regions you use.",
+        "Service Health alerts can notify the team when an event affects them.",
+      ],
+      whyOthers: [
+        "Advisor analyses your resources for optimization; it does not publish platform incidents.",
+        "Monitor works on telemetry your resources emit, not on Microsoft's maintenance schedule.",
+        "Defender for Cloud reports security posture and threats, not platform incidents.",
       ],
       difficulty: "medium",
       topic: "Service Health",
@@ -1586,6 +1894,28 @@ export const managementDrafts: AuthoredBank = {
       ],
       difficulty: "medium",
       topic: "Application Insights",
+    },
+    {
+      question: "A development team must trace failed requests and slow dependencies inside a web application, and query the results later. Which Azure Monitor capability fits?",
+      correct: "Application Insights, because it collects request, dependency, and exception telemetry and stores it in a Log Analytics workspace for querying",
+      wrong: [
+        "Azure Service Health, because it captures the application's dependency traces",
+        "Azure Advisor, because it profiles each application request",
+        "Microsoft Purview, because it analyses application performance data",
+      ],
+      rationale: "Application Insights is the application performance monitoring feature of Azure Monitor: it records requests, dependencies, exceptions, and traces, and stores that telemetry in a Log Analytics workspace where it can be queried with KQL and used in alerts.",
+      keyPoints: [
+        "Azure Monitor collects metrics and logs from resources and applications.",
+        "Application Insights provides request, dependency, and exception telemetry for applications.",
+        "Log Analytics stores and queries log data, including with alerts on query results.",
+      ],
+      whyOthers: [
+        "Service Health reports Azure platform status and does not instrument application code.",
+        "Advisor produces recommendations from configuration and usage, not request traces.",
+        "Purview governs data compliance, not application performance.",
+      ],
+      difficulty: "medium",
+      topic: "Azure Monitor",
     },
   ],
 };
