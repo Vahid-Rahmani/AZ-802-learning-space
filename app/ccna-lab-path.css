@@ -3,7 +3,7 @@
 .ccna-lab-path { margin:2.5rem 0; min-width:0; }
 
 .ccna-lab-map { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.7rem; margin:1.4rem 0 1.6rem; }
-.ccna-lab-map-node { position:relative; display:flex; align-items:flex-start; gap:.7rem; min-width:0; min-height:44px; padding:.9rem; border:1px solid var(--cp-line); border-radius:4px; background:var(--cp-surface); color:var(--cp-text); text-align:start; cursor:pointer; }
+.ccna-lab-map-node { position:relative; display:flex; align-items:flex-start; gap:.7rem; min-width:0; min-height:44px; padding:.9rem; border:1px solid var(--cp-line); border-radius:4px; background:var(--cp-surface); color:var(--cp-text); text-align:start; cursor:pointer; text-decoration:none; }
 .ccna-lab-map-node:hover { border-color:var(--cp-accent); }
 .ccna-lab-map-node.is-active { border-color:var(--cp-accent); box-shadow:inset 0 0 0 1px var(--cp-accent); }
 .ccna-lab-map-node:focus-visible { outline:2px solid var(--cp-accent); outline-offset:3px; }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AlertTriangle, BookOpen, Filter, Network, Search, ShieldCheck, X } from "lucide-react";
 import { GoogleSubtitle } from "./google-translate";
 import {
@@ -33,9 +34,10 @@ const destination = (lab: CcnaLabEntry) => lab.kind === "hands-on"
  * without pictures and a raw picture index without bands. One lab now shows its placement, its
  * diagram, its prerequisites, its fault checkpoint and its sources in a single card.
  */
-export function CcnaLabPath() {
+export function CcnaLabPath({ initialBandId }: { initialBandId?: string } = {}) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
-  const [band, setBand] = useState(ALL);
+  const [band, setBand] = useState(initialBandId && ccnaLabBands.some((item) => item.id === initialBandId) ? initialBandId : ALL);
   const [tier, setTier] = useState(ALL);
   const [scenario, setScenario] = useState(ALL);
   const [review, setReview] = useState(ALL);
@@ -62,13 +64,13 @@ export function CcnaLabPath() {
     </header>
 
     <nav className="ccna-lab-map" aria-label="Category bands in learning order">
-      {ccnaLabBands.map((item) => <button type="button" key={item.id} className={`ccna-lab-map-node ${band === item.id ? "is-active" : ""}`} aria-current={band === item.id ? "true" : undefined} onClick={() => setBand(band === item.id ? ALL : item.id)}>
+      {ccnaLabBands.map((item) => <a href={`/ccna/bands/${item.id}`} key={item.id} className={`ccna-lab-map-node ${band === item.id ? "is-active" : ""}`} aria-current={band === item.id ? "page" : undefined} onClick={(event) => { event.preventDefault(); router.push(`/ccna/bands/${item.id}`); }}>
         <span className="server-lab-number">{item.order}</span>
         <span className="ccna-lab-map-body">
           <strong><Copy text={item.title} /></strong>
           <span className="server-lab-meta"><Copy text={`${item.labIds.length} labs · ${tierLabel[item.tier]} · Cisco ${item.domain === "mixed" ? "integrated" : item.domain}`} /></span>
         </span>
-      </button>)}
+      </a>)}
     </nav>
 
     <div className="ccna-lab-controls">

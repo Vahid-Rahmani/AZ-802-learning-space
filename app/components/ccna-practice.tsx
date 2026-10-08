@@ -23,7 +23,14 @@ export function CcnaPractice({ userId, onOpenLab, request, onRequestHandled }: {
   useEffect(() => {
     if (!request || busy) return;
     const unit = request.questionId ? ccnaPracticeForQuestion(request.questionId) : ccnaPracticeUnits.find((item) => item.id === request.domainId);
-    if (unit) { touched.current = true; setSelected(unit.id); if (!request.questionId) onRequestHandled?.(); }
+    if (!unit) return;
+    touched.current = true;
+    // Defer the selection until after this effect commits so a cross-section request
+    // does not synchronously cascade another render from inside the effect body.
+    let cancelled = false;
+    const timer = window.setTimeout(() => { if (!cancelled) setSelected(unit.id); }, 0);
+    if (!request.questionId) onRequestHandled?.();
+    return () => { cancelled = true; window.clearTimeout(timer); };
   }, [request, busy, onRequestHandled]);
   useEffect(() => {
     let alive = true;

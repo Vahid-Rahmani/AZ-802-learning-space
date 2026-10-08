@@ -78,7 +78,11 @@ export default function CcnaLayout({ children }: { children: ReactNode }) {
   const shell = useMemo<Shell | null>(() => (userId ? { userId, fontScale, language, setFontScale, setLanguage, openAccount: () => setAuthOpen(true) } : null), [userId, fontScale, language]);
   if (loading) return <main className="study-app min-h-screen"><p className="p-8" role="status">Loading your learning account…</p></main>;
   if (!userId || !shell) return <main className="study-app min-h-screen"><div className="auth-required"><AuthPanel onClose={() => undefined} onAuthenticated={setUserId} /></div></main>;
-  const active = (href: string) => pathname === href;
+  const active = (href: string) => {
+    if (href === "/ccna") return pathname === "/ccna";
+    if (href === "/ccna/library") return pathname === href || pathname.startsWith("/ccna/bands/");
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
   /** Same hard navigation the course switcher uses: the client-side router swallows anchor clicks
    * in this runtime, so a sidebar link must not depend on it. */
   const go = (href: string) => (event: { preventDefault: () => void }) => { event.preventDefault(); window.location.href = href; };
