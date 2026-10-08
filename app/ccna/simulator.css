@@ -275,6 +275,8 @@
 
 .ccna-simulation-canvas-wrap { min-width: 0; flex: 1 1 auto; min-height: 0; overflow: hidden; border: 1px solid var(--simulation-line); border-radius: 12px; background: #07111f; }
 .ccna-simulation-canvas { display: block; width: 100%; height: 100%; min-height: 260px; aspect-ratio: auto; touch-action: none; user-select: none; }
+.ccna-simulation-canvas-wrap:fullscreen { display: grid; min-height: 100dvh; place-items: stretch; border: 0; border-radius: 0; background: #07111f; }
+.ccna-simulation-canvas-wrap:fullscreen .ccna-simulation-canvas { min-height: 100dvh; }
 .ccna-simulation-canvas-background { fill: #091627; stroke: #1b3655; stroke-width: 2; }
 .ccna-simulation-canvas-background { cursor: grab; }
 .ccna-simulation-canvas:active .ccna-simulation-canvas-background { cursor: grabbing; }
@@ -322,6 +324,24 @@
 .ccna-simulation-hints span::before { content: "•"; margin-right: .35rem; color: var(--simulation-accent); }
 .ccna-simulation-selected-device { margin-top: .6rem !important; font-size: .8em; }
 .ccna-simulation-selected-device strong { color: var(--simulation-text); }
+.ccna-simulation-topology-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .35rem .75rem; margin-top: .55rem; color: var(--simulation-muted); font-size: .72em; }
+.ccna-simulation-topology-meta span:first-child { color: var(--simulation-text); font-weight: 700; }
+.ccna-simulation-interface-status { min-width: 0; margin-top: .7rem; }
+.ccna-simulation-interface-status h4 { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; margin: 0 0 .4rem; color: var(--simulation-text); font-size: .72em; letter-spacing: .08em; text-transform: uppercase; }
+.ccna-simulation-interface-status h4 span { overflow: hidden; color: var(--simulation-muted); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .9em; letter-spacing: 0; text-overflow: ellipsis; text-transform: none; white-space: nowrap; }
+.ccna-simulation-interface-table-wrap { overflow: auto; border: 1px solid var(--simulation-line); border-radius: 9px; }
+.ccna-simulation-interface-table { width: 100%; border-collapse: collapse; color: var(--simulation-muted); font-size: .72em; white-space: nowrap; }
+.ccna-simulation-interface-table th,
+.ccna-simulation-interface-table td { padding: .42rem .5rem; border-bottom: 1px solid rgba(41, 64, 94, .65); text-align: left; }
+.ccna-simulation-interface-table thead th { color: var(--simulation-text); background: rgba(21, 39, 64, .9); font-weight: 750; }
+.ccna-simulation-interface-table tbody tr:last-child th,
+.ccna-simulation-interface-table tbody tr:last-child td { border-bottom: 0; }
+.ccna-simulation-interface-table tbody th { color: var(--simulation-text); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-weight: 650; }
+.ccna-simulation-interface-table td:last-child { color: var(--simulation-text); }
+.ccna-simulation-status-dot { display: inline-block; width: .48rem; height: .48rem; margin-inline-end: .35rem; border-radius: 50%; background: #94a3b8; box-shadow: 0 0 0 2px rgba(148, 163, 184, .12); }
+.ccna-simulation-status-dot.is-connected { background: var(--simulation-success); box-shadow: 0 0 0 2px rgba(74, 222, 128, .12); }
+.ccna-simulation-status-dot.is-fault { background: var(--simulation-danger); box-shadow: 0 0 0 2px rgba(251, 113, 133, .12); }
+.ccna-simulation-status-dot.is-down { background: #fbbf24; box-shadow: 0 0 0 2px rgba(251, 191, 36, .12); }
 
 /* SVG controls do not inherit the browser's native focus affordance. Give
    selected/keyboard-focused devices and ports a reliable visual state. */
@@ -409,6 +429,7 @@
   .ccna-simulation-canvas-wrap { flex: none; }
   .ccna-simulation-canvas { height: auto; min-height: 0; aspect-ratio: 1.55; }
   .ccna-simulation-terminal-screen { flex: none; height: 290px; }
+  .ccna-simulation-topology-meta { margin-top: .55rem; }
 }
 
 /* Desktop labs follow the SwitchLab pattern: one fixed workspace, with each
@@ -456,6 +477,7 @@
   .ccna-simulation-terminal-screen { flex: none; height: 280px; }
   .ccna-simulation-terminal-panel .ccna-simulation-panel-heading { flex-wrap: wrap; }
   .ccna-simulation-terminal-host { margin-inline-start: 0; flex-basis: 100%; }
+  .ccna-simulation-interface-status h4 { font-size: .68em; }
 }
 
 @media (prefers-reduced-motion: reduce) {

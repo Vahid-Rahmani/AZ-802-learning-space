@@ -119,22 +119,24 @@ export type SimulationState = {
  * changing the lab's devices or links.
  */
 export function arrangeSimulationNodes(nodes: SimulationNode[], width = 760, height = 440) {
+  const isEndpoint = (kind: SimulationDeviceKind) => kind === "pc" || kind === "server";
   const roleRank = (kind: SimulationDeviceKind) => kind === "router" || kind === "firewall" || kind === "cloud"
     ? 0
     : kind === "switch" || kind === "access-point"
       ? 1
       : 2;
   const ordered = nodes.map((node, index) => ({ node, index })).sort((left, right) => roleRank(left.node.kind) - roleRank(right.node.kind) || left.index - right.index);
-  const roleRows: Array<typeof ordered> = [];
-  for (let index = 0; index < ordered.length; index += 1) {
-    const previous = roleRows.at(-1);
-    const sameRole = previous && roleRank(previous[0].node.kind) === roleRank(ordered[index].node.kind);
-    if (!previous || !sameRole || previous.length >= 4) roleRows.push([]);
-    roleRows.at(-1)?.push(ordered[index]);
-  }
+  const chunk = (items: typeof ordered) => {
+    const result: Array<typeof ordered> = [];
+    for (let index = 0; index < items.length; index += 4) result.push(items.slice(index, index + 4));
+    return result;
+  };
+  const endpointRows = chunk(ordered.filter(({ node }) => isEndpoint(node.kind)));
+  const infrastructureRows = chunk(ordered.filter(({ node }) => !isEndpoint(node.kind)));
+  const roleRows = endpointRows.length > 0 ? [...endpointRows, ...infrastructureRows] : chunk(ordered);
   const rows = Math.max(1, roleRows.length);
   const horizontalPadding = Math.min(120, width * .14);
-  const verticalPadding = Math.min(78, height * .18);
+  const verticalPadding = Math.min(72, height * .16);
   const usableWidth = Math.max(260, width - horizontalPadding * 2);
   const usableHeight = Math.max(110, height - verticalPadding * 2);
 

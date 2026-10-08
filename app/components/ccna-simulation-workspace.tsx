@@ -10,8 +10,8 @@ import {
   disconnectSimulationLink,
   endpointKey,
   findSimulationPort,
+  arrangeSimulationNodes,
   moveSimulationNode,
-  resetSimulationLayout,
   type SimulationEndpoint,
   type SimulationLink,
   type SimulationNode,
@@ -73,6 +73,7 @@ type TerminalView = {
 };
 type WorkspaceSnapshot = {
   version: 1 | 2 | 3;
+  layoutVersion?: 2;
   state: SimulationState;
   checkedItems: string[];
   completedStages?: string[];
@@ -171,6 +172,25 @@ function statusColor(status: SimulationNode["status"] = "healthy") {
   if (status === "fault") return "#fb7185";
   if (status === "warning") return "#fbbf24";
   return "#4ade80";
+}
+
+function portMode(kind: string | undefined) {
+  if (kind === "serial") return "routed";
+  if (kind === "console") return "console";
+  if (kind === "wireless") return "wireless";
+  return "access";
+}
+
+function portStatus(state: SimulationState, nodeId: string, portId: string) {
+  const link = state.links.find((candidate) => endpointKey(candidate.source) === `${nodeId}:${portId}` || endpointKey(candidate.target) === `${nodeId}:${portId}`);
+  if (!link) return { label: "disabled", tone: "disabled" };
+  if (link.status === "fault") return { label: "fault", tone: "fault" };
+  if (link.status === "down") return { label: "down", tone: "down" };
+  return { label: "connected", tone: "connected" };
+}
+
+function preferredDevice(nodes: SimulationNode[]) {
+  return nodes.find((node) => node.kind === "switch") ?? nodes[0] ?? null;
 }
 
 function isSnapshot(value: unknown): value is WorkspaceSnapshot {
@@ -389,11 +409,14 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     const compatibleSnapshot = snapshot && hasCompatibleTopology(snapshot, pack) ? snapshot : null;
     const timer = window.setTimeout(() => {
       if (compatibleSnapshot) {
-        setState(compatibleSnapshot.state);
+        const restoredState = compatibleSnapshot.layoutVersion === 2
+          ? compatibleSnapshot.state
+          : { ...compatibleSnapshot.state, nodes: arrangeSimulationNodes(compatibleSnapshot.state.nodes) };
+        setState(restoredState);
         setCheckedItems(new Set(compatibleSnapshot.checkedItems ?? []));
-        const firstDevice = compatibleSnapshot.state.nodes[0];
+        const firstDevice = restoredState.nodes[0];
         const savedSessions = compatibleSnapshot.sessions ?? {};
-        terminalSessions.current = Object.fromEntries(compatibleSnapshot.state.nodes.map((node) => {
+        terminalSessions.current = Object.fromEntries(restoredState.nodes.map((node) => {
           const saved = savedSessions[node.id];
           if (saved) return [node.id, createTerminalRuntime(node, saved)];
           return [node.id, createTerminalRuntime(node, node.id === firstDevice?.id && compatibleSnapshot.terminalEntries ? {
@@ -408,8 +431,9 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
             config: { startup: null },
           } : undefined)];
         }));
-        setTerminalViews(Object.fromEntries(compatibleSnapshot.state.nodes.map((node) => [node.id, terminalView(terminalSessions.current[node.id])] )));
-        const restoredActiveId = compatibleSnapshot.activeDeviceId && compatibleSnapshot.state.nodes.some((node) => node.id === compatibleSnapshot?.activeDeviceId) ? compatibleSnapshot.activeDeviceId : firstDevice?.id ?? null;
+        setTerminalViews(Object.fromEntries(restoredState.nodes.map((node) => [node.id, terminalView(terminalSessions.current[node.id])] )));
+        const preferred = preferredDevice(restoredState.nodes);
+        const restoredActiveId = compatibleSnapshot.activeDeviceId && restoredState.nodes.some((node) => node.id === compatibleSnapshot?.activeDeviceId) ? compatibleSnapshot.activeDeviceId : preferred?.id ?? null;
         setActiveDeviceId(restoredActiveId);
         const restoredDraft = restoredActiveId ? terminalSessions.current[restoredActiveId]?.draft ?? "" : "";
         setTerminalDraft(restoredDraft);
@@ -425,7 +449,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
           return [node.id, terminalView(runtime)];
         }));
         setTerminalViews(defaults);
-        setActiveDeviceId(pack.devices[0]?.id ?? null);
+        setActiveDeviceId(preferredDevice(pack.devices)?.id ?? null);
       }
       hydratedKey.current = storageKey;
       setHydrated(true);
@@ -438,6 +462,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     const sessions = Object.fromEntries(state.nodes.map((node) => [node.id, serializeTerminalRuntime(terminalSessions.current[node.id] ?? getTerminalRuntime(node))]));
     const snapshot: WorkspaceSnapshot = {
       version: 3,
+      layoutVersion: 2,
       state,
       checkedItems: [...checkedItems],
       completedStages: [...completedStageIds],
@@ -547,14 +572,13 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     setSelectedPort(null);
     setCheckedItems(new Set());
     terminalSessions.current = {};
-    const firstDevice = pack.devices[0];
     const resetViews = Object.fromEntries(pack.devices.map((node) => {
       const runtime = createTerminalRuntime(node);
       terminalSessions.current[node.id] = runtime;
       return [node.id, terminalView(runtime)];
     }));
     setTerminalViews(resetViews);
-    setActiveDeviceId(firstDevice?.id ?? null);
+    setActiveDeviceId(preferredDevice(pack.devices)?.id ?? null);
     setTerminalDraft("");
     setTerminalCursor(0);
     setNotice({ kind: "info", text: "Lab reset. Select a port, then select a port on another device to connect a cable." });
@@ -698,11 +722,15 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
 
   const setZoom = (delta: number) => setState((current) => updateSimulationViewport(current, { scale: current.viewport.scale + delta }));
   const fitView = () => setState((current) => updateSimulationViewport(current, { scale: 1, x: 0, y: 0 }));
-  const resetLayout = () => {
-    setState((current) => resetSimulationLayout(current));
-    setNotice({ kind: "success", text: "Topology layout reset. Existing cables and checklist progress were kept." });
+  const toggleTopologyFullscreen = () => {
+    const canvas = svgRef.current?.parentElement;
+    if (!canvas) return;
+    if (document.fullscreenElement) {
+      void document.exitFullscreen();
+      return;
+    }
+    void canvas.requestFullscreen?.();
   };
-
   const panelTabs: Array<{ id: WorkspacePanel; label: string }> = [
     { id: "scenario", label: "Scenario" },
     { id: "topology", label: "Topology" },
@@ -790,17 +818,17 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
 
       <div className="ccna-simulation-main-column">
       <section id="ccna-panel-topology" className="ccna-simulation-panel ccna-simulation-topology-panel" data-panel="topology" role="tabpanel" aria-labelledby="ccna-panel-tab-topology" tabIndex={-1}>
-        <div className="ccna-simulation-panel-heading"><span className="ccna-simulation-panel-icon">2</span><h3 id="ccna-topology-workspace-title">Topology workspace</h3></div>
+        <div className="ccna-simulation-panel-heading"><h3 id="ccna-topology-workspace-title">Topology</h3></div>
         <div className="ccna-simulation-toolbar" role="toolbar" aria-label="Topology controls">
           <button type="button" onClick={() => setZoom(-.15)} disabled={state.viewport.scale <= .65} aria-label="Zoom out">−</button>
           <output aria-live="polite">{Math.round(state.viewport.scale * 100)}%</output>
           <button type="button" onClick={() => setZoom(.15)} disabled={state.viewport.scale >= 2} aria-label="Zoom in">+</button>
           <button type="button" onClick={fitView}>Fit</button>
-          <button type="button" onClick={resetLayout}>Reset layout</button>
+          <button type="button" onClick={toggleTopologyFullscreen} aria-label="Expand topology" title="Expand topology">⛶</button>
           <span className="ccna-simulation-toolbar-spacer" />
-          <span className="ccna-simulation-connection-count">{connectedCount} cable{connectedCount === 1 ? "" : "s"}</span>
+          <span className="ccna-simulation-connection-count" aria-label="Topology connection count">{connectedCount} link{connectedCount === 1 ? "" : "s"}</span>
         </div>
-        <div className="ccna-simulation-notice" data-kind={notice.kind} role="status" aria-live="polite">{notice.text}</div>
+        <div className="sr-only" data-kind={notice.kind} role="status" aria-live="polite">{notice.text}</div>
         <div className="ccna-simulation-canvas-wrap">
           <svg ref={svgRef} className="ccna-simulation-canvas" viewBox={`0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`} role="group" aria-label="Interactive network topology. Drag devices to move them; select two ports to connect a cable." onPointerDown={handleCanvasPointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerUp}>
             <rect className="ccna-simulation-canvas-background" x="0" y="0" width={CANVAS_WIDTH} height={CANVAS_HEIGHT} rx="16" />
@@ -831,8 +859,16 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
             </g>
           </svg>
         </div>
-        <div className="ccna-simulation-hints"><span>Drag canvas to pan</span><span>Drag devices to arrange</span><span>Select two ports to connect</span><span>Activate a cable to disconnect</span></div>
-        {selectedNodeData && <p className="ccna-simulation-selected-device"><strong>{selectedNodeData.label}</strong> · {selectedNodeData.ports.length} ports · {selectedNodeData.kind}</p>}
+        <div className="ccna-simulation-topology-meta"><span>{state.nodes.length} devices · {connectedCount} links</span><span>Click a port to connect or a link to disconnect</span></div>
+        {selectedNodeData && <section className="ccna-simulation-interface-status" aria-labelledby="ccna-interface-status-title">
+          <h4 id="ccna-interface-status-title">Interface status <span>{selectedNodeData.label}</span></h4>
+          <div className="ccna-simulation-interface-table-wrap">
+            <table className="ccna-simulation-interface-table">
+              <thead><tr><th scope="col">Port</th><th scope="col">Mode</th><th scope="col">VLAN</th><th scope="col">Status</th></tr></thead>
+              <tbody>{selectedNodeData.ports.map((port) => { const status = portStatus(state, selectedNodeData.id, port.id); return <tr key={port.id}><th scope="row">{port.label}</th><td>{portMode(port.kind)}</td><td>{portMode(port.kind) === "routed" ? "—" : "1"}</td><td><span className={`ccna-simulation-status-dot is-${status.tone}`} />{status.label}</td></tr>; })}</tbody>
+            </table>
+          </div>
+        </section>}
       </section>
 
       <section id="ccna-panel-terminal" className="ccna-simulation-panel ccna-simulation-terminal-panel" data-panel="terminal" role="tabpanel" aria-labelledby="ccna-panel-tab-terminal" tabIndex={-1}>
