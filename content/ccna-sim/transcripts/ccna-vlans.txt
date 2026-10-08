@@ -1,0 +1,288 @@
+# CCNA simulator lab transcript — the ccna-vlans end state, then the no-forms that undo parts of it.
+# Lines starting with "> " are typed into the terminal; every other line is the exact
+# expected output, ending with the prompt the next command will see.
+> enable
+Switch#
+> configure terminal
+Switch(config)#
+> hostname SW1
+SW1(config)#
+> vlan 10
+SW1(config-vlan)#
+> name SALES
+SW1(config-vlan)#
+> exit
+SW1(config)#
+> vlan 20
+SW1(config-vlan)#
+> name ENGINEERING
+SW1(config-vlan)#
+> exit
+SW1(config)#
+> interface gi0/1
+SW1(config-if)#
+> description Uplink to SW2
+SW1(config-if)#
+> switchport mode trunk
+SW1(config-if)#
+> switchport trunk native vlan 99
+SW1(config-if)#
+> switchport trunk allowed vlan 10,20
+SW1(config-if)#
+> exit
+SW1(config)#
+> interface range gi0/2-3
+SW1(config-if)#
+> switchport mode access
+SW1(config-if)#
+> switchport access vlan 10
+SW1(config-if)#
+> exit
+SW1(config)#
+> interface gi0/4
+SW1(config-if)#
+> switchport mode access
+SW1(config-if)#
+> switchport access vlan 20
+SW1(config-if)#
+> exit
+SW1(config)#
+> interface vlan 1
+               ^
+% Invalid input detected at '^' marker.
+SW1(config)#
+> ip address 192.168.10.2 255.255.255.0
+^
+% Invalid input detected at '^' marker.
+SW1(config)#
+> shutdown
+^
+% Invalid input detected at '^' marker.
+SW1(config)#
+> no shutdown
+^
+% Invalid input detected at '^' marker.
+SW1(config)#
+> exit
+SW1#
+> end
+^
+% Invalid input detected at '^' marker.
+SW1#
+> show vlan brief
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    
+10   SALES                            active    Gi0/2, Gi0/3
+20   ENGINEERING                      active    Gi0/4
+SW1#
+> show interfaces status
+Port      Name               Status       Vlan       Duplex  Speed Type
+-------------------------------------------------------------------------------
+Gi0/1     Uplink to SW2      connected    trunk      auto    auto  10/100/1000BaseTX
+Gi0/2                        connected    10         auto    auto  10/100/1000BaseTX
+Gi0/3                        connected    10         auto    auto  10/100/1000BaseTX
+Gi0/4                        connected    20         auto    auto  10/100/1000BaseTX
+Vlan1                        connected    routed     auto    auto  SVI
+SW1#
+> show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+Gi0/1                  unassigned      YESunset       up                    up
+Gi0/2                  unassigned      YESunset       up                    up
+Gi0/3                  unassigned      YESunset       up                    up
+Gi0/4                  unassigned      YESunset       up                    up
+Vlan1                  unassigned      YESunset       up                    up
+SW1#
+> copy running-config startup-config
+Destination filename [startup-config]?
+Building configuration...
+[OK]
+SW1#
+> show startup-config
+Using 476 out of 524288 bytes
+
+version 15.2
+no service password-encryption
+!
+hostname SW1
+!
+vlan 10
+ name SALES
+vlan 20
+ name ENGINEERING
+!
+interface Gi0/1
+ description Uplink to SW2
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 10,20
+!
+interface Gi0/2
+ switchport mode access
+ switchport access vlan 10
+!
+interface Gi0/3
+ switchport mode access
+ switchport access vlan 10
+!
+interface Gi0/4
+ switchport mode access
+ switchport access vlan 20
+!
+interface Vlan1
+!
+end
+SW1#
+> show running-config
+Building configuration...
+
+Current configuration : 476 bytes
+!
+version 15.2
+no service password-encryption
+!
+hostname SW1
+!
+vlan 10
+ name SALES
+vlan 20
+ name ENGINEERING
+!
+interface Gi0/1
+ description Uplink to SW2
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 10,20
+!
+interface Gi0/2
+ switchport mode access
+ switchport access vlan 10
+!
+interface Gi0/3
+ switchport mode access
+ switchport access vlan 10
+!
+interface Gi0/4
+ switchport mode access
+ switchport access vlan 20
+!
+interface Vlan1
+!
+end
+SW1#
+> configure terminal
+SW1(config)#
+> interface gi0/1
+SW1(config-if)#
+> no description
+SW1(config-if)#
+> switchport trunk allowed vlan add 30
+SW1(config-if)#
+> exit
+SW1(config)#
+> interface gi0/4
+SW1(config-if)#
+> no switchport access vlan
+SW1(config-if)#
+> shutdown
+SW1(config-if)#
+> no shutdown
+SW1(config-if)#
+> exit
+SW1(config)#
+> end
+SW1#
+> show running-config
+Building configuration...
+
+Current configuration : 425 bytes
+!
+version 15.2
+no service password-encryption
+!
+hostname SW1
+!
+vlan 10
+ name SALES
+vlan 20
+ name ENGINEERING
+!
+interface Gi0/1
+ switchport mode trunk
+ switchport trunk native vlan 99
+ switchport trunk allowed vlan 10,20,30
+!
+interface Gi0/2
+ switchport mode access
+ switchport access vlan 10
+!
+interface Gi0/3
+ switchport mode access
+ switchport access vlan 10
+!
+interface Gi0/4
+ switchport mode access
+!
+interface Vlan1
+!
+end
+SW1#
+> disable
+SW1>
+> show interfaces switchport
+Name: Gi0/1
+Switchport: Enabled
+Administrative Mode: trunk
+Operational Mode: trunk
+Administrative Trunking Encapsulation: dot1q
+Operational Trunking Encapsulation: dot1q
+Negotiation of Trunking: Off
+Access Mode VLAN: 1 (default)
+Trunking Native Mode VLAN: 99 (VLAN0099)
+Trunking VLANs Enabled: 10,20,30
+
+Name: Gi0/2
+Switchport: Enabled
+Administrative Mode: static access
+Operational Mode: static access
+Administrative Trunking Encapsulation: dot1q
+Operational Trunking Encapsulation: dot1q
+Negotiation of Trunking: Off
+Access Mode VLAN: 10 (SALES)
+Trunking Native Mode VLAN: 1 (default)
+Trunking VLANs Enabled: ALL
+
+Name: Gi0/3
+Switchport: Enabled
+Administrative Mode: static access
+Operational Mode: static access
+Administrative Trunking Encapsulation: dot1q
+Operational Trunking Encapsulation: dot1q
+Negotiation of Trunking: Off
+Access Mode VLAN: 10 (SALES)
+Trunking Native Mode VLAN: 1 (default)
+Trunking VLANs Enabled: ALL
+
+Name: Gi0/4
+Switchport: Enabled
+Administrative Mode: static access
+Operational Mode: static access
+Administrative Trunking Encapsulation: dot1q
+Operational Trunking Encapsulation: dot1q
+Negotiation of Trunking: Off
+Access Mode VLAN: 1 (default)
+Trunking Native Mode VLAN: 1 (default)
+Trunking VLANs Enabled: ALL
+
+Name: Vlan1
+Switchport: Enabled
+Administrative Mode: static access
+Operational Mode: static access
+Administrative Trunking Encapsulation: dot1q
+Operational Trunking Encapsulation: dot1q
+Negotiation of Trunking: Off
+Access Mode VLAN: 1 (default)
+Trunking Native Mode VLAN: 1 (default)
+Trunking VLANs Enabled: ALL
+
+SW1>

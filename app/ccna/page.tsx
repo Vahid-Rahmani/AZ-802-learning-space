@@ -1,83 +1,50 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
-import { BookOpen, Network, Search } from "lucide-react";
-import { AccountPanel, AuthPanel } from "@/app/components/learning-views";
-import { CourseSwitcher } from "@/app/components/course-switcher";
-import { AppBrand, StudyHeader } from "@/app/components/study-header";
-import { GoogleSubtitle, GoogleSubtitleProvider } from "@/app/components/google-translate";
-import { LearningLabPath } from "@/app/components/windows-server-labs";
-import { CcnaPractice, type CcnaPracticeRequest } from "@/app/components/ccna-practice";
-import { CcnaTopologyLibrary } from "@/app/components/ccna-topologies";
-import { KnowledgeSearch } from "@/app/components/knowledge-search";
-import { ccnaQuestionCount, ccnaKnowledgeQuestions, ccnaPracticeUnits } from "@/lib/content/ccna-bank";
+import { ArrowRight, BookOpen, FlaskConical, Layers, Network, Search } from "lucide-react";
+import { GoogleSubtitle } from "@/app/components/google-translate";
+import { ccnaPracticeUnits } from "@/lib/content/ccna-bank";
 import { ccnaDomains, ccnaLabs, ccnaSources } from "@/lib/content/ccna";
+import { ccnaLabPathStats, ccnaScenarioTypes } from "@/lib/content/ccna-lab-path";
 import { ccnaTopologyStats } from "@/lib/content/ccna-topologies";
-import { copy } from "@/lib/course-data";
 
-export default function CcnaPage() {
-  const [userId, setUserId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [authOpen, setAuthOpen] = useState(false);
-  const [requestedLab, setRequestedLab] = useState<string | undefined>();
-  const [practiceRequest, setPracticeRequest] = useState<CcnaPracticeRequest>();
-  const openPractice = (request: Omit<CcnaPracticeRequest, "nonce">) => {
-    setPracticeRequest({ ...request, nonce: Date.now() });
-    document.getElementById("ccna-question-bank")?.scrollIntoView({ behavior: "smooth" });
-  };
-  const [fontScale, setFontScale] = useState(1.1);
-  const [language, setLanguage] = useState("");
-  const [preferencesReady, setPreferencesReady] = useState(false);
-  useEffect(() => {
-    let alive = true;
-    void fetch("/api/auth/me", { cache: "no-store" }).then(async (response) => {
-      const result = response.ok ? await response.json() as { user?: { id?: string } } : null;
-      if (alive && result?.user?.id) setUserId(result.user.id);
-    }).catch(() => undefined).finally(() => { if (alive) setLoading(false); });
-    void Promise.resolve().then(() => {
-      if (!alive) return;
-      try {
-        const preferences = JSON.parse(localStorage.getItem("certpath-ccna-reading") ?? "{}");
-        if (typeof preferences.fontScale === "number" && Number.isFinite(preferences.fontScale)) setFontScale(Math.max(.85, Math.min(1.3, preferences.fontScale)));
-        if (typeof preferences.language === "string") setLanguage(preferences.language);
-      } catch { /* Only reading preferences are local; learner progress is server-backed. */ }
-      setPreferencesReady(true);
-    });
-    return () => { alive = false; };
-  }, []);
-  useEffect(() => {
-    if (preferencesReady) try { localStorage.setItem("certpath-ccna-reading", JSON.stringify({ fontScale, language })); } catch { /* Reading controls work without browser storage. */ }
-  }, [fontScale, language, preferencesReady]);
-  const signOut = async () => {
-    const response = await fetch("/api/auth/logout", { method: "POST" });
-    if (!response.ok) return false;
-    setUserId(null); setAuthOpen(false); return true;
-  };
-  if (loading) return <main className="study-app min-h-screen"><p className="p-8" role="status">Loading your learning account…</p></main>;
-  if (!userId) return <main className="study-app min-h-screen"><div className="auth-required"><AuthPanel onClose={() => undefined} onAuthenticated={setUserId} /></div></main>;
-  return <GoogleSubtitleProvider language={language}><main className="study-app font-scale-content min-h-screen text-[#e8edf5]" style={{ "--wincraft-font-scale": fontScale } as CSSProperties}>
-    <div className="app-shell mx-auto grid min-h-screen max-w-[1600px] grid-cols-1 lg:grid-cols-[250px_minmax(0,1fr)]">
-      <aside className="app-sidebar border-b border-white/10 p-3 sm:p-4 lg:border-b-0 lg:border-e">
-        <AppBrand subtitle="Cloud, servers & networking" />
-        <nav className="mt-8 space-y-2" aria-label="CCNA navigation"><a href="#ccna-question-bank" className="flex min-h-12 items-center gap-3 rounded-xl border border-cyan-300/20 bg-cyan-300/10 p-3 text-cyan-200"><BookOpen size={19} /><GoogleSubtitle text="Question bank & Explain" /></a><a href="#ccna-search" className="flex min-h-12 items-center gap-3 p-3"><Search size={19} /><GoogleSubtitle text="Search all CCNA questions" /></a><a href="#ccna-learning-path" className="flex min-h-12 items-center gap-3 p-3"><Network size={19} /><GoogleSubtitle text="Lessons & hands-on labs" /></a><a href="#ccna-topologies" className="flex min-h-12 items-center gap-3 p-3"><Network size={19} /><GoogleSubtitle text="Lab topology library" /></a></nav>
-        <div className="sidebar-course-card mt-8 rounded-2xl border border-white/10 p-4"><p className="text-sm text-slate-400"><GoogleSubtitle text="Current track" /></p><h2 className="mt-2 font-bold">CCNA Foundations</h2><p className="mt-2 text-sm text-slate-400"><GoogleSubtitle text={`8 stages · ${ccnaQuestionCount + ccnaLabs.reduce((count, lab) => count + lab.questions.length, 0)} learning questions · ${ccnaTopologyStats.labs} lab topologies`} /></p><a href={ccnaSources.packetTracer} target="_blank" rel="noreferrer" className="mt-5 flex items-center gap-2 text-sm text-cyan-200"><BookOpen size={16} /><GoogleSubtitle text="Official Packet Tracer course" /></a></div>
-      </aside>
-      <section className="app-content min-w-0 p-4 sm:p-6 lg:p-8">
-        <StudyHeader title="CCNA Foundations" course="CCNA" t={copy.en} fontScale={fontScale} onFontScale={setFontScale} translationLanguage={language} onTranslationLanguage={setLanguage} onAccount={() => setAuthOpen(true)} />
-        <div className="mb-6"><CourseSwitcher active="ccna" /></div>
-        <section className="mb-6" aria-label="Official CCNA domains">
-          <h2 className="text-xl font-bold"><GoogleSubtitle text="200-301 v1.1 · six official domains" /></h2>
-          <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">{ccnaDomains.map((domain, index) => <li key={domain.id}><button type="button" onClick={() => openPractice({ domainId: ccnaPracticeUnits[index].id })} className="sidebar-course-card w-full rounded-lg border border-white/10 p-3 text-start"><GoogleSubtitle text={`${domain.title} · ${domain.weight}% · ${ccnaPracticeUnits[index].questions.length} questions`} /></button></li>)}</ul>
-          <p className="mt-3 text-sm"><GoogleSubtitle text="Foundation coverage, not every exam objective. Domain percentages describe the official blueprint, not the weighting of these short learning quizzes." /> <a className="underline" href={ccnaSources.blueprint} target="_blank" rel="noreferrer"><GoogleSubtitle text="Official objectives" /> ↗</a></p>
-        </section>
-        <section id="ccna-search" className="mb-6" aria-label="Search the entire CCNA bank"><KnowledgeSearch questionBank={ccnaKnowledgeQuestions} courseCode="CCNA" courseName="networking" sourceName="Cisco / IETF" examples={["OSPF router ID", "VLAN trunk", "مسیریابی بین شبکه‌های IP"]} showTranslations={Boolean(language)} onPracticeQuestion={(questionId) => openPractice({ questionId })} /></section>
-        <CcnaPractice key={userId} userId={userId} request={practiceRequest} onRequestHandled={() => setPracticeRequest(undefined)} onOpenLab={(id) => { setRequestedLab(id); document.getElementById("ccna-learning-path")?.scrollIntoView({ behavior: "smooth" }); }} />
-        <section id="ccna-learning-path" aria-label="CCNA lessons, network labs and knowledge checks">
-          <LearningLabPath key={`${userId}:${requestedLab ?? "resume"}`} userId={userId} labs={ccnaLabs} initialLabId={requestedLab} resumeLatest={!requestedLab} onPracticeLab={(lab) => openPractice({ domainId: `ccna-domain-v2-${lab.questions[0].objective?.split(".")[0]}` })} kicker="CCNA · 200-301 v1.1 foundations" title="Build a network. Understand every hop." intro="Study each lesson, build its isolated topology, test both success and expected failure, then practice its related objective domain. Your stage, question position, answers and evidence save to your account." />
-        </section>
-        <CcnaTopologyLibrary />
-        <p className="mt-5 text-sm"><GoogleSubtitle text="Independent original labs and adapted MIT-licensed practice questions reviewed against Cisco references; no real certification questions or exam dumps. Labs run on your own desktop simulator, not inside this website. The final automation stage is an offline worksheet." /> <a className="underline" href={ccnaSources.exam} target="_blank" rel="noreferrer"><GoogleSubtitle text="Official Cisco exam information" /> ↗</a></p>
-      </section>
-    </div>{authOpen && <AccountPanel onClose={() => setAuthOpen(false)} onSignOut={signOut} />}
-  </main></GoogleSubtitleProvider>;
+const Copy = ({ text }: { text: string }) => <GoogleSubtitle text={text} />;
+
+/** Hard navigation, the same one the course switcher uses: the client-side router swallows anchor
+ * clicks in this runtime, so a plain href alone would strand the learner on the overview. */
+const go = (href: string) => (event: { preventDefault: () => void }) => { event.preventDefault(); window.location.href = href; };
+
+const pages = [
+  { href: "/ccna/practice", icon: BookOpen, title: "Question bank & Explain", detail: "Practice by objective with the stored explanation and the exact Cisco or IETF reference for every answer." },
+  { href: "/ccna/search", icon: Search, title: "Search all CCNA questions", detail: "Ask in English or Persian and open the closest stored question, without any external AI." },
+  { href: "/ccna/build", icon: FlaskConical, title: "Build stages & workspaces", detail: "The eight hands-on stages: steps, practical tests, knowledge check and evidence, saved to your account." },
+  { href: "/ccna/library", icon: Network, title: `Lab library · ${ccnaLabPathStats.total} labs`, detail: "Every lab organized into twelve bands in learning order, each with its own topology diagram, prerequisites and fault checkpoint." },
+] as const;
+
+export default function CcnaOverviewPage() {
+  return <>
+    <section className="mb-6" aria-label="CCNA learning pages">
+      <h1 className="text-2xl font-bold"><Copy text="CCNA foundations, split into four pages" /></h1>
+      <p className="mt-2 max-w-3xl text-sm leading-6"><Copy text={`The eight hands-on stages, the ${ccnaLabPathStats.total} labs with their topology diagrams, the question bank and the knowledge search each have their own page now, so nothing is buried under anything else. Progress, saved answers and evidence keep working exactly as before on every one of them.`} /></p>
+      <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">{pages.map((page) => { const Icon = page.icon; return <li key={page.href}><a href={page.href} onClick={go(page.href)} className="sidebar-course-card flex h-full min-h-28 flex-col gap-2 rounded-xl border border-white/10 p-4"><span className="flex items-center gap-2 font-semibold text-cyan-200"><Icon size={18} /><Copy text={page.title} /></span><span className="text-sm leading-6 text-slate-300"><Copy text={page.detail} /></span><span className="mt-auto flex items-center gap-1 text-sm text-cyan-200"><Copy text="Open" /><ArrowRight size={15} /></span></a></li>; })}</ul>
+    </section>
+    <section className="mb-6" aria-label="Official CCNA domains">
+      <h2 className="text-xl font-bold"><Copy text="200-301 v1.1 · six official domains" /></h2>
+      <p className="mt-2 text-sm"><Copy text="Each domain opens its own practice set with every stored question for that part of the blueprint." /></p>
+      <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">{ccnaDomains.map((domain, index) => <li key={domain.id}><a href={`/ccna/practice?domain=${ccnaPracticeUnits[index].id}`} onClick={go(`/ccna/practice?domain=${ccnaPracticeUnits[index].id}`)} className="sidebar-course-card flex min-h-12 w-full items-center gap-3 rounded-lg border border-white/10 p-3 text-start"><span className="text-sm text-slate-400">{domain.weight}%</span><span className="font-medium"><Copy text={domain.title} /></span><span className="ms-auto text-sm text-slate-400">{ccnaPracticeUnits[index].questions.length}</span></a></li>)}</ul>
+      <p className="mt-3 text-sm"><Copy text="Foundation coverage, not every exam objective. Domain percentages describe the official blueprint, not the weighting of these short learning quizzes." /> <a className="underline" href={ccnaSources.blueprint} target="_blank" rel="noreferrer"><Copy text="Official objectives" /> ↗</a></p>
+    </section>
+    <section aria-label="What the library contains">
+      <h2 className="text-xl font-bold"><Copy text="What the lab library holds" /></h2>
+      <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {[
+          { term: "Labs", detail: `${ccnaLabPathStats.total}`, note: `${ccnaLabPathStats.handsOn} build stages + ${ccnaLabPathStats.catalog} catalog labs` },
+          { term: "Bands", detail: `${ccnaLabPathStats.bands}`, note: `in official blueprint order` },
+          { term: "Topology diagrams", detail: `${ccnaTopologyStats.diagrams}`, note: `of ${ccnaTopologyStats.labs} catalog labs` },
+          { term: "Scenario types", detail: `${ccnaScenarioTypes.length}`, note: `role-based framing on every lab` },
+        ].map((item) => <div key={item.term} className="sidebar-course-card rounded-xl border border-white/10 p-4"><dt className="text-sm text-slate-400"><Copy text={item.term} /></dt><dd className="mt-1 text-2xl font-bold">{item.detail}</dd><dd className="mt-1 text-xs text-slate-400"><Copy text={item.note} /></dd></div>)}
+      </dl>
+      <p className="mt-4 text-sm"><Copy text={`Independent original labs and adapted MIT-licensed practice questions reviewed against Cisco references; no real certification questions or exam dumps. Labs run in your own desktop simulator, not inside this website. The final automation stage is an offline worksheet. ${ccnaLabPathStats.needsReview} catalog labs are marked needs-review because the published catalog metadata does not support their mapping.`} /> <a className="underline" href={ccnaSources.exam} target="_blank" rel="noreferrer"><Copy text="Official Cisco exam information" /> ↗</a></p>
+      <p className="mt-2 text-sm"><Layers size={14} className="inline" /> <Copy text={`${ccnaLabs.length} of the ${ccnaLabPathStats.total} labs are build stages with a saved checkpoint on this site; the other ${ccnaLabPathStats.catalog} are indexed simulation labs whose vendor instructions are not published here.`} /></p>
+    </section>
+  </>;
 }

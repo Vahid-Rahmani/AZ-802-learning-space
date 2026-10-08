@@ -1,0 +1,97 @@
+/* Organized CCNA lab path: twelve category bands, four difficulty tiers, filters and prerequisites. */
+.visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
+.ccna-lab-path { margin:2.5rem 0; min-width:0; }
+
+.ccna-lab-map { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.7rem; margin:1.4rem 0 1.6rem; }
+.ccna-lab-map-node { position:relative; display:flex; align-items:flex-start; gap:.7rem; min-width:0; min-height:44px; padding:.9rem; border:1px solid var(--cp-line); border-radius:4px; background:var(--cp-surface); color:var(--cp-text); text-align:start; cursor:pointer; }
+.ccna-lab-map-node:hover { border-color:var(--cp-accent); }
+.ccna-lab-map-node.is-active { border-color:var(--cp-accent); box-shadow:inset 0 0 0 1px var(--cp-accent); }
+.ccna-lab-map-node:focus-visible { outline:2px solid var(--cp-accent); outline-offset:3px; }
+.ccna-lab-map-body { display:grid; gap:.15rem; min-width:0; }
+.ccna-lab-map-body strong { line-height:1.45; }
+.ccna-lab-band-detail a { overflow-wrap:anywhere; }
+
+.ccna-lab-controls { display:grid; gap:.7rem; padding:1rem; border:1px solid var(--cp-line); border-radius:4px; background:var(--cp-surface); margin-bottom:1.5rem; }
+.ccna-lab-search { display:flex; align-items:center; gap:.6rem; padding:.55rem .8rem; border:1px solid var(--cp-line); border-radius:4px; background:var(--cp-alt); min-width:0; }
+.ccna-lab-search input { flex:1 1 auto; min-width:0; background:transparent; border:0; color:var(--cp-text); font:inherit; }
+.ccna-lab-search input:focus-visible { outline:2px solid var(--cp-accent); outline-offset:2px; }
+.ccna-lab-filters { display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; min-width:0; }
+.ccna-lab-filter-label { display:inline-flex; align-items:center; gap:.4rem; color:var(--cp-muted); }
+.ccna-lab-filters select { max-width:100%; min-width:0; padding:.5rem .6rem; border:1px solid var(--cp-line); border-radius:4px; background:var(--cp-alt); color:var(--cp-text); font:inherit; }
+.ccna-lab-filters select:focus-visible { outline:2px solid var(--cp-accent); outline-offset:2px; }
+.ccna-lab-toggle, .ccna-lab-clear { display:inline-flex; align-items:center; gap:.45rem; min-height:40px; padding:.5rem .8rem; border:1px solid var(--cp-line); border-radius:4px; background:var(--cp-alt); color:var(--cp-text); cursor:pointer; font:inherit; }
+.ccna-lab-toggle.is-on { border-color:var(--cp-accent); color:var(--cp-accent); }
+.ccna-lab-toggle:focus-visible, .ccna-lab-clear:focus-visible { outline:2px solid var(--cp-accent); outline-offset:2px; }
+.ccna-lab-result { margin:0; color:var(--cp-muted); }
+
+.ccna-lab-track { padding:1rem; border:1px solid var(--cp-line); border-left:3px solid var(--cp-accent); border-radius:4px; background:var(--cp-alt); margin-bottom:1.5rem; }
+.ccna-lab-track h3 { margin:0 0 .4rem; }
+.ccna-lab-track p { margin:0 0 .7rem; color:var(--cp-muted); max-width:80ch; }
+.ccna-lab-track ul { display:flex; flex-wrap:wrap; gap:.5rem; list-style:none; margin:0; padding:0; }
+.ccna-lab-track button { min-height:36px; padding:.4rem .7rem; border:1px solid var(--cp-line); border-radius:999px; background:var(--cp-surface); color:var(--cp-text); cursor:pointer; font:inherit; }
+.ccna-lab-track button:focus-visible { outline:2px solid var(--cp-accent); outline-offset:2px; }
+
+.ccna-lab-band { padding:clamp(1rem,3vw,2rem); border:1px solid var(--cp-line); border-top:3px solid var(--cp-accent); border-radius:4px; background:var(--cp-surface); margin-bottom:1.5rem; min-width:0; }
+.ccna-lab-band-heading > p { max-width:80ch; color:var(--cp-muted); }
+.ccna-lab-band-meta { display:flex; flex-wrap:wrap; gap:.4rem 1.4rem; font-size:calc(.875rem * var(--wincraft-font-scale,1)); }
+.ccna-lab-prereq { display:flex; flex-wrap:wrap; align-items:center; gap:.45rem; font-size:calc(.9375rem * var(--wincraft-font-scale,1)); }
+.ccna-lab-prereq button, .ccna-lab-links button { min-height:34px; padding:.3rem .6rem; border:1px solid var(--cp-line); border-radius:999px; background:var(--cp-alt); color:var(--cp-text); cursor:pointer; font:inherit; font-size:calc(.875rem * var(--wincraft-font-scale,1)); }
+.ccna-lab-prereq button:focus-visible, .ccna-lab-links button:focus-visible { outline:2px solid var(--cp-accent); outline-offset:2px; }
+.ccna-lab-band-detail { margin-top:.8rem; color:var(--cp-muted); }
+.ccna-lab-band-detail summary { cursor:pointer; }
+.ccna-lab-band-detail ul { margin:.6rem 0; padding-inline-start:1.2rem; display:grid; gap:.2rem; }
+.ccna-lab-band-detail a { margin-inline-end:.8rem; color:var(--cp-accent); }
+
+.ccna-lab-list { list-style:none; padding:0; margin:1.4rem 0 0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+.ccna-lab-card { display:flex; flex-direction:column; gap:.55rem; min-width:0; padding:.85rem 1rem; border:1px solid var(--cp-line); border-radius:4px; background:var(--cp-alt); }
+.ccna-lab-card.is-troubleshooting { border-left:3px solid var(--cp-accent); }
+.ccna-lab-card.needs-review { border-style:dashed; }
+.ccna-lab-card-head { display:flex; align-items:flex-start; gap:.7rem; min-width:0; }
+.ccna-lab-card-number { flex:0 0 auto; display:grid; place-items:center; min-width:3.2rem; padding:.25rem .45rem; border:1px solid var(--cp-line); border-radius:4px; background:var(--cp-surface); font-size:calc(.8125rem * var(--wincraft-font-scale,1)); color:var(--cp-muted); }
+.ccna-lab-card-title { min-width:0; flex:1 1 auto; }
+.ccna-lab-card-title h4 { margin:0 0 .2rem; }
+.ccna-lab-card-title .server-lab-meta { display:block; color:var(--cp-muted); }
+.ccna-lab-flag { flex:0 0 auto; display:inline-flex; align-items:center; gap:.3rem; padding:.25rem .5rem; border:1px solid var(--cp-line); border-radius:999px; font-size:calc(.8125rem * var(--wincraft-font-scale,1)); color:var(--cp-muted); }
+.ccna-lab-flag.is-ok { color:var(--cp-text); }
+.ccna-lab-scenario { display:grid; gap:.4rem; margin:0; }
+.ccna-lab-scenario > div { display:grid; gap:.1rem; }
+.ccna-lab-scenario dt { font-size:calc(.8125rem * var(--wincraft-font-scale,1)); color:var(--cp-muted); text-transform:uppercase; letter-spacing:.04em; }
+.ccna-lab-scenario dd { margin:0; font-size:calc(.9375rem * var(--wincraft-font-scale,1)); }
+.ccna-lab-review-note { margin:0; padding:.55rem .7rem; border-left:3px solid var(--cp-accent); background:var(--cp-surface); color:var(--cp-muted); font-size:calc(.875rem * var(--wincraft-font-scale,1)); }
+.ccna-lab-figure { margin:0; display:grid; gap:.4rem; padding:.6rem; border:1px solid var(--cp-line); border-radius:4px; background:var(--cp-surface); }
+.ccna-lab-figure img { width:auto; height:auto; max-width:100%; max-height:230px; margin:0 auto; object-fit:contain; }
+.ccna-lab-figure figcaption { color:var(--cp-muted); font-size:calc(.8125rem * var(--wincraft-font-scale,1)); }
+.ccna-lab-no-figure { margin:0; padding:.6rem .7rem; border:1px dashed var(--cp-line); border-radius:4px; color:var(--cp-muted); font-size:calc(.875rem * var(--wincraft-font-scale,1)); }
+.ccna-lab-catalog-summary { display:grid; gap:.15rem; }
+.ccna-lab-catalog-summary dt { font-size:calc(.8125rem * var(--wincraft-font-scale,1)); color:var(--cp-muted); text-transform:uppercase; letter-spacing:.04em; }
+.ccna-lab-catalog-summary dd { margin:0; color:var(--cp-text); }
+.ccna-lab-brief { color:var(--cp-muted); font-size:calc(.9375rem * var(--wincraft-font-scale,1)); }
+.ccna-lab-brief summary { cursor:pointer; color:var(--cp-text); }
+.ccna-lab-brief[open] { display:grid; gap:.5rem; padding-top:.5rem; border-top:1px dashed var(--cp-line); }
+.ccna-lab-brief > p { margin:0; }
+.ccna-lab-brief .ccna-lab-scenario dt, .ccna-lab-brief .ccna-lab-scenario dd { color:var(--cp-text); }
+.ccna-lab-links { display:grid; gap:.4rem; font-size:calc(.9375rem * var(--wincraft-font-scale,1)); }
+.ccna-lab-links > span { display:flex; flex-wrap:wrap; align-items:center; gap:.4rem; }
+.ccna-lab-links a { color:var(--cp-accent); }
+.ccna-lab-actions { display:flex; flex-wrap:wrap; align-items:center; gap:.6rem; }
+.ccna-lab-actions .server-lab-primary { width:auto; min-height:40px; }
+.ccna-lab-diagram-link, .ccna-lab-source { color:var(--cp-accent); font-size:calc(.875rem * var(--wincraft-font-scale,1)); }
+.ccna-lab-empty { padding:1rem; border:1px dashed var(--cp-line); border-radius:4px; color:var(--cp-muted); }
+.ccna-lab-coverage { padding:clamp(1rem,3vw,2rem); border:1px solid var(--cp-line); border-left:3px solid var(--cp-accent); border-radius:4px; background:var(--cp-alt); }
+.ccna-lab-coverage > p { max-width:85ch; color:var(--cp-muted); }
+.ccna-lab-coverage ul { list-style:none; padding:0; margin:1rem 0; display:grid; gap:.6rem; }
+.ccna-lab-coverage li { display:grid; gap:.15rem; padding:1rem; border:1px solid var(--cp-line); border-radius:4px; background:var(--cp-surface); min-width:0; }
+.ccna-lab-coverage strong { color:var(--cp-accent); }
+
+@media (max-width:1023px) {
+  .ccna-lab-map { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .ccna-lab-list { grid-template-columns:1fr; }
+}
+@media (max-width:639px) {
+  .ccna-lab-map { grid-template-columns:1fr; }
+  .ccna-lab-band { padding:1rem; }
+  .ccna-lab-filters select, .ccna-lab-toggle, .ccna-lab-clear { flex:1 1 auto; }
+  .ccna-lab-card-head { flex-wrap:wrap; }
+  .ccna-lab-actions .server-lab-primary { width:100%; }
+}
+.ccna-topology-band { display:flex; flex-wrap:wrap; gap:.2rem .9rem; margin:0; padding-top:.4rem; border-top:1px dashed var(--cp-line); font-size:calc(.875rem * var(--wincraft-font-scale,1)); }

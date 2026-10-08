@@ -1,0 +1,93 @@
+.study-app .ccna-sim { min-width:0; margin-bottom:2rem; color:var(--cp-text); font-size:calc(.95rem * var(--wincraft-font-scale,1)); }
+.ccna-sim *, .ccna-sim-grid > * { min-width:0; }
+.ccna-sim-heading { padding:1.25rem; border:1px solid var(--cp-line); border-radius:12px; background:var(--cp-surface); }
+.ccna-sim-kicker { margin:0; color:var(--cp-accent); font-size:.75em; font-weight:750; letter-spacing:.1em; text-transform:uppercase; }
+.ccna-sim-heading h2 { margin:.4rem 0; font-size:1.5em; color:var(--cp-text); }
+.ccna-sim-meta { margin:.5rem 0; color:var(--cp-muted); font-size:.85em; }
+.ccna-sim-notice, .ccna-sim-limitation { margin:.8rem 0 0; padding:.75rem; border:1px solid var(--cp-line); border-left:3px solid var(--cp-accent); border-radius:4px; background:var(--cp-selected); color:var(--cp-text); font-size:.85em; }
+.ccna-sim-grid { display:grid; grid-template-columns:minmax(0,1fr); gap:1rem; margin-top:1rem; align-items:start; }
+.ccna-sim-mobile-tabs { display:none; }
+.study-app .ccna-sim-panel { border:1px solid var(--cp-line); border-radius:10px; padding:1rem; background:var(--cp-surface); box-shadow:none; }
+.ccna-sim-panel h3 { display:flex; align-items:center; gap:.5rem; margin:0 0 .8rem; font-size:1.05em; font-weight:750; color:var(--cp-text); }
+.ccna-sim-panel h4 { margin:1rem 0 .45rem; font-size:.95em; font-weight:700; }
+.ccna-sim-panel p { margin:.6rem 0; line-height:1.65; }
+.ccna-sim-panel ul { margin:.6rem 0; padding-left:1.25rem; display:grid; gap:.5rem; }
+.ccna-sim-panel li, .ccna-sim-panel a, .ccna-sim-panel code { overflow-wrap:anywhere; }
+.ccna-sim-panel details { border-top:1px solid var(--cp-line); padding-top:.75rem; margin-top:.8rem; }
+.ccna-sim-panel summary { cursor:pointer; color:var(--cp-accent); font-weight:600; }
+.ccna-sim-panel a { color:var(--cp-accent); }
+.ccna-sim-back { display:inline-block; padding:.7rem 0; font-weight:600; }
+.study-app .ccna-sim-terminal { display:flex; flex-direction:column; overflow:hidden; border:1px solid #344256; border-radius:10px; background:#0a1220; color:#e8edf5; }
+.ccna-sim-status { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.6rem; padding:.6rem .85rem; border-bottom:1px solid #344256; }
+.ccna-sim-mode { display:inline-flex; align-items:center; gap:.4rem; color:#7dd3fc; overflow-wrap:anywhere; }
+.study-app .ccna-sim-reset { min-height:44px; padding:.4rem .75rem; border:1px solid #526277; border-radius:6px; background:#142033; color:#e8edf5; font-size:.85em; }
+.ccna-sim-transcript { height:clamp(320px,52vh,620px); overflow:auto; overscroll-behavior:contain; padding:1rem; font-family:ui-monospace,SFMono-Regular,Consolas,monospace; font-size:calc(.875rem * var(--wincraft-font-scale,1)); line-height:1.6; scrollbar-gutter:stable; }
+.ccna-sim-transcript:focus-visible { outline:2px solid #7dd3fc; outline-offset:-2px; }
+.ccna-sim-entry + .ccna-sim-entry { margin-top:.8rem; }
+.study-app .ccna-sim .ccna-sim-line { margin:0; padding:0; font:inherit; line-height:inherit; white-space:pre; overflow-wrap:normal; word-break:normal; color:#cbd5e1; }
+.study-app .ccna-sim .ccna-sim-typed { color:#f8fafc; }
+.ccna-sim-prompt { flex-shrink:0; color:#7dd3fc; }
+.ccna-sim-empty, .ccna-sim-closed { color:#b8c5d6; }
+.ccna-sim-input { display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:.5rem; border-top:1px solid #344256; padding:.7rem .85rem; font-family:ui-monospace,SFMono-Regular,Consolas,monospace; font-size:calc(.875rem * var(--wincraft-font-scale,1)); }
+.ccna-sim-input > .ccna-sim-prompt { max-width:12ch; overflow:auto; white-space:nowrap; }
+.study-app .ccna-sim-input input { width:100%; min-height:44px; border:1px solid #526277; border-radius:4px; padding:.4rem .5rem; background:#0a1220; color:#f8fafc; font:inherit; }
+.ccna-sim-input input:focus-visible { outline:2px solid #7dd3fc; outline-offset:2px; }
+.ccna-sim-input input::placeholder { color:#b8c5d6; }
+.study-app .ccna-sim-input button { padding:.4rem .75rem; border:0; border-radius:4px; background:#7dd3fc; color:#071016; font-size:.85em; font-weight:750; }
+.ccna-sim-input button:disabled { opacity:.5; }
+.ccna-sim-shortcuts { margin:0; padding:.5rem .85rem .75rem; color:#b8c5d6; font-size:.75em; }
+.ccna-sim-reset-confirm { display:flex; flex-wrap:wrap; gap:.5rem; padding:.8rem; background:#28354a; color:#fff; }
+.ccna-sim-reset-confirm span { flex:1 1 100%; }
+.ccna-sim-reset-confirm button { padding:.4rem .7rem; border:1px solid #b8c5d6; border-radius:4px; }
+.ccna-sim-reference dl { display:grid; gap:.8rem; margin:0; max-height:28rem; overflow:auto; padding-right:.6rem; }
+.ccna-sim-reference dt { font-family:ui-monospace,SFMono-Regular,Consolas,monospace; font-size:.9em; font-weight:650; color:var(--cp-accent); }
+.study-app .ccna-sim-reference dd { margin:.2rem 0 0; font-size:.85em; line-height:1.6; color:var(--cp-muted); }
+.ccna-sim-modes { display:block; margin-top:.2rem; font-size:.85em; }
+.ccna-sim-stage { border-top:1px solid var(--cp-line); padding-top:.75rem; font-size:.8em; color:var(--cp-muted); }
+.ccna-sim-zoom { display:flex; gap:.4rem; align-items:center; margin-bottom:.6rem; }
+.ccna-sim-zoom button { border:1px solid var(--cp-line); border-radius:4px; min-width:44px; padding:.3rem .6rem; background:var(--cp-alt); }
+.ccna-sim-zoom button:disabled { opacity:.45; }
+.ccna-sim-diagram { max-height:420px; overflow:auto; margin:0; border:1px solid var(--cp-line); border-radius:4px; background:#fff; }
+.ccna-sim-diagram img { display:block; width:100%; height:auto; }
+.ccna-sim-diagram figcaption { padding:.6rem; font-size:.8em; line-height:1.5; color:#33445a; }
+.ccna-sim-topology-outline ul { list-style:none; padding:0; }
+.ccna-sim-topology-outline li { display:grid; gap:.3rem; padding:.7rem; border:1px solid var(--cp-line); border-left:3px solid var(--cp-accent); border-radius:4px; background:var(--cp-alt); }
+.ccna-sim-topology-outline li span { color:var(--cp-muted); font-size:.85em; }
+.ccna-sim-port-scroll { max-width:100%; overflow:auto; }
+.ccna-sim-port-scroll table { width:100%; border-collapse:collapse; font-size:.85em; }
+.ccna-sim-port-scroll th, .ccna-sim-port-scroll td { padding:.55rem .4rem; text-align:left; border-bottom:1px solid var(--cp-line); overflow-wrap:anywhere; }
+@media (min-width:900px) {
+ .ccna-sim-grid { grid-template-columns:minmax(220px,.7fr) minmax(0,1.6fr); }
+ .ccna-sim-scenario { grid-column:1; grid-row:1; }
+ .ccna-sim-terminal { grid-column:2; grid-row:1; }
+ .ccna-sim-reference { grid-column:1; grid-row:2; }
+ .ccna-sim-topology { grid-column:2; grid-row:2; }
+}
+@media (min-width:1400px) {
+ .ccna-sim-grid { grid-template-columns:minmax(220px,.8fr) minmax(0,1.5fr) minmax(250px,.85fr); }
+ .ccna-sim-scenario { grid-column:1; grid-row:1 / 3; }
+ .ccna-sim-topology { grid-column:3; grid-row:1 / 3; }
+ .ccna-sim-reference { grid-column:2; grid-row:2; }
+}
+@media (max-width:599px) {
+ .ccna-sim-heading, .study-app .ccna-sim-panel { padding:.85rem; }
+ .ccna-sim-input { grid-template-columns:minmax(0,1fr) auto; }
+ .ccna-sim-input > .ccna-sim-prompt { grid-column:1 / -1; max-width:100%; }
+ .ccna-sim-transcript { height:360px; }
+}
+@media (max-width:899px) {
+ .ccna-sim-mobile-tabs { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.3rem; margin-top:.75rem; }
+ .study-app .ccna-sim-mobile-tabs button { padding:.4rem .15rem; border:1px solid var(--cp-line); border-radius:4px; background:var(--cp-surface); font-size:.75em; white-space:nowrap; overflow-wrap:normal; }
+ .ccna-sim-mobile-tabs button[aria-pressed="true"] { color:var(--cp-accent); border-color:var(--cp-accent); background:var(--cp-selected); }
+ .ccna-sim[data-mobile-panel="terminal"] .ccna-sim-grid > :not(.ccna-sim-terminal),
+ .ccna-sim[data-mobile-panel="scenario"] .ccna-sim-grid > :not(.ccna-sim-scenario),
+ .ccna-sim[data-mobile-panel="topology"] .ccna-sim-grid > :not(.ccna-sim-topology),
+ .ccna-sim[data-mobile-panel="reference"] .ccna-sim-grid > :not(.ccna-sim-reference) { display:none; }
+}
+@media (max-width:1023px) {
+ .ccna-shell .app-sidebar { padding:.5rem .75rem; }
+ .ccna-shell .app-sidebar .brand-subtitle, .ccna-shell .sidebar-course-card { display:none; }
+ .ccna-shell .app-sidebar nav { display:flex; gap:.5rem; overflow:auto; margin-top:.5rem; padding-bottom:.35rem; }
+ .ccna-shell .app-sidebar nav > a { flex:0 0 160px; margin:0; padding:.55rem; border:1px solid var(--cp-line); border-radius:6px; font-size:.8rem; line-height:1.45; }
+ .ccna-shell .app-sidebar nav svg { flex-shrink:0; }
+}

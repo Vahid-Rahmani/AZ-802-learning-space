@@ -1,0 +1,51 @@
+# CCNA simulator golden transcript — prompts, modes, help and errors.
+# Lines starting with "> " are typed into the terminal; every other line is the exact
+# expected output, ending with the prompt the next command will see.
+> ?
+enable              Turn on privileged commands
+exit                Exit from the current mode
+show                Show running system information
+Switch>
+> show ?
+interfaces          Show the port status table
+ip                  Show the interface addresses
+running-config      Show the running configuration
+startup-config      Show the saved startup configuration
+version             Show the running system version
+vlan                Show the VLAN database
+Switch>
+> enable
+Switch#
+> configure terminal
+Switch(config)#
+> hostname SW1
+SW1(config)#
+> end
+SW1#
+> disable
+SW1>
+> sh ver
+Cisco IOS Software, C2960 Software (C2960-LANBASEK9-M), Version 15.2(7)E3, RELEASE SOFTWARE (fc2)
+ROM: Bootstrap program is C2960 boot loader
+BOOTLDR: C2960 Boot Loader (C2960-HBOOT-M) Version 15.2(7r)E3, RELEASE SOFTWARE (fc1)
+
+SW1 uptime is 1 hour, 42 minutes
+System image file is "flash:c2960-lanbasek9-mz.152-7.E3.bin"
+SW1>
+> show vlan
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Gi0/1, Gi0/2, Gi0/3, Gi0/4
+SW1>
+> e
+% Ambiguous command:  "e"
+SW1>
+> configure
+^
+% Invalid input detected at '^' marker.
+SW1>
+> enable abc
+       ^
+% Invalid input detected at '^' marker.
+SW1>
+> exit
