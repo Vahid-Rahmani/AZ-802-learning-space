@@ -1,0 +1,173 @@
+/* Independent detail view for one CCNA lab. The library stays dense; this page gives
+   one topology, one scenario and one practical runbook room to breathe. */
+.ccna-lab-detail {
+  --ccna-detail-bg: #091321;
+  --ccna-detail-surface: #101e31;
+  --ccna-detail-raised: #152943;
+  --ccna-detail-line: #2b4666;
+  --ccna-detail-text: #e9f1fb;
+  --ccna-detail-muted: #a8b9ce;
+  --ccna-detail-accent: #54d7ff;
+  --ccna-detail-success: #55dda0;
+  --ccna-detail-warning: #f5c15a;
+  max-width: 1500px;
+  min-width: 0;
+  color: var(--ccna-detail-text);
+  font-size: calc(1rem * var(--wincraft-font-scale, 1));
+  line-height: 1.65;
+}
+
+.ccna-detail-breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .45rem;
+  margin: .3rem 0 1rem;
+  color: var(--ccna-detail-muted);
+  font-size: .84em;
+}
+.ccna-detail-breadcrumbs a,
+.ccna-detail-breadcrumbs span[aria-current="page"] { overflow-wrap: anywhere; }
+.ccna-detail-breadcrumbs a { display: inline-flex; align-items: center; gap: .35rem; color: var(--ccna-detail-accent); text-decoration: none; }
+.ccna-detail-breadcrumbs a:hover { text-decoration: underline; }
+
+.ccna-detail-hero,
+.ccna-detail-panel,
+.ccna-detail-topology-section,
+.ccna-detail-workflow {
+  border: 1px solid var(--ccna-detail-line);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(16, 34, 57, .98), rgba(8, 18, 32, .98));
+  box-shadow: 0 14px 35px rgba(0, 0, 0, .14);
+}
+.ccna-detail-hero { display: flex; justify-content: space-between; gap: 1.5rem; padding: clamp(1.1rem, 3vw, 2rem); }
+.ccna-detail-hero-copy { min-width: 0; }
+.ccna-detail-hero h1 { margin: .25rem 0 .5rem; color: var(--ccna-detail-text); font-size: clamp(1.7rem, 3.5vw, 2.7rem); line-height: 1.15; }
+.ccna-detail-summary { max-width: 78ch; margin: 0; color: var(--ccna-detail-muted); font-size: 1.03em; }
+.ccna-detail-badges { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+.ccna-detail-badges span { display: inline-flex; align-items: center; gap: .4rem; padding: .35rem .62rem; border: 1px solid rgba(84, 215, 255, .25); border-radius: 999px; color: #beeefe; background: rgba(84, 215, 255, .08); font-size: .78em; }
+.ccna-detail-badges .is-reviewed { color: #b7f4d4; border-color: rgba(85, 221, 160, .3); background: rgba(85, 221, 160, .08); }
+.ccna-detail-badges .is-review { color: #ffe2a1; border-color: rgba(245, 193, 90, .35); background: rgba(245, 193, 90, .08); }
+.ccna-detail-hero-actions { display: flex; flex: 0 0 210px; flex-direction: column; gap: .6rem; justify-content: center; }
+.ccna-detail-primary,
+.ccna-detail-secondary { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; min-height: 44px; padding: .6rem .85rem; border-radius: 9px; font: inherit; text-decoration: none; cursor: pointer; }
+.ccna-detail-primary { border: 1px solid var(--ccna-detail-accent); color: #06131c; background: var(--ccna-detail-accent); font-weight: 750; }
+.ccna-detail-primary:hover { filter: brightness(1.08); }
+.ccna-detail-secondary { border: 1px solid var(--ccna-detail-line); color: var(--ccna-detail-accent); background: rgba(10, 23, 40, .7); }
+.ccna-detail-secondary:hover,
+.ccna-detail-secondary:focus-visible { border-color: var(--ccna-detail-accent); outline: none; }
+
+.ccna-detail-overview { display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+.ccna-detail-panel { min-width: 0; padding: 1.05rem; }
+.ccna-detail-panel-heading { display: flex; align-items: center; gap: .55rem; margin-bottom: .75rem; }
+.ccna-detail-panel-heading h2,
+.ccna-detail-panel-heading h3 { min-width: 0; margin: 0; color: var(--ccna-detail-text); font-size: 1.05em; line-height: 1.25; }
+.ccna-detail-panel-icon { display: inline-grid; flex: 0 0 1.75rem; width: 1.75rem; height: 1.75rem; place-items: center; border: 1px solid rgba(84, 215, 255, .45); border-radius: 8px; color: var(--ccna-detail-accent); background: rgba(84, 215, 255, .1); font-size: .76em; font-weight: 800; }
+.ccna-detail-panel p { margin: .55rem 0; color: var(--ccna-detail-muted); }
+.ccna-detail-panel strong { color: var(--ccna-detail-text); }
+.ccna-detail-role { color: var(--ccna-detail-accent) !important; font-size: .85em; font-weight: 700; }
+.ccna-detail-muted { color: var(--ccna-detail-muted); font-size: .88em; }
+.ccna-detail-callout { margin: .85rem 0; padding: .7rem .85rem; border-left: 3px solid var(--ccna-detail-accent); border-radius: 7px; background: rgba(84, 215, 255, .08); }
+.ccna-detail-callout p { margin: .25rem 0 0; }
+.ccna-detail-tags { display: flex; flex-wrap: wrap; gap: .4rem; }
+.ccna-detail-tags span { padding: .28rem .5rem; border: 1px solid var(--ccna-detail-line); border-radius: 999px; color: var(--ccna-detail-accent); background: rgba(10, 23, 40, .7); font-size: .78em; }
+.ccna-detail-list { display: grid; gap: .55rem; margin: .4rem 0; padding: 0; list-style: none; }
+.ccna-detail-list li { display: flex; align-items: flex-start; gap: .45rem; color: var(--ccna-detail-muted); }
+.ccna-detail-list svg { flex: 0 0 auto; margin-top: .28rem; color: var(--ccna-detail-success); }
+
+.ccna-detail-topology-section,
+.ccna-detail-workflow { margin-top: 1rem; padding: clamp(1rem, 2.5vw, 1.5rem); }
+.ccna-detail-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.ccna-detail-section-heading h2 { margin: 0; color: var(--ccna-detail-text); font-size: clamp(1.25rem, 2vw, 1.65rem); line-height: 1.2; }
+.ccna-detail-section-heading p:not(.server-lab-kicker) { max-width: 75ch; margin: .4rem 0 0; color: var(--ccna-detail-muted); }
+.ccna-detail-topology-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(300px, .75fr); gap: 1rem; align-items: start; }
+.ccna-detail-diagram { min-width: 0; margin: 0; overflow: hidden; border: 1px solid var(--ccna-detail-line); border-radius: 12px; background: #f8fafc; }
+.ccna-detail-diagram img { display: block; width: 100%; height: auto; max-height: 620px; object-fit: contain; }
+.ccna-detail-diagram figcaption { padding: .55rem .75rem; color: #33445a; background: #eef4fb; font-size: .8em; }
+.ccna-detail-diagram-empty { display: grid; min-height: 280px; place-items: center; align-content: center; gap: .45rem; padding: 1.5rem; color: #33445a; text-align: center; }
+.ccna-detail-diagram-empty svg { color: #1489ac; }
+.ccna-detail-diagram-empty strong { font-size: 1.05em; }
+.ccna-detail-diagram-empty p { max-width: 42ch; margin: 0; font-size: .9em; }
+.ccna-detail-device-map { min-width: 0; padding: 1rem; border: 1px solid var(--ccna-detail-line); border-radius: 12px; background: rgba(7, 17, 31, .55); }
+.ccna-detail-subheading { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; margin-bottom: .7rem; }
+.ccna-detail-subheading h3 { margin: 0; color: var(--ccna-detail-text); font-size: 1em; }
+.ccna-detail-subheading span { color: var(--ccna-detail-muted); font-size: .76em; text-align: right; }
+.ccna-detail-device-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; }
+.ccna-detail-device-card { display: flex; align-items: center; gap: .55rem; min-width: 0; padding: .6rem; border: 1px solid var(--ccna-detail-line); border-radius: 9px; background: rgba(21, 41, 67, .68); }
+.ccna-detail-device-card > div { display: grid; min-width: 0; gap: .1rem; }
+.ccna-detail-device-card strong,
+.ccna-detail-device-card span,
+.ccna-detail-device-card small { overflow-wrap: anywhere; }
+.ccna-detail-device-card strong { color: var(--ccna-detail-text); font-size: .82em; }
+.ccna-detail-device-card span,
+.ccna-detail-device-card small { color: var(--ccna-detail-muted); font-size: .7em; }
+.ccna-detail-device-glyph { display: inline-grid; flex: 0 0 2.2rem; width: 2.2rem; height: 2.2rem; place-items: center; border: 1px solid rgba(84, 215, 255, .55); border-radius: 10px; color: var(--ccna-detail-accent); background: rgba(84, 215, 255, .1); font-size: .68em; font-weight: 800; }
+.ccna-detail-device-glyph.is-router { border-radius: 50%; color: #f8d478; border-color: rgba(248, 212, 120, .65); background: rgba(248, 212, 120, .1); }
+.ccna-detail-device-glyph.is-switch { border-radius: 5px; color: #99f6c5; border-color: rgba(153, 246, 197, .6); background: rgba(153, 246, 197, .1); }
+.ccna-detail-device-glyph.is-pc { border-radius: 5px 5px 8px 8px; color: #c4b5fd; border-color: rgba(196, 181, 253, .6); background: rgba(196, 181, 253, .1); }
+.ccna-detail-device-glyph.is-server { border-radius: 4px; color: #fda4af; border-color: rgba(253, 164, 175, .6); background: rgba(253, 164, 175, .1); }
+.ccna-detail-device-glyph.is-access-point { border-radius: 50% 50% 5px 5px; color: #7dd3fc; }
+.ccna-detail-outline { margin-top: 1rem; padding-top: .8rem; border-top: 1px solid var(--ccna-detail-line); }
+.ccna-detail-outline h3 { margin: 0 0 .55rem; color: var(--ccna-detail-text); font-size: .93em; }
+.ccna-detail-outline ul { display: grid; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+.ccna-detail-outline li { display: grid; gap: .05rem; padding: .45rem .55rem; border-left: 2px solid var(--ccna-detail-accent); background: rgba(21, 41, 67, .45); }
+.ccna-detail-outline li strong { color: var(--ccna-detail-text); font-size: .78em; }
+.ccna-detail-outline li span,
+.ccna-detail-outline p { color: var(--ccna-detail-muted); font-size: .74em; }
+.ccna-detail-outline p { margin: .6rem 0 0; }
+
+.ccna-detail-workflow-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.ccna-detail-checklist,
+.ccna-detail-test-list,
+.ccna-detail-source-list,
+.ccna-detail-related-list { display: grid; gap: .6rem; margin: 0; padding: 0; list-style: none; }
+.ccna-detail-checklist li { display: flex; align-items: flex-start; gap: .7rem; padding: .55rem 0; border-bottom: 1px solid rgba(43, 70, 102, .7); }
+.ccna-detail-checklist li:last-child { border-bottom: 0; }
+.ccna-detail-checklist > li > span { display: grid; flex: 0 0 2rem; width: 2rem; height: 2rem; place-items: center; border: 1px solid var(--ccna-detail-line); border-radius: 8px; color: var(--ccna-detail-accent); font-size: .76em; font-weight: 800; }
+.ccna-detail-checklist li > div { min-width: 0; }
+.ccna-detail-checklist strong { color: var(--ccna-detail-text); font-size: .9em; }
+.ccna-detail-checklist p { margin: .2rem 0 0; color: var(--ccna-detail-muted); font-size: .82em; }
+.ccna-detail-test-list li { display: grid; gap: .25rem; padding: .65rem .75rem; border: 1px solid var(--ccna-detail-line); border-radius: 8px; background: rgba(7, 17, 31, .45); }
+.ccna-detail-test-list code { color: #c8f4ff; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .82em; overflow-wrap: anywhere; }
+.ccna-detail-test-list span { color: var(--ccna-detail-muted); font-size: .78em; }
+.ccna-detail-evidence { margin-top: .8rem; padding: .7rem .85rem; border-left: 3px solid var(--ccna-detail-success); background: rgba(85, 221, 160, .08); }
+.ccna-detail-evidence p { margin: .2rem 0 0; font-size: .84em; }
+
+.ccna-detail-bottom-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 1rem; margin-top: 1rem; }
+.ccna-detail-source-list li { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: .45rem; align-items: start; }
+.ccna-detail-source-list svg { margin-top: .25rem; color: var(--ccna-detail-accent); }
+.ccna-detail-source-list a { color: var(--ccna-detail-accent); overflow-wrap: anywhere; }
+.ccna-detail-source-list span { grid-column: 2; color: var(--ccna-detail-muted); font-size: .8em; }
+.ccna-detail-related-list li a { display: grid; gap: .1rem; padding: .6rem .7rem; border: 1px solid var(--ccna-detail-line); border-radius: 8px; color: var(--ccna-detail-text); text-decoration: none; background: rgba(7, 17, 31, .45); }
+.ccna-detail-related-list li a:hover { border-color: var(--ccna-detail-accent); }
+.ccna-detail-related-list li span { color: var(--ccna-detail-muted); font-size: .78em; }
+.ccna-detail-review-note { display: flex; align-items: flex-start; gap: .55rem; margin: 1rem 0 0; padding: .7rem .85rem; border-left: 3px solid var(--ccna-detail-warning); color: var(--ccna-detail-muted); background: rgba(245, 193, 90, .08); font-size: .85em; }
+.ccna-detail-review-note svg { flex: 0 0 auto; margin-top: .3rem; color: var(--ccna-detail-warning); }
+
+.ccna-lab-detail a:focus-visible,
+.ccna-lab-detail button:focus-visible { outline: 2px solid var(--ccna-detail-accent); outline-offset: 3px; }
+
+@media (max-width: 1000px) {
+  .ccna-detail-overview { grid-template-columns: 1fr 1fr; }
+  .ccna-detail-scenario { grid-column: 1 / -1; }
+  .ccna-detail-topology-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  .ccna-detail-hero { display: block; }
+  .ccna-detail-hero-actions { margin-top: 1rem; }
+  .ccna-detail-primary,
+  .ccna-detail-secondary { width: 100%; }
+  .ccna-detail-overview,
+  .ccna-detail-workflow-grid,
+  .ccna-detail-bottom-grid { grid-template-columns: 1fr; }
+  .ccna-detail-section-heading { display: block; }
+  .ccna-detail-section-heading > a { margin-top: .8rem; }
+}
+@media (max-width: 480px) {
+  .ccna-detail-hero,
+  .ccna-detail-topology-section,
+  .ccna-detail-workflow,
+  .ccna-detail-panel { border-radius: 11px; padding: .85rem; }
+  .ccna-detail-device-grid { grid-template-columns: 1fr; }
+  .ccna-detail-breadcrumbs { line-height: 1.45; }
+}

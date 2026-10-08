@@ -144,7 +144,7 @@ export function CcnaLabPath({ initialBandId }: { initialBandId?: string } = {}) 
             <div className="ccna-lab-card-head">
               <span className="ccna-lab-card-number">{lab.kind === "hands-on" ? "Stage" : pad(lab.number ?? 0)}</span>
               <div className="ccna-lab-card-title">
-                <h3><Copy text={lab.title} /></h3>
+                <h3><a className="ccna-lab-detail-link" href={`/ccna/labs/${encodeURIComponent(lab.id)}`}><Copy text={lab.title} /></a></h3>
                 <p className="server-lab-meta"><Copy text={`${tierLabel[lab.tier]} · ${lab.duration} min · ${scenarioLabel(lab.scenarioType)}${lab.kind === "hands-on" ? " · saved checkpoint" : ""}`} /></p>
               </div>
               {lab.reviewStatus === "needs-review"
@@ -161,6 +161,7 @@ export function CcnaLabPath({ initialBandId }: { initialBandId?: string } = {}) 
               </figure>
               : <p className="ccna-lab-no-figure"><Copy text={lab.kind === "hands-on" ? "Hands-on stage: build the topology from the diagram described in the workspace steps." : "Concept lab — the source catalog publishes no topology diagram for this lab."} /></p>}
             <div className="ccna-lab-actions">
+              <a className="server-lab-primary" href={`/ccna/labs/${encodeURIComponent(lab.id)}`}><BookOpen size={17} aria-hidden="true" /><Copy text="Open lab brief" /></a>
               <a className="server-lab-primary" href={`/ccna/sim?lab=${encodeURIComponent(lab.id)}`}><Network size={17} aria-hidden="true" /><Copy text="Open practice terminal & topology" /></a>
               <a className="server-lab-primary" href={destination(lab)} onClick={(event) => { event.preventDefault(); window.location.href = destination(lab); }}><BookOpen size={17} aria-hidden="true" /><Copy text={lab.kind === "hands-on" ? "Open this lab workspace" : "Practice this domain"} /></a>
               <a className="ccna-lab-source" href={lab.sourceRefs[0].url} target="_blank" rel="noreferrer"><Copy text={lab.sourceRefs[0].title} /> ↗</a>

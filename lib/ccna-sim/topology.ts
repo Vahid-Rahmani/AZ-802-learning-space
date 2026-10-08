@@ -7,7 +7,7 @@
  * grader can reuse the same connection rules.
  */
 
-export type SimulationDeviceKind = "router" | "switch" | "pc" | "server" | "access-point";
+export type SimulationDeviceKind = "router" | "switch" | "pc" | "server" | "access-point" | "firewall" | "cloud";
 export type SimulationPortKind = "ethernet" | "serial" | "console" | "wireless";
 
 export type SimulationPort = {

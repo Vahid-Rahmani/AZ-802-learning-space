@@ -1,0 +1,195 @@
+.ccna-dashboard-hero,
+.ccna-dashboard-section,
+.ccna-dashboard-lab-callout,
+.ccna-dashboard-connection,
+.ccna-dashboard-footnote,
+.ccna-exam-center { min-width: 0; }
+
+.ccna-dashboard-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, .6fr);
+  gap: 1.2rem;
+  align-items: stretch;
+  margin: 1.25rem 0 1.5rem;
+  padding: clamp(1.15rem, 3vw, 2rem);
+  border: 1px solid color-mix(in srgb, var(--cp-accent) 30%, var(--cp-line));
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 88% 18%, color-mix(in srgb, var(--cp-accent) 15%, transparent), transparent 38%),
+    linear-gradient(135deg, color-mix(in srgb, var(--cp-surface) 88%, #071521), color-mix(in srgb, var(--cp-alt) 80%, #071521));
+  box-shadow: 0 22px 52px color-mix(in srgb, #02070d 45%, transparent);
+}
+.ccna-dashboard-hero-copy { min-width: 0; }
+.ccna-dashboard-eyebrow { margin: 0; color: var(--cp-accent); font-size: .75rem; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+.ccna-dashboard-hero h1 { margin: .45rem 0 .6rem; max-width: 18ch; color: var(--cp-text); font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.05; letter-spacing: -.035em; }
+.ccna-dashboard-hero-copy > p:not(.ccna-dashboard-eyebrow) { max-width: 68ch; margin: 0; color: var(--cp-muted); font-size: clamp(.95rem, 1.2vw, 1.08rem); line-height: 1.7; }
+.ccna-dashboard-actions,
+.ccna-dashboard-lab-actions { display: flex; flex-wrap: wrap; gap: .65rem; align-items: center; margin-top: 1.25rem; }
+.ccna-dashboard-primary,
+.ccna-dashboard-secondary { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; min-height: 2.7rem; padding: .7rem .9rem; border: 1px solid var(--cp-line); border-radius: 9px; color: var(--cp-text); font-size: .9rem; font-weight: 750; text-decoration: none; transition: transform .18s ease, border-color .18s ease, background .18s ease; }
+.ccna-dashboard-primary { border-color: var(--cp-accent); background: var(--cp-accent); color: var(--cp-accent-contrast, #04131d); }
+.ccna-dashboard-secondary { background: color-mix(in srgb, var(--cp-surface) 85%, transparent); }
+.ccna-dashboard-primary:hover,
+.ccna-dashboard-secondary:hover { transform: translateY(-1px); border-color: var(--cp-accent); }
+.ccna-dashboard-primary:focus-visible,
+.ccna-dashboard-secondary:focus-visible,
+.ccna-dashboard-workspace-card:focus-visible,
+.ccna-dashboard-domain-card:focus-visible,
+.ccna-exam-action:focus-visible,
+.ccna-exam-domain-list a:focus-visible { outline: 2px solid var(--cp-accent); outline-offset: 3px; }
+.ccna-dashboard-progress { display: grid; align-content: center; justify-items: center; gap: 1rem; min-width: 0; padding: 1.15rem; border: 1px solid var(--cp-line); border-radius: 14px; background: color-mix(in srgb, var(--cp-surface) 74%, transparent); }
+.ccna-dashboard-progress-ring { display: grid; place-items: center; width: clamp(9rem, 15vw, 12rem); aspect-ratio: 1; border: 10px solid color-mix(in srgb, var(--cp-accent) 25%, var(--cp-line)); border-top-color: var(--cp-accent); border-radius: 50%; transform: rotate(-18deg); }
+.ccna-dashboard-progress-ring strong,
+.ccna-dashboard-progress-ring span { transform: rotate(18deg); }
+.ccna-dashboard-progress-ring strong { color: var(--cp-text); font-size: 1.35rem; }
+.ccna-dashboard-progress-ring span { color: var(--cp-muted); font-size: .72rem; }
+.ccna-dashboard-progress-copy { display: grid; gap: .3rem; max-width: 25ch; text-align: center; }
+.ccna-dashboard-progress-copy strong { color: var(--cp-text); }
+.ccna-dashboard-progress-copy span { color: var(--cp-muted); font-size: .84rem; line-height: 1.55; }
+
+.ccna-dashboard-section { margin: 1.5rem 0; }
+.ccna-dashboard-section-heading,
+.ccna-exam-panel-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: .8rem; }
+.ccna-dashboard-section-heading h2,
+.ccna-dashboard-lab-callout h2,
+.ccna-exam-panel-heading h2 { margin: .25rem 0 0; color: var(--cp-text); font-size: clamp(1.2rem, 2vw, 1.65rem); letter-spacing: -.02em; }
+.ccna-dashboard-section-note,
+.ccna-dashboard-inline-link { display: inline-flex; align-items: center; gap: .35rem; color: var(--cp-muted); font-size: .8rem; }
+.ccna-dashboard-inline-link { color: var(--cp-accent); font-weight: 700; text-decoration: none; white-space: nowrap; }
+.ccna-dashboard-inline-link:hover { text-decoration: underline; }
+.ccna-dashboard-muted { max-width: 78ch; margin: 0 0 1rem; color: var(--cp-muted); font-size: .9rem; line-height: 1.65; }
+.ccna-dashboard-workspace-grid,
+.ccna-dashboard-domain-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; list-style: none; margin: 0; padding: 0; }
+.ccna-dashboard-workspace-card,
+.ccna-dashboard-domain-card { display: flex; min-width: 0; height: 100%; align-items: flex-start; gap: .8rem; padding: 1rem; border: 1px solid var(--cp-line); border-radius: 12px; background: linear-gradient(140deg, color-mix(in srgb, var(--cp-surface) 93%, transparent), color-mix(in srgb, var(--cp-alt) 83%, transparent)); color: var(--cp-text); text-decoration: none; transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+.ccna-dashboard-workspace-card:hover,
+.ccna-dashboard-domain-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--cp-accent) 75%, var(--cp-line)); box-shadow: 0 12px 30px color-mix(in srgb, #02070d 32%, transparent); }
+.ccna-dashboard-card-icon { display: grid; flex: 0 0 2.6rem; place-items: center; width: 2.6rem; height: 2.6rem; border: 1px solid color-mix(in srgb, var(--cp-accent) 40%, var(--cp-line)); border-radius: 9px; background: color-mix(in srgb, var(--cp-accent) 12%, var(--cp-surface)); color: var(--cp-accent); }
+.ccna-dashboard-card-body,
+.ccna-dashboard-domain-body { display: grid; min-width: 0; gap: .3rem; }
+.ccna-dashboard-card-body strong,
+.ccna-dashboard-domain-body strong { color: var(--cp-text); font-size: 1rem; }
+.ccna-dashboard-card-body > span,
+.ccna-dashboard-domain-body > span { color: var(--cp-muted); font-size: .86rem; line-height: 1.55; }
+.ccna-dashboard-card-body em { display: inline-flex; align-items: center; gap: .3rem; margin-top: .3rem; color: var(--cp-accent); font-size: .8rem; font-style: normal; font-weight: 750; }
+.ccna-dashboard-domain-card { align-items: center; }
+.ccna-dashboard-domain-number { display: grid; flex: 0 0 2.7rem; place-items: center; width: 2.7rem; height: 2.7rem; border-radius: 8px; background: color-mix(in srgb, var(--cp-accent) 14%, var(--cp-surface)); color: var(--cp-accent); font-size: .8rem; font-weight: 800; }
+.ccna-dashboard-domain-weight { margin-inline-start: auto; color: var(--cp-muted); font-size: .8rem; font-weight: 750; }
+.ccna-dashboard-domain-card > svg { flex: 0 0 auto; color: var(--cp-accent); }
+
+.ccna-dashboard-lab-callout { display: flex; align-items: center; justify-content: space-between; gap: 1.2rem; margin: 1.5rem 0; padding: clamp(1rem, 2.7vw, 1.6rem); border: 1px solid color-mix(in srgb, var(--cp-accent) 45%, var(--cp-line)); border-radius: 14px; background: linear-gradient(115deg, color-mix(in srgb, var(--cp-accent) 13%, var(--cp-surface)), color-mix(in srgb, var(--cp-alt) 82%, transparent)); }
+.ccna-dashboard-lab-callout > div:first-child { min-width: 0; }
+.ccna-dashboard-lab-callout p:not(.ccna-dashboard-eyebrow) { max-width: 70ch; margin: .45rem 0 0; color: var(--cp-muted); line-height: 1.6; }
+.ccna-dashboard-meta { display: flex; flex-wrap: wrap; gap: .7rem 1.1rem; margin-top: 1rem; color: var(--cp-muted); font-size: .8rem; }
+.ccna-dashboard-meta span,
+.ccna-dashboard-connection span { display: inline-flex; align-items: center; gap: .35rem; }
+.ccna-dashboard-meta svg,
+.ccna-dashboard-connection svg { color: var(--cp-accent); }
+.ccna-dashboard-lab-actions { flex: 0 0 auto; justify-content: flex-end; margin: 0; }
+.ccna-dashboard-connection { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .65rem; margin: 1.5rem 0; padding: .85rem; border: 1px dashed var(--cp-line); border-radius: 12px; color: var(--cp-muted); font-size: .82rem; }
+.ccna-dashboard-connection > svg { color: var(--cp-muted); }
+.ccna-dashboard-footnote { margin: 1rem 0 0; padding-top: 1rem; border-top: 1px solid var(--cp-line); color: var(--cp-muted); font-size: .78rem; line-height: 1.6; }
+.ccna-dashboard-footnote p { margin: 0; }
+.ccna-dashboard-footnote a { color: var(--cp-accent); }
+
+.ccna-exam-center { margin: 1.25rem 0 2rem; }
+.ccna-exam-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: clamp(1rem, 3vw, 1.6rem); border: 1px solid var(--cp-line); border-radius: 15px; background: linear-gradient(130deg, color-mix(in srgb, var(--cp-surface) 95%, transparent), color-mix(in srgb, var(--cp-accent) 8%, var(--cp-alt))); }
+.ccna-exam-heading h1 { margin: .35rem 0 .5rem; color: var(--cp-text); font-size: clamp(1.7rem, 3vw, 2.4rem); }
+.ccna-exam-heading p:not(.ccna-dashboard-eyebrow) { max-width: 72ch; margin: 0; color: var(--cp-muted); line-height: 1.65; }
+.ccna-exam-heading-stat { display: grid; flex: 0 0 8rem; place-items: center; align-content: center; min-height: 8rem; border: 1px solid color-mix(in srgb, var(--cp-accent) 32%, var(--cp-line)); border-radius: 50%; background: color-mix(in srgb, var(--cp-accent) 9%, transparent); text-align: center; }
+.ccna-exam-heading-stat strong { color: var(--cp-text); font-size: 1.7rem; }
+.ccna-exam-heading-stat span { max-width: 8ch; color: var(--cp-muted); font-size: .72rem; line-height: 1.25; }
+.ccna-exam-mode-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; margin: 1.1rem 0 1.5rem; }
+.ccna-exam-mode-card { display: flex; min-width: 0; gap: .9rem; padding: 1rem; border: 1px solid var(--cp-line); border-top: 3px solid var(--cp-accent); border-radius: 12px; background: var(--cp-surface); }
+.ccna-exam-mode-card.is-violet { --cp-accent: #b9a0ff; }
+.ccna-exam-mode-card.is-green { --cp-accent: #5eead4; }
+.ccna-exam-mode-card.is-amber { --cp-accent: #fbbf24; }
+.ccna-exam-mode-icon { display: grid; flex: 0 0 2.8rem; place-items: center; width: 2.8rem; height: 2.8rem; border-radius: 9px; background: color-mix(in srgb, var(--cp-accent) 13%, var(--cp-surface)); color: var(--cp-accent); }
+.ccna-exam-mode-content { display: grid; min-width: 0; gap: .28rem; }
+.ccna-exam-mode-meta { margin: 0; color: var(--cp-accent); font-size: .74rem; font-weight: 750; }
+.ccna-exam-mode-card h2 { margin: 0; color: var(--cp-text); font-size: 1.1rem; }
+.ccna-exam-mode-card p:not(.ccna-exam-mode-meta) { margin: 0; color: var(--cp-muted); font-size: .85rem; line-height: 1.55; }
+.ccna-exam-action { display: inline-flex; align-items: center; gap: .3rem; width: fit-content; margin-top: .45rem; color: var(--cp-accent); font-size: .82rem; font-weight: 750; text-decoration: none; }
+.ccna-exam-action:hover { text-decoration: underline; }
+.ccna-exam-domain-panel { padding: clamp(1rem, 2.5vw, 1.45rem); border: 1px solid var(--cp-line); border-radius: 14px; background: var(--cp-surface); }
+.ccna-exam-panel-heading .ccna-dashboard-inline-link { display: inline-flex; }
+.ccna-exam-domain-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; list-style: none; margin: 0; padding: 0; }
+.ccna-exam-domain-list a { display: flex; align-items: center; gap: .65rem; min-width: 0; padding: .75rem; border: 1px solid var(--cp-line); border-radius: 9px; color: var(--cp-text); text-decoration: none; }
+.ccna-exam-domain-list a:hover { border-color: var(--cp-accent); }
+.ccna-exam-domain-list a > span:nth-child(2) { display: grid; min-width: 0; gap: .2rem; }
+.ccna-exam-domain-list strong { overflow-wrap: anywhere; font-size: .88rem; }
+.ccna-exam-domain-list small { color: var(--cp-muted); font-size: .73rem; }
+.ccna-exam-domain-list a > svg { flex: 0 0 auto; margin-inline-start: auto; color: var(--cp-accent); }
+.ccna-exam-domain-id { display: grid; flex: 0 0 2.4rem; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: 7px; background: color-mix(in srgb, var(--cp-accent) 12%, var(--cp-alt)); color: var(--cp-accent); font-size: .74rem; font-weight: 800; }
+.ccna-exam-note { display: grid; gap: .3rem; margin-top: 1rem; padding: .9rem 1rem; border-left: 3px solid var(--cp-accent); background: var(--cp-alt); color: var(--cp-muted); font-size: .8rem; line-height: 1.55; }
+.ccna-exam-note strong { color: var(--cp-text); }
+.ccna-exam-note p { margin: 0; }
+.ccna-exam-note a { color: var(--cp-accent); }
+
+.ccna-exam-workspace { display: grid; min-width: 0; gap: 1rem; margin: 1.25rem 0 2rem; padding: clamp(1rem, 3vw, 1.6rem); border: 1px solid var(--cp-line); border-radius: 15px; background: linear-gradient(140deg, color-mix(in srgb, var(--cp-surface) 96%, transparent), color-mix(in srgb, var(--cp-accent) 7%, var(--cp-alt))); }
+.ccna-exam-workspace-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.ccna-exam-workspace-header h2 { margin: .3rem 0 .35rem; color: var(--cp-text); font-size: clamp(1.2rem, 2vw, 1.55rem); }
+.ccna-exam-workspace-header p:not(.ccna-dashboard-eyebrow) { margin: 0; color: var(--cp-muted); font-size: .85rem; line-height: 1.55; }
+.ccna-exam-clock { display: inline-flex; flex: 0 0 auto; align-items: center; gap: .4rem; padding: .55rem .7rem; border: 1px solid color-mix(in srgb, var(--cp-accent) 40%, var(--cp-line)); border-radius: 9px; background: color-mix(in srgb, var(--cp-accent) 8%, var(--cp-surface)); color: var(--cp-accent); font-variant-numeric: tabular-nums; }
+.ccna-exam-clock.is-warning { border-color: #fb7185; color: #fb7185; }
+.ccna-exam-progress { height: .35rem; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--cp-line) 85%, transparent); }
+.ccna-exam-progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--cp-accent), #5eead4); transition: width .2s ease; }
+.ccna-exam-question-card { display: grid; gap: .9rem; padding: clamp(1rem, 3vw, 1.5rem); border: 1px solid var(--cp-line); border-radius: 12px; background: color-mix(in srgb, var(--cp-surface) 92%, transparent); }
+.ccna-exam-question-meta { margin: 0; color: var(--cp-accent); font-size: .75rem; font-weight: 750; }
+.ccna-exam-question-card h3 { margin: 0; color: var(--cp-text); font-size: clamp(1.05rem, 2vw, 1.35rem); line-height: 1.55; }
+.ccna-exam-options { display: grid; gap: .55rem; }
+.ccna-exam-options button { display: flex; align-items: flex-start; gap: .7rem; min-width: 0; padding: .75rem; border: 1px solid var(--cp-line); border-radius: 9px; background: color-mix(in srgb, var(--cp-alt) 75%, transparent); color: var(--cp-text); text-align: start; line-height: 1.5; transition: border-color .18s ease, background .18s ease, transform .18s ease; }
+.ccna-exam-options button:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--cp-accent) 70%, var(--cp-line)); }
+.ccna-exam-options button.is-selected { border-color: var(--cp-accent); background: color-mix(in srgb, var(--cp-accent) 12%, var(--cp-surface)); }
+.ccna-exam-options button > span { display: grid; flex: 0 0 1.65rem; place-items: center; width: 1.65rem; height: 1.65rem; border-radius: 50%; background: color-mix(in srgb, var(--cp-accent) 13%, var(--cp-alt)); color: var(--cp-accent); font-size: .78rem; font-weight: 800; }
+.ccna-exam-navigation { display: flex; align-items: center; justify-content: space-between; gap: .7rem; }
+.ccna-exam-navigation > span { color: var(--cp-muted); font-size: .75rem; text-align: center; }
+.ccna-exam-primary-action,
+.ccna-exam-secondary-action,
+.ccna-exam-review-toggle { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; min-height: 2.5rem; padding: .6rem .85rem; border: 1px solid var(--cp-line); border-radius: 8px; color: var(--cp-text); font-size: .82rem; font-weight: 750; }
+.ccna-exam-primary-action { border-color: var(--cp-accent); background: var(--cp-accent); color: var(--cp-accent-contrast, #04131d); }
+.ccna-exam-secondary-action { background: color-mix(in srgb, var(--cp-surface) 82%, transparent); }
+.ccna-exam-primary-action:disabled,
+.ccna-exam-secondary-action:disabled { cursor: not-allowed; opacity: .45; }
+.ccna-exam-result-score { display: grid; justify-items: center; gap: .2rem; padding: 1rem; border: 1px solid color-mix(in srgb, var(--cp-accent) 30%, var(--cp-line)); border-radius: 12px; background: color-mix(in srgb, var(--cp-accent) 8%, var(--cp-surface)); }
+.ccna-exam-result-score strong { color: var(--cp-text); font-size: 2rem; }
+.ccna-exam-result-score span { color: var(--cp-muted); font-size: .78rem; }
+.ccna-exam-review-toggle { width: fit-content; background: transparent; color: var(--cp-accent); }
+.ccna-exam-review-list { display: grid; gap: .65rem; }
+.ccna-exam-review-list article { padding: .9rem; border: 1px solid var(--cp-line); border-inline-start: 3px solid #fb7185; border-radius: 9px; background: color-mix(in srgb, var(--cp-surface) 90%, transparent); }
+.ccna-exam-review-list article.is-correct { border-inline-start-color: #5eead4; }
+.ccna-exam-review-list h3 { margin: .35rem 0; color: var(--cp-text); font-size: .95rem; line-height: 1.5; }
+.ccna-exam-review-list p { margin: .35rem 0 0; color: var(--cp-muted); font-size: .82rem; line-height: 1.55; }
+.ccna-exam-review-index { color: var(--cp-accent) !important; font-size: .72rem !important; font-weight: 750; }
+
+@media (max-width: 760px) {
+  .ccna-dashboard-hero { grid-template-columns: 1fr; }
+  .ccna-dashboard-progress { grid-template-columns: auto minmax(0, 1fr); justify-items: start; }
+  .ccna-dashboard-progress-ring { width: 7rem; border-width: 7px; }
+  .ccna-dashboard-progress-copy { text-align: start; }
+  .ccna-dashboard-lab-callout,
+  .ccna-exam-heading { align-items: flex-start; flex-direction: column; }
+  .ccna-dashboard-lab-actions { justify-content: flex-start; }
+  .ccna-exam-heading-stat { align-self: center; min-height: 6.8rem; width: 6.8rem; }
+}
+@media (max-width: 560px) {
+  .ccna-dashboard-workspace-grid,
+  .ccna-dashboard-domain-grid,
+  .ccna-exam-mode-grid,
+  .ccna-exam-domain-list { grid-template-columns: 1fr; }
+  .ccna-dashboard-section-heading,
+  .ccna-exam-panel-heading { align-items: flex-start; flex-direction: column; }
+  .ccna-dashboard-section-note { align-self: flex-start; }
+  .ccna-dashboard-actions,
+  .ccna-dashboard-lab-actions { align-items: stretch; flex-direction: column; }
+  .ccna-dashboard-primary,
+  .ccna-dashboard-secondary { width: 100%; }
+  .ccna-dashboard-connection { justify-content: flex-start; }
+  .ccna-dashboard-connection > svg { display: none; }
+  .ccna-exam-workspace-header,
+  .ccna-exam-navigation { align-items: stretch; flex-direction: column; }
+  .ccna-exam-clock { align-self: flex-start; }
+  .ccna-exam-navigation > span { order: 3; text-align: start; }
+  .ccna-exam-primary-action,
+  .ccna-exam-secondary-action { width: 100%; }
+}

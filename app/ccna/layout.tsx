@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { BookOpen, FlaskConical, Layers, Network, Search, Terminal } from "lucide-react";
+import { BookOpen, ClipboardCheck, FlaskConical, Layers, Network, Search, Terminal } from "lucide-react";
 import { AccountPanel, AuthPanel } from "@/app/components/learning-views";
 import { CourseSwitcher } from "@/app/components/course-switcher";
 import { AppBrand, StudyHeader } from "@/app/components/study-header";
@@ -11,17 +11,19 @@ import { ccnaQuestionCount } from "@/lib/content/ccna-bank";
 import { ccnaLabs, ccnaSources } from "@/lib/content/ccna";
 import { ccnaLabPathStats } from "@/lib/content/ccna-lab-path";
 import { copy } from "@/lib/course-data";
+import "./dashboard.css";
 
 /** One route per job: the overview, the question bank, the knowledge search, the eight build stages
  * and the leveled library of every lab this site publishes. Each page owns its own heading, so no
  * page has to scroll past another page's content to reach its own. */
 const routes = [
   { href: "/ccna", label: "Overview & domains", icon: Layers },
-  { href: "/ccna/practice", label: "Question bank & Explain", icon: BookOpen },
-  { href: "/ccna/search", label: "Search all CCNA questions", icon: Search },
-  { href: "/ccna/build", label: "Build stages & workspaces", icon: FlaskConical },
-  { href: "/ccna/sim", label: "Simulator · practice terminal", icon: Terminal },
-  { href: "/ccna/library", label: `Lab library & troubleshooting · ${ccnaLabPathStats.total} labs`, icon: Network },
+  { href: "/ccna/practice", label: "Question practice & Explain", icon: BookOpen },
+  { href: "/ccna/exams", label: "Exam center", icon: ClipboardCheck },
+  { href: "/ccna/library", label: `Lab library · ${ccnaLabPathStats.total} labs`, icon: Network },
+  { href: "/ccna/sim", label: "Topology simulator", icon: Terminal },
+  { href: "/ccna/search", label: "Search questions", icon: Search },
+  { href: "/ccna/build", label: "Guided build stages", icon: FlaskConical },
 ] as const;
 
 type Shell = {

@@ -50,6 +50,9 @@
 .ccna-lab-card-number { flex:0 0 auto; display:grid; place-items:center; min-width:3.2rem; padding:.25rem .45rem; border:1px solid var(--cp-line); border-radius:4px; background:var(--cp-surface); font-size:calc(.8125rem * var(--wincraft-font-scale,1)); color:var(--cp-muted); }
 .ccna-lab-card-title { min-width:0; flex:1 1 auto; }
 .ccna-lab-card-title h4 { margin:0 0 .2rem; }
+.ccna-lab-card-title h3 { margin:0 0 .2rem; }
+.ccna-lab-detail-link { color:var(--cp-text); text-decoration:none; }
+.ccna-lab-detail-link:hover, .ccna-lab-detail-link:focus-visible { color:var(--cp-accent); text-decoration:underline; }
 .ccna-lab-card-title .server-lab-meta { display:block; color:var(--cp-muted); }
 .ccna-lab-flag { flex:0 0 auto; display:inline-flex; align-items:center; gap:.3rem; padding:.25rem .5rem; border:1px solid var(--cp-line); border-radius:999px; font-size:calc(.8125rem * var(--wincraft-font-scale,1)); color:var(--cp-muted); }
 .ccna-lab-flag.is-ok { color:var(--cp-text); }

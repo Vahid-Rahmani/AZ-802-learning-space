@@ -23,6 +23,7 @@
   min-width: 0;
   color: var(--simulation-text);
   font-size: calc(1rem * var(--wincraft-font-scale, 1));
+  container-type: inline-size;
 }
 
 .ccna-simulation-header,
@@ -89,6 +90,9 @@
   border: 1px solid var(--simulation-line);
   border-radius: 12px;
   background: rgba(8, 17, 31, .74);
+  position: sticky;
+  top: .5rem;
+  z-index: 4;
 }
 
 .ccna-simulation-tabs button,
@@ -120,7 +124,7 @@
 
 .ccna-simulation-layout {
   display: grid;
-  grid-template-columns: minmax(250px, .78fr) minmax(0, 1.8fr) minmax(240px, .78fr);
+  grid-template-columns: minmax(250px, .82fr) minmax(420px, 1.75fr) minmax(235px, .78fr);
   grid-template-areas: "scenario topology reference" "scenario terminal reference";
   gap: 1rem;
   margin-top: 1rem;
@@ -225,7 +229,7 @@
 .ccna-simulation-notice[data-kind="error"] { border-left-color: var(--simulation-danger); color: #fecdd3; background: rgba(251, 113, 133, .09); }
 
 .ccna-simulation-canvas-wrap { min-width: 0; overflow: hidden; border: 1px solid var(--simulation-line); border-radius: 12px; background: #07111f; }
-.ccna-simulation-canvas { display: block; width: 100%; height: auto; min-height: 360px; touch-action: none; user-select: none; }
+.ccna-simulation-canvas { display: block; width: 100%; height: auto; aspect-ratio: 920 / 440; touch-action: none; user-select: none; }
 .ccna-simulation-canvas-background { fill: #091627; stroke: #1b3655; stroke-width: 2; }
 .ccna-simulation-canvas-background { cursor: grab; }
 .ccna-simulation-canvas:active .ccna-simulation-canvas-background { cursor: grabbing; }
@@ -238,11 +242,26 @@
 
 .ccna-simulation-node { outline: none; cursor: grab; }
 .ccna-simulation-node:active { cursor: grabbing; }
-.ccna-simulation-node-card { fill: #142943; stroke: #35587f; stroke-width: 2; filter: drop-shadow(0 8px 8px rgba(0, 0, 0, .25)); }
+.ccna-simulation-node-card { fill: #142943; stroke: #35587f; stroke-width: 2; filter: drop-shadow(0 8px 8px rgba(0, 0, 0, .25)); transition: fill .18s ease, stroke .18s ease, filter .18s ease; }
+.ccna-simulation-node[data-device-kind="router"] .ccna-simulation-node-card { fill: #112f4a; }
+.ccna-simulation-node[data-device-kind="switch"] .ccna-simulation-node-card { fill: #172d49; }
+.ccna-simulation-node[data-device-kind="pc"] .ccna-simulation-node-card { fill: #1b2a43; }
+.ccna-simulation-node[data-device-kind="server"] .ccna-simulation-node-card { fill: #242b4b; }
+.ccna-simulation-node[data-device-kind="access-point"] .ccna-simulation-node-card { fill: #152f3c; }
+.ccna-simulation-node[data-device-kind="firewall"] .ccna-simulation-node-card { fill: #3a263e; }
+.ccna-simulation-node[data-device-kind="cloud"] .ccna-simulation-node-card { fill: #27324a; }
 .ccna-simulation-node:hover .ccna-simulation-node-card,
 .ccna-simulation-node:focus-visible .ccna-simulation-node-card,
 .ccna-simulation-node.is-selected .ccna-simulation-node-card { stroke: var(--simulation-accent); stroke-width: 3; }
-.ccna-simulation-node-glyph { fill: #8de9ff; font-size: 28px; text-anchor: middle; }
+.ccna-simulation-device-icon { display: block; fill: none; stroke: #9deeff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+.ccna-simulation-device-icon--router { stroke: #6ee7ff; }
+.ccna-simulation-device-icon--switch { stroke: #8bb8ff; }
+.ccna-simulation-device-icon--pc { stroke: #b7c8ff; }
+.ccna-simulation-device-icon--pc .ccna-simulation-device-icon-screen { fill: rgba(77, 213, 255, .25); stroke: #83e6ff; }
+.ccna-simulation-device-icon--server { stroke: #c2b5ff; }
+.ccna-simulation-device-icon--access-point { stroke: #62f1cf; }
+.ccna-simulation-device-icon--firewall { stroke: #ff9bb1; }
+.ccna-simulation-device-icon--cloud { stroke: #a8c6ff; }
 .ccna-simulation-node-label { fill: #f3f7fc; font-size: 15px; font-weight: 700; }
 .ccna-simulation-node-subtitle { fill: #a7b6ca; font-size: 11px; }
 .ccna-simulation-node-status { stroke: #07111f; stroke-width: 3; }
@@ -275,7 +294,9 @@
 
 .ccna-simulation-device-legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .4rem; padding: 0 !important; list-style: none; }
 .ccna-simulation-device-legend li { display: flex; align-items: center; gap: .45rem; padding: .45rem .5rem; border: 1px solid var(--simulation-line); border-radius: 7px; font-size: .78em; }
-.ccna-simulation-device-legend li span { width: 1.4rem; color: #8de9ff; font-size: 1.25em; text-align: center; }
+.ccna-simulation-device-legend-icon { display: inline-grid; width: 1.5rem; height: 1.5rem; place-items: center; flex: 0 0 1.5rem; }
+.ccna-simulation-device-legend-icon .ccna-simulation-device-icon { width: 1.45rem; height: 1.45rem; stroke-width: 2.5; }
+.ccna-simulation-device-legend-label { min-width: 0; }
 .ccna-simulation-references { padding-left: 1rem !important; font-size: .8em; }
 .ccna-simulation-keyboard-note { margin-top: 1rem !important; padding-top: .8rem; border-top: 1px solid var(--simulation-line); font-size: .78em; }
 .ccna-simulation-keyboard-note strong { color: var(--simulation-text); }
@@ -306,7 +327,7 @@
   .ccna-simulation-header h2 { font-size: 1.3rem; }
   .ccna-simulation-tabs { gap: .2rem; }
   .ccna-simulation-tabs button { padding-inline: .2rem; font-size: .73em; }
-  .ccna-simulation-canvas { min-height: 300px; }
+  .ccna-simulation-canvas { aspect-ratio: 1.15; }
   .ccna-simulation-toolbar { flex-wrap: wrap; }
   .ccna-simulation-toolbar-spacer { display: none; }
   .ccna-simulation-connection-count { width: 100%; }

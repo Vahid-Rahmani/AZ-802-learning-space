@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, BookOpen, FlaskConical, Layers, Network, Search } from "lucide-react";
+import { ArrowRight, BookOpen, ClipboardCheck, FlaskConical, Layers, Network, Play, Search, Target } from "lucide-react";
 import { GoogleSubtitle } from "@/app/components/google-translate";
 import { ccnaPracticeUnits } from "@/lib/content/ccna-bank";
 import { ccnaDomains, ccnaLabs, ccnaSources } from "@/lib/content/ccna";
@@ -9,42 +9,56 @@ import { ccnaTopologyStats } from "@/lib/content/ccna-topologies";
 
 const Copy = ({ text }: { text: string }) => <GoogleSubtitle text={text} />;
 
-/** Hard navigation, the same one the course switcher uses: the client-side router swallows anchor
- * clicks in this runtime, so a plain href alone would strand the learner on the overview. */
-const go = (href: string) => (event: { preventDefault: () => void }) => { event.preventDefault(); window.location.href = href; };
-
 const pages = [
-  { href: "/ccna/practice", icon: BookOpen, title: "Question bank & Explain", detail: "Practice by objective with the stored explanation and the exact Cisco or IETF reference for every answer." },
-  { href: "/ccna/search", icon: Search, title: "Search all CCNA questions", detail: "Ask in English or Persian and open the closest stored question, without any external AI." },
-  { href: "/ccna/build", icon: FlaskConical, title: "Build stages & workspaces", detail: "The eight hands-on stages: steps, practical tests, knowledge check and evidence, saved to your account." },
-  { href: "/ccna/library", icon: Network, title: `Lab library · ${ccnaLabPathStats.total} labs`, detail: "Every lab organized into twelve bands in learning order, each with its own topology diagram, prerequisites and fault checkpoint." },
+  { href: "/ccna/practice", icon: BookOpen, title: "Question practice", detail: "Work by Cisco objective, search the bank and open the exact explanation for every answer.", action: "Open question bank" },
+  { href: "/ccna/exams", icon: ClipboardCheck, title: "Exam center", detail: "Choose a quick check, domain assessment, mixed review or full endurance session.", action: "Open exam center" },
+  { href: "/ccna/library", icon: Network, title: `Lab library · ${ccnaLabPathStats.total}`, detail: "Browse the twelve bands, read each topology and open the matching simulator workspace.", action: "Browse labs" },
+  { href: "/ccna/search", icon: Search, title: "Search & explain", detail: "Find a question by command, concept or objective and jump straight into its practice view.", action: "Search questions" },
 ] as const;
+
+const firstLab = ccnaLabs[0];
+
+function DashboardLink({ href, children, className = "" }: { href: string; children: React.ReactNode; className?: string }) {
+  const go = (event: { preventDefault: () => void }) => { event.preventDefault(); window.location.href = href; };
+  return <a href={href} onClick={go} className={className}>{children}</a>;
+}
 
 export default function CcnaOverviewPage() {
   return <>
-    <section className="mb-6" aria-label="CCNA learning pages">
-      <h1 className="text-2xl font-bold"><Copy text="CCNA foundations, split into four pages" /></h1>
-      <p className="mt-2 max-w-3xl text-sm leading-6"><Copy text={`The eight hands-on stages, the ${ccnaLabPathStats.total} labs with their topology diagrams, the question bank and the knowledge search each have their own page now, so nothing is buried under anything else. Progress, saved answers and evidence keep working exactly as before on every one of them.`} /></p>
-      <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">{pages.map((page) => { const Icon = page.icon; return <li key={page.href}><a href={page.href} onClick={go(page.href)} className="sidebar-course-card flex h-full min-h-28 flex-col gap-2 rounded-xl border border-white/10 p-4"><span className="flex items-center gap-2 font-semibold text-cyan-200"><Icon size={18} /><Copy text={page.title} /></span><span className="text-sm leading-6 text-slate-300"><Copy text={page.detail} /></span><span className="mt-auto flex items-center gap-1 text-sm text-cyan-200"><Copy text="Open" /><ArrowRight size={15} /></span></a></li>; })}</ul>
+    <section className="ccna-dashboard-hero" aria-labelledby="ccna-dashboard-title">
+      <div className="ccna-dashboard-hero-copy">
+        <p className="ccna-dashboard-eyebrow"><Copy text="CCNA · learning control center" /></p>
+        <h1 id="ccna-dashboard-title"><Copy text="Train by question, lab, and topology." /></h1>
+        <p><Copy text="A focused path for Cisco 200-301 v1.1: understand the objective, build the topology, prove the result, then test yourself." /></p>
+        <div className="ccna-dashboard-actions">
+          <DashboardLink href="/ccna/practice" className="ccna-dashboard-primary"><Play size={17} /><Copy text="Continue question practice" /></DashboardLink>
+          <DashboardLink href={firstLab ? `/ccna/sim?lab=${encodeURIComponent(firstLab.id)}` : "/ccna/library"} className="ccna-dashboard-secondary"><Network size={17} /><Copy text="Open first topology" /></DashboardLink>
+        </div>
+      </div>
+      <div className="ccna-dashboard-progress" aria-label="CCNA content overview">
+        <div className="ccna-dashboard-progress-ring"><strong>CCNA</strong><span>200-301</span></div>
+        <div className="ccna-dashboard-progress-copy"><strong><Copy text="One place for each activity" /></strong><span><Copy text={`${ccnaPracticeUnits.length} objective domains · ${ccnaLabPathStats.bands} lab bands · ${ccnaLabPathStats.total} topology workspaces`} /></span></div>
+      </div>
     </section>
-    <section className="mb-6" aria-label="Official CCNA domains">
-      <h2 className="text-xl font-bold"><Copy text="200-301 v1.1 · six official domains" /></h2>
-      <p className="mt-2 text-sm"><Copy text="Each domain opens its own practice set with every stored question for that part of the blueprint." /></p>
-      <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">{ccnaDomains.map((domain, index) => <li key={domain.id}><a href={`/ccna/practice?domain=${ccnaPracticeUnits[index].id}`} onClick={go(`/ccna/practice?domain=${ccnaPracticeUnits[index].id}`)} className="sidebar-course-card flex min-h-12 w-full items-center gap-3 rounded-lg border border-white/10 p-3 text-start"><span className="text-sm text-slate-400">{domain.weight}%</span><span className="font-medium"><Copy text={domain.title} /></span><span className="ms-auto text-sm text-slate-400">{ccnaPracticeUnits[index].questions.length}</span></a></li>)}</ul>
-      <p className="mt-3 text-sm"><Copy text="Foundation coverage, not every exam objective. Domain percentages describe the official blueprint, not the weighting of these short learning quizzes." /> <a className="underline" href={ccnaSources.blueprint} target="_blank" rel="noreferrer"><Copy text="Official objectives" /> ↗</a></p>
+
+    <section className="ccna-dashboard-section" aria-labelledby="ccna-workspaces-title">
+      <div className="ccna-dashboard-section-heading"><div><p className="ccna-dashboard-eyebrow"><Copy text="Choose your workspace" /></p><h2 id="ccna-workspaces-title"><Copy text="Questions, exams, and labs stay separate" /></h2></div><span className="ccna-dashboard-section-note"><Target size={15} /><Copy text="Every route keeps its own context" /></span></div>
+      <ul className="ccna-dashboard-workspace-grid">{pages.map((page) => { const Icon = page.icon; return <li key={page.href}><DashboardLink href={page.href} className="ccna-dashboard-workspace-card"><span className="ccna-dashboard-card-icon"><Icon size={20} /></span><span className="ccna-dashboard-card-body"><strong><Copy text={page.title} /></strong><span><Copy text={page.detail} /></span><em><Copy text={page.action} /><ArrowRight size={15} /></em></span></DashboardLink></li>; })}</ul>
     </section>
-    <section aria-label="What the library contains">
-      <h2 className="text-xl font-bold"><Copy text="What the lab library holds" /></h2>
-      <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {[
-          { term: "Labs", detail: `${ccnaLabPathStats.total}`, note: `${ccnaLabPathStats.handsOn} build stages + ${ccnaLabPathStats.catalog} catalog labs` },
-          { term: "Bands", detail: `${ccnaLabPathStats.bands}`, note: `in official blueprint order` },
-          { term: "Topology diagrams", detail: `${ccnaTopologyStats.diagrams}`, note: `of ${ccnaTopologyStats.labs} catalog labs` },
-          { term: "Scenario types", detail: `${ccnaScenarioTypes.length}`, note: `role-based framing on every lab` },
-        ].map((item) => <div key={item.term} className="sidebar-course-card rounded-xl border border-white/10 p-4"><dt className="text-sm text-slate-400"><Copy text={item.term} /></dt><dd className="mt-1 text-2xl font-bold">{item.detail}</dd><dd className="mt-1 text-xs text-slate-400"><Copy text={item.note} /></dd></div>)}
-      </dl>
-      <p className="mt-4 text-sm"><Copy text={`Independent original labs and adapted MIT-licensed practice questions reviewed against Cisco references; no real certification questions or exam dumps. Labs run in your own desktop simulator, not inside this website. The final automation stage is an offline worksheet. ${ccnaLabPathStats.needsReview} catalog labs are marked needs-review because the published catalog metadata does not support their mapping.`} /> <a className="underline" href={ccnaSources.exam} target="_blank" rel="noreferrer"><Copy text="Official Cisco exam information" /> ↗</a></p>
-      <p className="mt-2 text-sm"><Layers size={14} className="inline" /> <Copy text={`${ccnaLabs.length} of the ${ccnaLabPathStats.total} labs are build stages with a saved checkpoint on this site; the other ${ccnaLabPathStats.catalog} are indexed simulation labs whose vendor instructions are not published here.`} /></p>
+
+    <section className="ccna-dashboard-section" aria-labelledby="ccna-path-title">
+      <div className="ccna-dashboard-section-heading"><div><p className="ccna-dashboard-eyebrow"><Copy text="Official blueprint" /></p><h2 id="ccna-path-title"><Copy text="Six objective domains" /></h2></div><a className="ccna-dashboard-inline-link" href={ccnaSources.blueprint} target="_blank" rel="noreferrer"><Copy text="View Cisco topics" /> ↗</a></div>
+      <p className="ccna-dashboard-muted"><Copy text="Select a domain to open only its questions. The percentages describe the official blueprint, not a claim that this short practice set reproduces the live exam." /></p>
+      <ul className="ccna-dashboard-domain-grid">{ccnaDomains.map((domain, index) => <li key={domain.id}><DashboardLink href={`/ccna/practice?domain=${ccnaPracticeUnits[index].id}`} className="ccna-dashboard-domain-card"><span className="ccna-dashboard-domain-number">{domain.id}</span><span className="ccna-dashboard-domain-body"><strong><Copy text={domain.title} /></strong><span><Copy text={`${ccnaPracticeUnits[index].questions.length} practice questions`} /></span></span><span className="ccna-dashboard-domain-weight">{domain.weight}%</span><ArrowRight size={16} /></DashboardLink></li>)}</ul>
     </section>
+
+    <section className="ccna-dashboard-lab-callout" aria-labelledby="ccna-next-lab-title">
+      <div><p className="ccna-dashboard-eyebrow"><Copy text="Build next" /></p><h2 id="ccna-next-lab-title"><Copy text={firstLab?.title ?? "Choose a topology"} /></h2><p><Copy text={firstLab?.goal ?? "Open the library to choose a hands-on network lab."} /></p><div className="ccna-dashboard-meta"><span><FlaskConical size={15} /><Copy text={`${ccnaLabPathStats.handsOn} guided build stages`} /></span><span><Network size={15} /><Copy text={`${ccnaTopologyStats.diagrams} topology diagrams`} /></span><span><Layers size={15} /><Copy text={`${ccnaScenarioTypes.length} scenario types`} /></span></div></div>
+      <div className="ccna-dashboard-lab-actions"><DashboardLink href="/ccna/library" className="ccna-dashboard-secondary"><Copy text="Browse lab bands" /><ArrowRight size={15} /></DashboardLink>{firstLab && <DashboardLink href={`/ccna/sim?lab=${encodeURIComponent(firstLab.id)}`} className="ccna-dashboard-primary"><Copy text="Open simulator" /><ArrowRight size={15} /></DashboardLink>}</div>
+    </section>
+
+    <section className="ccna-dashboard-connection" aria-label="How the learning path connects"><span><BookOpen size={17} /><Copy text="Question" /></span><ArrowRight size={16} /><span><Network size={17} /><Copy text="Lab topology" /></span><ArrowRight size={16} /><span><FlaskConical size={17} /><Copy text="Simulator" /></span><ArrowRight size={16} /><span><ClipboardCheck size={17} /><Copy text="Exam" /></span></section>
+
+    <section className="ccna-dashboard-footnote" aria-label="CCNA content notes"><p><Copy text={`Independent practice content is reviewed against Cisco references; it is not real certification content or an exam dump. ${ccnaLabPathStats.needsReview} catalog labs are marked needs-review because their published metadata does not fully support objective mapping.`} /> <a href={ccnaSources.exam} target="_blank" rel="noreferrer"><Copy text="Official Cisco exam information" /> ↗</a></p></section>
   </>;
 }
