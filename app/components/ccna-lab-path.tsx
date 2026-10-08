@@ -123,12 +123,6 @@ export function CcnaLabPath({ initialBandId }: { initialBandId?: string } = {}) 
       <p className="server-lab-meta ccna-lab-result" role="status" aria-live="polite"><Copy text={`${filtered.length} of ${ccnaLabPathStats.total} labs shown · ${shownDiagrams} with a topology diagram${active ? " · filters active" : ""}`} /></p>
     </div>
 
-    <section className="ccna-lab-track" aria-labelledby="ccna-lab-track-title">
-      <h2 id="ccna-lab-track-title"><Copy text={`The troubleshooting track · ${troubleshootingLabs.length} labs`} /></h2>
-      <p><Copy text="Labs whose purpose is repair rather than construction. Each one publishes the fault to reproduce and the recovery it must end with, so a passing result means the original requirement works again — not that the error message went away." /></p>
-      <ul>{troubleshootingLabs.map((lab) => <li key={lab.id}><button type="button" onClick={() => { setTroubleshootingOnly(true); setBand(ALL); setQuery(lab.title); }}><Copy text={lab.title} /></button></li>)}</ul>
-    </section>
-
     {ccnaLabBands.map((item) => {
       const labs = filtered.filter((lab) => lab.bandId === item.id);
       if (labs.length === 0) return null;
@@ -207,6 +201,15 @@ export function CcnaLabPath({ initialBandId }: { initialBandId?: string } = {}) 
         </ol>
       </section>;
     })}
+
+    <section className="ccna-lab-track ccna-lab-track-separate" aria-labelledby="ccna-lab-track-title">
+      <div>
+        <p className="server-lab-kicker"><Copy text="Separate practice track" /></p>
+        <h2 id="ccna-lab-track-title"><Copy text={`Troubleshooting track · ${troubleshootingLabs.length} matching labs`} /></h2>
+        <p><Copy text="This repair-focused track is separate from the topology catalog. Use it when you want to reproduce a fault, isolate the cause and prove the recovery." /></p>
+      </div>
+      <ul>{troubleshootingLabs.map((lab) => <li key={lab.id}><button type="button" onClick={() => { setTroubleshootingOnly(true); setBand(ALL); setQuery(lab.title); }}><Copy text={lab.title} /></button></li>)}</ul>
+    </section>
 
     {filtered.length === 0 && <p className="ccna-lab-empty" role="status"><Copy text="No lab matches these filters. Clear one filter to widen the search — every lab here is already published, so nothing has been removed." /></p>}
 

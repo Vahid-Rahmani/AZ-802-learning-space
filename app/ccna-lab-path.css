@@ -25,6 +25,7 @@
 .ccna-lab-result { margin:0; color:var(--cp-muted); }
 
 .ccna-lab-track { padding:1rem; border:1px solid var(--cp-line); border-left:3px solid var(--cp-accent); border-radius:4px; background:var(--cp-alt); margin-bottom:1.5rem; }
+.ccna-lab-track-separate { margin-top:2.25rem; border-left-color:#f59e0b; }
 .ccna-lab-track h3 { margin:0 0 .4rem; }
 .ccna-lab-track p { margin:0 0 .7rem; color:var(--cp-muted); max-width:80ch; }
 .ccna-lab-track ul { display:flex; flex-wrap:wrap; gap:.5rem; list-style:none; margin:0; padding:0; }
