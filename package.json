@@ -23,6 +23,7 @@
     "verify:ccna-lab-sources": "node --experimental-strip-types scripts/verify-ccna-lab-sources.mjs",
     "validate:ccna-sim": "node --experimental-strip-types scripts/validate-ccna-sim.mjs",
     "validate:ccna-simulation": "node --experimental-strip-types scripts/validate-ccna-simulation.mjs",
+    "validate:ccna-responsive": "node scripts/validate-ccna-responsive.mjs",
     "start": "node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js dev --config dist/server/wrangler.json --local --persist-to .wrangler/state --ip 127.0.0.1 --inspector-port 0",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern .vercel",
     "db:generate": "drizzle-kit generate",

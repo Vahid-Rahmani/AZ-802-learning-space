@@ -94,6 +94,40 @@ export type SimulationState = {
   viewport: SimulationViewport;
 };
 
+/**
+ * Keep the first view of every lab readable and deterministic.  Packs are
+ * authored with a rough position, but a topology can contain a different
+ * mix of routers, switches and endpoints.  Grouping by role gives the
+ * simulator a predictable Packet-Tracer-like starting canvas without
+ * changing the lab's devices or links.
+ */
+export function arrangeSimulationNodes(nodes: SimulationNode[], width = 920, height = 440) {
+  const roleRank = (kind: SimulationDeviceKind) => kind === "router" || kind === "firewall" || kind === "cloud"
+    ? 0
+    : kind === "switch" || kind === "access-point"
+      ? 1
+      : 2;
+  const ordered = nodes.map((node, index) => ({ node, index })).sort((left, right) => roleRank(left.node.kind) - roleRank(right.node.kind) || left.index - right.index);
+  const roleRows: Array<typeof ordered> = [];
+  for (let index = 0; index < ordered.length; index += 1) {
+    const previous = roleRows.at(-1);
+    const sameRole = previous && roleRank(previous[0].node.kind) === roleRank(ordered[index].node.kind);
+    if (!previous || !sameRole || previous.length >= 4) roleRows.push([]);
+    roleRows.at(-1)?.push(ordered[index]);
+  }
+  const rows = Math.max(1, roleRows.length);
+  const horizontalPadding = Math.min(120, width * .14);
+  const verticalPadding = Math.min(78, height * .18);
+  const usableWidth = Math.max(260, width - horizontalPadding * 2);
+  const usableHeight = Math.max(110, height - verticalPadding * 2);
+
+  return roleRows.flatMap((row, rowIndex) => row.map(({ node }, index) => ({
+    ...node,
+    x: row.length === 1 ? width / 2 : horizontalPadding + (usableWidth * index) / (row.length - 1),
+    y: rows === 1 ? height / 2 : verticalPadding + (usableHeight * rowIndex) / (rows - 1),
+  })));
+}
+
 export type SimulationConnectionResult =
   | { ok: true; state: SimulationState; link: SimulationLink }
   | { ok: false; reason: string };
@@ -101,16 +135,26 @@ export type SimulationConnectionResult =
 const DEFAULT_VIEWPORT: SimulationViewport = { scale: 1, x: 0, y: 0 };
 
 export function cloneSimulationState(pack: SimulationPack): SimulationState {
+  const nodes = arrangeSimulationNodes(pack.devices.map((node) => ({
+    ...node,
+    ports: node.ports.map((port) => ({ ...port })),
+  })));
   return {
-    nodes: pack.devices.map((node) => ({
-      ...node,
-      ports: node.ports.map((port) => ({ ...port })),
-    })),
+    nodes,
     links: (pack.links ?? []).map((link) => ({
       ...link,
       source: { ...link.source },
       target: { ...link.target },
     })),
+    viewport: { ...DEFAULT_VIEWPORT },
+  };
+}
+
+/** Reset only the visual graph.  Cables and checklist progress stay intact. */
+export function resetSimulationLayout(state: SimulationState) {
+  return {
+    ...state,
+    nodes: arrangeSimulationNodes(state.nodes),
     viewport: { ...DEFAULT_VIEWPORT },
   };
 }

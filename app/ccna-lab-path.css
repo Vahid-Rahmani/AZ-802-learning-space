@@ -62,7 +62,10 @@
 .ccna-lab-scenario dd { margin:0; font-size:calc(.9375rem * var(--wincraft-font-scale,1)); }
 .ccna-lab-review-note { margin:0; padding:.55rem .7rem; border-left:3px solid var(--cp-accent); background:var(--cp-surface); color:var(--cp-muted); font-size:calc(.875rem * var(--wincraft-font-scale,1)); }
 .ccna-lab-figure { margin:0; display:grid; gap:.4rem; padding:.6rem; border:1px solid var(--cp-line); border-radius:4px; background:var(--cp-surface); }
+.ccna-lab-figure-link { display:block; border-radius:3px; outline:none; }
+.ccna-lab-figure-link:focus-visible { box-shadow:0 0 0 3px color-mix(in srgb, var(--cp-accent) 55%, transparent); }
 .ccna-lab-figure img { width:auto; height:auto; max-width:100%; max-height:230px; margin:0 auto; object-fit:contain; }
+.ccna-lab-figure-link:hover img { filter:brightness(1.08); }
 .ccna-lab-figure figcaption { color:var(--cp-muted); font-size:calc(.8125rem * var(--wincraft-font-scale,1)); }
 .ccna-lab-no-figure { margin:0; padding:.6rem .7rem; border:1px dashed var(--cp-line); border-radius:4px; color:var(--cp-muted); font-size:calc(.875rem * var(--wincraft-font-scale,1)); }
 .ccna-lab-catalog-summary { display:grid; gap:.15rem; }

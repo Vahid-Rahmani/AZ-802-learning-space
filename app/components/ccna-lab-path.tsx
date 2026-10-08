@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, BookOpen, Filter, Network, Search, ShieldCheck, X } from "lucide-react";
+import { AlertTriangle, BookOpen, Eye, Filter, Network, Search, ShieldCheck, X } from "lucide-react";
 import { GoogleSubtitle } from "./google-translate";
 import {
   ccnaLabBands, ccnaLabById, ccnaLabObjectiveCoverage, ccnaLabPath, ccnaLabPathStats,
@@ -155,12 +155,15 @@ export function CcnaLabPath({ initialBandId }: { initialBandId?: string } = {}) 
               ? <figure className="ccna-lab-figure">
                 {/* The catalog ships these diagrams pre-sized. The Next image optimizer would re-encode
                     every one of them per request and spend the metered image quota for no visible gain. */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={lab.diagram.src} alt={`${lab.title} topology diagram`} loading="lazy" decoding="async" width={lab.diagram.width} height={lab.diagram.height} />
+                <a className="ccna-lab-figure-link" href={`/ccna/labs/${encodeURIComponent(lab.id)}`} aria-label={`View topology for ${lab.title}`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={lab.diagram.src} alt={`${lab.title} topology diagram`} loading="lazy" decoding="async" width={lab.diagram.width} height={lab.diagram.height} />
+                </a>
                 <figcaption><Copy text={`Topology published for lab ${pad(lab.number ?? 0)} of the ${ccnaTopologySource.catalog} catalog.`} /></figcaption>
               </figure>
               : <p className="ccna-lab-no-figure"><Copy text={lab.kind === "hands-on" ? "Hands-on stage: build the topology from the diagram described in the workspace steps." : "Concept lab — the source catalog publishes no topology diagram for this lab."} /></p>}
             <div className="ccna-lab-actions">
+              {lab.diagram && <a className="server-lab-primary ccna-lab-view-topology" href={`/ccna/labs/${encodeURIComponent(lab.id)}`}><Eye size={17} aria-hidden="true" /><Copy text="View topology" /></a>}
               <a className="server-lab-primary" href={`/ccna/labs/${encodeURIComponent(lab.id)}`}><BookOpen size={17} aria-hidden="true" /><Copy text="Open lab brief" /></a>
               <a className="server-lab-primary" href={`/ccna/sim?lab=${encodeURIComponent(lab.id)}`}><Network size={17} aria-hidden="true" /><Copy text="Open practice terminal & topology" /></a>
               <a className="server-lab-primary" href={destination(lab)} onClick={(event) => { event.preventDefault(); window.location.href = destination(lab); }}><BookOpen size={17} aria-hidden="true" /><Copy text={lab.kind === "hands-on" ? "Open this lab workspace" : "Practice this domain"} /></a>

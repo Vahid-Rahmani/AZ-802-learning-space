@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowLeft, BookOpen, CheckCircle2, CircleAlert, ExternalLink, FlaskConical, Network, Play, ShieldCheck, Terminal, Waypoints } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, BookOpen, CheckCircle2, CircleAlert, ExternalLink, Eye, FlaskConical, Network, Play, ShieldCheck, Terminal, Waypoints, X } from "lucide-react";
 import { GoogleSubtitle } from "./google-translate";
 import type { CcnaLabBand, CcnaLabEntry } from "@/lib/content/ccna-lab-path";
 import type { CcnaSimulationPack } from "@/lib/content/ccna-simulation-packs";
@@ -34,6 +35,7 @@ function DeviceGlyph({ kind }: { kind: CcnaSimulationPack["devices"][number]["ki
 }
 
 export function CcnaLabDetail({ lab, band, pack, relatedLabs }: CcnaLabDetailProps) {
+  const [isTopologyOpen, setTopologyOpen] = useState(false);
   const outline = pack.topologyOutline;
   const checklist = pack.checklist ?? [];
   const devices = pack.devices ?? [];
@@ -94,14 +96,19 @@ export function CcnaLabDetail({ lab, band, pack, relatedLabs }: CcnaLabDetailPro
     <section className="ccna-detail-topology-section" aria-labelledby="ccna-detail-topology-title">
       <div className="ccna-detail-section-heading">
         <div><p className="server-lab-kicker"><Copy text="Read it before you build it" /></p><h2 id="ccna-detail-topology-title"><Copy text="Topology and device map" /></h2><p><Copy text="Use the published diagram as the reference, then open the simulator to connect ports, inspect the graph and verify the path." /></p></div>
-        <a className="ccna-detail-secondary" href={`/ccna/sim?lab=${encodeURIComponent(lab.id)}`}><Network size={17} aria-hidden="true" /><Copy text="Practice this topology" /></a>
+        <div className="ccna-detail-section-actions">
+          {lab.diagram && <button type="button" className="ccna-detail-secondary" onClick={() => setTopologyOpen(true)}><Eye size={17} aria-hidden="true" /><Copy text="View topology" /></button>}
+          <a className="ccna-detail-secondary" href={`/ccna/sim?lab=${encodeURIComponent(lab.id)}`}><Network size={17} aria-hidden="true" /><Copy text="Practice this topology" /></a>
+        </div>
       </div>
       <div className="ccna-detail-topology-grid">
         <figure className="ccna-detail-diagram">
           {lab.diagram ? <>
             {/* The catalog diagrams are local, pre-sized assets; regular img keeps their source dimensions intact. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={lab.diagram.src} alt={diagramAlt} width={lab.diagram.width} height={lab.diagram.height} />
+            <button type="button" className="ccna-detail-diagram-button" onClick={() => setTopologyOpen(true)} aria-label={`View larger topology for ${lab.title}`}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={lab.diagram.src} alt={diagramAlt} width={lab.diagram.width} height={lab.diagram.height} />
+            </button>
             <figcaption><Copy text={`Topology diagram for ${lab.title}.`} /></figcaption>
           </> : <div className="ccna-detail-diagram-empty"><Network size={34} aria-hidden="true" /><strong><Copy text="No source diagram was published for this lab" /></strong><p><Copy text="The editable starter graph on the simulator page is the working topology for this concept lab." /></p></div>}
         </figure>
@@ -140,5 +147,14 @@ export function CcnaLabDetail({ lab, band, pack, relatedLabs }: CcnaLabDetailPro
     </section>
 
     {lab.reviewNote && <p className="ccna-detail-review-note"><CircleAlert size={17} aria-hidden="true" /><Copy text={`Review note: ${lab.reviewNote}`} /></p>}
+    {isTopologyOpen && lab.diagram && <div className="ccna-topology-viewer" role="dialog" aria-modal="true" aria-labelledby="ccna-topology-viewer-title">
+      <div className="ccna-topology-viewer-backdrop" onClick={() => setTopologyOpen(false)} aria-hidden="true" />
+      <div className="ccna-topology-viewer-card">
+        <header><div><p className="server-lab-kicker"><Copy text="Topology preview" /></p><h2 id="ccna-topology-viewer-title"><Copy text={lab.title} /></h2></div><button type="button" className="ccna-topology-viewer-close" onClick={() => setTopologyOpen(false)} aria-label="Close topology preview"><X size={19} /></button></header>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={lab.diagram.src} alt={diagramAlt} width={lab.diagram.width} height={lab.diagram.height} />
+        <footer><span><Copy text={`${devices.length} devices · ${links.length} starter links`} /></span><a className="ccna-detail-primary" href={`/ccna/sim?lab=${encodeURIComponent(lab.id)}`} onClick={() => setTopologyOpen(false)}><Terminal size={17} aria-hidden="true" /><Copy text="Practice this topology" /></a></footer>
+      </div>
+    </div>}
   </article>;
 }

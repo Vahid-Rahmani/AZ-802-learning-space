@@ -27,13 +27,103 @@ const handsOnById = new Map(ccnaLabs.map((lab) => [lab.id, lab]));
 const slug = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 52) || "lab";
 
 function kindFor(label: string, context: string): SimulationNode["kind"] {
-  const value = `${label} ${context}`.toLowerCase();
-  if (/access point|wlc|wireless|wlan|wrt|laptop/.test(value)) return /laptop/.test(value) ? "pc" : "access-point";
-  if (/server|dns|dhcp|tftp|ftp|ntp|syslog/.test(value)) return "server";
-  if (/switch|sw\d|2960|layer 2/.test(value)) return "switch";
-  if (/pc|host|client|operator/.test(value)) return "pc";
+  // Classify from the device label first.  A scenario often mentions a
+  // server, switch or client even when the current node is a router; looking
+  // at the whole scenario first made every device in those labs inherit the
+  // same kind (for example, R1/SW1/PC-A all became `server`).
+  const labelValue = label.toLowerCase();
+  if (/^ap\d|access point|wireless ap|^wlc\b|^wrt\b/.test(labelValue)) return "access-point";
+  if (/^r\d|router|gateway|firewall/.test(labelValue)) return "router";
+  if (/^sw\d|switch|bridge|2960/.test(labelValue)) return "switch";
+  if (/pc|host|client|operator|laptop|accounting|sales|web admin|admin/.test(labelValue)) return "pc";
+  if (/server|dns|dhcp|tftp|ftp|ntp|syslog|controller/.test(labelValue)) return "server";
+
+  // Only use scenario context as a fallback for labels such as a generic
+  // endpoint.  Label-specific rules above must always win.
+  const contextValue = context.toLowerCase();
+  if (/access point|wlc|wireless|wlan|wrt/.test(contextValue)) return /laptop/.test(labelValue) ? "pc" : "access-point";
+  if (/server|dns|dhcp|tftp|ftp|ntp|syslog/.test(contextValue)) return "server";
+  if (/switch|layer 2/.test(contextValue)) return "switch";
+  if (/pc|host|client|operator/.test(contextValue)) return "pc";
   return "router";
 }
+
+type TopologyOverride = { devices: SimulationNode[]; links: SimulationLink[] };
+
+const ethernetPort = (id: string, label: string): SimulationPort => ({ id, label, kind: "ethernet" });
+
+/**
+ * Reference diagrams are not always simple three-node starter graphs.  Keep
+ * explicit mappings for diagrams whose published device map is important to
+ * the lesson; the UI and simulator then consume the same device/link data.
+ * The first mapping is the ten-device Explore Cisco Devices topology shown in
+ * the lab catalogue.
+ */
+const catalogTopologyOverrides: Record<string, TopologyOverride> = {
+  "ccna-topology-001": {
+    devices: [
+      {
+        id: "device-1", label: "Device1", kind: "router", x: 220, y: 72,
+        subtitle: "Router · Layer 3 forwarding",
+        ports: [ethernetPort("gi0-0", "Gi0/0"), ethernetPort("gi0-1", "Gi0/1"), ethernetPort("gi0-2", "Gi0/2")], status: "healthy",
+      },
+      {
+        id: "device-2", label: "Device2", kind: "router", x: 700, y: 72,
+        subtitle: "Router · Layer 3 forwarding",
+        ports: [ethernetPort("gi0-0", "Gi0/0"), ethernetPort("gi0-1", "Gi0/1"), ethernetPort("gi0-2", "Gi0/2")], status: "healthy",
+      },
+      {
+        id: "device-5", label: "Device5", kind: "switch", x: 460, y: 205,
+        subtitle: "Distribution switch · central transit",
+        ports: [ethernetPort("fa0-1", "Fa0/1"), ethernetPort("fa0-2", "Fa0/2"), ethernetPort("fa0-3", "Fa0/3"), ethernetPort("fa0-4", "Fa0/4")], status: "healthy",
+      },
+      {
+        id: "device-3", label: "Device3", kind: "switch", x: 230, y: 318,
+        subtitle: "Access switch · server segment",
+        ports: [ethernetPort("fa0-1", "Fa0/1"), ethernetPort("fa0-2", "Fa0/2"), ethernetPort("fa0-3", "Fa0/3")], status: "healthy",
+      },
+      {
+        id: "device-4", label: "Device4", kind: "switch", x: 690, y: 318,
+        subtitle: "Access switch · user segment",
+        ports: [ethernetPort("fa0-1", "Fa0/1"), ethernetPort("fa0-2", "Fa0/2"), ethernetPort("fa0-3", "Fa0/3")], status: "healthy",
+      },
+      {
+        id: "accounting", label: "Accounting", kind: "pc", x: 830, y: 170,
+        subtitle: "Accounting workstation",
+        ports: [ethernetPort("gi0-0", "Gi0/0")], status: "healthy",
+      },
+      {
+        id: "www", label: "WWW", kind: "server", x: 120, y: 430,
+        subtitle: "Web server", ports: [ethernetPort("gi0-0", "Gi0/0")], status: "healthy",
+      },
+      {
+        id: "ftp", label: "FTP", kind: "server", x: 310, y: 430,
+        subtitle: "File-transfer server", ports: [ethernetPort("gi0-0", "Gi0/0")], status: "healthy",
+      },
+      {
+        id: "web-admin", label: "Web Admin", kind: "pc", x: 610, y: 430,
+        subtitle: "Web administration workstation",
+        ports: [ethernetPort("gi0-0", "Gi0/0")], status: "healthy",
+      },
+      {
+        id: "sales", label: "Sales", kind: "pc", x: 800, y: 430,
+        subtitle: "Sales workstation",
+        ports: [ethernetPort("gi0-0", "Gi0/0")], status: "healthy",
+      },
+    ],
+    links: [
+      { id: "ccna-topology-001-link-1", source: { deviceId: "device-1", portId: "gi0-0" }, target: { deviceId: "device-2", portId: "gi0-0" }, status: "up", label: "Router interconnect" },
+      { id: "ccna-topology-001-link-2", source: { deviceId: "device-1", portId: "gi0-1" }, target: { deviceId: "device-5", portId: "fa0-1" }, status: "up", label: "Primary path" },
+      { id: "ccna-topology-001-link-3", source: { deviceId: "device-2", portId: "gi0-1" }, target: { deviceId: "device-5", portId: "fa0-2" }, status: "up" },
+      { id: "ccna-topology-001-link-4", source: { deviceId: "device-5", portId: "fa0-3" }, target: { deviceId: "device-3", portId: "fa0-1" }, status: "up" },
+      { id: "ccna-topology-001-link-5", source: { deviceId: "device-5", portId: "fa0-4" }, target: { deviceId: "device-4", portId: "fa0-1" }, status: "up" },
+      { id: "ccna-topology-001-link-6", source: { deviceId: "device-3", portId: "fa0-2" }, target: { deviceId: "www", portId: "gi0-0" }, status: "up" },
+      { id: "ccna-topology-001-link-7", source: { deviceId: "device-3", portId: "fa0-3" }, target: { deviceId: "ftp", portId: "gi0-0" }, status: "up" },
+      { id: "ccna-topology-001-link-8", source: { deviceId: "device-4", portId: "fa0-2" }, target: { deviceId: "web-admin", portId: "gi0-0" }, status: "up" },
+      { id: "ccna-topology-001-link-9", source: { deviceId: "device-4", portId: "fa0-3" }, target: { deviceId: "sales", portId: "gi0-0" }, status: "up" },
+    ],
+  },
+};
 
 function portsFor(kind: SimulationNode["kind"], context: string): SimulationPort[] {
   const wireless = /wireless|wlan|wpa|laptop|access point|wrt/i.test(context);
@@ -59,6 +149,8 @@ function deviceLabels(lab: CcnaLabEntry): string[] {
 }
 
 function createDevices(lab: CcnaLabEntry): SimulationNode[] {
+  const override = catalogTopologyOverrides[lab.id];
+  if (override) return override.devices.map((device) => ({ ...device, ports: device.ports.map((port) => ({ ...port })) }));
   const context = `${lab.title} ${lab.scenario.context} ${lab.scenario.requirement}`;
   return deviceLabels(lab).map((label, index) => {
     const kind = kindFor(label, context);
@@ -76,6 +168,8 @@ function createDevices(lab: CcnaLabEntry): SimulationNode[] {
 }
 
 function createLinks(devices: SimulationNode[], lab: CcnaLabEntry): SimulationLink[] {
+  const override = catalogTopologyOverrides[lab.id];
+  if (override) return override.links.map((link) => ({ ...link, source: { ...link.source }, target: { ...link.target } }));
   const links: SimulationLink[] = [];
   const endpointUsed = (deviceId: string, portId: string) => links.some((link) =>
     (link.source.deviceId === deviceId && link.source.portId === portId)

@@ -95,6 +95,11 @@
   z-index: 4;
 }
 
+/* Keep the mobile panel switcher usable at the smallest supported viewport. The
+   labels are allowed to scroll rather than being squeezed into unreadable
+   buttons, and the scrollbar remains discoverable for keyboard users. */
+.ccna-simulation-tabs { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-width: thin; }
+
 .ccna-simulation-tabs button,
 .ccna-simulation-toolbar button,
 .ccna-simulation-terminal-form button,
@@ -120,6 +125,14 @@
   border-color: var(--simulation-accent);
   color: #d9f8ff;
   background: rgba(77, 213, 255, .13);
+}
+
+.ccna-simulation-tabs button:focus-visible,
+.ccna-simulation-toolbar button:focus-visible,
+.ccna-simulation-terminal-form button:focus-visible,
+.ccna-simulation-danger-button:focus-visible {
+  outline: 2px solid var(--simulation-accent);
+  outline-offset: 2px;
 }
 
 .ccna-simulation-layout {
@@ -233,12 +246,12 @@
 .ccna-simulation-canvas-background { fill: #091627; stroke: #1b3655; stroke-width: 2; }
 .ccna-simulation-canvas-background { cursor: grab; }
 .ccna-simulation-canvas:active .ccna-simulation-canvas-background { cursor: grabbing; }
-.ccna-simulation-link-line { fill: none; stroke: #4ade80; stroke-width: 3; pointer-events: none; }
+.ccna-simulation-link-line { fill: none; stroke: #4ade80; stroke-width: 3; stroke-linecap: round; pointer-events: none; }
 .ccna-simulation-link[data-status="down"] .ccna-simulation-link-line { stroke: #94a3b8; stroke-dasharray: 8 7; }
 .ccna-simulation-link[data-status="fault"] .ccna-simulation-link-line { stroke: #fb7185; stroke-dasharray: 8 6; }
-.ccna-simulation-link-hitbox { fill: none; stroke: transparent; stroke-width: 18; cursor: pointer; }
+.ccna-simulation-link-hitbox { fill: none; stroke: transparent; stroke-width: 18; stroke-linecap: round; cursor: pointer; }
 .ccna-simulation-link:focus-visible .ccna-simulation-link-line { stroke: #fbbf24; stroke-width: 5; outline: none; }
-.ccna-simulation-link-label { fill: #b6f7c8; font-size: 12px; pointer-events: none; text-anchor: middle; }
+.ccna-simulation-link-label { fill: #b6f7c8; font-size: 12px; font-weight: 650; paint-order: stroke; stroke: #07111f; stroke-width: 4px; stroke-linejoin: round; pointer-events: none; text-anchor: middle; }
 
 .ccna-simulation-node { outline: none; cursor: grab; }
 .ccna-simulation-node:active { cursor: grabbing; }
@@ -278,9 +291,22 @@
 .ccna-simulation-selected-device { margin-top: .6rem !important; font-size: .8em; }
 .ccna-simulation-selected-device strong { color: var(--simulation-text); }
 
+/* SVG controls do not inherit the browser's native focus affordance. Give
+   selected/keyboard-focused devices and ports a reliable visual state. */
+.ccna-simulation-node:focus-visible .ccna-simulation-node-card,
+.ccna-simulation-node[aria-pressed="true"] .ccna-simulation-node-card { stroke: #f5d76e; stroke-width: 3; filter: drop-shadow(0 0 8px rgba(245, 215, 110, .35)); }
+.ccna-simulation-port:focus-visible .ccna-simulation-port-dot { stroke: #f5d76e; stroke-width: 3; filter: drop-shadow(0 0 5px rgba(245, 215, 110, .45)); }
+
 .ccna-simulation-terminal-panel { overflow: hidden; padding: 0; background: #07111f; }
 .ccna-simulation-terminal-panel .ccna-simulation-panel-heading { margin: 0; padding: .8rem 1rem; border-bottom: 1px solid #25415f; }
-.ccna-simulation-terminal-host { margin-left: auto; color: #8de9ff; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .78em; }
+.ccna-simulation-terminal-host { min-width: 0; margin-inline-start: auto; color: #8de9ff; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .78em; overflow-wrap: anywhere; }
+.ccna-simulation-device-tabs { display: flex; max-width: 100%; gap: .35rem; overflow-x: auto; padding: .55rem .7rem; border-bottom: 1px solid #25415f; background: rgba(8, 17, 31, .86); overscroll-behavior-inline: contain; scrollbar-width: thin; }
+.ccna-simulation-device-tab { display: inline-flex; min-width: 7.5rem; flex: 0 0 auto; flex-direction: column; align-items: flex-start; gap: .15rem; min-height: 42px; padding: .45rem .65rem; border: 1px solid #2e4968; border-radius: 8px; color: var(--simulation-muted); background: rgba(21, 39, 64, .82); font: inherit; font-size: .78em; text-align: start; cursor: pointer; }
+.ccna-simulation-device-tab small { color: #83d9ed; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .82em; }
+.ccna-simulation-device-tab:hover,
+.ccna-simulation-device-tab:focus-visible,
+.ccna-simulation-device-tab[aria-selected="true"] { border-color: var(--simulation-accent); color: var(--simulation-text); background: rgba(77, 213, 255, .14); outline: none; }
+.ccna-simulation-device-tab[aria-selected="true"] { box-shadow: inset 0 -2px 0 var(--simulation-accent); }
 .ccna-simulation-terminal-output { height: 230px; overflow: auto; padding: .85rem 1rem; color: #d9e6f5; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .85em; line-height: 1.55; scrollbar-gutter: stable; }
 .ccna-simulation-terminal-output:focus-visible { outline: 2px solid var(--simulation-accent); outline-offset: -2px; }
 .ccna-simulation-terminal-output p { margin: 0; color: #cbd5e1; white-space: pre-wrap; }
@@ -291,6 +317,11 @@
 .ccna-simulation-terminal-form input { min-width: 0; min-height: 40px; border: 1px solid #35516f; border-radius: 7px; padding: .35rem .55rem; color: #f3f7fc; background: #0a1728; font: inherit; }
 .ccna-simulation-terminal-form input:focus-visible { border-color: var(--simulation-accent); outline: 2px solid rgba(77, 213, 255, .22); outline-offset: 1px; }
 .ccna-simulation-terminal-form button { padding: .35rem .7rem; border-color: transparent; color: #06101a; background: var(--simulation-accent); font-weight: 750; }
+.ccna-simulation-terminal-actions { display: flex; align-items: center; justify-content: space-between; gap: .7rem; padding: .45rem 1rem .65rem; border-top: 1px solid #25415f; color: #8fa5bf; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .7em; }
+.ccna-simulation-terminal-actions button { min-height: 32px; padding: .25rem .55rem; border: 1px solid #35516f; border-radius: 6px; color: #d9f8ff; background: #13253d; font: inherit; cursor: pointer; }
+.ccna-simulation-terminal-actions button:hover,
+.ccna-simulation-terminal-actions button:focus-visible { border-color: var(--simulation-accent); outline: none; }
+.ccna-simulation-terminal-actions button:disabled { opacity: .45; cursor: not-allowed; }
 
 .ccna-simulation-device-legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .4rem; padding: 0 !important; list-style: none; }
 .ccna-simulation-device-legend li { display: flex; align-items: center; gap: .45rem; padding: .45rem .5rem; border: 1px solid var(--simulation-line); border-radius: 7px; font-size: .78em; }
@@ -316,6 +347,7 @@
   .ccna-simulation-layout[data-active-panel="terminal"] > [data-panel]:not([data-panel="terminal"]),
   .ccna-simulation-layout[data-active-panel="reference"] > [data-panel]:not([data-panel="reference"]) { display: none; }
   .ccna-simulation-panel { margin-top: .8rem; }
+  .ccna-simulation-tabs { position: sticky; top: max(.5rem, env(safe-area-inset-top)); }
 }
 
 @media (max-width: 560px) {
@@ -326,7 +358,8 @@
   .ccna-simulation-panel { border-radius: 10px; padding: .8rem; }
   .ccna-simulation-header h2 { font-size: 1.3rem; }
   .ccna-simulation-tabs { gap: .2rem; }
-  .ccna-simulation-tabs button { padding-inline: .2rem; font-size: .73em; }
+  .ccna-simulation-tabs { justify-content: flex-start; }
+  .ccna-simulation-tabs button { flex: 0 0 auto; min-width: 5.1rem; padding-inline: .55rem; font-size: .73em; white-space: nowrap; }
   .ccna-simulation-canvas { aspect-ratio: 1.15; }
   .ccna-simulation-toolbar { flex-wrap: wrap; }
   .ccna-simulation-toolbar-spacer { display: none; }
@@ -334,5 +367,13 @@
   .ccna-simulation-terminal-form { grid-template-columns: 1fr auto; }
   .ccna-simulation-terminal-form .ccna-simulation-terminal-prompt { grid-column: 1 / -1; }
   .ccna-simulation-terminal-output { height: 280px; }
+  .ccna-simulation-terminal-panel .ccna-simulation-panel-heading { flex-wrap: wrap; }
+  .ccna-simulation-terminal-host { margin-inline-start: 0; flex-basis: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ccna-simulation-workspace *,
+  .ccna-simulation-workspace *::before,
+  .ccna-simulation-workspace *::after { scroll-behavior: auto !important; transition: none !important; }
 }
 

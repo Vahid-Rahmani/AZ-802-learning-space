@@ -4,6 +4,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { ccnaLabs } from "../lib/content/ccna.ts";
 import { ccnaLabBands, ccnaLabPath, ccnaLabPathStats } from "../lib/content/ccna-lab-path.ts";
 import { ccnaTopologyLabs } from "../lib/content/ccna-topologies.ts";
+import { ccnaSimulationPackByLabId } from "../lib/content/ccna-simulation-packs.ts";
 import { simCommands } from "../lib/ccna-sim/commands.ts";
 
 /**
@@ -284,6 +285,32 @@ packObjects.forEach(validatePack);
 const missingPackLabs = ccnaLabPath.filter((lab) => !packLabIds.includes(lab.id));
 warn(packObjects.length > 0, "no simulation content packs were discovered; reference topologies are validated, but pack coverage is still pending rollout");
 warn(missingPackLabs.length === 0, `${missingPackLabs.length} of ${ccnaLabPath.length} labs have no simulation pack yet`);
+
+// ---------------------------------------------------------------------------
+// 3b. Reference diagram ↔ simulator mapping.
+//
+// A lab may have a published diagram with more than the small generic starter
+// graph.  The route and detail page must resolve the same pack, and a diagram
+// must not silently point at a pack for another lab.  Keep one explicit
+// contract for the first multi-device catalogue topology so a future mapper
+// change cannot regress it back to the old three-node fallback.
+
+for (const lab of ccnaLabPath) {
+  const pack = ccnaSimulationPackByLabId.get(lab.id);
+  check(Boolean(pack), `${lab.id}: learning-path entry has no simulation pack mapping`);
+  if (lab.diagram && pack) {
+    check(pack.diagram?.src === lab.diagram.src, `${lab.id}: simulator pack diagram does not match the learning-path diagram`);
+  }
+}
+
+const exploreCiscoPack = ccnaSimulationPackByLabId.get("ccna-topology-001");
+const exploreCiscoLabels = ["Device1", "Device2", "Device5", "Device3", "Device4", "Accounting", "WWW", "FTP", "Web Admin", "Sales"];
+check(Boolean(exploreCiscoPack), "ccna-topology-001: Explore Cisco Devices pack is missing");
+if (exploreCiscoPack) {
+  check(exploreCiscoPack.devices.length === exploreCiscoLabels.length, `ccna-topology-001: expected ${exploreCiscoLabels.length} mapped devices, found ${exploreCiscoPack.devices.length}`);
+  check(exploreCiscoPack.devices.map((device) => device.label).join("|") === exploreCiscoLabels.join("|"), "ccna-topology-001: mapped device labels do not match the published topology");
+  check((exploreCiscoPack.links ?? []).length === 9, `ccna-topology-001: expected 9 starter links, found ${(exploreCiscoPack.links ?? []).length}`);
+}
 
 // ---------------------------------------------------------------------------
 // 4. Independent per-lab route and entry points.

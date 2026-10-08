@@ -1,6 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { IosSession } from "@/lib/ccna-sim/session";
+import { findInterface } from "@/lib/ccna-sim/device";
+import type { SimMode } from "@/lib/ccna-sim/tokens";
 import {
   cloneSimulationState,
   connectSimulationPorts,
@@ -8,6 +11,7 @@ import {
   endpointKey,
   findSimulationPort,
   moveSimulationNode,
+  resetSimulationLayout,
   type SimulationEndpoint,
   type SimulationLink,
   type SimulationNode,
@@ -18,12 +22,62 @@ import {
 
 type WorkspacePanel = "scenario" | "topology" | "terminal" | "reference";
 type Notice = { kind: "info" | "success" | "error"; text: string };
-type TerminalEntry = { input: string; output: string[] };
+type TerminalEntry = { input: string; output: string[]; promptBefore: string; promptAfter: string; mode: SimMode };
+type PersistedTerminalSession = {
+  kind: SimulationNode["kind"];
+  hostname: string;
+  mode: SimMode;
+  closed: boolean;
+  history: string[];
+  draft?: string;
+  entries: TerminalEntry[];
+  device: {
+    hostname: string;
+    vlans: Array<[number, { id: number; name: string }]>;
+    interfaces: Array<{
+      name: string;
+      kind: "ethernet" | "svi";
+      mode: "access" | "trunk" | "routed";
+      accessVlan: number;
+      nativeVlan: number;
+      allowedVlans: number[] | "all";
+      description: string;
+      modeExplicit: boolean;
+      adminUp: boolean;
+      address: { ip: string; mask: string } | null;
+    }>;
+  };
+  selected: { interfaces: string[]; vlan: number | null };
+  config: { startup: string[] | null };
+};
+type TerminalRuntime = {
+  nodeId: string;
+  kind: SimulationNode["kind"];
+  session: IosSession;
+  entries: TerminalEntry[];
+  history: string[];
+  draft: string;
+  historyCursor: number;
+  draftBeforeHistory: string;
+};
+type TerminalView = {
+  kind: SimulationNode["kind"];
+  hostname: string;
+  prompt: string;
+  mode: SimMode;
+  closed: boolean;
+  entries: TerminalEntry[];
+  history: string[];
+  draft: string;
+};
 type WorkspaceSnapshot = {
-  version: 1;
+  version: 1 | 2;
   state: SimulationState;
   checkedItems: string[];
-  terminalEntries: TerminalEntry[];
+  activeDeviceId?: string | null;
+  sessions?: Record<string, PersistedTerminalSession>;
+  /** Version 1 compatibility: the old single terminal transcript is assigned to the first device. */
+  terminalEntries?: Array<{ input: string; output: string[] }>;
 };
 
 export type CcnaSimulationWorkspaceProps = {
@@ -32,6 +86,8 @@ export type CcnaSimulationWorkspaceProps = {
   persistKey?: string;
   className?: string;
   onComplete?: (packId: string) => void;
+  /** Integration hook for a future per-device console dock. */
+  onDeviceSelect?: (node: SimulationNode) => void;
 };
 
 const CANVAS_WIDTH = 920;
@@ -87,6 +143,22 @@ function endpointLabel(state: SimulationState, endpoint: SimulationEndpoint) {
   return `${node?.label ?? endpoint.deviceId} · ${port?.label ?? endpoint.portId}`;
 }
 
+function curvedLinkPath(source: { x: number; y: number }, target: { x: number; y: number }) {
+  const dx = target.x - source.x;
+  const dy = target.y - source.y;
+  const distance = Math.max(1, Math.hypot(dx, dy));
+  const bend = Math.min(56, Math.max(20, distance * .14));
+  const normalX = -dy / distance;
+  const normalY = dx / distance;
+  const controlX = (source.x + target.x) / 2 + normalX * bend;
+  const controlY = (source.y + target.y) / 2 + normalY * bend;
+  return `M ${source.x} ${source.y} Q ${controlX} ${controlY} ${target.x} ${target.y}`;
+}
+
+function linkMidpoint(source: { x: number; y: number }, target: { x: number; y: number }) {
+  return { x: (source.x + target.x) / 2, y: (source.y + target.y) / 2 };
+}
+
 function statusColor(status: SimulationNode["status"] = "healthy") {
   if (status === "fault") return "#fb7185";
   if (status === "warning") return "#fbbf24";
@@ -96,7 +168,109 @@ function statusColor(status: SimulationNode["status"] = "healthy") {
 function isSnapshot(value: unknown): value is WorkspaceSnapshot {
   if (!value || typeof value !== "object") return false;
   const snapshot = value as Partial<WorkspaceSnapshot>;
-  return snapshot.version === 1 && Boolean(snapshot.state && Array.isArray(snapshot.state.nodes) && Array.isArray(snapshot.state.links));
+  return (snapshot.version === 1 || snapshot.version === 2) && Boolean(snapshot.state && Array.isArray(snapshot.state.nodes) && Array.isArray(snapshot.state.links));
+}
+
+const simModeLabels: Record<SimMode, string> = {
+  user: "user",
+  privileged: "privileged",
+  global: "config",
+  interface: "config-if",
+  vlan: "config-vlan",
+  line: "config-line",
+};
+
+const isSimMode = (value: unknown): value is SimMode => ["user", "privileged", "global", "interface", "vlan", "line"].includes(value as SimMode);
+
+function createTerminalRuntime(node: SimulationNode, saved?: PersistedTerminalSession): TerminalRuntime {
+  const session = new IosSession(saved?.hostname || node.label);
+  if (saved?.device && Array.isArray(saved.device.interfaces) && Array.isArray(saved.device.vlans) && (saved.device.interfaces.length > 0 || saved.device.vlans.length > 0)) {
+    session.state.device = {
+      hostname: saved.device.hostname || saved.hostname || node.label,
+      vlans: new Map(saved.device.vlans.map(([id, vlan]) => [Number(id), { id: Number(vlan.id), name: vlan.name }])),
+      interfaces: saved.device.interfaces.map((port) => ({
+        ...port,
+        allowedVlans: Array.isArray(port.allowedVlans) ? [...port.allowedVlans] : "all",
+        address: port.address ? { ...port.address } : null,
+      })),
+    };
+    session.state.selected = {
+      interfaces: (saved.selected?.interfaces ?? []).map((name) => findInterface(session.state.device, name)).filter((port): port is NonNullable<ReturnType<typeof findInterface>> => Boolean(port)),
+      vlan: typeof saved.selected?.vlan === "number" ? saved.selected.vlan : null,
+    };
+    session.state.config = { startup: saved.config?.startup ? [...saved.config.startup] : null };
+  } else {
+    // Match the IOS command engine to the ports published by this topology. In
+    // particular, switch packs use Fa0/1-style names while router packs use Gi0/0.
+    const ethernetNames = node.ports.filter((port) => port.kind === "ethernet").map((port) => port.label);
+    if (ethernetNames.length > 0) {
+      const defaults = session.state.device.interfaces;
+      const template = defaults[0];
+      const svi = defaults.find((port) => port.kind === "svi");
+      if (template) {
+        session.state.device.interfaces = [
+          ...ethernetNames.map((name, index) => ({ ...template, name, address: null, description: "", modeExplicit: false, accessVlan: 1, nativeVlan: 1, allowedVlans: "all" as const, adminUp: true, mode: "access" as const, kind: "ethernet" as const, ...(defaults[index] ? { kind: defaults[index].kind, mode: defaults[index].mode } : {}) })),
+          ...(svi ? [{ ...svi }] : []),
+        ];
+      }
+    }
+  }
+  session.state.mode = isSimMode(saved?.mode) ? saved.mode : "user";
+  session.state.closed = saved?.closed === true;
+  const entries = (saved?.entries ?? []).map((entry) => ({
+    input: entry.input,
+    output: [...entry.output],
+    promptBefore: entry.promptBefore || session.prompt,
+    promptAfter: entry.promptAfter || session.prompt,
+    mode: isSimMode(entry.mode) ? entry.mode : session.state.mode,
+  }));
+  return {
+    nodeId: node.id,
+    kind: node.kind,
+    session,
+    entries,
+    history: [...(saved?.history ?? entries.map((entry) => entry.input))],
+    draft: saved?.draft ?? "",
+    historyCursor: -1,
+    draftBeforeHistory: "",
+  };
+}
+
+function serializeTerminalRuntime(runtime: TerminalRuntime): PersistedTerminalSession {
+  const device = runtime.session.state.device;
+  return {
+    kind: runtime.kind,
+    hostname: device.hostname,
+    mode: runtime.session.state.mode,
+    closed: runtime.session.state.closed,
+    history: [...runtime.history],
+    draft: runtime.draft,
+    entries: runtime.entries.map((entry) => ({ ...entry, output: [...entry.output] })),
+    device: {
+      hostname: device.hostname,
+      vlans: [...device.vlans.entries()].map(([id, vlan]) => [id, { ...vlan }]),
+      interfaces: device.interfaces.map((port) => ({ ...port, allowedVlans: Array.isArray(port.allowedVlans) ? [...port.allowedVlans] : "all", address: port.address ? { ...port.address } : null })),
+    },
+    selected: { interfaces: runtime.session.state.selected.interfaces.map((port) => port.name), vlan: runtime.session.state.selected.vlan },
+    config: { startup: runtime.session.state.config.startup ? [...runtime.session.state.config.startup] : null },
+  };
+}
+
+function terminalView(runtime: TerminalRuntime): TerminalView {
+  return {
+    kind: runtime.kind,
+    hostname: runtime.session.state.device.hostname,
+    prompt: runtime.session.prompt,
+    mode: runtime.session.state.mode,
+    closed: runtime.session.state.closed,
+    entries: runtime.entries.map((entry) => ({ ...entry, output: [...entry.output] })),
+    history: [...runtime.history],
+    draft: runtime.draft,
+  };
+}
+
+function defaultTerminalView(node: SimulationNode): TerminalView {
+  return { kind: node.kind, hostname: node.label, prompt: `${node.label}>`, mode: "user", closed: false, entries: [], history: [], draft: "" };
 }
 
 function terminalResponse(pack: SimulationPack, command: string) {
@@ -108,18 +282,19 @@ function terminalResponse(pack: SimulationPack, command: string) {
   return [`% Unknown command: ${command.trim() || "(empty)"}`, "% Type help to see the commands supported by this lab."];
 }
 
-export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplete }: CcnaSimulationWorkspaceProps) {
+export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplete, onDeviceSelect }: CcnaSimulationWorkspaceProps) {
   const storageKey = `ccna-simulation:${persistKey ?? pack.id}`;
   const [state, setState] = useState<SimulationState>(() => cloneSimulationState(pack));
   const [selectedPort, setSelectedPort] = useState<SimulationEndpoint | null>(null);
-  const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const [activeDeviceId, setActiveDeviceId] = useState<string | null>(null);
   const [activePanel, setActivePanel] = useState<WorkspacePanel>("topology");
   const [notice, setNotice] = useState<Notice>({ kind: "info", text: "Select a port, then select a port on another device to connect a cable." });
   const [checkedItems, setCheckedItems] = useState<Set<string>>(() => new Set());
-  const [terminalEntries, setTerminalEntries] = useState<TerminalEntry[]>([]);
   const [terminalDraft, setTerminalDraft] = useState("");
+  const [terminalViews, setTerminalViews] = useState<Record<string, TerminalView>>({});
   const [hydrated, setHydrated] = useState(false);
   const hydratedKey = useRef<string | null>(null);
+  const terminalSessions = useRef<Record<string, TerminalRuntime>>({});
   const svgRef = useRef<SVGSVGElement>(null);
   const dragRef = useRef<{ type: "node" | "pan"; id?: string; pointerId: number; startX: number; startY: number; originX: number; originY: number } | null>(null);
   const completionNotified = useRef(false);
@@ -127,9 +302,21 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   const requiredItems = useMemo(() => (pack.checklist ?? []).filter((item) => item.required !== false), [pack.checklist]);
   const completedRequired = requiredItems.filter((item) => checkedItems.has(item.id)).length;
   const connectedCount = state.links.length;
+  const selectedNode = activeDeviceId;
+  const effectiveActiveDeviceId = activeDeviceId ?? state.nodes[0]?.id ?? null;
+  const selectedNodeData = state.nodes.find((node) => node.id === effectiveActiveDeviceId);
+  const getTerminalRuntime = useCallback((node: SimulationNode) => {
+    const existing = terminalSessions.current[node.id];
+    if (existing) return existing;
+    const runtime = createTerminalRuntime(node);
+    terminalSessions.current[node.id] = runtime;
+    return runtime;
+  }, []);
+  const activeView = selectedNodeData ? terminalViews[selectedNodeData.id] ?? defaultTerminalView(selectedNodeData) : null;
 
   useEffect(() => {
     hydratedKey.current = null;
+    terminalSessions.current = {};
     let snapshot: WorkspaceSnapshot | null = null;
     try {
       const saved = window.localStorage.getItem(storageKey);
@@ -144,28 +331,58 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
       if (snapshot) {
         setState(snapshot.state);
         setCheckedItems(new Set(snapshot.checkedItems ?? []));
-        setTerminalEntries(snapshot.terminalEntries ?? []);
+        const firstDevice = snapshot.state.nodes[0];
+        const savedSessions = snapshot.sessions ?? {};
+        terminalSessions.current = Object.fromEntries(snapshot.state.nodes.map((node) => {
+          const saved = savedSessions[node.id];
+          if (saved) return [node.id, createTerminalRuntime(node, saved)];
+          return [node.id, createTerminalRuntime(node, node.id === firstDevice?.id && snapshot?.terminalEntries ? {
+            kind: node.kind,
+            hostname: node.label,
+            mode: "user",
+            closed: false,
+            history: snapshot.terminalEntries.map((entry) => entry.input),
+            entries: snapshot.terminalEntries.map((entry) => ({ ...entry, promptBefore: `${node.label}>`, promptAfter: `${node.label}>`, mode: "user" })),
+            device: { hostname: node.label, vlans: [], interfaces: [] },
+            selected: { interfaces: [], vlan: null },
+            config: { startup: null },
+          } : undefined)];
+        }));
+        setTerminalViews(Object.fromEntries(snapshot.state.nodes.map((node) => [node.id, terminalView(terminalSessions.current[node.id])] )));
+        const restoredActiveId = snapshot.activeDeviceId && snapshot.state.nodes.some((node) => node.id === snapshot?.activeDeviceId) ? snapshot.activeDeviceId : firstDevice?.id ?? null;
+        setActiveDeviceId(restoredActiveId);
+        setTerminalDraft(restoredActiveId ? terminalSessions.current[restoredActiveId]?.draft ?? "" : "");
+      } else {
+        const defaults = Object.fromEntries(pack.devices.map((node) => {
+          const runtime = createTerminalRuntime(node);
+          terminalSessions.current[node.id] = runtime;
+          return [node.id, terminalView(runtime)];
+        }));
+        setTerminalViews(defaults);
+        setActiveDeviceId(pack.devices[0]?.id ?? null);
       }
       hydratedKey.current = storageKey;
       setHydrated(true);
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [storageKey]);
+  }, [pack.devices, storageKey]);
 
   useEffect(() => {
     if (!hydrated || hydratedKey.current !== storageKey) return;
+    const sessions = Object.fromEntries(state.nodes.map((node) => [node.id, serializeTerminalRuntime(terminalSessions.current[node.id] ?? getTerminalRuntime(node))]));
     const snapshot: WorkspaceSnapshot = {
-      version: 1,
+      version: 2,
       state,
       checkedItems: [...checkedItems],
-      terminalEntries,
+      activeDeviceId,
+      sessions,
     };
     try {
       window.localStorage.setItem(storageKey, JSON.stringify(snapshot));
     } catch {
       // Persistence is best-effort; the current session remains usable.
     }
-  }, [checkedItems, hydrated, state, storageKey, terminalEntries]);
+  }, [activeDeviceId, checkedItems, getTerminalRuntime, hydrated, state, storageKey, terminalViews]);
 
   useEffect(() => {
     if (!requiredItems.length || completedRequired !== requiredItems.length || completionNotified.current) return;
@@ -211,11 +428,21 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     setNotice({ kind: "success", text: `Cable disconnected: ${endpointLabel(state, link.source)} ↔ ${endpointLabel(state, link.target)}.` });
   };
 
+  const selectDevice = (node: SimulationNode) => {
+    const runtime = getTerminalRuntime(node);
+    setActiveDeviceId(node.id);
+    onDeviceSelect?.(node);
+    setTerminalDraft(runtime.draft);
+    setTerminalViews((current) => ({ ...current, [node.id]: terminalView(runtime) }));
+    setActivePanel("terminal");
+    setNotice({ kind: "info", text: `${node.label} console selected. Choose a port to connect a cable.` });
+  };
+
   const handleNodePointerDown = (event: ReactPointerEvent<SVGGElement>, node: SimulationNode) => {
     event.stopPropagation();
     const point = canvasPoint(event as unknown as ReactPointerEvent<SVGSVGElement>);
     dragRef.current = { type: "node", id: node.id, pointerId: event.pointerId, startX: point.x, startY: point.y, originX: node.x, originY: node.y };
-    setSelectedNode(node.id);
+    selectDevice(node);
     svgRef.current?.setPointerCapture(event.pointerId);
   };
 
@@ -243,32 +470,87 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   const handleNodeKey = (event: ReactKeyboardEvent<SVGGElement>, node: SimulationNode) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      setSelectedNode(node.id);
-      setNotice({ kind: "info", text: `${node.label} selected. Choose one of its ports to start a cable.` });
+      selectDevice(node);
     }
   };
 
   const resetLab = () => {
     setState(cloneSimulationState(pack));
     setSelectedPort(null);
-    setSelectedNode(null);
     setCheckedItems(new Set());
-    setTerminalEntries([]);
+    terminalSessions.current = {};
+    const firstDevice = pack.devices[0];
+    const resetViews = Object.fromEntries(pack.devices.map((node) => {
+      const runtime = createTerminalRuntime(node);
+      terminalSessions.current[node.id] = runtime;
+      return [node.id, terminalView(runtime)];
+    }));
+    setTerminalViews(resetViews);
+    setActiveDeviceId(firstDevice?.id ?? null);
+    setTerminalDraft("");
     setNotice({ kind: "info", text: "Lab reset. Select a port, then select a port on another device to connect a cable." });
     completionNotified.current = false;
+  };
+
+  const resetActiveTerminal = () => {
+    if (!selectedNodeData) return;
+    const runtime = createTerminalRuntime(selectedNodeData);
+    terminalSessions.current[selectedNodeData.id] = runtime;
+    setTerminalViews((current) => ({ ...current, [selectedNodeData.id]: terminalView(runtime) }));
+    setTerminalDraft("");
   };
 
   const submitCommand = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const input = terminalDraft.trim();
-    if (!input) return;
-    const output = terminalResponse(pack, input);
+    if (!input || !selectedNodeData) return;
+    const runtime = getTerminalRuntime(selectedNodeData);
+    const promptBefore = runtime.session.prompt;
+    const isGenericDevice = !["router", "switch"].includes(runtime.kind);
+    const result = isGenericDevice
+      ? { lines: terminalResponse(pack, input), prompt: runtime.session.prompt, mode: runtime.session.state.mode, closed: false, matched: null }
+      : runtime.session.execute(input);
+    runtime.history.push(input);
+    runtime.historyCursor = -1;
+    runtime.draftBeforeHistory = "";
+    runtime.draft = "";
     if (input.toLowerCase() === "clear") {
-      setTerminalEntries([]);
+      runtime.entries = [];
     } else {
-      setTerminalEntries((current) => [...current, { input, output }]);
+      runtime.entries = [...runtime.entries, { input, output: result.lines, promptBefore, promptAfter: result.prompt, mode: result.mode }];
     }
     setTerminalDraft("");
+    setTerminalViews((current) => ({ ...current, [selectedNodeData.id]: terminalView(runtime) }));
+  };
+
+  const recallHistory = (direction: -1 | 1) => {
+    if (!selectedNodeData) return;
+    const runtime = getTerminalRuntime(selectedNodeData);
+    if (!runtime.history.length) return;
+    if (runtime.historyCursor === -1) runtime.draftBeforeHistory = terminalDraft;
+    const historyPosition = Math.max(0, Math.min(runtime.history.length, (runtime.historyCursor < 0 ? runtime.history.length : runtime.historyCursor) + direction));
+    runtime.historyCursor = historyPosition;
+    const nextDraft = historyPosition === runtime.history.length ? runtime.draftBeforeHistory : runtime.history[historyPosition];
+    runtime.draft = nextDraft;
+    setTerminalDraft(nextDraft);
+    setTerminalViews((current) => ({ ...current, [selectedNodeData.id]: terminalView(runtime) }));
+  };
+
+  const clearTerminalOutput = () => {
+    if (!selectedNodeData) return;
+    const runtime = getTerminalRuntime(selectedNodeData);
+    runtime.entries = [];
+    setTerminalViews((current) => ({ ...current, [selectedNodeData.id]: terminalView(runtime) }));
+  };
+
+  const cancelTerminalInput = () => {
+    if (!selectedNodeData) return;
+    const runtime = getTerminalRuntime(selectedNodeData);
+    runtime.draft = "";
+    runtime.historyCursor = -1;
+    runtime.draftBeforeHistory = "";
+    setTerminalDraft("");
+    setTerminalViews((current) => ({ ...current, [selectedNodeData.id]: terminalView(runtime) }));
   };
 
   const toggleChecklist = (itemId: string) => {
@@ -281,7 +563,10 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
 
   const setZoom = (delta: number) => setState((current) => updateSimulationViewport(current, { scale: current.viewport.scale + delta }));
   const fitView = () => setState((current) => updateSimulationViewport(current, { scale: 1, x: 0, y: 0 }));
-  const selectedNodeData = state.nodes.find((node) => node.id === selectedNode);
+  const resetLayout = () => {
+    setState((current) => resetSimulationLayout(current));
+    setNotice({ kind: "success", text: "Topology layout reset. Existing cables and checklist progress were kept." });
+  };
 
   const panelTabs: Array<{ id: WorkspacePanel; label: string }> = [
     { id: "scenario", label: "Scenario" },
@@ -289,6 +574,18 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     { id: "terminal", label: "Terminal" },
     { id: "reference", label: "Reference" },
   ];
+
+  const handlePanelTabKey = (event: ReactKeyboardEvent<HTMLButtonElement>, tabId: WorkspacePanel) => {
+    const currentIndex = panelTabs.findIndex((tab) => tab.id === tabId);
+    if (currentIndex < 0) return;
+    const offset = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : event.key === "ArrowLeft" || event.key === "ArrowUp" ? -1 : 0;
+    const nextIndex = event.key === "Home" ? 0 : event.key === "End" ? panelTabs.length - 1 : offset ? (currentIndex + offset + panelTabs.length) % panelTabs.length : currentIndex;
+    if (nextIndex === currentIndex) return;
+    event.preventDefault();
+    const nextTab = panelTabs[nextIndex];
+    setActivePanel(nextTab.id);
+    window.requestAnimationFrame(() => document.getElementById(`ccna-panel-tab-${nextTab.id}`)?.focus());
+  };
 
   return <section className={`ccna-simulation-workspace${className ? ` ${className}` : ""}`} aria-labelledby="ccna-simulation-title">
     <header className="ccna-simulation-header">
@@ -305,11 +602,11 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     </header>
 
     <nav className="ccna-simulation-tabs" aria-label="Simulation panels" role="tablist">
-      {panelTabs.map((tab) => <button key={tab.id} type="button" role="tab" aria-selected={activePanel === tab.id} onClick={() => setActivePanel(tab.id)}>{tab.label}</button>)}
+      {panelTabs.map((tab) => <button key={tab.id} id={`ccna-panel-tab-${tab.id}`} type="button" role="tab" aria-selected={activePanel === tab.id} aria-controls={`ccna-panel-${tab.id}`} tabIndex={activePanel === tab.id ? 0 : -1} onClick={() => setActivePanel(tab.id)} onKeyDown={(event) => handlePanelTabKey(event, tab.id)}>{tab.label}</button>)}
     </nav>
 
     <div className="ccna-simulation-layout" data-active-panel={activePanel}>
-      <aside className="ccna-simulation-panel ccna-simulation-scenario" data-panel="scenario">
+      <aside id="ccna-panel-scenario" className="ccna-simulation-panel ccna-simulation-scenario" data-panel="scenario" role="tabpanel" aria-labelledby="ccna-panel-tab-scenario" tabIndex={-1}>
         <div className="ccna-simulation-panel-heading"><span className="ccna-simulation-panel-icon">1</span><h3>Scenario &amp; checklist</h3></div>
         {pack.scenario.role && <p className="ccna-simulation-role">{pack.scenario.role}</p>}
         <p>{pack.scenario.context}</p>
@@ -329,40 +626,41 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
         <button type="button" className="ccna-simulation-danger-button" onClick={resetLab}>Reset lab</button>
       </aside>
 
-      <section className="ccna-simulation-panel ccna-simulation-topology-panel" data-panel="topology" aria-labelledby="ccna-topology-workspace-title">
+      <section id="ccna-panel-topology" className="ccna-simulation-panel ccna-simulation-topology-panel" data-panel="topology" role="tabpanel" aria-labelledby="ccna-panel-tab-topology" tabIndex={-1}>
         <div className="ccna-simulation-panel-heading"><span className="ccna-simulation-panel-icon">2</span><h3 id="ccna-topology-workspace-title">Topology workspace</h3></div>
         <div className="ccna-simulation-toolbar" role="toolbar" aria-label="Topology controls">
           <button type="button" onClick={() => setZoom(-.15)} disabled={state.viewport.scale <= .65} aria-label="Zoom out">−</button>
           <output aria-live="polite">{Math.round(state.viewport.scale * 100)}%</output>
           <button type="button" onClick={() => setZoom(.15)} disabled={state.viewport.scale >= 2} aria-label="Zoom in">+</button>
           <button type="button" onClick={fitView}>Fit</button>
+          <button type="button" onClick={resetLayout}>Reset layout</button>
           <span className="ccna-simulation-toolbar-spacer" />
           <span className="ccna-simulation-connection-count">{connectedCount} cable{connectedCount === 1 ? "" : "s"}</span>
         </div>
         <div className="ccna-simulation-notice" data-kind={notice.kind} role="status" aria-live="polite">{notice.text}</div>
         <div className="ccna-simulation-canvas-wrap">
-          <svg ref={svgRef} className="ccna-simulation-canvas" viewBox={`0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`} role="application" aria-label="Interactive network topology. Drag devices to move them; select two ports to connect a cable." onPointerDown={handleCanvasPointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerUp}>
+          <svg ref={svgRef} className="ccna-simulation-canvas" viewBox={`0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`} role="group" aria-label="Interactive network topology. Drag devices to move them; select two ports to connect a cable." onPointerDown={handleCanvasPointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerUp}>
             <rect className="ccna-simulation-canvas-background" x="0" y="0" width={CANVAS_WIDTH} height={CANVAS_HEIGHT} rx="16" />
             <g transform={`translate(${state.viewport.x} ${state.viewport.y}) scale(${state.viewport.scale})`}>
               {state.links.map((link) => {
                 const source = endpointPoint(state, link.source);
                 const target = endpointPoint(state, link.target);
                 if (!source || !target) return null;
-                const middleX = (source.x + target.x) / 2;
-                const middleY = (source.y + target.y) / 2;
+                const middle = linkMidpoint(source, target);
+                const path = curvedLinkPath(source, target);
                 return <g key={link.id} className="ccna-simulation-link" data-status={link.status ?? "up"} role="button" tabIndex={0} aria-label={`Disconnect cable between ${endpointLabel(state, link.source)} and ${endpointLabel(state, link.target)}`} onPointerDown={(event) => event.stopPropagation()} onClick={() => handleLink(link)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); handleLink(link); } }}>
-                  <line className="ccna-simulation-link-hitbox" x1={source.x} y1={source.y} x2={target.x} y2={target.y} />
-                  <line className="ccna-simulation-link-line" x1={source.x} y1={source.y} x2={target.x} y2={target.y} />
-                  <text className="ccna-simulation-link-label" x={middleX} y={middleY - 6}>{link.label ?? "connected"}</text>
+                  <path className="ccna-simulation-link-hitbox" d={path} />
+                  <path className="ccna-simulation-link-line" d={path} />
+                  <text className="ccna-simulation-link-label" x={middle.x} y={middle.y - 8}>{link.label ?? "connected"}</text>
                 </g>;
               })}
-              {state.nodes.map((node) => <g key={node.id} className={`ccna-simulation-node${selectedNode === node.id ? " is-selected" : ""}`} data-device-kind={node.kind} transform={`translate(${node.x} ${node.y})`} role="button" tabIndex={0} aria-label={`${node.label}, ${DEVICE_META[node.kind].label}. Press Enter to select the device.`} onPointerDown={(event) => handleNodePointerDown(event, node)} onKeyDown={(event) => handleNodeKey(event, node)}>
+              {state.nodes.map((node) => <g key={node.id} className={`ccna-simulation-node${selectedNode === node.id ? " is-selected" : ""}`} data-device-kind={node.kind} transform={`translate(${node.x} ${node.y})`} role="button" tabIndex={0} aria-pressed={selectedNode === node.id} aria-label={`${node.label}, ${DEVICE_META[node.kind].label}. Press Enter to select the device.`} onPointerDown={(event) => handleNodePointerDown(event, node)} onKeyDown={(event) => handleNodeKey(event, node)}>
                 <rect className="ccna-simulation-node-card" x={-NODE_WIDTH / 2} y={-NODE_HEIGHT / 2} width={NODE_WIDTH} height={NODE_HEIGHT} rx="14" />
                 <g transform={`translate(${-NODE_WIDTH / 2 + 8} -22)`}><DeviceGlyph kind={node.kind} /></g>
                 <text className="ccna-simulation-node-label" x={-NODE_WIDTH / 2 + 58} y="-7">{node.label}</text>
                 <text className="ccna-simulation-node-subtitle" x={-NODE_WIDTH / 2 + 58} y="14">{node.subtitle ?? DEVICE_META[node.kind].label}</text>
                 <circle className="ccna-simulation-node-status" cx={NODE_WIDTH / 2 - 18} cy={-NODE_HEIGHT / 2 + 18} r="5" fill={statusColor(node.status)} />
-                {node.ports.map((port, index) => { const point = portPoint(node, index); const localX = point.x - node.x; const localY = point.y - node.y; const selected = selectedPort?.deviceId === node.id && selectedPort.portId === port.id; return <g key={port.id} className={`ccna-simulation-port${selected ? " is-selected" : ""}`} transform={`translate(${localX} ${localY})`} role="button" tabIndex={0} aria-label={`${node.label} ${port.label}. ${selected ? "Selected" : "Select port"}`} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); handlePort({ deviceId: node.id, portId: port.id }); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); event.stopPropagation(); handlePort({ deviceId: node.id, portId: port.id }); } }}>
+                {node.ports.map((port, index) => { const point = portPoint(node, index); const localX = point.x - node.x; const localY = point.y - node.y; const selected = selectedPort?.deviceId === node.id && selectedPort.portId === port.id; return <g key={port.id} className={`ccna-simulation-port${selected ? " is-selected" : ""}`} transform={`translate(${localX} ${localY})`} role="button" tabIndex={0} aria-pressed={selected} aria-label={`${node.label} ${port.label}. ${selected ? "Selected" : "Select port"}`} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); handlePort({ deviceId: node.id, portId: port.id }); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); event.stopPropagation(); handlePort({ deviceId: node.id, portId: port.id }); } }}>
                   <circle className="ccna-simulation-port-dot" r="7" />
                   <text className="ccna-simulation-port-label" x="0" y="-12">{port.label}</text>
                 </g>; })}
@@ -374,16 +672,38 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
         {selectedNodeData && <p className="ccna-simulation-selected-device"><strong>{selectedNodeData.label}</strong> · {selectedNodeData.ports.length} ports · {selectedNodeData.kind}</p>}
       </section>
 
-      <section className="ccna-simulation-panel ccna-simulation-terminal-panel" data-panel="terminal" aria-labelledby="ccna-terminal-title">
-        <div className="ccna-simulation-panel-heading"><span className="ccna-simulation-panel-icon">3</span><h3 id="ccna-terminal-title">Device terminal</h3><span className="ccna-simulation-terminal-host">{pack.terminal?.hostname ?? "Lab device"}</span></div>
-        <div className="ccna-simulation-terminal-output" role="log" aria-live="polite" tabIndex={0}>
-          {!terminalEntries.length && (pack.terminal?.intro ?? ["This terminal is a guided lab console.", "Type help to see the commands available for this scenario."]).map((line) => <p key={line} className="ccna-simulation-terminal-line">{line}</p>)}
-          {terminalEntries.map((entry, index) => <div key={`${entry.input}-${index}`} className="ccna-simulation-terminal-entry"><p><span className="ccna-simulation-terminal-prompt">{pack.terminal?.prompt ?? "Switch#"}</span> {entry.input}</p>{entry.output.map((line, lineIndex) => <p key={`${line}-${lineIndex}`} className="ccna-simulation-terminal-response">{line}</p>)}</div>)}
+      <section id="ccna-panel-terminal" className="ccna-simulation-panel ccna-simulation-terminal-panel" data-panel="terminal" role="tabpanel" aria-labelledby="ccna-panel-tab-terminal" tabIndex={-1}>
+        <div className="ccna-simulation-panel-heading"><span className="ccna-simulation-panel-icon">3</span><h3 id="ccna-terminal-title">Device console</h3><span className="ccna-simulation-terminal-host">{selectedNodeData ? `${selectedNodeData.label} · ${activeView ? simModeLabels[activeView.mode] : "user"}` : "Select a device"}</span></div>
+        <div className="ccna-simulation-device-tabs" role="tablist" aria-label="Device consoles">
+          {state.nodes.map((node) => {
+            const view = terminalViews[node.id] ?? defaultTerminalView(node);
+            const selected = node.id === selectedNodeData?.id;
+            return <button key={node.id} type="button" role="tab" aria-selected={selected} aria-controls="ccna-active-device-console" className={`ccna-simulation-device-tab${selected ? " is-active" : ""}`} onClick={() => selectDevice(node)}>
+              <span>{node.label}</span><small>{simModeLabels[view.mode]}</small>
+            </button>;
+          })}
         </div>
-        <form className="ccna-simulation-terminal-form" onSubmit={submitCommand}><label htmlFor="ccna-simulation-command" className="sr-only">Terminal command</label><span className="ccna-simulation-terminal-prompt">{pack.terminal?.prompt ?? "Switch#"}</span><input id="ccna-simulation-command" value={terminalDraft} onChange={(event) => setTerminalDraft(event.target.value)} placeholder="show ..." autoComplete="off" spellCheck={false} /><button type="submit">Run</button></form>
+        <div id="ccna-active-device-console" className="ccna-simulation-terminal-output" role="log" aria-live="polite" tabIndex={0}>
+          {!activeView?.entries.length && <>
+            <p className="ccna-simulation-terminal-line">Connected to {selectedNodeData?.label ?? "the selected device"}.</p>
+            <p className="ccna-simulation-terminal-line">Type <code>?</code> or <code>help</code> to see commands for this console.</p>
+          </>}
+          {activeView?.entries.map((entry, index) => <div key={`${entry.input}-${index}`} className="ccna-simulation-terminal-entry"><p><span className="ccna-simulation-terminal-prompt">{entry.promptBefore}</span> {entry.input}</p>{entry.output.map((line, lineIndex) => <p key={`${line}-${lineIndex}`} className="ccna-simulation-terminal-response">{line}</p>)}</div>)}
+        </div>
+        <form className="ccna-simulation-terminal-form" onSubmit={submitCommand}>
+          <label htmlFor={`ccna-simulation-command-${selectedNodeData?.id ?? "device"}`} className="sr-only">Command for {selectedNodeData?.label ?? "device"}</label>
+          <span className="ccna-simulation-terminal-prompt">{activeView?.prompt ?? "Select a device>"}</span>
+          <input id={`ccna-simulation-command-${selectedNodeData?.id ?? "device"}`} value={terminalDraft} onChange={(event) => { setTerminalDraft(event.target.value); if (selectedNodeData) { const runtime = getTerminalRuntime(selectedNodeData); runtime.draft = event.target.value; setTerminalViews((current) => ({ ...current, [selectedNodeData.id]: terminalView(runtime) })); } }} onKeyDown={(event) => {
+            if (event.key === "ArrowUp" || event.key === "ArrowDown") { event.preventDefault(); recallHistory(event.key === "ArrowUp" ? -1 : 1); }
+            else if (event.key.toLowerCase() === "l" && event.ctrlKey) { event.preventDefault(); clearTerminalOutput(); }
+            else if (event.key.toLowerCase() === "c" && event.ctrlKey) { event.preventDefault(); cancelTerminalInput(); }
+          }} placeholder="show ..." autoComplete="off" spellCheck={false} disabled={!activeView || activeView.closed} />
+          <button type="submit" disabled={!activeView || activeView.closed}>Run</button>
+        </form>
+        <div className="ccna-simulation-terminal-actions"><span>↑ ↓ history · Ctrl+L clear · Ctrl+C cancel</span><button type="button" onClick={resetActiveTerminal} disabled={!activeView}>Reset terminal</button></div>
       </section>
 
-      <aside className="ccna-simulation-panel ccna-simulation-reference-panel" data-panel="reference">
+      <aside id="ccna-panel-reference" className="ccna-simulation-panel ccna-simulation-reference-panel" data-panel="reference" role="tabpanel" aria-labelledby="ccna-panel-tab-reference" tabIndex={-1}>
         <div className="ccna-simulation-panel-heading"><span className="ccna-simulation-panel-icon">4</span><h3>Lab reference</h3></div>
         <h4>Connection model</h4>
         <p>Green links are connected. Select a link to disconnect it. A cable must join two different, compatible data ports.</p>

@@ -35,6 +35,7 @@
 .ccna-detail-panel,
 .ccna-detail-topology-section,
 .ccna-detail-workflow {
+  min-width: 0;
   border: 1px solid var(--ccna-detail-line);
   border-radius: 16px;
   background: linear-gradient(145deg, rgba(16, 34, 57, .98), rgba(8, 18, 32, .98));
@@ -78,11 +79,17 @@
 .ccna-detail-topology-section,
 .ccna-detail-workflow { margin-top: 1rem; padding: clamp(1rem, 2.5vw, 1.5rem); }
 .ccna-detail-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.ccna-detail-section-heading > div { min-width: 0; }
+.ccna-detail-section-heading > a { flex: 0 0 auto; max-width: 100%; }
+.ccna-detail-section-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .55rem; flex: 0 0 auto; }
+.ccna-detail-section-actions .ccna-detail-secondary { white-space: nowrap; }
 .ccna-detail-section-heading h2 { margin: 0; color: var(--ccna-detail-text); font-size: clamp(1.25rem, 2vw, 1.65rem); line-height: 1.2; }
 .ccna-detail-section-heading p:not(.server-lab-kicker) { max-width: 75ch; margin: .4rem 0 0; color: var(--ccna-detail-muted); }
 .ccna-detail-topology-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(300px, .75fr); gap: 1rem; align-items: start; }
 .ccna-detail-diagram { min-width: 0; margin: 0; overflow: hidden; border: 1px solid var(--ccna-detail-line); border-radius: 12px; background: #f8fafc; }
+.ccna-detail-diagram-button { display: block; width: 100%; padding: 0; border: 0; background: transparent; cursor: zoom-in; }
 .ccna-detail-diagram img { display: block; width: 100%; height: auto; max-height: 620px; object-fit: contain; }
+.ccna-detail-diagram-button:hover img { filter: brightness(1.04); }
 .ccna-detail-diagram figcaption { padding: .55rem .75rem; color: #33445a; background: #eef4fb; font-size: .8em; }
 .ccna-detail-diagram-empty { display: grid; min-height: 280px; place-items: center; align-content: center; gap: .45rem; padding: 1.5rem; color: #33445a; text-align: center; }
 .ccna-detail-diagram-empty svg { color: #1489ac; }
@@ -91,7 +98,7 @@
 .ccna-detail-device-map { min-width: 0; padding: 1rem; border: 1px solid var(--ccna-detail-line); border-radius: 12px; background: rgba(7, 17, 31, .55); }
 .ccna-detail-subheading { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; margin-bottom: .7rem; }
 .ccna-detail-subheading h3 { margin: 0; color: var(--ccna-detail-text); font-size: 1em; }
-.ccna-detail-subheading span { color: var(--ccna-detail-muted); font-size: .76em; text-align: right; }
+.ccna-detail-subheading span { min-width: 0; color: var(--ccna-detail-muted); font-size: .76em; text-align: right; overflow-wrap: anywhere; }
 .ccna-detail-device-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; }
 .ccna-detail-device-card { display: flex; align-items: center; gap: .55rem; min-width: 0; padding: .6rem; border: 1px solid var(--ccna-detail-line); border-radius: 9px; background: rgba(21, 41, 67, .68); }
 .ccna-detail-device-card > div { display: grid; min-width: 0; gap: .1rem; }
@@ -144,10 +151,23 @@
 .ccna-detail-review-note { display: flex; align-items: flex-start; gap: .55rem; margin: 1rem 0 0; padding: .7rem .85rem; border-left: 3px solid var(--ccna-detail-warning); color: var(--ccna-detail-muted); background: rgba(245, 193, 90, .08); font-size: .85em; }
 .ccna-detail-review-note svg { flex: 0 0 auto; margin-top: .3rem; color: var(--ccna-detail-warning); }
 
+.ccna-topology-viewer { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: clamp(.75rem, 3vw, 2rem); }
+.ccna-topology-viewer-backdrop { position: absolute; inset: 0; background: rgba(2, 8, 16, .82); backdrop-filter: blur(6px); }
+.ccna-topology-viewer-card { position: relative; display: grid; width: min(1180px, 100%); max-height: min(92vh, 920px); overflow: hidden; border: 1px solid var(--ccna-detail-line); border-radius: 16px; background: #091321; box-shadow: 0 30px 80px rgba(0, 0, 0, .45); }
+.ccna-topology-viewer-card header,
+.ccna-topology-viewer-card footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem 1.1rem; }
+.ccna-topology-viewer-card header { border-bottom: 1px solid var(--ccna-detail-line); }
+.ccna-topology-viewer-card header h2 { margin: .1rem 0 0; color: var(--ccna-detail-text); font-size: 1.1rem; }
+.ccna-topology-viewer-card > img { display: block; width: 100%; height: auto; max-height: calc(92vh - 145px); object-fit: contain; background: #f8fafc; }
+.ccna-topology-viewer-card footer { color: var(--ccna-detail-muted); font-size: .82em; }
+.ccna-topology-viewer-close { display: inline-grid; width: 40px; height: 40px; flex: 0 0 auto; place-items: center; border: 1px solid var(--ccna-detail-line); border-radius: 9px; color: var(--ccna-detail-text); background: var(--ccna-detail-raised); cursor: pointer; }
+.ccna-topology-viewer-close:hover { border-color: var(--ccna-detail-accent); color: var(--ccna-detail-accent); }
+
 .ccna-lab-detail a:focus-visible,
 .ccna-lab-detail button:focus-visible { outline: 2px solid var(--ccna-detail-accent); outline-offset: 3px; }
 
 @media (max-width: 1000px) {
+  .ccna-detail-hero-actions { flex-basis: 190px; }
   .ccna-detail-overview { grid-template-columns: 1fr 1fr; }
   .ccna-detail-scenario { grid-column: 1 / -1; }
   .ccna-detail-topology-grid { grid-template-columns: 1fr; }
@@ -161,7 +181,9 @@
   .ccna-detail-workflow-grid,
   .ccna-detail-bottom-grid { grid-template-columns: 1fr; }
   .ccna-detail-section-heading { display: block; }
-  .ccna-detail-section-heading > a { margin-top: .8rem; }
+  .ccna-detail-section-actions { justify-content: stretch; margin-top: .8rem; }
+  .ccna-detail-section-actions .ccna-detail-secondary,
+  .ccna-detail-hero-actions { width: 100%; }
 }
 @media (max-width: 480px) {
   .ccna-detail-hero,
@@ -170,4 +192,6 @@
   .ccna-detail-panel { border-radius: 11px; padding: .85rem; }
   .ccna-detail-device-grid { grid-template-columns: 1fr; }
   .ccna-detail-breadcrumbs { line-height: 1.45; }
+  .ccna-detail-subheading { align-items: flex-start; flex-direction: column; }
+  .ccna-detail-subheading span { text-align: start; }
 }
