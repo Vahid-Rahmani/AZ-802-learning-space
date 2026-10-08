@@ -44,7 +44,7 @@ function learnLabel(reference: string) {
 /**
  * A self-contained explanation for the current question. It uses the reviewed
  * answer and rationale already stored with that question, so all questions work
- * inside CertPath without an API, extension, popup, or copy/paste flow.
+ * inside Klybit without an API, extension, popup, or copy/paste flow.
  */
 export function QuestionExplanation({ question, selectedAnswer, showTranslations, sourceLabel = "Microsoft Learn source ↗", showSchematic = true }: Props) {
   const [open, setOpen] = useState(false);
@@ -72,7 +72,7 @@ export function QuestionExplanation({ question, selectedAnswer, showTranslations
 
     {open && <div className="question-explanation-body">
       <div className="question-explanation-summary">
-        <span className="question-explanation-provider">Built into CertPath · question-specific</span>
+        <span className="question-explanation-provider">Built into Klybit · question-specific</span>
         <strong>Correct answer: <GoogleSubtitle text={correctAnswer} enabled={showTranslations} /></strong>
         <GoogleSubtitle text={question.rationale.en} enabled={showTranslations} />
       </div>
