@@ -162,11 +162,12 @@
 .ccna-simulation-layout {
   display: grid;
   grid-template-columns: minmax(220px, .72fr) minmax(360px, 1.42fr) minmax(300px, .96fr);
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
   grid-template-areas: "scenario terminal topology" "scenario terminal reference";
   gap: .75rem;
   margin-top: .75rem;
-  align-items: start;
+  align-items: stretch;
+  min-height: 0;
 }
 
 .ccna-simulation-panel {
@@ -174,10 +175,10 @@
   padding: 1rem;
 }
 
-.ccna-simulation-scenario { grid-area: scenario; align-self: stretch; }
+.ccna-simulation-scenario { grid-area: scenario; align-self: stretch; min-height: 0; overflow: auto; }
 .ccna-simulation-main-column { display: contents; }
-.ccna-simulation-topology-panel { grid-area: topology; align-self: start; }
-.ccna-simulation-terminal-panel { grid-area: terminal; min-height: 100%; }
+.ccna-simulation-topology-panel { grid-area: topology; align-self: stretch; min-height: 0; display: flex; flex-direction: column; }
+.ccna-simulation-terminal-panel { grid-area: terminal; min-height: 0; display: flex; flex-direction: column; }
 .ccna-simulation-reference-panel { grid-area: reference; align-self: start; }
 
 .ccna-simulation-panel-heading {
@@ -272,8 +273,8 @@
 .ccna-simulation-notice[data-kind="success"] { border-left-color: var(--simulation-success); background: rgba(74, 222, 128, .08); }
 .ccna-simulation-notice[data-kind="error"] { border-left-color: var(--simulation-danger); color: #fecdd3; background: rgba(251, 113, 133, .09); }
 
-.ccna-simulation-canvas-wrap { min-width: 0; overflow: hidden; border: 1px solid var(--simulation-line); border-radius: 12px; background: #07111f; }
-.ccna-simulation-canvas { display: block; width: 100%; height: clamp(280px, 34cqw, 460px); aspect-ratio: auto; touch-action: none; user-select: none; }
+.ccna-simulation-canvas-wrap { min-width: 0; flex: 1 1 auto; min-height: 0; overflow: hidden; border: 1px solid var(--simulation-line); border-radius: 12px; background: #07111f; }
+.ccna-simulation-canvas { display: block; width: 100%; height: 100%; min-height: 260px; aspect-ratio: auto; touch-action: none; user-select: none; }
 .ccna-simulation-canvas-background { fill: #091627; stroke: #1b3655; stroke-width: 2; }
 .ccna-simulation-canvas-background { cursor: grab; }
 .ccna-simulation-canvas:active .ccna-simulation-canvas-background { cursor: grabbing; }
@@ -370,7 +371,7 @@
 .ccna-simulation-device-tab:focus-visible,
 .ccna-simulation-device-tab[aria-selected="true"] { border-color: var(--simulation-accent); color: var(--simulation-text); background: rgba(77, 213, 255, .14); outline: none; }
 .ccna-simulation-device-tab[aria-selected="true"] { box-shadow: inset 0 -2px 0 var(--simulation-accent); }
-.ccna-simulation-terminal-screen { height: 290px; overflow: auto; padding: .85rem 1rem; color: #d9e6f5; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .85em; line-height: 1.55; cursor: text; scrollbar-gutter: stable; }
+.ccna-simulation-terminal-screen { flex: 1 1 auto; min-height: 0; height: auto; overflow: auto; padding: .85rem 1rem; color: #d9e6f5; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .85em; line-height: 1.55; cursor: text; scrollbar-gutter: stable; }
 .ccna-simulation-terminal-screen:focus-visible { outline: 2px solid var(--simulation-accent); outline-offset: -2px; }
 .ccna-simulation-terminal-output { min-height: 0; padding: 0; }
 .ccna-simulation-terminal-output p { margin: 0; color: #cbd5e1; white-space: pre-wrap; }
@@ -401,7 +402,22 @@
 .ccna-simulation-workspace .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 
 @media (max-width: 1199px) {
-  .ccna-simulation-layout { grid-template-columns: minmax(210px, .72fr) minmax(0, 1.45fr); grid-template-rows: auto auto auto; grid-template-areas: "scenario terminal" "scenario topology" "scenario reference"; }
+  .ccna-simulation-layout { grid-template-columns: minmax(210px, .72fr) minmax(0, 1.45fr); grid-template-rows: auto auto auto; grid-template-areas: "scenario terminal" "scenario topology" "scenario reference"; align-items: start; }
+  .ccna-simulation-scenario,
+  .ccna-simulation-topology-panel,
+  .ccna-simulation-terminal-panel { min-height: 0; overflow: visible; }
+  .ccna-simulation-canvas-wrap { flex: none; }
+  .ccna-simulation-canvas { height: auto; min-height: 0; aspect-ratio: 1.55; }
+  .ccna-simulation-terminal-screen { flex: none; height: 290px; }
+}
+
+/* Desktop labs follow the SwitchLab pattern: one fixed workspace, with each
+   column scrolling internally instead of pushing the whole page down. */
+@media (min-width: 1200px) {
+  .ccna-sim-page { height: calc(100dvh - 9rem); overflow: hidden; }
+  .ccna-simulation-workspace { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: .75rem; height: 100%; }
+  .ccna-simulation-layout { height: 100%; margin-top: 0; }
+  .ccna-simulation-reference-panel { max-height: 13rem; overflow: auto; }
 }
 
 @media (max-width: 899px) {
@@ -410,7 +426,7 @@
   .ccna-simulation-badges { justify-content: flex-start; margin-top: .8rem; }
   .ccna-simulation-tabs { display: flex; }
   .ccna-simulation-layout { display: block; }
-  .ccna-simulation-canvas { height: auto; aspect-ratio: 1.35; }
+  .ccna-simulation-canvas { height: auto; min-height: 0; aspect-ratio: 1.35; }
   .ccna-simulation-layout[data-active-panel="scenario"] [data-panel]:not([data-panel="scenario"]),
   .ccna-simulation-layout[data-active-panel="topology"] [data-panel]:not([data-panel="topology"]),
   .ccna-simulation-layout[data-active-panel="terminal"] [data-panel]:not([data-panel="terminal"]),
@@ -437,7 +453,7 @@
   .ccna-simulation-connection-count { width: 100%; }
   .ccna-simulation-terminal-form { grid-template-columns: 1fr auto; }
   .ccna-simulation-terminal-form .ccna-simulation-terminal-prompt { grid-column: 1 / -1; }
-  .ccna-simulation-terminal-screen { height: 280px; }
+  .ccna-simulation-terminal-screen { flex: none; height: 280px; }
   .ccna-simulation-terminal-panel .ccna-simulation-panel-heading { flex-wrap: wrap; }
   .ccna-simulation-terminal-host { margin-inline-start: 0; flex-basis: 100%; }
 }
