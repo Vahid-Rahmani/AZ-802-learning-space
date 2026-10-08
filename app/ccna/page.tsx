@@ -75,7 +75,7 @@ export default function CcnaPage() {
         <section id="ccna-learning-path" aria-label="CCNA lessons, network labs and knowledge checks">
           <LearningLabPath key={`${userId}:${requestedLab ?? "resume"}`} userId={userId} labs={ccnaLabs} initialLabId={requestedLab} resumeLatest={!requestedLab} onPracticeLab={(lab) => openPractice({ domainId: `ccna-domain-v2-${lab.questions[0].objective?.split(".")[0]}` })} kicker="CCNA · 200-301 v1.1 foundations" title="Build a network. Understand every hop." intro="Study each lesson, build its isolated topology, test both success and expected failure, then practice its related objective domain. Your stage, question position, answers and evidence save to your account." />
         </section>
-        <CcnaTopologyLibrary />
+        <CcnaTopologyLibrary userId={userId} onPracticeQuestion={(questionId) => openPractice({ questionId })} onOpenStage={(id) => { setRequestedLab(id); document.getElementById("ccna-learning-path")?.scrollIntoView({ behavior: "smooth" }); }} />
         <p className="mt-5 text-sm"><GoogleSubtitle text="Independent original labs and adapted MIT-licensed practice questions reviewed against Cisco references; no real certification questions or exam dumps. Labs run on your own desktop simulator, not inside this website. The final automation stage is an offline worksheet." /> <a className="underline" href={ccnaSources.exam} target="_blank" rel="noreferrer"><GoogleSubtitle text="Official Cisco exam information" /> ↗</a></p>
       </section>
     </div>{authOpen && <AccountPanel onClose={() => setAuthOpen(false)} onSignOut={signOut} />}

@@ -1,28 +1,69 @@
-/* Leveled CCNA topology library: a raw, one-card-per-lab catalog index. */
-.ccna-topologies { margin:2.5rem 0; }
-.ccna-topologies .ccna-topology-levels { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.7rem; margin:1.4rem 0 2rem; }
-.ccna-topologies .ccna-topology-levels a { display:flex; align-items:flex-start; gap:.7rem; min-height:44px; padding:1rem; border:1px solid var(--cp-line); border-radius:4px; background:var(--cp-surface); color:var(--cp-text); text-decoration:none; min-width:0; }
-.ccna-topologies .ccna-topology-levels a:focus-visible { outline:2px solid var(--cp-accent); outline-offset:3px; }
-.ccna-topologies .ccna-topology-levels strong { display:block; line-height:1.5; }
-.ccna-topology-level { padding:clamp(1rem,3vw,2rem); border:1px solid var(--cp-line); border-top:3px solid var(--cp-accent); border-radius:4px; background:var(--cp-surface); margin-bottom:1.5rem; }
-.ccna-topology-level-heading > p { max-width:75ch; color:var(--cp-muted); }
-.ccna-topology-counts { display:flex; flex-wrap:wrap; gap:.5rem 1.4rem; margin-top:.35rem; color:var(--cp-muted); font-size:calc(.875rem * var(--wincraft-font-scale,1)); }
-.ccna-topology-list { list-style:none; padding:0; margin:1.4rem 0 0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
-.ccna-topology-card { display:flex; flex-direction:column; min-width:0; border:1px solid var(--cp-line); border-radius:4px; background:var(--cp-alt); overflow:hidden; }
-.ccna-topology-card figure { margin:0; padding:1rem; display:grid; place-items:center; background:var(--cp-surface); border-bottom:1px solid var(--cp-line); }
-.ccna-topology-card img { max-width:100%; height:auto; }
-.ccna-topology-missing { margin:0; padding:1rem; border-bottom:1px dashed var(--cp-line); color:var(--cp-muted); font-size:calc(.875rem * var(--wincraft-font-scale,1)); }
-.ccna-topology-card-body { padding:1rem; display:grid; gap:.3rem; }
-.ccna-topology-card-body h4 { margin:0; }
-.ccna-topology-card-body > p { margin:0; color:var(--cp-muted); font-size:calc(.9375rem * var(--wincraft-font-scale,1)); }
-.ccna-topology-card-body .ccna-topology-issue { margin:.35rem 0 0; padding:.5rem .65rem; border-left:3px solid var(--cp-accent); background:var(--cp-surface); color:var(--cp-muted); font-size:calc(.875rem * var(--wincraft-font-scale,1)); }
-.ccna-topologies .ccna-topology-source { display:block; color:var(--cp-muted); }
-.ccna-topologies .ccna-topology-source a { color:var(--cp-accent); }
-@media (max-width:1023px) {
-  .ccna-topologies .ccna-topology-levels { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .ccna-topology-list { grid-template-columns:1fr; }
+/* Guided, level-by-level CCNA topology practice. */
+.ccna-topologies { margin: 2.5rem 0; }
+.ccna-topologies .ccna-topology-levels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; margin: 1.4rem 0 2rem; }
+.ccna-topologies .ccna-topology-levels button { display: flex; align-items: flex-start; gap: .7rem; min-height: 44px; padding: 1rem; border: 1px solid var(--cp-line); border-radius: 4px; background: var(--cp-surface); color: var(--cp-text); text-align: start; font: inherit; cursor: pointer; min-width: 0; transition: border-color .18s ease, background .18s ease, transform .18s ease; }
+.ccna-topologies .ccna-topology-levels button:hover { border-color: var(--cp-accent); transform: translateY(-1px); }
+.ccna-topologies .ccna-topology-levels button.is-active { border-color: var(--cp-accent); background: color-mix(in srgb, var(--cp-accent) 12%, var(--cp-surface)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--cp-accent) 38%, transparent); }
+.ccna-topologies .ccna-topology-levels button:focus-visible, .ccna-topology-card:focus-visible, .ccna-topology-question-list button:focus-visible, .ccna-topology-actions button:focus-visible { outline: 2px solid var(--cp-accent); outline-offset: 3px; }
+.ccna-topologies .ccna-topology-levels strong { display: block; line-height: 1.5; }
+.ccna-topology-level { padding: clamp(1rem, 3vw, 2rem); border: 1px solid var(--cp-line); border-top: 3px solid var(--cp-accent); border-radius: 4px; background: var(--cp-surface); margin-bottom: 1.5rem; }
+.ccna-topology-level-heading > p { max-width: 75ch; color: var(--cp-muted); }
+.ccna-topology-counts { display: flex; flex-wrap: wrap; gap: .5rem 1.4rem; margin-top: .35rem; color: var(--cp-muted); font-size: calc(.875rem * var(--wincraft-font-scale, 1)); }
+.ccna-topology-search { display: flex; align-items: center; gap: .6rem; max-width: 32rem; margin-top: 1rem; padding: .65rem .8rem; border: 1px solid var(--cp-line); border-radius: 4px; background: var(--cp-alt); color: var(--cp-muted); }
+.ccna-topology-search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--cp-text); font: inherit; }
+.ccna-topology-search input::placeholder { color: var(--cp-muted); }
+.ccna-topology-empty { margin: 1.3rem 0 0; color: var(--cp-muted); }
+.ccna-topology-list { list-style: none; padding: 0; margin: 1.4rem 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.ccna-topology-card { display: flex; width: 100%; flex-direction: column; min-width: 0; padding: 0; border: 1px solid var(--cp-line); border-radius: 4px; background: var(--cp-alt); color: var(--cp-text); text-align: start; font: inherit; overflow: hidden; cursor: pointer; transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+.ccna-topology-card:hover { border-color: var(--cp-accent); transform: translateY(-1px); }
+.ccna-topology-card.is-selected { border-color: var(--cp-accent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--cp-accent) 38%, transparent); }
+.ccna-topology-card figure { width: 100%; min-height: 10rem; margin: 0; padding: 1rem; display: grid; place-items: center; background: var(--cp-surface); border-bottom: 1px solid var(--cp-line); }
+.ccna-topology-card img { max-width: 100%; max-height: 15rem; height: auto; object-fit: contain; }
+.ccna-topology-missing { margin: 0; padding: 1rem; border-bottom: 1px dashed var(--cp-line); color: var(--cp-muted); font-size: calc(.875rem * var(--wincraft-font-scale, 1)); }
+.ccna-topology-card-body { padding: 1rem; display: grid; gap: .35rem; }
+.ccna-topology-card-body strong { line-height: 1.4; }
+.ccna-topology-card-body > span:not(.server-lab-meta):not(.ccna-topology-open) { color: var(--cp-muted); font-size: calc(.9375rem * var(--wincraft-font-scale, 1)); }
+.ccna-topology-card-body .ccna-topology-issue { margin: .35rem 0 0; padding: .5rem .65rem; border-left: 3px solid var(--cp-accent); background: var(--cp-surface); font-size: calc(.875rem * var(--wincraft-font-scale, 1)); }
+.ccna-topology-open { display: flex; align-items: center; gap: .35rem; margin-top: .5rem; color: var(--cp-accent); font-weight: 700; }
+.ccna-topology-guide { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 1.25rem; padding: clamp(1rem, 3vw, 2rem); border: 1px solid var(--cp-line); border-radius: 4px; background: var(--cp-surface); }
+.ccna-topology-guide-image { min-width: 0; min-height: 18rem; display: grid; place-items: center; padding: 1rem; border: 1px solid var(--cp-line); border-radius: 4px; background: var(--cp-alt); }
+.ccna-topology-guide-image img { display: block; max-width: 100%; max-height: 34rem; width: auto; height: auto; object-fit: contain; }
+.ccna-topology-guide-placeholder { display: grid; justify-items: center; gap: .75rem; max-width: 22rem; color: var(--cp-muted); text-align: center; }
+.ccna-topology-guide-content { min-width: 0; }
+.ccna-topology-guide-content h3 { margin: 0; }
+.ccna-topology-guide-summary { margin: .45rem 0; color: var(--cp-muted); }
+.ccna-topology-guide-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin-top: 1.2rem; }
+.ccna-topology-guide-grid article { padding: .9rem; border: 1px solid var(--cp-line); border-radius: 4px; background: var(--cp-alt); }
+.ccna-topology-guide-grid svg { color: var(--cp-accent); }
+.ccna-topology-guide-grid h4 { margin: .55rem 0 .3rem; }
+.ccna-topology-guide-grid p { margin: 0; color: var(--cp-muted); font-size: calc(.92rem * var(--wincraft-font-scale, 1)); }
+.ccna-topology-command-box { margin-top: .8rem; padding: .85rem 1rem; border: 1px solid var(--cp-line); border-radius: 4px; background: var(--cp-alt); }
+.ccna-topology-command-box ul { display: grid; gap: .35rem; margin: .55rem 0 0; padding: 0; list-style: none; }
+.ccna-topology-command-box code { color: var(--cp-accent); font-size: .9em; overflow-wrap: anywhere; }
+.ccna-topology-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin-top: 1rem; }
+.ccna-topology-actions button { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; min-height: 2.6rem; padding: .65rem .85rem; border: 1px solid var(--cp-line); border-radius: 4px; background: var(--cp-alt); color: var(--cp-text); font: inherit; cursor: pointer; }
+.ccna-topology-actions .ccna-topology-review { border-color: color-mix(in srgb, var(--cp-accent) 60%, var(--cp-line)); }
+.ccna-topology-actions .ccna-topology-stage-action { background: var(--cp-accent); color: var(--cp-accent-contrast, #04131d); border-color: var(--cp-accent); font-weight: 700; }
+.ccna-topology-related { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--cp-line); }
+.ccna-topology-related h4 { margin: 0; }
+.ccna-topology-related > p { margin: .3rem 0 .7rem; color: var(--cp-muted); font-size: calc(.9rem * var(--wincraft-font-scale, 1)); }
+.ccna-topology-question-list { display: grid; gap: .45rem; margin: 0; padding: 0; list-style: none; }
+.ccna-topology-question-list button { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .6rem; width: 100%; padding: .65rem .75rem; border: 1px solid var(--cp-line); border-radius: 4px; background: var(--cp-alt); color: var(--cp-text); text-align: start; font: inherit; cursor: pointer; }
+.ccna-topology-question-list button:hover { border-color: var(--cp-accent); }
+.ccna-topology-question-list button > span:first-child { color: var(--cp-accent); font-size: .78em; font-weight: 700; white-space: nowrap; }
+.ccna-topology-question-list button > span:nth-child(2) { min-width: 0; overflow-wrap: anywhere; }
+.ccna-topologies .ccna-topology-source { display: flex; align-items: flex-start; gap: .25rem; flex-wrap: wrap; color: var(--cp-muted); }
+.ccna-topologies .ccna-topology-source a { display: inline-flex; align-items: center; gap: .25rem; color: var(--cp-accent); }
+@media (max-width: 1023px) {
+  .ccna-topologies .ccna-topology-levels { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ccna-topology-list { grid-template-columns: 1fr; }
+  .ccna-topology-guide { grid-template-columns: 1fr; }
 }
-@media (max-width:639px) {
-  .ccna-topologies .ccna-topology-levels { grid-template-columns:1fr; }
-  .ccna-topology-level { padding:1rem; }
+@media (max-width: 639px) {
+  .ccna-topologies .ccna-topology-levels { grid-template-columns: 1fr; }
+  .ccna-topology-level { padding: 1rem; }
+  .ccna-topology-guide { padding: 1rem; }
+  .ccna-topology-guide-grid { grid-template-columns: 1fr; }
+  .ccna-topology-actions { flex-direction: column; }
+  .ccna-topology-actions button { width: 100%; }
 }
