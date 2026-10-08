@@ -1,0 +1,37 @@
+CCNA topology library — source and attribution
+==============================================
+
+What this library is
+--------------------
+The /ccna page section "Every lab topology, level by level" is a raw, read-only index of 101 CCNA
+200-301 lab topologies, grouped into six levels that follow the six official 200-301 v1.1 domains in
+blueprint order. Each entry shows a catalog number, the lab name, the catalog's own short summary and,
+where one exists, the topology diagram (96 of 101 labs).
+
+Where the material comes from
+-----------------------------
+  Product    : NetSim 200-301 CCNA (product code CIS-NS-200301-01-02)
+  Catalog    : https://api2.netsim.boson.com (the public guest lab catalog behind
+               https://netsim.boson.com/labs)
+  Retrieved  : 2026-10-08
+  Endpoints  : /users/labtree, /labs/{id}/labId, /labs/{id}/topology-image
+
+Lab names, summaries and topology diagrams are the published catalog metadata and the published
+diagram images of Boson NetSim, a commercial product of Boson Software, LLC. They were not written or
+drawn by this project, they are not covered by this project's license, and they are shown here
+unedited as a personal study index so that a learner can recognize a topology before building it.
+
+What is not included
+--------------------
+The licensed endpoint paths that carry the product's own lab instructions, step-by-step text and
+objective metadata (/labs/{id}/document, /labs/{id}/meta, /labs/{id}/topology) require a paid NetSim
+seat and answer HTTP 401 to unauthenticated requests. None of that material was retrieved, and none of
+it is published here. No Cisco exam questions, dumps or paid-course content are part of this library.
+
+Status
+------
+This library is unofficial and is not affiliated with, sponsored by or endorsed by Boson Software, LLC
+or by Cisco Systems, Inc. "Boson", "NetSim" and "Cisco", "CCNA" are the marks of their respective
+owners. If you hold the rights to this material and want an entry or image removed, open an issue on
+the project repository (https://github.com/Vahid-Rahmani/AZ-802-learning-space) and the affected
+entries will be removed from the next deployment.

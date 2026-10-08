@@ -8,9 +8,11 @@ import { AppBrand, StudyHeader } from "@/app/components/study-header";
 import { GoogleSubtitle, GoogleSubtitleProvider } from "@/app/components/google-translate";
 import { LearningLabPath } from "@/app/components/windows-server-labs";
 import { CcnaPractice, type CcnaPracticeRequest } from "@/app/components/ccna-practice";
+import { CcnaTopologyLibrary } from "@/app/components/ccna-topologies";
 import { KnowledgeSearch } from "@/app/components/knowledge-search";
 import { ccnaQuestionCount, ccnaKnowledgeQuestions, ccnaPracticeUnits } from "@/lib/content/ccna-bank";
 import { ccnaDomains, ccnaLabs, ccnaSources } from "@/lib/content/ccna";
+import { ccnaTopologyStats } from "@/lib/content/ccna-topologies";
 import { copy } from "@/lib/course-data";
 
 export default function CcnaPage() {
@@ -57,8 +59,8 @@ export default function CcnaPage() {
     <div className="app-shell mx-auto grid min-h-screen max-w-[1600px] grid-cols-1 lg:grid-cols-[250px_minmax(0,1fr)]">
       <aside className="app-sidebar border-b border-white/10 p-3 sm:p-4 lg:border-b-0 lg:border-e">
         <AppBrand subtitle="Cloud, servers & networking" />
-        <nav className="mt-8 space-y-2" aria-label="CCNA navigation"><a href="#ccna-question-bank" className="flex min-h-12 items-center gap-3 rounded-xl border border-cyan-300/20 bg-cyan-300/10 p-3 text-cyan-200"><BookOpen size={19} /><GoogleSubtitle text="Question bank & Explain" /></a><a href="#ccna-search" className="flex min-h-12 items-center gap-3 p-3"><Search size={19} /><GoogleSubtitle text="Search all CCNA questions" /></a><a href="#ccna-learning-path" className="flex min-h-12 items-center gap-3 p-3"><Network size={19} /><GoogleSubtitle text="Lessons & hands-on labs" /></a></nav>
-        <div className="sidebar-course-card mt-8 rounded-2xl border border-white/10 p-4"><p className="text-sm text-slate-400"><GoogleSubtitle text="Current track" /></p><h2 className="mt-2 font-bold">CCNA Foundations</h2><p className="mt-2 text-sm text-slate-400"><GoogleSubtitle text={`8 stages · ${ccnaQuestionCount + ccnaLabs.reduce((count, lab) => count + lab.questions.length, 0)} learning questions`} /></p><a href={ccnaSources.packetTracer} target="_blank" rel="noreferrer" className="mt-5 flex items-center gap-2 text-sm text-cyan-200"><BookOpen size={16} /><GoogleSubtitle text="Official Packet Tracer course" /></a></div>
+        <nav className="mt-8 space-y-2" aria-label="CCNA navigation"><a href="#ccna-question-bank" className="flex min-h-12 items-center gap-3 rounded-xl border border-cyan-300/20 bg-cyan-300/10 p-3 text-cyan-200"><BookOpen size={19} /><GoogleSubtitle text="Question bank & Explain" /></a><a href="#ccna-search" className="flex min-h-12 items-center gap-3 p-3"><Search size={19} /><GoogleSubtitle text="Search all CCNA questions" /></a><a href="#ccna-learning-path" className="flex min-h-12 items-center gap-3 p-3"><Network size={19} /><GoogleSubtitle text="Lessons & hands-on labs" /></a><a href="#ccna-topologies" className="flex min-h-12 items-center gap-3 p-3"><Network size={19} /><GoogleSubtitle text="Lab topology library" /></a></nav>
+        <div className="sidebar-course-card mt-8 rounded-2xl border border-white/10 p-4"><p className="text-sm text-slate-400"><GoogleSubtitle text="Current track" /></p><h2 className="mt-2 font-bold">CCNA Foundations</h2><p className="mt-2 text-sm text-slate-400"><GoogleSubtitle text={`8 stages · ${ccnaQuestionCount + ccnaLabs.reduce((count, lab) => count + lab.questions.length, 0)} learning questions · ${ccnaTopologyStats.labs} lab topologies`} /></p><a href={ccnaSources.packetTracer} target="_blank" rel="noreferrer" className="mt-5 flex items-center gap-2 text-sm text-cyan-200"><BookOpen size={16} /><GoogleSubtitle text="Official Packet Tracer course" /></a></div>
       </aside>
       <section className="app-content min-w-0 p-4 sm:p-6 lg:p-8">
         <StudyHeader title="CCNA Foundations" course="CCNA" t={copy.en} fontScale={fontScale} onFontScale={setFontScale} translationLanguage={language} onTranslationLanguage={setLanguage} onAccount={() => setAuthOpen(true)} />
@@ -73,6 +75,7 @@ export default function CcnaPage() {
         <section id="ccna-learning-path" aria-label="CCNA lessons, network labs and knowledge checks">
           <LearningLabPath key={`${userId}:${requestedLab ?? "resume"}`} userId={userId} labs={ccnaLabs} initialLabId={requestedLab} resumeLatest={!requestedLab} onPracticeLab={(lab) => openPractice({ domainId: `ccna-domain-v2-${lab.questions[0].objective?.split(".")[0]}` })} kicker="CCNA · 200-301 v1.1 foundations" title="Build a network. Understand every hop." intro="Study each lesson, build its isolated topology, test both success and expected failure, then practice its related objective domain. Your stage, question position, answers and evidence save to your account." />
         </section>
+        <CcnaTopologyLibrary />
         <p className="mt-5 text-sm"><GoogleSubtitle text="Independent original labs and adapted MIT-licensed practice questions reviewed against Cisco references; no real certification questions or exam dumps. Labs run on your own desktop simulator, not inside this website. The final automation stage is an offline worksheet." /> <a className="underline" href={ccnaSources.exam} target="_blank" rel="noreferrer"><GoogleSubtitle text="Official Cisco exam information" /> ↗</a></p>
       </section>
     </div>{authOpen && <AccountPanel onClose={() => setAuthOpen(false)} onSignOut={signOut} />}
