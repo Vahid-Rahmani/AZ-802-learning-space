@@ -92,7 +92,7 @@ export type CcnaSimulationWorkspaceProps = {
   onDeviceSelect?: (node: SimulationNode) => void;
 };
 
-const CANVAS_WIDTH = 920;
+const CANVAS_WIDTH = 760;
 const CANVAS_HEIGHT = 440;
 const NODE_WIDTH = 184;
 const NODE_HEIGHT = 92;
@@ -750,20 +750,20 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
         <p>{pack.scenario.context}</p>
         <h4>Objective</h4>
         <p>{pack.scenario.objective}</p>
-        {pack.scenario.requirement && <><h4>Success criteria</h4><p>{pack.scenario.requirement}</p></>}
-        {pack.scenario.prerequisites && pack.scenario.prerequisites.length > 0 && <><h4>Prerequisites</h4><ul>{pack.scenario.prerequisites.map((item) => <li key={item}>{item}</li>)}</ul></>}
+        {pack.scenario.requirement && <details className="ccna-simulation-detail"><summary>Success criteria</summary><p>{pack.scenario.requirement}</p></details>}
+        {pack.scenario.prerequisites && pack.scenario.prerequisites.length > 0 && <details className="ccna-simulation-detail"><summary>Prerequisites</summary><ul>{pack.scenario.prerequisites.map((item) => <li key={item}>{item}</li>)}</ul></details>}
         <div className="ccna-simulation-progress" aria-label={`${completedRequired} of ${requiredCount} required checklist items complete`}>
           <div><strong>{completedRequired}/{requiredCount || 0}</strong><span>{guidedStages.length ? "guided stages" : "required checks"}</span></div>
           <div className="ccna-simulation-progress-track"><span style={{ width: `${requiredCount ? (completedRequired / requiredCount) * 100 : 0}%` }} /></div>
         </div>
-        <ul className="ccna-simulation-checklist">
+        {guidedStages.length === 0 && <ul className="ccna-simulation-checklist">
           {(pack.checklist ?? []).map((item) => {
             const complete = guidedStages.length ? completedStageIds.has(item.id) : checkedItems.has(item.id);
             return <li key={item.id} className={complete ? "is-complete" : ""}>
               <button type="button" aria-pressed={complete} disabled={guidedStages.length > 0} onClick={() => toggleChecklist(item.id)}><span aria-hidden="true">{complete ? "✓" : "○"}</span><span><strong>{item.title}</strong>{item.detail && <small>{item.detail}</small>}{guidedStages.length > 0 && <small className="ccna-simulation-checklist-status">{complete ? "Verified from the terminal" : "Complete the guided step in the console"}</small>}</span></button>
             </li>;
           })}
-        </ul>
+        </ul>}
         {guidedStages.length > 0 && <section className="ccna-simulation-guide ccna-simulation-guide--scenario" aria-label="Guided lab steps">
           <div className="ccna-simulation-guide-heading"><div><span className="ccna-simulation-guide-kicker">Guided path</span><strong>{activeStage ? `Stage ${nextStageIndex + 1} of ${guidedStages.length}` : "Lab complete"}</strong></div><span className="ccna-simulation-guide-score">{completedStageIds.size}/{guidedStages.length} verified</span></div>
           <ol className="ccna-simulation-stage-list">

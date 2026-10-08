@@ -161,10 +161,11 @@
 
 .ccna-simulation-layout {
   display: grid;
-  grid-template-columns: minmax(250px, .82fr) minmax(420px, 1.75fr) minmax(235px, .78fr);
-  grid-template-areas: "scenario main reference";
-  gap: 1rem;
-  margin-top: 1rem;
+  grid-template-columns: minmax(220px, .72fr) minmax(360px, 1.42fr) minmax(300px, .96fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas: "scenario terminal topology" "scenario terminal reference";
+  gap: .75rem;
+  margin-top: .75rem;
   align-items: start;
 }
 
@@ -173,9 +174,11 @@
   padding: 1rem;
 }
 
-.ccna-simulation-scenario { grid-area: scenario; }
-.ccna-simulation-main-column { display: grid; grid-area: main; align-content: start; gap: 1rem; min-width: 0; }
-.ccna-simulation-reference-panel { grid-area: reference; }
+.ccna-simulation-scenario { grid-area: scenario; align-self: stretch; }
+.ccna-simulation-main-column { display: contents; }
+.ccna-simulation-topology-panel { grid-area: topology; align-self: start; }
+.ccna-simulation-terminal-panel { grid-area: terminal; min-height: 100%; }
+.ccna-simulation-reference-panel { grid-area: reference; align-self: start; }
 
 .ccna-simulation-panel-heading {
   display: flex;
@@ -223,6 +226,11 @@
 .ccna-simulation-panel ul { margin: .45rem 0; padding-left: 1.15rem; }
 .ccna-simulation-panel a { color: var(--simulation-accent); overflow-wrap: anywhere; }
 .ccna-simulation-role { color: var(--simulation-accent) !important; font-size: .82em; font-weight: 700; }
+.ccna-simulation-detail { margin: .7rem 0; border-top: 1px solid rgba(41, 64, 94, .75); }
+.ccna-simulation-detail summary { padding: .55rem 0 .25rem; color: var(--simulation-text); font-size: .82em; font-weight: 700; cursor: pointer; }
+.ccna-simulation-detail summary::marker { color: var(--simulation-accent); }
+.ccna-simulation-detail p,
+.ccna-simulation-detail ul { margin-top: .35rem; font-size: .82em; }
 
 .ccna-simulation-progress {
   margin: 1rem 0 .75rem;
@@ -265,7 +273,7 @@
 .ccna-simulation-notice[data-kind="error"] { border-left-color: var(--simulation-danger); color: #fecdd3; background: rgba(251, 113, 133, .09); }
 
 .ccna-simulation-canvas-wrap { min-width: 0; overflow: hidden; border: 1px solid var(--simulation-line); border-radius: 12px; background: #07111f; }
-.ccna-simulation-canvas { display: block; width: 100%; height: auto; aspect-ratio: 920 / 440; touch-action: none; user-select: none; }
+.ccna-simulation-canvas { display: block; width: 100%; height: clamp(280px, 34cqw, 460px); aspect-ratio: auto; touch-action: none; user-select: none; }
 .ccna-simulation-canvas-background { fill: #091627; stroke: #1b3655; stroke-width: 2; }
 .ccna-simulation-canvas-background { cursor: grab; }
 .ccna-simulation-canvas:active .ccna-simulation-canvas-background { cursor: grabbing; }
@@ -393,7 +401,7 @@
 .ccna-simulation-workspace .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 
 @media (max-width: 1199px) {
-  .ccna-simulation-layout { grid-template-columns: minmax(230px, .8fr) minmax(0, 1.6fr); grid-template-areas: "scenario main" "reference main"; }
+  .ccna-simulation-layout { grid-template-columns: minmax(210px, .72fr) minmax(0, 1.45fr); grid-template-rows: auto auto auto; grid-template-areas: "scenario terminal" "scenario topology" "scenario reference"; }
 }
 
 @media (max-width: 899px) {
@@ -402,6 +410,7 @@
   .ccna-simulation-badges { justify-content: flex-start; margin-top: .8rem; }
   .ccna-simulation-tabs { display: flex; }
   .ccna-simulation-layout { display: block; }
+  .ccna-simulation-canvas { height: auto; aspect-ratio: 1.35; }
   .ccna-simulation-layout[data-active-panel="scenario"] [data-panel]:not([data-panel="scenario"]),
   .ccna-simulation-layout[data-active-panel="topology"] [data-panel]:not([data-panel="topology"]),
   .ccna-simulation-layout[data-active-panel="terminal"] [data-panel]:not([data-panel="terminal"]),
