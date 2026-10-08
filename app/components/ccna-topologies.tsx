@@ -104,12 +104,7 @@ export function CcnaTopologyLibrary({ userId, onPracticeQuestion, onOpenStage }:
       {visibleLabs.length === 0 ? <p className="ccna-topology-empty"><Copy text="No topology in this level matches that search." /></p> : <ol className="ccna-topology-list">
         {visibleLabs.map((lab) => <li key={lab.id}>
           <button type="button" className={`ccna-topology-card ${lab.id === selectedLab.id ? "is-selected" : ""}`} onClick={() => chooseLab(lab.id)} aria-pressed={lab.id === selectedLab.id}>
-            {lab.diagram ? <figure>
-              {/* Catalog diagrams are already optimized assets and are not re-encoded by the image optimizer. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={lab.diagram.src} alt={`${lab.name} topology diagram`} loading="lazy" decoding="async" width={lab.diagram.width} height={lab.diagram.height} />
-            </figure> : <p className="ccna-topology-missing"><Copy text="Concept lab — the catalog publishes no topology diagram for this lab." /></p>}
-            <span className="ccna-topology-card-body"><span className="server-lab-meta"><Copy text={`Lab ${pad(lab.number)}`} /></span><strong><Copy text={lab.name} /></strong><span><Copy text={lab.summary} /></span>{lab.summaryIssue && <span className="ccna-topology-issue"><Copy text={lab.summaryIssue} /></span>}<span className="ccna-topology-open"><Copy text="Open guided practice" /><ChevronRight size={16} /></span></span>
+            <span className="ccna-topology-card-body"><span className="server-lab-meta"><Copy text={`Lab ${pad(lab.number)}`} /></span><strong><Copy text={lab.name} /></strong><span><Copy text={lab.summary} /></span><span className={lab.diagram ? "ccna-topology-diagram-status" : "ccna-topology-diagram-status is-concept"}><Network size={14} /><Copy text={lab.diagram ? "Topology diagram available" : "Concept lab · no diagram"} /></span>{lab.summaryIssue && <span className="ccna-topology-issue"><Copy text={lab.summaryIssue} /></span>}<span className="ccna-topology-open"><Copy text="Open guided practice" /><ChevronRight size={16} /></span></span>
           </button>
         </li>)}
       </ol>}
