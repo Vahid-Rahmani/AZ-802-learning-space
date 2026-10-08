@@ -760,6 +760,27 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
             </li>;
           })}
         </ul>
+        {guidedStages.length > 0 && <section className="ccna-simulation-guide ccna-simulation-guide--scenario" aria-label="Guided lab steps">
+          <div className="ccna-simulation-guide-heading"><div><span className="ccna-simulation-guide-kicker">Guided path</span><strong>{activeStage ? `Stage ${nextStageIndex + 1} of ${guidedStages.length}` : "Lab complete"}</strong></div><span className="ccna-simulation-guide-score">{completedStageIds.size}/{guidedStages.length} verified</span></div>
+          <ol className="ccna-simulation-stage-list">
+            {guidedStages.map((stage, index) => {
+              const complete = completedStageIds.has(stage.id);
+              const unlocked = index === 0 || completedStageIds.has(guidedStages[index - 1]?.id);
+              return <li key={stage.id} className={`ccna-simulation-stage${complete ? " is-complete" : ""}${activeStage?.id === stage.id ? " is-current" : ""}${!unlocked ? " is-locked" : ""}`}>
+                <span className="ccna-simulation-stage-marker" aria-hidden="true">{complete ? "✓" : index + 1}</span>
+                <span><strong>{stage.title}</strong><small>{complete ? "Verified" : unlocked ? "Ready" : "Locked until the previous stage passes"}</small></span>
+              </li>;
+            })}
+          </ol>
+          {activeStage && <div className="ccna-simulation-current-stage">
+            <p className="ccna-simulation-current-stage-title">Next: {activeStage.title}</p>
+            <p>{activeStage.instruction}</p>
+            <p className="ccna-simulation-stage-why"><strong>Why:</strong> {activeStage.why}</p>
+            <div className="ccna-simulation-stage-command"><code>{activeStage.command}</code><button type="button" onClick={() => prepareStageCommand(activeStage)}>Use command</button></div>
+            <small className="ccna-simulation-stage-expected">Expected: {activeStage.expected} {activeStage.hint}</small>
+          </div>}
+          {!activeStage && <p className="ccna-simulation-guide-complete">All guided stages are verified. You completed this lab path.</p>}
+        </section>}
         <button type="button" className="ccna-simulation-danger-button" onClick={resetLab}>Reset lab</button>
       </aside>
 
@@ -821,27 +842,6 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
             </button>;
           })}
         </div>
-        {guidedStages.length > 0 && <section className="ccna-simulation-guide" aria-label="Guided lab steps">
-          <div className="ccna-simulation-guide-heading"><div><span className="ccna-simulation-guide-kicker">Guided path</span><strong>{activeStage ? `Stage ${nextStageIndex + 1} of ${guidedStages.length}` : "Lab complete"}</strong></div><span className="ccna-simulation-guide-score">{completedStageIds.size}/{guidedStages.length} verified</span></div>
-          <ol className="ccna-simulation-stage-list">
-            {guidedStages.map((stage, index) => {
-              const complete = completedStageIds.has(stage.id);
-              const unlocked = index === 0 || completedStageIds.has(guidedStages[index - 1]?.id);
-              return <li key={stage.id} className={`ccna-simulation-stage${complete ? " is-complete" : ""}${activeStage?.id === stage.id ? " is-current" : ""}${!unlocked ? " is-locked" : ""}`}>
-                <span className="ccna-simulation-stage-marker" aria-hidden="true">{complete ? "✓" : index + 1}</span>
-                <span><strong>{stage.title}</strong><small>{complete ? "Verified" : unlocked ? "Ready" : "Locked until the previous stage passes"}</small></span>
-              </li>;
-            })}
-          </ol>
-          {activeStage && <div className="ccna-simulation-current-stage">
-            <p className="ccna-simulation-current-stage-title">Next: {activeStage.title}</p>
-            <p>{activeStage.instruction}</p>
-            <p className="ccna-simulation-stage-why"><strong>Why:</strong> {activeStage.why}</p>
-            <div className="ccna-simulation-stage-command"><code>{activeStage.command}</code><button type="button" onClick={() => prepareStageCommand(activeStage)}>Use command</button></div>
-            <small className="ccna-simulation-stage-expected">Expected: {activeStage.expected} {activeStage.hint}</small>
-          </div>}
-          {!activeStage && <p className="ccna-simulation-guide-complete">All guided stages are verified. You completed this lab path.</p>}
-        </section>}
         <div ref={terminalSurfaceRef} id="ccna-active-device-console" className="ccna-simulation-terminal-screen" role="textbox" aria-multiline="false" aria-label={`Type commands for ${selectedNodeData?.label ?? "the selected device"}`} tabIndex={0} onPointerDown={() => terminalSurfaceRef.current?.focus()} onKeyDown={handleTerminalKeyDown}>
           <div className="ccna-simulation-terminal-output" role="log" aria-live="polite">
             {!activeView?.entries.length && <>

@@ -236,22 +236,23 @@ html[data-theme="classic"] .ccna-simulation-terminal-actions { border-color:var(
 
 /* SwitchLab-inspired workspace composition: learning path left, large CLI
    in the centre, and the visual topology with port state on the right. */
-@media (min-width:1200px) {
+@container (min-width:980px) {
   html[data-theme="classic"] .ccna-simulation-main-column { display: contents; }
   html[data-theme="classic"] .ccna-simulation-layout {
-    grid-template-columns: minmax(240px, .78fr) minmax(560px, 1.85fr) minmax(300px, .9fr);
+    grid-template-columns: minmax(245px, .85fr) minmax(425px, 1.7fr) minmax(290px, 1fr);
     grid-template-rows: minmax(0, auto) minmax(0, auto);
     grid-template-areas: "scenario terminal topology" "scenario terminal reference";
     align-items: start;
   }
   html[data-theme="classic"] .ccna-simulation-scenario { grid-area: scenario; }
-  html[data-theme="classic"] .ccna-simulation-terminal-panel { grid-area: terminal; min-height: 690px; }
+  html[data-theme="classic"] .ccna-simulation-terminal-panel { grid-area: terminal; min-height: 760px; }
   html[data-theme="classic"] .ccna-simulation-topology-panel { grid-area: topology; }
   html[data-theme="classic"] .ccna-simulation-reference-panel { grid-area: reference; }
-  html[data-theme="classic"] .ccna-simulation-terminal-screen { height: min(58vh, 560px); min-height: 440px; }
+  html[data-theme="classic"] .ccna-simulation-terminal-screen { height: min(70vh, 680px); min-height: 560px; }
+  html[data-theme="classic"] .ccna-simulation-canvas { height: 360px; aspect-ratio: auto; }
 }
 
-@media (min-width:900px) and (max-width:1199px) {
+@container (min-width:700px) and (max-width:979px) {
   html[data-theme="classic"] .ccna-simulation-main-column { display: contents; }
   html[data-theme="classic"] .ccna-simulation-layout {
     grid-template-columns: minmax(230px, .82fr) minmax(0, 1.55fr);
@@ -261,7 +262,8 @@ html[data-theme="classic"] .ccna-simulation-terminal-actions { border-color:var(
   html[data-theme="classic"] .ccna-simulation-terminal-panel { grid-area: terminal; }
   html[data-theme="classic"] .ccna-simulation-topology-panel { grid-area: topology; }
   html[data-theme="classic"] .ccna-simulation-reference-panel { grid-area: reference; }
-  html[data-theme="classic"] .ccna-simulation-terminal-screen { height: 480px; }
+  html[data-theme="classic"] .ccna-simulation-terminal-screen { height: 560px; min-height: 480px; }
+  html[data-theme="classic"] .ccna-simulation-canvas { height: 320px; aspect-ratio: auto; }
 }
 
 html[data-theme="classic"] .ccna-simulation-device-tabs {
@@ -282,7 +284,17 @@ html[data-theme="classic"] .ccna-simulation-device-tab {
   white-space:nowrap;
 }
 html[data-theme="classic"] .ccna-simulation-device-tab small { font-size:.76em; opacity:.72; }
-html[data-theme="classic"] .ccna-simulation-guide { margin:.45rem .65rem 0; }
+html[data-theme="classic"] .ccna-simulation-guide { margin:.7rem 0 0; }
+html[data-theme="classic"] .ccna-simulation-guide--scenario { padding:.65rem; }
+html[data-theme="classic"] .ccna-simulation-guide--scenario .ccna-simulation-stage-list {
+  display:grid;
+  gap:.35rem;
+  max-height:320px;
+  overflow-x:hidden;
+  overflow-y:auto;
+}
+html[data-theme="classic"] .ccna-simulation-guide--scenario .ccna-simulation-stage { min-width:0; }
+html[data-theme="classic"] .ccna-simulation-guide--scenario .ccna-simulation-stage strong { white-space:normal; }
 
 @media (max-width:899px) {
   html[data-theme="classic"] .certpath-header { padding:.5rem; }
