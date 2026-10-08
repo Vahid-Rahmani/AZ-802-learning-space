@@ -653,6 +653,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
         <button type="button" className="ccna-simulation-danger-button" onClick={resetLab}>Reset lab</button>
       </aside>
 
+      <div className="ccna-simulation-main-column">
       <section id="ccna-panel-topology" className="ccna-simulation-panel ccna-simulation-topology-panel" data-panel="topology" role="tabpanel" aria-labelledby="ccna-panel-tab-topology" tabIndex={-1}>
         <div className="ccna-simulation-panel-heading"><span className="ccna-simulation-panel-icon">2</span><h3 id="ccna-topology-workspace-title">Topology workspace</h3></div>
         <div className="ccna-simulation-toolbar" role="toolbar" aria-label="Topology controls">
@@ -729,6 +730,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
         </form>
         <div className="ccna-simulation-terminal-actions"><span>↑ ↓ history · Ctrl+L clear · Ctrl+C cancel</span><button type="button" onClick={resetActiveTerminal} disabled={!activeView}>Reset terminal</button></div>
       </section>
+      </div>
 
       <aside id="ccna-panel-reference" className="ccna-simulation-panel ccna-simulation-reference-panel" data-panel="reference" role="tabpanel" aria-labelledby="ccna-panel-tab-reference" tabIndex={-1}>
         <div className="ccna-simulation-panel-heading"><span className="ccna-simulation-panel-icon">4</span><h3>Lab reference</h3></div>
