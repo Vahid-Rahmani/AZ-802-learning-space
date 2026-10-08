@@ -848,7 +848,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
             </g>
           </svg>
         </div>
-        <div className="ccna-simulation-topology-meta"><span>{state.nodes.length} devices · {connectedCount} links</span><span>Click a port to connect or a link to disconnect</span></div>
+        <div className="ccna-simulation-topology-meta"><span>{state.nodes.length} devices · {connectedCount} links</span></div>
         {selectedNodeData && <section className="ccna-simulation-interface-status" aria-labelledby="ccna-interface-status-title">
           <h4 id="ccna-interface-status-title">Interface status <span>{selectedNodeData.label}</span></h4>
           <div className="ccna-simulation-interface-table-wrap">
