@@ -1,10 +1,11 @@
 "use client";
 
-import { useId, useState } from "react";
-import { SlidersHorizontal, UserRound } from "lucide-react";
+import { useEffect, useId, useState } from "react";
+import { Menu, SlidersHorizontal, UserRound } from "lucide-react";
 import { ThemeControl } from "@/app/components/appearance-provider";
 import { FontSizeControl } from "@/app/components/training-views";
 import { GoogleTranslateControl } from "@/app/components/google-translate";
+import { CourseSwitcher } from "@/app/components/course-switcher";
 
 type Props = {
   title: string;
@@ -24,13 +25,39 @@ export function AppBrand({ subtitle }: { subtitle: string }) {
   </div>;
 }
 
+function SidebarToggle() {
+  const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    document.body.dataset.sidebarState = open ? "open" : "collapsed";
+    return () => {
+      delete document.body.dataset.sidebarState;
+    };
+  }, [open]);
+
+  return <button
+    type="button"
+    className="sidebar-toggle-button"
+    aria-label={open ? "Collapse navigation" : "Expand navigation"}
+    aria-expanded={open}
+    title={open ? "Collapse navigation" : "Expand navigation"}
+    onClick={() => setOpen((value) => !value)}
+  >
+    <Menu size={18} aria-hidden="true" />
+    <span>Menu</span>
+  </button>;
+}
+
 export function StudyHeader({ title, course, t, fontScale, onFontScale, translationLanguage, onTranslationLanguage, onAccount }: Props) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const controlsId = useId();
+  const activeCourse: "az802" | "az900" | "docker" | "ccna" = course === "AZ-900" ? "az900" : course === "Docker" ? "docker" : course === "CCNA" ? "ccna" : "az802";
   return <header className="certpath-header">
     <div className="header-title"><p className="header-eyebrow">{course} <span>Learning workspace</span></p><h1>{title}</h1></div>
     <div className="header-mobile-actions">
-      <button type="button" className="reading-settings-toggle" aria-label="Theme, translate and text settings" aria-expanded={settingsOpen} aria-controls={controlsId} onClick={() => setSettingsOpen((open) => !open)}><SlidersHorizontal size={18} /><span>Style</span></button>
+      <SidebarToggle />
+      <CourseSwitcher active={activeCourse} />
+      <button type="button" className="reading-settings-toggle" aria-label="Theme, translate and text settings" aria-expanded={settingsOpen} aria-controls={controlsId} onClick={() => setSettingsOpen((open) => !open)}><SlidersHorizontal size={18} /><span>Settings</span></button>
       <button type="button" className="account-button" aria-label="Open account" title="Open account" onClick={onAccount}><UserRound size={19} /></button>
     </div>
     <div id={controlsId} className={`study-controls ${settingsOpen ? "is-open" : ""}`}>
