@@ -66,6 +66,10 @@ export function CcnaTopologyLibrary({ userId, onPracticeQuestion, onOpenStage }:
     setSelectedLabId(level.labs[0].id);
     setQuery("");
   };
+  const chooseLab = (id: string) => {
+    setSelectedLabId(id);
+    window.setTimeout(() => document.querySelector(".ccna-topology-guide")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+  };
   const toggleCompleted = () => {
     const next = completed.includes(selectedLab.id) ? completed.filter((id) => id !== selectedLab.id) : [...completed, selectedLab.id];
     setCompleted(next);
@@ -99,7 +103,7 @@ export function CcnaTopologyLibrary({ userId, onPracticeQuestion, onOpenStage }:
       <label className="ccna-topology-search"><Search size={17} aria-hidden="true" /><span className="sr-only">Search this topology level</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search this level: VLAN, OSPF, DHCP…" /></label>
       {visibleLabs.length === 0 ? <p className="ccna-topology-empty"><Copy text="No topology in this level matches that search." /></p> : <ol className="ccna-topology-list">
         {visibleLabs.map((lab) => <li key={lab.id}>
-          <button type="button" className={`ccna-topology-card ${lab.id === selectedLab.id ? "is-selected" : ""}`} onClick={() => setSelectedLabId(lab.id)} aria-pressed={lab.id === selectedLab.id}>
+          <button type="button" className={`ccna-topology-card ${lab.id === selectedLab.id ? "is-selected" : ""}`} onClick={() => chooseLab(lab.id)} aria-pressed={lab.id === selectedLab.id}>
             {lab.diagram ? <figure>
               {/* Catalog diagrams are already optimized assets and are not re-encoded by the image optimizer. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}

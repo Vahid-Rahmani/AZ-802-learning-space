@@ -15,15 +15,23 @@ import { ccnaDomains, ccnaLabs, ccnaSources } from "@/lib/content/ccna";
 import { ccnaTopologyStats } from "@/lib/content/ccna-topologies";
 import { copy } from "@/lib/course-data";
 
+type CcnaSection = "practice" | "labs" | "topologies";
+
 export default function CcnaPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [authOpen, setAuthOpen] = useState(false);
   const [requestedLab, setRequestedLab] = useState<string | undefined>();
   const [practiceRequest, setPracticeRequest] = useState<CcnaPracticeRequest>();
+  const [activeSection, setActiveSection] = useState<CcnaSection>("practice");
+  const showSection = (section: CcnaSection, anchorId: string) => {
+    setActiveSection(section);
+    window.history.replaceState(null, "", `#${anchorId}`);
+    window.setTimeout(() => document.getElementById(anchorId)?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+  };
   const openPractice = (request: Omit<CcnaPracticeRequest, "nonce">) => {
     setPracticeRequest({ ...request, nonce: Date.now() });
-    document.getElementById("ccna-question-bank")?.scrollIntoView({ behavior: "smooth" });
+    showSection("practice", "ccna-question-bank");
   };
   const [fontScale, setFontScale] = useState(1.1);
   const [language, setLanguage] = useState("");
@@ -59,23 +67,35 @@ export default function CcnaPage() {
     <div className="app-shell mx-auto grid min-h-screen max-w-[1600px] grid-cols-1 lg:grid-cols-[250px_minmax(0,1fr)]">
       <aside className="app-sidebar border-b border-white/10 p-3 sm:p-4 lg:border-b-0 lg:border-e">
         <AppBrand subtitle="Cloud, servers & networking" />
-        <nav className="mt-8 space-y-2" aria-label="CCNA navigation"><a href="#ccna-question-bank" className="flex min-h-12 items-center gap-3 rounded-xl border border-cyan-300/20 bg-cyan-300/10 p-3 text-cyan-200"><BookOpen size={19} /><GoogleSubtitle text="Question bank & Explain" /></a><a href="#ccna-search" className="flex min-h-12 items-center gap-3 p-3"><Search size={19} /><GoogleSubtitle text="Search all CCNA questions" /></a><a href="#ccna-learning-path" className="flex min-h-12 items-center gap-3 p-3"><Network size={19} /><GoogleSubtitle text="Lessons & hands-on labs" /></a><a href="#ccna-topologies" className="flex min-h-12 items-center gap-3 p-3"><Network size={19} /><GoogleSubtitle text="Lab topology library" /></a></nav>
+        <nav className="mt-8 space-y-2" aria-label="CCNA navigation">
+          <button type="button" onClick={() => showSection("practice", "ccna-question-bank")} className={`flex min-h-12 w-full items-center gap-3 rounded-xl border p-3 text-start ${activeSection === "practice" ? "border-cyan-300/20 bg-cyan-300/10 text-cyan-200" : "border-transparent"}`} aria-current={activeSection === "practice" ? "page" : undefined}><BookOpen size={19} /><GoogleSubtitle text="Question bank & Explain" /></button>
+          <button type="button" onClick={() => showSection("practice", "ccna-search")} className={`flex min-h-12 w-full items-center gap-3 rounded-xl p-3 text-start ${activeSection === "practice" ? "text-cyan-200" : ""}`}><Search size={19} /><GoogleSubtitle text="Search all CCNA questions" /></button>
+          <button type="button" onClick={() => showSection("labs", "ccna-learning-path")} className={`flex min-h-12 w-full items-center gap-3 rounded-xl border p-3 text-start ${activeSection === "labs" ? "border-cyan-300/20 bg-cyan-300/10 text-cyan-200" : "border-transparent"}`} aria-current={activeSection === "labs" ? "page" : undefined}><Network size={19} /><GoogleSubtitle text="Lessons & hands-on labs" /></button>
+          <button type="button" onClick={() => showSection("topologies", "ccna-topologies")} className={`flex min-h-12 w-full items-center gap-3 rounded-xl border p-3 text-start ${activeSection === "topologies" ? "border-cyan-300/20 bg-cyan-300/10 text-cyan-200" : "border-transparent"}`} aria-current={activeSection === "topologies" ? "page" : undefined}><Network size={19} /><GoogleSubtitle text="Lab topology library" /></button>
+        </nav>
         <div className="sidebar-course-card mt-8 rounded-2xl border border-white/10 p-4"><p className="text-sm text-slate-400"><GoogleSubtitle text="Current track" /></p><h2 className="mt-2 font-bold">CCNA Foundations</h2><p className="mt-2 text-sm text-slate-400"><GoogleSubtitle text={`8 stages · ${ccnaQuestionCount + ccnaLabs.reduce((count, lab) => count + lab.questions.length, 0)} learning questions · ${ccnaTopologyStats.labs} lab topologies`} /></p><a href={ccnaSources.packetTracer} target="_blank" rel="noreferrer" className="mt-5 flex items-center gap-2 text-sm text-cyan-200"><BookOpen size={16} /><GoogleSubtitle text="Official Packet Tracer course" /></a></div>
       </aside>
       <section className="app-content min-w-0 p-4 sm:p-6 lg:p-8">
         <StudyHeader title="CCNA Foundations" course="CCNA" t={copy.en} fontScale={fontScale} onFontScale={setFontScale} translationLanguage={language} onTranslationLanguage={setLanguage} onAccount={() => setAuthOpen(true)} />
         <div className="mb-6"><CourseSwitcher active="ccna" /></div>
-        <section className="mb-6" aria-label="Official CCNA domains">
-          <h2 className="text-xl font-bold"><GoogleSubtitle text="200-301 v1.1 · six official domains" /></h2>
-          <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">{ccnaDomains.map((domain, index) => <li key={domain.id}><button type="button" onClick={() => openPractice({ domainId: ccnaPracticeUnits[index].id })} className="sidebar-course-card w-full rounded-lg border border-white/10 p-3 text-start"><GoogleSubtitle text={`${domain.title} · ${domain.weight}% · ${ccnaPracticeUnits[index].questions.length} questions`} /></button></li>)}</ul>
-          <p className="mt-3 text-sm"><GoogleSubtitle text="Foundation coverage, not every exam objective. Domain percentages describe the official blueprint, not the weighting of these short learning quizzes." /> <a className="underline" href={ccnaSources.blueprint} target="_blank" rel="noreferrer"><GoogleSubtitle text="Official objectives" /> ↗</a></p>
-        </section>
-        <section id="ccna-search" className="mb-6" aria-label="Search the entire CCNA bank"><KnowledgeSearch questionBank={ccnaKnowledgeQuestions} courseCode="CCNA" courseName="networking" sourceName="Cisco / IETF" examples={["OSPF router ID", "VLAN trunk", "مسیریابی بین شبکه‌های IP"]} showTranslations={Boolean(language)} onPracticeQuestion={(questionId) => openPractice({ questionId })} /></section>
-        <CcnaPractice key={userId} userId={userId} request={practiceRequest} onRequestHandled={() => setPracticeRequest(undefined)} onOpenLab={(id) => { setRequestedLab(id); document.getElementById("ccna-learning-path")?.scrollIntoView({ behavior: "smooth" }); }} />
-        <section id="ccna-learning-path" aria-label="CCNA lessons, network labs and knowledge checks">
+        <nav className="mb-6 grid grid-cols-1 gap-2 sm:grid-cols-3" role="tablist" aria-label="CCNA learning sections">
+          <button type="button" role="tab" aria-selected={activeSection === "practice"} onClick={() => showSection("practice", "ccna-question-bank")} className={`rounded-xl border p-3 text-start ${activeSection === "practice" ? "border-cyan-300/40 bg-cyan-300/10 text-cyan-100" : "border-white/10 bg-white/[.03] text-slate-300"}`}><BookOpen size={17} className="mb-1" /><GoogleSubtitle text="Questions & Explain" /></button>
+          <button type="button" role="tab" aria-selected={activeSection === "labs"} onClick={() => showSection("labs", "ccna-learning-path")} className={`rounded-xl border p-3 text-start ${activeSection === "labs" ? "border-cyan-300/40 bg-cyan-300/10 text-cyan-100" : "border-white/10 bg-white/[.03] text-slate-300"}`}><Network size={17} className="mb-1" /><GoogleSubtitle text="Lessons & hands-on labs" /></button>
+          <button type="button" role="tab" aria-selected={activeSection === "topologies"} onClick={() => showSection("topologies", "ccna-topologies")} className={`rounded-xl border p-3 text-start ${activeSection === "topologies" ? "border-cyan-300/40 bg-cyan-300/10 text-cyan-100" : "border-white/10 bg-white/[.03] text-slate-300"}`}><Network size={17} className="mb-1" /><GoogleSubtitle text="Topology library" /></button>
+        </nav>
+        {activeSection === "practice" && <>
+          <section className="mb-6" aria-label="Official CCNA domains">
+            <h2 className="text-xl font-bold"><GoogleSubtitle text="200-301 v1.1 · six official domains" /></h2>
+            <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">{ccnaDomains.map((domain, index) => <li key={domain.id}><button type="button" onClick={() => openPractice({ domainId: ccnaPracticeUnits[index].id })} className="sidebar-course-card w-full rounded-lg border border-white/10 p-3 text-start"><GoogleSubtitle text={`${domain.title} · ${domain.weight}% · ${ccnaPracticeUnits[index].questions.length} questions`} /></button></li>)}</ul>
+            <p className="mt-3 text-sm"><GoogleSubtitle text="Foundation coverage, not every exam objective. Domain percentages describe the official blueprint, not the weighting of these short learning quizzes." /> <a className="underline" href={ccnaSources.blueprint} target="_blank" rel="noreferrer"><GoogleSubtitle text="Official objectives" /> ↗</a></p>
+          </section>
+          <section id="ccna-search" className="mb-6" aria-label="Search the entire CCNA bank"><KnowledgeSearch questionBank={ccnaKnowledgeQuestions} courseCode="CCNA" courseName="networking" sourceName="Cisco / IETF" examples={["OSPF router ID", "VLAN trunk", "مسیریابی بین شبکه‌های IP"]} showTranslations={Boolean(language)} onPracticeQuestion={(questionId) => openPractice({ questionId })} /></section>
+          <CcnaPractice key={userId} userId={userId} request={practiceRequest} onRequestHandled={() => setPracticeRequest(undefined)} onOpenLab={(id) => { setRequestedLab(id); showSection("labs", "ccna-learning-path"); }} />
+        </>}
+        {activeSection === "labs" && <section id="ccna-learning-path" aria-label="CCNA lessons, network labs and knowledge checks">
           <LearningLabPath key={`${userId}:${requestedLab ?? "resume"}`} userId={userId} labs={ccnaLabs} initialLabId={requestedLab} resumeLatest={!requestedLab} onPracticeLab={(lab) => openPractice({ domainId: `ccna-domain-v2-${lab.questions[0].objective?.split(".")[0]}` })} kicker="CCNA · 200-301 v1.1 foundations" title="Build a network. Understand every hop." intro="Study each lesson, build its isolated topology, test both success and expected failure, then practice its related objective domain. Your stage, question position, answers and evidence save to your account." />
-        </section>
-        <CcnaTopologyLibrary userId={userId} onPracticeQuestion={(questionId) => openPractice({ questionId })} onOpenStage={(id) => { setRequestedLab(id); document.getElementById("ccna-learning-path")?.scrollIntoView({ behavior: "smooth" }); }} />
+        </section>}
+        {activeSection === "topologies" && <CcnaTopologyLibrary userId={userId} onPracticeQuestion={(questionId) => openPractice({ questionId })} onOpenStage={(id) => { setRequestedLab(id); showSection("labs", "ccna-learning-path"); }} />}
         <p className="mt-5 text-sm"><GoogleSubtitle text="Independent original labs and adapted MIT-licensed practice questions reviewed against Cisco references; no real certification questions or exam dumps. Labs run on your own desktop simulator, not inside this website. The final automation stage is an offline worksheet." /> <a className="underline" href={ccnaSources.exam} target="_blank" rel="noreferrer"><GoogleSubtitle text="Official Cisco exam information" /> ↗</a></p>
       </section>
     </div>{authOpen && <AccountPanel onClose={() => setAuthOpen(false)} onSignOut={signOut} />}

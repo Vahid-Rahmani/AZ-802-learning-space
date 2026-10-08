@@ -1,5 +1,10 @@
 /* Guided, level-by-level CCNA topology practice. */
-.ccna-topologies { margin: 2.5rem 0; }
+.ccna-topologies { display: flex; flex-direction: column; margin: 2.5rem 0; }
+.ccna-topologies > .server-labs-heading { order: 1; }
+.ccna-topologies > .ccna-topology-levels { order: 2; }
+.ccna-topologies > .ccna-topology-guide { order: 3; }
+.ccna-topologies > .ccna-topology-level { order: 4; }
+.ccna-topologies > .ccna-topology-source { order: 5; }
 .ccna-topologies .ccna-topology-levels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; margin: 1.4rem 0 2rem; }
 .ccna-topologies .ccna-topology-levels button { display: flex; align-items: flex-start; gap: .7rem; min-height: 44px; padding: 1rem; border: 1px solid var(--cp-line); border-radius: 4px; background: var(--cp-surface); color: var(--cp-text); text-align: start; font: inherit; cursor: pointer; min-width: 0; transition: border-color .18s ease, background .18s ease, transform .18s ease; }
 .ccna-topologies .ccna-topology-levels button:hover { border-color: var(--cp-accent); transform: translateY(-1px); }
