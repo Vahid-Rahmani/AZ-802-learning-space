@@ -313,11 +313,13 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   const [notice, setNotice] = useState<Notice>({ kind: "info", text: "Select a port, then select a port on another device to connect a cable." });
   const [checkedItems, setCheckedItems] = useState<Set<string>>(() => new Set());
   const [terminalDraft, setTerminalDraft] = useState("");
+  const [terminalCursor, setTerminalCursor] = useState(0);
   const [terminalViews, setTerminalViews] = useState<Record<string, TerminalView>>({});
   const [hydrated, setHydrated] = useState(false);
   const hydratedKey = useRef<string | null>(null);
   const terminalSessions = useRef<Record<string, TerminalRuntime>>({});
   const svgRef = useRef<SVGSVGElement>(null);
+  const terminalSurfaceRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ type: "node" | "pan"; id?: string; pointerId: number; startX: number; startY: number; originX: number; originY: number } | null>(null);
   const completionNotified = useRef(false);
 
@@ -374,7 +376,9 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
         setTerminalViews(Object.fromEntries(compatibleSnapshot.state.nodes.map((node) => [node.id, terminalView(terminalSessions.current[node.id])] )));
         const restoredActiveId = compatibleSnapshot.activeDeviceId && compatibleSnapshot.state.nodes.some((node) => node.id === compatibleSnapshot?.activeDeviceId) ? compatibleSnapshot.activeDeviceId : firstDevice?.id ?? null;
         setActiveDeviceId(restoredActiveId);
-        setTerminalDraft(restoredActiveId ? terminalSessions.current[restoredActiveId]?.draft ?? "" : "");
+        const restoredDraft = restoredActiveId ? terminalSessions.current[restoredActiveId]?.draft ?? "" : "";
+        setTerminalDraft(restoredDraft);
+        setTerminalCursor(restoredDraft.length);
       } else {
         // Migrate progress from an older graph, but never keep its stale
         // nodes/links or terminal sessions after a topology definition changes.
@@ -462,6 +466,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     setTerminalDraft(runtime.draft);
     setTerminalViews((current) => ({ ...current, [node.id]: terminalView(runtime) }));
     setActivePanel("terminal");
+    setTerminalCursor(runtime.draft.length);
     setNotice({ kind: "info", text: `${node.label} console selected. Choose a port to connect a cable.` });
   };
 
@@ -515,6 +520,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     setTerminalViews(resetViews);
     setActiveDeviceId(firstDevice?.id ?? null);
     setTerminalDraft("");
+    setTerminalCursor(0);
     setNotice({ kind: "info", text: "Lab reset. Select a port, then select a port on another device to connect a cable." });
     completionNotified.current = false;
   };
@@ -525,10 +531,20 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     terminalSessions.current[selectedNodeData.id] = runtime;
     setTerminalViews((current) => ({ ...current, [selectedNodeData.id]: terminalView(runtime) }));
     setTerminalDraft("");
+    setTerminalCursor(0);
   };
 
-  const submitCommand = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const updateTerminalDraft = (nextDraft: string, cursor = nextDraft.length) => {
+    if (!selectedNodeData) return;
+    const runtime = getTerminalRuntime(selectedNodeData);
+    runtime.draft = nextDraft;
+    runtime.historyCursor = -1;
+    setTerminalDraft(nextDraft);
+    setTerminalCursor(Math.max(0, Math.min(nextDraft.length, cursor)));
+    setTerminalViews((current) => ({ ...current, [selectedNodeData.id]: terminalView(runtime) }));
+  };
+
+  const submitCommand = () => {
     const input = terminalDraft.trim();
     if (!input || !selectedNodeData) return;
     const runtime = getTerminalRuntime(selectedNodeData);
@@ -547,6 +563,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
       runtime.entries = [...runtime.entries, { input, output: result.lines, promptBefore, promptAfter: result.prompt, mode: result.mode }];
     }
     setTerminalDraft("");
+    setTerminalCursor(0);
     setTerminalViews((current) => ({ ...current, [selectedNodeData.id]: terminalView(runtime) }));
   };
 
@@ -560,6 +577,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     const nextDraft = historyPosition === runtime.history.length ? runtime.draftBeforeHistory : runtime.history[historyPosition];
     runtime.draft = nextDraft;
     setTerminalDraft(nextDraft);
+    setTerminalCursor(nextDraft.length);
     setTerminalViews((current) => ({ ...current, [selectedNodeData.id]: terminalView(runtime) }));
   };
 
@@ -577,7 +595,47 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     runtime.historyCursor = -1;
     runtime.draftBeforeHistory = "";
     setTerminalDraft("");
+    setTerminalCursor(0);
     setTerminalViews((current) => ({ ...current, [selectedNodeData.id]: terminalView(runtime) }));
+  };
+
+  const handleTerminalKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (!selectedNodeData || !activeView || activeView.closed) return;
+    const key = event.key;
+    if (key === "Enter") {
+      event.preventDefault();
+      submitCommand();
+    } else if (key === "ArrowUp" || key === "ArrowDown") {
+      event.preventDefault();
+      recallHistory(key === "ArrowUp" ? -1 : 1);
+    } else if (key === "ArrowLeft") {
+      event.preventDefault();
+      setTerminalCursor((current) => Math.max(0, current - 1));
+    } else if (key === "ArrowRight") {
+      event.preventDefault();
+      setTerminalCursor((current) => Math.min(terminalDraft.length, current + 1));
+    } else if (key === "Home") {
+      event.preventDefault();
+      setTerminalCursor(0);
+    } else if (key === "End") {
+      event.preventDefault();
+      setTerminalCursor(terminalDraft.length);
+    } else if (key === "Backspace") {
+      event.preventDefault();
+      if (terminalCursor > 0) updateTerminalDraft(`${terminalDraft.slice(0, terminalCursor - 1)}${terminalDraft.slice(terminalCursor)}`, terminalCursor - 1);
+    } else if (key === "Delete") {
+      event.preventDefault();
+      if (terminalCursor < terminalDraft.length) updateTerminalDraft(`${terminalDraft.slice(0, terminalCursor)}${terminalDraft.slice(terminalCursor + 1)}`, terminalCursor);
+    } else if (key.toLowerCase() === "l" && event.ctrlKey) {
+      event.preventDefault();
+      clearTerminalOutput();
+    } else if (key.toLowerCase() === "c" && event.ctrlKey) {
+      event.preventDefault();
+      cancelTerminalInput();
+    } else if (key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      event.preventDefault();
+      updateTerminalDraft(`${terminalDraft.slice(0, terminalCursor)}${key}${terminalDraft.slice(terminalCursor)}`, terminalCursor + 1);
+    }
   };
 
   const toggleChecklist = (itemId: string) => {
@@ -711,23 +769,19 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
             </button>;
           })}
         </div>
-        <div id="ccna-active-device-console" className="ccna-simulation-terminal-output" role="log" aria-live="polite" tabIndex={0}>
-          {!activeView?.entries.length && <>
-            <p className="ccna-simulation-terminal-line">Connected to {selectedNodeData?.label ?? "the selected device"}.</p>
-            <p className="ccna-simulation-terminal-line">Type <code>?</code> or <code>help</code> to see commands for this console.</p>
-          </>}
-          {activeView?.entries.map((entry, index) => <div key={`${entry.input}-${index}`} className="ccna-simulation-terminal-entry"><p><span className="ccna-simulation-terminal-prompt">{entry.promptBefore}</span> {entry.input}</p>{entry.output.map((line, lineIndex) => <p key={`${line}-${lineIndex}`} className="ccna-simulation-terminal-response">{line}</p>)}</div>)}
+        <div ref={terminalSurfaceRef} id="ccna-active-device-console" className="ccna-simulation-terminal-screen" role="textbox" aria-multiline="false" aria-label={`Type commands for ${selectedNodeData?.label ?? "the selected device"}`} tabIndex={0} onPointerDown={() => terminalSurfaceRef.current?.focus()} onKeyDown={handleTerminalKeyDown}>
+          <div className="ccna-simulation-terminal-output" role="log" aria-live="polite">
+            {!activeView?.entries.length && <>
+              <p className="ccna-simulation-terminal-line">Connected to {selectedNodeData?.label ?? "the selected device"}.</p>
+              <p className="ccna-simulation-terminal-line">Type <code>?</code> or <code>help</code> to see commands for this console.</p>
+            </>}
+            {activeView?.entries.map((entry, index) => <div key={`${entry.input}-${index}`} className="ccna-simulation-terminal-entry"><p><span className="ccna-simulation-terminal-prompt">{entry.promptBefore}</span> {entry.input}</p>{entry.output.map((line, lineIndex) => <p key={`${line}-${lineIndex}`} className="ccna-simulation-terminal-response">{line}</p>)}</div>)}
+          </div>
+          <div className="ccna-simulation-terminal-input-line" aria-label="Current command line">
+            <span className="ccna-simulation-terminal-prompt">{activeView?.prompt ?? "Select a device>"}</span>{" "}
+            <span>{terminalDraft.slice(0, terminalCursor)}</span><span className="ccna-simulation-terminal-cursor" aria-hidden="true">▌</span><span>{terminalDraft.slice(terminalCursor) || "\u00a0"}</span>
+          </div>
         </div>
-        <form className="ccna-simulation-terminal-form" onSubmit={submitCommand}>
-          <label htmlFor={`ccna-simulation-command-${selectedNodeData?.id ?? "device"}`} className="sr-only">Command for {selectedNodeData?.label ?? "device"}</label>
-          <span className="ccna-simulation-terminal-prompt">{activeView?.prompt ?? "Select a device>"}</span>
-          <input id={`ccna-simulation-command-${selectedNodeData?.id ?? "device"}`} value={terminalDraft} onChange={(event) => { setTerminalDraft(event.target.value); if (selectedNodeData) { const runtime = getTerminalRuntime(selectedNodeData); runtime.draft = event.target.value; setTerminalViews((current) => ({ ...current, [selectedNodeData.id]: terminalView(runtime) })); } }} onKeyDown={(event) => {
-            if (event.key === "ArrowUp" || event.key === "ArrowDown") { event.preventDefault(); recallHistory(event.key === "ArrowUp" ? -1 : 1); }
-            else if (event.key.toLowerCase() === "l" && event.ctrlKey) { event.preventDefault(); clearTerminalOutput(); }
-            else if (event.key.toLowerCase() === "c" && event.ctrlKey) { event.preventDefault(); cancelTerminalInput(); }
-          }} placeholder="show ..." autoComplete="off" spellCheck={false} disabled={!activeView || activeView.closed} />
-          <button type="submit" disabled={!activeView || activeView.closed}>Run</button>
-        </form>
         <div className="ccna-simulation-terminal-actions"><span>↑ ↓ history · Ctrl+L clear · Ctrl+C cancel</span><button type="button" onClick={resetActiveTerminal} disabled={!activeView}>Reset terminal</button></div>
       </section>
       </div>
