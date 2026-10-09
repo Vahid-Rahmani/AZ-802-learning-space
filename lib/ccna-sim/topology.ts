@@ -118,7 +118,7 @@ export type SimulationState = {
  * simulator a predictable Packet-Tracer-like starting canvas without
  * changing the lab's devices or links.
  */
-export function arrangeSimulationNodes(nodes: SimulationNode[], width = 760, height = 440) {
+export function arrangeSimulationNodes(nodes: SimulationNode[], width = 760, height = 500) {
   const isEndpoint = (kind: SimulationDeviceKind) => kind === "pc" || kind === "server";
   const roleRank = (kind: SimulationDeviceKind) => kind === "router" || kind === "firewall" || kind === "cloud"
     ? 0

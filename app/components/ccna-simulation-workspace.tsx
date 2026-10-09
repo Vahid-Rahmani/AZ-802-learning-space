@@ -73,7 +73,7 @@ type TerminalView = {
 };
 type WorkspaceSnapshot = {
   version: 1 | 2 | 3;
-  layoutVersion?: 2;
+  layoutVersion?: 2 | 3;
   state: SimulationState;
   checkedItems: string[];
   completedStages?: string[];
@@ -94,7 +94,7 @@ export type CcnaSimulationWorkspaceProps = {
 };
 
 const CANVAS_WIDTH = 760;
-const CANVAS_HEIGHT = 440;
+const CANVAS_HEIGHT = 500;
 const NODE_WIDTH = 184;
 const NODE_HEIGHT = 92;
 const PORT_GAP = 38;
@@ -409,9 +409,13 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     const compatibleSnapshot = snapshot && hasCompatibleTopology(snapshot, pack) ? snapshot : null;
     const timer = window.setTimeout(() => {
       if (compatibleSnapshot) {
-        const restoredState = compatibleSnapshot.layoutVersion === 2
+        const restoredState = compatibleSnapshot.layoutVersion === 3
           ? compatibleSnapshot.state
-          : { ...compatibleSnapshot.state, nodes: arrangeSimulationNodes(compatibleSnapshot.state.nodes) };
+          : {
+            ...compatibleSnapshot.state,
+            nodes: arrangeSimulationNodes(compatibleSnapshot.state.nodes),
+            viewport: { scale: 1, x: 0, y: 0 },
+          };
         setState(restoredState);
         setCheckedItems(new Set(compatibleSnapshot.checkedItems ?? []));
         const firstDevice = restoredState.nodes[0];
@@ -462,7 +466,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     const sessions = Object.fromEntries(state.nodes.map((node) => [node.id, serializeTerminalRuntime(terminalSessions.current[node.id] ?? getTerminalRuntime(node))]));
     const snapshot: WorkspaceSnapshot = {
       version: 3,
-      layoutVersion: 2,
+      layoutVersion: 3,
       state,
       checkedItems: [...checkedItems],
       completedStages: [...completedStageIds],
