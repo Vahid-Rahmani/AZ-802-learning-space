@@ -576,3 +576,19 @@ html .study-app .ccna-sim-page .ccna-simulation-detail { border-color: #292c35; 
 html .study-app .ccna-sim-page .ccna-simulation-terminal-screen { background: #111318; }
 html .study-app .ccna-sim-page .ccna-simulation-guide--scenario .ccna-simulation-stage-list { max-height: none; overflow: visible; }
 html .study-app.ccna-shell[data-simulator="true"] .app-shell { border: 0; background: #16181d; }
+
+html .study-app .ccna-sim-page .ccna-simulation-device-guidance {
+  border-left: 2px solid #00aeef;
+  padding: 8px 10px;
+  background: #191e27;
+  color: #d8e1ee;
+}
+html .study-app .ccna-sim-page .ccna-simulation-open-device {
+  padding: 6px 10px;
+  border: 1px solid #00aeef;
+  border-radius: 6px;
+  background: transparent;
+  color: #7dd3fc;
+  font-size: 12px;
+  cursor: pointer;
+}

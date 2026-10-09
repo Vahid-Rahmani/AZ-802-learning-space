@@ -59,6 +59,8 @@ export type SimulationChecklistItem = {
  */
 export type SimulationStage = {
   id: string;
+  /** Only this device's console can provide evidence for the step. */
+  deviceId?: string;
   title: string;
   instruction: string;
   why: string;

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as
 import { IosSession } from "@/lib/ccna-sim/session";
 import { findInterface } from "@/lib/ccna-sim/device";
 import { simulationCableCurve } from "@/lib/ccna-sim/cable-geometry";
+import { completedSimulationStages } from "@/lib/ccna-sim/guidance";
 import type { SimMode } from "@/lib/ccna-sim/tokens";
 import {
   cloneSimulationState,
@@ -320,18 +321,6 @@ function terminalResponse(pack: SimulationPack, command: string) {
   return [`% Unknown command: ${command.trim() || "(empty)"}`, "% Type help to see the commands supported by this lab."];
 }
 
-function entryMatchesStage(entry: TerminalEntry, stage: SimulationStage) {
-  const target = stage.command.trim().toLowerCase();
-  const matched = entry.matched?.trim().toLowerCase();
-  if (matched === target) return true;
-  const input = entry.input.trim().toLowerCase();
-  return input === target || input.startsWith(`${target} `);
-}
-
-function stageWasPassed(stage: SimulationStage, views: Record<string, TerminalView>) {
-  return Object.values(views).some((view) => view.entries.some((entry) => entryMatchesStage(entry, stage)));
-}
-
 export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplete, onDeviceSelect }: CcnaSimulationWorkspaceProps) {
   // Reserve room below the last row for the outward cable curves, not a second box.
   const CANVAS_HEIGHT = simulationCanvasHeight(pack.devices) + 160;
@@ -355,16 +344,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
 
   const requiredItems = useMemo(() => (pack.checklist ?? []).filter((item) => item.required !== false), [pack.checklist]);
   const guidedStages = useMemo(() => pack.stages ?? [], [pack.stages]);
-  const completedStageIds = useMemo(() => {
-    const complete = new Set<string>();
-    let previousComplete = true;
-    for (const stage of guidedStages) {
-      const passed: boolean = previousComplete && stageWasPassed(stage, terminalViews);
-      if (passed) complete.add(stage.id);
-      previousComplete = passed;
-    }
-    return complete;
-  }, [guidedStages, terminalViews]);
+  const completedStageIds = useMemo(() => completedSimulationStages(guidedStages, terminalViews), [guidedStages, terminalViews]);
   const requiredCount = guidedStages.length || requiredItems.length;
   const completedRequired = guidedStages.length ? completedStageIds.size : requiredItems.filter((item) => checkedItems.has(item.id)).length;
   const nextStageIndex = guidedStages.findIndex((stage) => !completedStageIds.has(stage.id));
@@ -373,6 +353,8 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   const selectedNode = activeDeviceId;
   const effectiveActiveDeviceId = activeDeviceId ?? state.nodes[0]?.id ?? null;
   const selectedNodeData = state.nodes.find((node) => node.id === effectiveActiveDeviceId);
+  const stageDevice = state.nodes.find((node) => node.id === activeStage?.deviceId);
+  const isStageDeviceSelected = !stageDevice || stageDevice.id === effectiveActiveDeviceId;
   const getTerminalRuntime = useCallback((node: SimulationNode) => {
     const existing = terminalSessions.current[node.id];
     if (existing) return existing;
@@ -653,7 +635,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   };
 
   const prepareStageCommand = (stage: SimulationStage) => {
-    const node = selectedNodeData ?? state.nodes[0];
+    const node = state.nodes.find((node) => node.id === stage.deviceId) ?? selectedNodeData ?? state.nodes[0];
     if (!node) return;
     const runtime = getTerminalRuntime(node);
     runtime.draft = stage.command;
@@ -781,6 +763,18 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
         </ul>}
         {guidedStages.length > 0 && <section className="ccna-simulation-guide ccna-simulation-guide--scenario" aria-label="Guided lab steps">
           <div className="ccna-simulation-guide-heading"><div><span className="ccna-simulation-guide-kicker">Objectives</span><strong>{activeStage ? `Stage ${nextStageIndex + 1} of ${guidedStages.length}` : "Lab complete"}</strong></div><span className="ccna-simulation-guide-score">{completedStageIds.size}/{guidedStages.length} verified</span></div>
+          {activeStage && <div className="ccna-simulation-current-stage" aria-live="polite">
+            <p className="ccna-simulation-current-stage-title">{stageDevice ? `Next on ${stageDevice.label}: ` : "Next: "}{activeStage.title}</p>
+            <p className="ccna-simulation-device-guidance">{isStageDeviceSelected
+              ? `You are on ${selectedNodeData?.label ?? "the target device"}. Complete this check here before moving to the next step.`
+              : `${selectedNodeData?.label ?? "This device"} is not needed for this step. First select ${stageDevice?.label} and check it using the instructions below.`}</p>
+            {!isStageDeviceSelected && stageDevice && <button type="button" className="ccna-simulation-open-device" onClick={() => { selectDevice(stageDevice); setActivePanel("terminal"); window.requestAnimationFrame(() => terminalSurfaceRef.current?.focus()); }}>Open {stageDevice.label} console</button>}
+            <p>{activeStage.instruction}</p>
+            <p className="ccna-simulation-stage-why"><strong>Why:</strong> {activeStage.why}</p>
+            <div className="ccna-simulation-stage-command"><code>{activeStage.command}</code><button type="button" onClick={() => prepareStageCommand(activeStage)}>Use command</button></div>
+            <small className="ccna-simulation-stage-expected">Expected: {activeStage.expected} {activeStage.hint}</small>
+          </div>}
+          <details className="ccna-simulation-detail"><summary>All {guidedStages.length} steps</summary>
           <ol className="ccna-simulation-stage-list">
             {guidedStages.map((stage, index) => {
               const complete = completedStageIds.has(stage.id);
@@ -791,13 +785,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
               </li>;
             })}
           </ol>
-          {activeStage && <div className="ccna-simulation-current-stage">
-            <p className="ccna-simulation-current-stage-title">Next: {activeStage.title}</p>
-            <p>{activeStage.instruction}</p>
-            <p className="ccna-simulation-stage-why"><strong>Why:</strong> {activeStage.why}</p>
-            <div className="ccna-simulation-stage-command"><code>{activeStage.command}</code><button type="button" onClick={() => prepareStageCommand(activeStage)}>Use command</button></div>
-            <small className="ccna-simulation-stage-expected">Expected: {activeStage.expected} {activeStage.hint}</small>
-          </div>}
+          </details>
           {!activeStage && <p className="ccna-simulation-guide-complete">All guided stages are verified. You completed this lab path.</p>}
         </section>}
         <button type="button" className="ccna-simulation-danger-button" onClick={resetLab}>Reset lab</button>

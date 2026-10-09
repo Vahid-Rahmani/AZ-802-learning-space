@@ -226,18 +226,27 @@ function guidedCommandFor(text: string, index: number) {
   return supportedReadCommands[(index + 1) % supportedReadCommands.length];
 }
 
-function guideFor(lab: CcnaLabEntry, checklist: SimulationChecklistItem[]): SimulationStage[] {
+function guideFor(lab: CcnaLabEntry, checklist: SimulationChecklistItem[], devices: SimulationNode[]): SimulationStage[] {
   return checklist.map((item, index) => {
-    const command = item.id === "evidence"
+    let command = item.id === "evidence"
       ? "show running-config"
       : guidedCommandFor(item.detail ?? item.title, index);
     const isTopology = item.id === "topology";
     const isFault = item.id === "fault";
+    const switching = /vlan|switchport|interfaces status/.test(command);
+    const routing = /routing|ospf|static route|ipv6|subnet/.test(lab.title.toLowerCase());
+    const target = devices.find((node) => node.kind === (switching || !routing ? "switch" : "router"))
+      ?? devices.find((node) => node.kind === "router" || node.kind === "switch")
+      ?? devices[0];
+    if (target.kind !== "router" && target.kind !== "switch") {
+      command = item.id === "evidence" ? "show running-config" : isTopology ? "show version" : "show ip interface brief";
+    }
     return {
       id: item.id,
+      deviceId: target.id,
       title: item.title,
       instruction: isTopology
-        ? "Read the reference diagram, select the device you are working on, then run the command below in its console."
+        ? `Start on ${target.label}. Read its role and connections in the topology, then run the command below in its console to check its interfaces.`
         : isFault
           ? `${item.detail ?? "Reproduce the lab fault"} Use the recovery note as your target, then verify the resulting device state.`
           : item.detail ?? "Run the guided verification command and compare the output with the success criteria.",
@@ -247,8 +256,8 @@ function guideFor(lab: CcnaLabEntry, checklist: SimulationChecklistItem[]): Simu
           ? "Troubleshooting is evidence-led. Confirm the state after the recovery instead of trusting a typed command."
           : "The output is the evidence that the step is complete; the next stage stays locked until it is produced.",
       command,
-      expected: `A valid ${command} response appears in the selected device console.`,
-      hint: isTopology ? "Start with the device selected in the topology." : "You can use the command as written or an unambiguous IOS abbreviation.",
+      expected: `A valid ${command} response appears in the ${target.label} console.`,
+      hint: `Use ${target.label}, not another device. If the prompt ends with >, enter enable first; if it contains (config), enter end before the check. Unambiguous IOS abbreviations are accepted.`,
     } satisfies SimulationStage;
   });
 }
@@ -262,7 +271,7 @@ function terminalFor(lab: CcnaLabEntry) {
     "show interfaces status": ["Port      Name               Status       Vlan       Duplex  Speed Type", "Fa0/1                       connected    1          a-full  a-100 10/100BaseTX", "Fa0/24                      notconnect   1          auto    auto 10/100BaseTX"],
     "show running-config": [`! Guided baseline for ${lab.id}`, "! Apply only the commands required by the scenario.", "version 15.2", `! ${lab.fault.failure}`],
   };
-  for (const command of verification) commands[command.toLowerCase()] = [`Evidence target: ${command}`, "Run this check in the simulator after applying the lab change."];
+  for (const command of verification) commands[command.toLowerCase()] ??= [`Evidence target: ${command}`, "Run this check in the simulator after applying the lab change."];
   return { hostname: lab.title.slice(0, 28), prompt: "Switch#", intro: ["This is a guided, isolated lab terminal.", "Type help to see the read-only checks available."], commands };
 }
 
@@ -292,7 +301,7 @@ function createPack(lab: CcnaLabEntry): CcnaSimulationPack {
     devices,
     links: createLinks(devices, lab),
     checklist,
-    stages: guideFor(lab, checklist),
+    stages: guideFor(lab, checklist, devices),
     terminal: terminalFor(lab),
     references: sources,
     sourceSummary: lab.reviewStatus === "reviewed" ? "Objectives and sources were reviewed for this learning-path entry." : `Draft fallback: ${lab.reviewNote ?? "The catalog mapping still needs review."}`,
