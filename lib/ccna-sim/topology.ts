@@ -251,10 +251,27 @@ export function moveSimulationNode(state: SimulationState, nodeId: string, x: nu
 
 export function clampSimulationViewport(viewport: SimulationViewport): SimulationViewport {
   return {
-    scale: Math.min(2, Math.max(0.65, viewport.scale)),
-    x: Math.min(260, Math.max(-260, viewport.x)),
-    y: Math.min(180, Math.max(-180, viewport.y)),
+    scale: Math.min(3, Math.max(0.2, viewport.scale)),
+    x: Number.isFinite(viewport.x) ? viewport.x : 0,
+    y: Number.isFinite(viewport.y) ? viewport.y : 0,
   };
+}
+
+/** Keep the same world point beneath the zoom anchor. Translation is unbounded. */
+export function zoomSimulationViewport(viewport: SimulationViewport, scale: number, anchor: { x: number; y: number }) {
+  const nextScale = clampSimulationViewport({ ...viewport, scale }).scale;
+  const ratio = nextScale / viewport.scale;
+  return { scale: nextScale, x: anchor.x - (anchor.x - viewport.x) * ratio, y: anchor.y - (anchor.y - viewport.y) * ratio };
+}
+
+export function fitSimulationViewport(nodes: SimulationNode[], width: number, height: number): SimulationViewport {
+  if (!nodes.length) return { scale: 1, x: 0, y: 0 };
+  const left = Math.min(...nodes.map((node) => node.x - 125));
+  const right = Math.max(...nodes.map((node) => node.x + 125));
+  const top = Math.min(...nodes.map((node) => node.y - 70));
+  const bottom = Math.max(...nodes.map((node) => node.y + 85 + Math.floor((node.ports.length - 1) / 4) * 18));
+  const scale = Math.min(3, Math.max(.2, Math.min(width / (right - left), height / (bottom - top))));
+  return { scale, x: width / 2 - (left + right) / 2 * scale, y: height / 2 - (top + bottom) / 2 * scale };
 }
 
 export function updateSimulationViewport(state: SimulationState, viewport: Partial<SimulationViewport>): SimulationState {

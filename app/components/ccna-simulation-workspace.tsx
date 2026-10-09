@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { IosSession } from "@/lib/ccna-sim/session";
 import { findInterface } from "@/lib/ccna-sim/device";
+import { simulationCableCurve } from "@/lib/ccna-sim/cable-geometry";
 import type { SimMode } from "@/lib/ccna-sim/tokens";
 import {
   cloneSimulationState,
@@ -12,6 +13,8 @@ import {
   findSimulationPort,
   arrangeSimulationNodes,
   simulationCanvasHeight,
+  zoomSimulationViewport,
+  fitSimulationViewport,
   moveSimulationNode,
   type SimulationEndpoint,
   type SimulationLink,
@@ -150,22 +153,6 @@ function linkPortLabel(state: SimulationState, link: SimulationLink) {
   const source = findSimulationPort(state, link.source)?.label ?? link.source.portId;
   const target = findSimulationPort(state, link.target)?.label ?? link.target.portId;
   return link.label ? `${link.label} · ${source} ↔ ${target}` : `${source} ↔ ${target}`;
-}
-
-function curvedLinkPath(source: { x: number; y: number }, target: { x: number; y: number }) {
-  const dx = target.x - source.x;
-  const dy = target.y - source.y;
-  const distance = Math.max(1, Math.hypot(dx, dy));
-  const bend = Math.min(56, Math.max(20, distance * .14));
-  const normalX = -dy / distance;
-  const normalY = dx / distance;
-  const controlX = (source.x + target.x) / 2 + normalX * bend;
-  const controlY = (source.y + target.y) / 2 + normalY * bend;
-  return `M ${source.x} ${source.y} Q ${controlX} ${controlY} ${target.x} ${target.y}`;
-}
-
-function linkMidpoint(source: { x: number; y: number }, target: { x: number; y: number }) {
-  return { x: (source.x + target.x) / 2, y: (source.y + target.y) / 2 };
 }
 
 function statusColor(status: SimulationNode["status"] = "healthy") {
@@ -493,8 +480,8 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     const scaleX = CANVAS_WIDTH / rect.width;
     const scaleY = CANVAS_HEIGHT / rect.height;
     return {
-      x: ((event.clientX - rect.left) * scaleX - state.viewport.x) / state.viewport.scale,
-      y: ((event.clientY - rect.top) * scaleY - state.viewport.y) / state.viewport.scale,
+      x: (event.clientX - rect.left) * scaleX,
+      y: (event.clientY - rect.top) * scaleY,
     };
   };
 
@@ -555,9 +542,9 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     if (!drag || drag.pointerId !== event.pointerId) return;
     const point = canvasPoint(event);
     if (drag.type === "node" && drag.id) {
-      setState((current) => moveSimulationNode(current, drag.id as string, Math.max(100, Math.min(CANVAS_WIDTH - 100, drag.originX + point.x - drag.startX)), Math.max(80, Math.min(CANVAS_HEIGHT - 100, drag.originY + point.y - drag.startY))));
+      setState((current) => moveSimulationNode(current, drag.id as string, drag.originX + (point.x - drag.startX) / current.viewport.scale, drag.originY + (point.y - drag.startY) / current.viewport.scale));
     } else {
-      setState((current) => updateSimulationViewport(current, { x: drag.originX + (point.x - drag.startX) * current.viewport.scale, y: drag.originY + (point.y - drag.startY) * current.viewport.scale }));
+      setState((current) => updateSimulationViewport(current, { x: drag.originX + point.x - drag.startX, y: drag.originY + point.y - drag.startY }));
     }
   };
 
@@ -725,8 +712,8 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     });
   };
 
-  const setZoom = (delta: number) => setState((current) => updateSimulationViewport(current, { scale: current.viewport.scale + delta }));
-  const fitView = () => setState((current) => updateSimulationViewport(current, { scale: 1, x: 0, y: 0 }));
+  const setZoom = (delta: number) => setState((current) => ({ ...current, viewport: zoomSimulationViewport(current.viewport, current.viewport.scale + delta, { x: CANVAS_WIDTH / 2, y: CANVAS_HEIGHT / 2 }) }));
+  const fitView = () => setState((current) => ({ ...current, viewport: fitSimulationViewport(current.nodes, CANVAS_WIDTH, CANVAS_HEIGHT) }));
   const toggleTopologyFullscreen = () => {
     const canvas = svgRef.current?.parentElement;
     if (!canvas) return;
@@ -819,9 +806,9 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
       <section id="ccna-panel-topology" className="ccna-simulation-panel ccna-simulation-topology-panel" data-panel="topology" role="tabpanel" aria-labelledby="ccna-panel-tab-topology" tabIndex={-1}>
         <div className="ccna-simulation-panel-heading"><h3 id="ccna-topology-workspace-title">Topology</h3></div>
         <div className="ccna-simulation-toolbar" role="toolbar" aria-label="Topology controls">
-          <button type="button" onClick={() => setZoom(-.15)} disabled={state.viewport.scale <= .65} aria-label="Zoom out">−</button>
+          <button type="button" onClick={() => setZoom(-.15)} disabled={state.viewport.scale <= .2} aria-label="Zoom out">−</button>
           <output aria-live="polite">{Math.round(state.viewport.scale * 100)}%</output>
-          <button type="button" onClick={() => setZoom(.15)} disabled={state.viewport.scale >= 2} aria-label="Zoom in">+</button>
+          <button type="button" onClick={() => setZoom(.15)} disabled={state.viewport.scale >= 3} aria-label="Zoom in">+</button>
           <button type="button" onClick={fitView}>Fit</button>
           <button type="button" onClick={toggleTopologyFullscreen} aria-label="Expand topology" title="Expand topology">⛶</button>
           <span className="ccna-simulation-toolbar-spacer" />
@@ -838,8 +825,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
                 const source = endpointPoint(state, link.source);
                 const target = endpointPoint(state, link.target);
                 if (!source || !target) return null;
-                const middle = linkMidpoint(source, target);
-                const path = curvedLinkPath(source, target);
+                const { path, label: middle } = simulationCableCurve(source, target);
                 return <g key={link.id} className="ccna-simulation-link" data-status={link.status ?? "up"} role="button" tabIndex={0} aria-label={`Disconnect cable between ${endpointLabel(state, link.source)} and ${endpointLabel(state, link.target)}`} onPointerDown={(event) => event.stopPropagation()} onClick={() => handleLink(link)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); handleLink(link); } }}>
                   <path className="ccna-simulation-link-hitbox" d={path} />
                   <path className="ccna-simulation-link-line" d={path} />
