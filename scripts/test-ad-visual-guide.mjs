@@ -9,7 +9,7 @@ const repo = resolve(import.meta.dirname, '..');
 const scratch = resolve(repo, '.tmpwork/ad-guide-test');
 mkdirSync(scratch, { recursive: true });
 const outfile = resolve(scratch, 'bundle.mjs');
-await build({ stdin: { contents: 'export {Quiz} from "./app/components/learning-views"; export {questions,copy} from "./lib/course-data"; export {adForestGuide,getAdVisualGuide,adStepImage} from "./lib/content/ad-visual-guides";', resolveDir: repo, loader: 'tsx' }, outfile, bundle: true, format: 'esm', platform: 'neutral', jsx: 'automatic', tsconfig: resolve(repo, 'tsconfig.json'), external: ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'lucide-react'], logLevel: 'warning' });
+await build({ stdin: { contents: 'export {Quiz} from "./app/components/learning-views"; export {questions,copy} from "./lib/course-data"; export {adForestGuide,getAdVisualGuide,adStepImage} from "./lib/content/ad-visual-guides"; export {adScreenshotPlacements,adScreenshotCaptures} from "./lib/content/ad-visual-screenshots";', resolveDir: repo, loader: 'tsx' }, outfile, bundle: true, format: 'esm', platform: 'neutral', jsx: 'automatic', tsconfig: resolve(repo, 'tsconfig.json'), external: ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime', 'lucide-react'], logLevel: 'warning' });
 const dom = new JSDOM('<!doctype html><html><body><div id="root"></div></body></html>', { url: 'https://guide.test', pretendToBeVisual: true });
 for (const name of ['window', 'document', 'HTMLElement', 'Element', 'Node', 'Event', 'MouseEvent']) Object.defineProperty(globalThis, name, { value: name === 'window' ? dom.window : dom.window[name], configurable: true });
 Object.defineProperty(globalThis, 'navigator', { value: dom.window.navigator, configurable: true });
@@ -21,7 +21,7 @@ window.HTMLDialogElement.prototype.close = function() { this.open = false; };
 const React = (await import('react')).default;
 const { act } = await import('react');
 const { createRoot } = await import('react-dom/client');
-const { Quiz, questions, copy, adForestGuide, getAdVisualGuide, adStepImage } = await import(pathToFileURL(outfile).href);
+const { Quiz, questions, copy, adForestGuide, getAdVisualGuide, adStepImage, adScreenshotPlacements, adScreenshotCaptures } = await import(pathToFileURL(outfile).href);
 const root = createRoot(document.querySelector('#root'));
 const question = id => questions.find(q => q.id === id);
 const props = { t: copy.en, question: question('az802-q-010'), selected: 0, totalQuestions: 5, answer: null, setAnswer() {}, showTranslations: false, mode: 'practice', previous() {}, next() {}, onTimeout() {} };
@@ -61,6 +61,24 @@ const expectedIds = [...Array.from({length:65},(_,i)=>String(i+1).padStart(3,'0'
 assert.deepEqual(bindings.map(q => q.id).sort(), expectedIds.sort(), 'all 80 AD question identities must receive a reviewed guide');
 assert.match(getAdVisualGuide(question('az802-q-043')).context, /stag|pre-create/i, 'staging must not receive an ordinary role-install guide');
 assert.equal(adForestGuide.steps.length, 9);
+for (const [id, scope] of [['az802-q-017','Domain local'], ['az802-q-018','Global'], ['az802-q-019','Universal']]) {
+  const binding = getAdVisualGuide(question(id));
+  assert.equal(binding.startStep, 'group-scope', `${id}: scope question must not start on group conversion`);
+  assert.ok(binding.context.includes(scope), `${id}: explain the requested scope`);
+  assert.match(binding.guide.steps.find(s=>s.id===binding.startStep).image, /sad_116\.png$/);
+  await render({ question: question(id) });
+  assert.equal(document.querySelector('.ad-guide-image img').getAttribute('width'), null, 'small reference dialog must keep its native width, not a fabricated 840px');
+}
+assert.match(getAdVisualGuide(question('az802-q-018')).guide.steps.find(s=>s.id==='global-role-members').image, /group-members\.png$/);
+for (const [id, step] of [['055','gpo-order'],['058','gpo-block'],['061','gpo-model'],['062','gpo-filter'],['024','privilege'],['027','account'],['030','contents']]) {
+  assert.equal(getAdVisualGuide(question(`az802-q-${id}`)).guide.steps.find(s=>s.id===step).image, undefined, `${id}/${step}: do not substitute a loosely related screenshot`);
+}
+assert.ok(!getAdVisualGuide(question('az802-q-063')).guide.steps.some(s=>s.id.startsWith('preference-drive') || s.id==='preference-group-example' || s.id==='preference-saved-item'), 'loopback must not receive unrelated Drive Maps extras');
+await render({question:question('az802-q-012')});
+assert.match(document.querySelector('.ad-guide-credit a').href, /answers\/questions\/1609606/);
+await act(async()=>document.querySelector('.ad-guide-image').click());
+assert.match(document.querySelector('dialog a').href, /answers\/questions\/1609606/, 'DFSR enlargement links to the actual image source');
+await act(async()=>document.querySelector('[aria-label="Close screenshot"]').click());
 const guides = new Map();
 for (const q of bindings) {
   const binding = getAdVisualGuide(q);
@@ -81,6 +99,21 @@ for (const q of bindings) {
   await render({ question: q, mode: 'exam' });
   assert.equal(document.querySelector('.ad-visual-rail'), null, `${q.id}: no exam hint before answer`);
 }
+for (const [guideId, mapping] of Object.entries(adScreenshotPlacements)) {
+  const guide = guides.get(guideId);
+  assert.ok(guide, `${guideId}: screenshot mapping must resolve to a real workflow`);
+  for (const [stepId, [capture]] of Object.entries(mapping)) {
+    const step = guide.steps.find(s => s.id === stepId);
+    assert.equal(step?.image, `/images/ad-server-2025/${capture}.png`, `${guideId}/${stepId}: image mapping must resolve to a real step`);
+  }
+}
+const usedLocalImages = new Set([...guides.values()].flatMap(g => g.steps.filter(s => s.imageReference).map(s => s.image)));
+// Available captures need not be attached to unrelated questions to satisfy coverage.
+for (const name of Object.keys(adScreenshotCaptures)) {
+  const png = readFileSync(resolve(repo, 'public/images/ad-server-2025', `${name}.png`));
+  assert.equal(png.subarray(0,8).toString('hex'), '89504e470d0a1a0a');
+}
+for (const image of usedLocalImages) assert.ok(Object.keys(adScreenshotCaptures).some(name=>image===`/images/ad-server-2025/${name}.png`), 'every assigned capture must have a reviewed catalog entry');
 for (const guide of guides.values()) {
   assert.equal(new Set(guide.steps.map(s => s.id)).size, guide.steps.length, `${guide.id}: step identities must be unique`);
   for (const step of guide.steps) {
@@ -98,6 +131,11 @@ for (const guide of guides.values()) {
       assert.equal(png.readUInt32BE(16), step.imageReference.width);
       assert.equal(png.readUInt32BE(20), step.imageReference.height);
       assert.match(readFileSync(resolve(repo, 'public', step.imageReference.license.slice(1)), 'utf8'), /Copyright \(c\) 2025 Hugh Chanetsa/);
+    } else if (step.image === '/images/ad-dfsr-service-properties.png') {
+      const png = readFileSync(resolve(repo, 'public', step.image.slice(1)));
+      assert.equal(png.subarray(0,8).toString('hex'), '89504e470d0a1a0a');
+      assert.match(step.screenshotLabel, /Windows version unspecified/);
+      assert.match(step.source, /^https:\/\/learn\.microsoft\.com\//);
     } else if (step.image) assert.equal(new URL(adStepImage(step)).hostname, 'learn.microsoft.com');
     else assert.equal(adStepImage(step), '', 'no fabricated screenshot URL');
     if (step.source) assert.equal(new URL(step.source).protocol, 'https:');
@@ -128,6 +166,27 @@ await render({ question: question('az802-q-046') });
 assert.match(document.querySelector('.ad-guide-body h3').textContent, /demote/);
 assert.match(document.querySelector('.ad-guide-image img').src, /demoting-domain-controllers/);
 assert.equal(getAdVisualGuide({ id: 'az802-q-043', domain: 'Another course' }), null);
+for (const id of ['az802-q-066', 'az802-q-323']) {
+  await render({question:question(id), mode:'practice', answer:null});
+  assert.match(document.querySelector('.ad-visual-guide summary').textContent, /Hybrid management/);
+  assert.match(document.querySelector('.ad-guide-image img').src, /windows-admin-center\/media/);
+  assert.equal(document.querySelector('.ad-visual-guide').open, false, 'hybrid guide starts collapsed on mobile');
+  for (let index=0; index<3; index++) {
+    const picker=document.querySelector('.ad-guide-step-picker select');
+    await act(async()=>{picker.value=String(index);picker.dispatchEvent(new window.Event('change',{bubbles:true}));});
+    assert.match(document.querySelector('article').textContent, /Microsoft Windows Admin Center reference/);
+    await act(async()=>document.querySelector('.ad-guide-image').click());
+    assert.match(document.querySelector('dialog a').href, /windows-admin-center\/use\/get-started/);
+    await act(async()=>document.querySelector('[aria-label="Close screenshot"]').click());
+  }
+  await render({question:question(id), mode:'mixed', answer:null});
+  assert.equal(document.querySelector('.ad-visual-rail'), null, 'hybrid exam must not leak walkthrough hints');
+  await render({question:question(id), mode:'mixed', answer:0});
+  assert.ok(document.querySelector('.ad-visual-rail'));
+  await render({question:{...question(id),domain:'Another course'},mode:'practice'});
+  assert.equal(document.querySelector('.ad-visual-rail'), null, 'hybrid identity must not cross course domains');
+}
+console.log('PASS hybrid walkthrough: two exact question mappings, all three screenshots rendered, exam gating, mobile collapse and source links.');
 await act(async () => root.unmount());
 rmSync(scratch, { recursive: true, force: true });
 console.log(`Local real screenshots: ${bindings.filter(q => getAdVisualGuide(q).guide.steps.some(step => step.imageReference)).length} question walkthroughs; ${new Set([...guides.values()].flatMap(g => g.steps.filter(s => s.imageReference).map(s => s.image))).size} unique images.`);

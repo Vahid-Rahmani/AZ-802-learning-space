@@ -16,6 +16,9 @@ export type AdVisualStep = {
   source?: string;
   alt: string;
   imageNote?: string;
+  screenshotLabel?: string;
+  screenshotSource?: string;
+  screenshotCredit?: string;
   imageReference?: {
     source: string;
     original: string;
@@ -36,6 +39,7 @@ export type AdVisualGuideData = {
   prerequisites: string;
   steps: AdVisualStep[];
   kind?: "screenshot" | "concept" | "command";
+  category?: string;
   walkthroughs?: { title: string; url: string; version: "Windows Server 2025" }[];
 };
 

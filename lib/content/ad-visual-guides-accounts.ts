@@ -57,18 +57,6 @@ const groupCreationGuide: AdVisualGuideData = {
   ],
 };
 
-const groupConversionGuide: AdVisualGuideData = {
-  id: "ad-convert-global-group-scope",
-  title: "AD DS · convert an existing Global group to Universal",
-  kind: "concept",
-  source: "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-groups#group-scope",
-  versionNote: "Authored diagrams, not screenshots. The existing-group Properties workflow applies to Windows Server 2025 ADUC; it is different from creating a new group.",
-  prerequisites: "Use an existing lab Global group and an account permitted to modify it. Review membership and resource permissions before changing scope. Conversion to Universal is blocked if the Global group is a member of another Global group.",
-  steps: [
-    { id: "conversion-check", title: "Check the group's Member Of relationships", path: ["Active Directory Users and Computers", "Existing Global group → Properties", "Member Of"], instruction: "Confirm the Global group is not nested inside another Global group. Review those parent-group relationships before converting; do not remove memberships blindly. Group nesting restrictions differ from the members contained by the group.", command: "Get-ADGroup -Identity APP-Users -Properties MemberOf | Select-Object Name,GroupScope,MemberOf", alt: "Conversion eligibility depends on whether this Global group belongs to another Global group.", diagram: { title: "Check the parent groups, not a new-group wizard", nodes: [{ id: "group", label: "Existing Global group", detail: "APP-Users" }, { id: "parent", label: "Another Global parent", detail: "Membership blocks Universal conversion" }], edges: [{ from: "group", to: "parent", label: "Member Of: inspect before converting" }] } },
-    { id: "conversion-scope", title: "Change scope in the existing group's General tab", path: ["Existing group → Properties", "General", "Group scope → Universal", "Apply"], instruction: "In an eligible isolated lab, select Universal and apply the reviewed change. The PowerShell example previews it with -WhatIf; it does not change the group. Verify GroupScope afterwards. Creating a different Universal group does not convert the existing one or preserve its identity.", command: "Set-ADGroup -Identity APP-Users -GroupScope Universal -WhatIf\nGet-ADGroup -Identity APP-Users | Select-Object Name,GroupScope,SID", source: "https://learn.microsoft.com/en-us/powershell/module/activedirectory/set-adgroup?view=windowsserver2025-ps", alt: "An eligible existing Global group changes scope to Universal while retaining its identity.", diagram: { title: "Convert the same group", nodes: [{ id: "before", label: "APP-Users: Global" }, { id: "after", label: "APP-Users: Universal", detail: "Same group identity; new membership scope" }], edges: [{ from: "before", to: "after", label: "Eligible conversion in Properties" }] } },
-  ],
-};
 
 export const accountsGuideBindings: Record<string, AdVisualBinding> = {
   "az802-q-016": {
@@ -82,9 +70,9 @@ export const accountsGuideBindings: Record<string, AdVisualBinding> = {
     context: "Locate Domain local in Group scope: it can accept eligible members from trusted domains and receive permissions within its own domain. The reference image selects Universal; choose Domain local for this question.",
   },
   "az802-q-018": {
-    guide: groupConversionGuide,
-    startStep: "conversion-check",
-    context: "This question concerns converting an existing group. Check its Member Of relationships, then change scope in Properties; do not use the New Group dialog.",
+    guide: groupCreationGuide,
+    startStep: "group-scope",
+    context: "Locate Global in Group scope: use it to collect same-domain users by job function, such as HR or IT Support. The reference image selects Universal; select Global for this question. Grouping users and granting resource permissions are separate operations.",
   },
   "az802-q-019": {
     guide: groupCreationGuide,

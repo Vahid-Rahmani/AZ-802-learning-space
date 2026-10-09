@@ -7,6 +7,7 @@ import { identityGuideBindings } from "./ad-visual-guides-identity";
 import { networkGuideBindings } from "./ad-visual-guides-network";
 import { operationsGuideBindings } from "./ad-visual-guides-operations";
 import { withAdScreenshots } from "./ad-visual-screenshots";
+import { getHybridVisualGuide } from "./hybrid-visual-guides";
 export type { AdVisualBinding, AdVisualGuideData, AdVisualStep } from "./ad-visual-guide-types";
 
 const source = "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/install-a-new-windows-server-2012-active-directory-forest--level-200-";
@@ -86,3 +87,7 @@ export function getAdVisualGuide(question: { id: string; domain: string }) {
 }
 
 export function adStepImage(step: AdVisualStep) { return step.image ? (step.image.startsWith("https://") || step.image.startsWith("/images/") ? step.image : `${media}${step.image}`) : ""; }
+
+export function getQuestionVisualGuide(question: { id: string; domain: string }) {
+  return getAdVisualGuide(question) ?? getHybridVisualGuide(question);
+}

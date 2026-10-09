@@ -1,4 +1,5 @@
 /* Scoped to AZ-802 questions with a reviewed visual workflow. */
+.study-content:has(.ad-question-layout) { container: ad-study / inline-size; }
 .ad-question-layout { display: grid; grid-template-columns: minmax(0,1fr); gap: 20px; width: 100%; max-width: 1440px; margin-inline: auto; align-items: start; }
 .ad-question-layout > .quiz-workspace { min-width: 0; }
 .ad-visual-rail { min-width: 0; color: var(--text-primary,#e8edf5); }
@@ -14,7 +15,7 @@
 .ad-guide-step-picker select { width: 100%; min-width: 0; min-height: 44px; padding: 8px; border: 1px solid #64748b80; border-radius: 8px; background: #0b1018; color: #e8edf5; font-size: 14px; }
 .ad-guide-step-count { font-size: 12px; color: #5eead4; margin: 16px 0 0; }
 .ad-guide-image { display: block; width: 100%; padding: 0; border: 1px solid #64748b80; border-radius: 8px; overflow: hidden; background: #e8edf5; color: #102030; cursor: zoom-in; }
-.ad-guide-image img { width: 100%; height: auto; display: block; }
+.ad-guide-image img { display: block; width: auto; height: auto; max-width: 100%; max-height: 300px; margin-inline: auto; object-fit: contain; }
 .ad-guide-image span { display: block; font-size: 12px; padding: 8px; }
 .ad-guide-image-fallback { font-size: 13px; padding: 14px; border: 1px dashed #64748b; border-radius: 8px; }
 .ad-guide-image-note { font-size: 12px; line-height: 1.7; padding: 10px; border-left: 2px solid #fbbf24; background: #fbbf2410; margin: 10px 0; }
@@ -41,9 +42,10 @@
 .ad-guide-dialog button { min-height: 44px; padding: 8px 12px; border: 1px solid #64748b; border-radius: 8px; }
 .ad-guide-dialog img { width: 100%; height: auto; display: block; margin: 12px 0; }
 .ad-guide-dialog a { font-size: 13px; color: #67e8f9; }
-@media (min-width: 1100px) {
-  .ad-question-layout { grid-template-columns: minmax(0,1fr) minmax(280px,340px); }
+@container ad-study (min-width: 900px) {
+  .ad-question-layout { grid-template-columns: minmax(0,1fr) clamp(320px,35cqi,400px); }
   .ad-visual-rail { position: sticky; top: 16px; }
   .ad-question-layout > .quiz-workspace { padding: 24px; }
   .ad-question-layout .quiz-options { grid-template-columns: minmax(0,1fr); }
+  body[data-sidebar-state="collapsed"] .ad-question-layout { grid-template-columns: minmax(0,1fr) clamp(360px,45cqi,600px); }
 }

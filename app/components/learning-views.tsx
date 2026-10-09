@@ -8,7 +8,7 @@ import { examBlueprints, type ExamMode } from "@/lib/content/exam-blueprints";
 import { GoogleSubtitle } from "@/app/components/google-translate";
 import { QuestionExplanation } from "@/app/components/question-explanation";
 import { AdVisualGuide } from "@/app/components/ad-visual-guide";
-import { getAdVisualGuide } from "@/lib/content/ad-visual-guides";
+import { getQuestionVisualGuide } from "@/lib/content/ad-visual-guides";
 
 type Language = "fa" | "en" | "de";
 type Copy = typeof copy.en;
@@ -136,7 +136,7 @@ export function Quiz({ t, question, selected, totalQuestions, answer, setAnswer,
   useEffect(() => { if (!timed || timeLeft <= 0) return; const timer = window.setInterval(() => setTimeLeft((value) => Math.max(0, value - 1)), 1000); return () => window.clearInterval(timer); }, [timed, timeLeft]);
   useEffect(() => { if (timed && timeLeft === 0) onTimeout(); }, [timed, timeLeft, onTimeout]);
   const answered = answer !== null;
-  const visualGuide = (!timed || answered) ? getAdVisualGuide(question) : null;
+  const visualGuide = (!timed || answered) ? getQuestionVisualGuide(question) : null;
   const time = `${Math.floor(timeLeft / 60).toString().padStart(2, "0")}:${(timeLeft % 60).toString().padStart(2, "0")}`;
   const modeLabel = mode === "practice" ? localized(t.lang, "تمرین مرحله‌ای · همهٔ سؤال‌ها", "Stage practice · every question", "Stufenübung · alle Fragen") : mode === "full" ? localized(t.lang, "آزمون استقامت و مرور جامع · قالب رسمی نیست", "Endurance & comprehensive review · not official format", "Ausdauer- und Gesamtprüfung · kein offizielles Format") : mode === "mixed" ? localized(t.lang, "آزمون ترکیبی · هفت دامنه", "Mixed mock · seven domains", "Gemischte Prüfung · sieben Domänen") : mode === "stage" ? localized(t.lang, "ارزیابی مرحله", "Stage assessment", "Stufenprüfung") : t.mixedExam;
   return <div className={visualGuide ? "ad-question-layout" : undefined}><section className="reading-panel quiz-workspace mx-auto w-full max-w-6xl rounded-3xl border border-white/10 bg-[#111a28] p-5 sm:p-8 lg:p-10">
