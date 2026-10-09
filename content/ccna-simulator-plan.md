@@ -178,6 +178,8 @@ New: `scripts/validate-ccna-sim.mjs` and `npm run validate:ccna-sim`. It refuses
 
 Added later, same commit as the device-model repair below: `npm run test:ccna-sim-ui` (the workspace component in jsdom, driving real keyboard and click events) and `npm run audit:ccna-readiness` (the per-lab readiness table, with `--check` failing a lab that claims graded work it cannot prove). `scripts/validate-ccna-guidance.mjs` was removed with the transcript-credit rule it tested: a `show` command can no longer be evidence for a graded step at all, so the rule it guarded does not exist.
 
+Two repairs after the first production check of that work. **Closed consoles name their own recovery:** `exit` at user exec really does end an IOS session, so the console stops accepting keys; the surface printed nothing, and a learner could not tell a dead session from a broken page. The console now prints `simulatorText.closed`, and its wording names the control that exists on this surface ("Restart this console"), which resets only that console; `test:ccna-sim-ui` holds it down with `exit`, the notice, the restart and the fresh `SW1>` prompt. **The frozen-file baseline is line-ending independent:** `validate-ccna-labs` used to hash raw bytes, so a checkout git had not rewritten yet failed the gate on files nobody had changed. It now hashes content with CRLF normalised to LF, and a one-line append to a frozen file still fails it.
+
 Must stay green, unchanged: `validate:ccna-labs`, `validate:ccna-topologies`, `verify:ccna-lab-sources`, `validate:az802`, `validate:az900`, `validate:questions`, `tsc`, `npm run build`.
 
 Browser acceptance is manual, per slice, recorded by extending [ccna-lab-audit.md](ccna-lab-audit.md) — never by replacing its earlier evidence.
