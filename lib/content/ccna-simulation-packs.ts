@@ -241,6 +241,15 @@ function guideFor(lab: CcnaLabEntry, checklist: SimulationChecklistItem[], devic
     if (target.kind !== "router" && target.kind !== "switch") {
       command = item.id === "evidence" ? "show running-config" : isTopology ? "show version" : "show ip interface brief";
     }
+    const explanation: Record<string, string> = {
+      "show version": "Check the device identity and IOS version. Read the model and software information before deciding which configuration commands to use.",
+      "show ip interface brief": "Check the IP address, Status and Protocol of each interface. Compare connected ports with the topology; up/up indicates an active interface, while administratively down means it is shut down.",
+      "show interfaces status": "Check which physical ports are connected, their VLAN, speed and duplex. Compare each port with its cable in the topology before changing settings.",
+      "show interfaces switchport": "Check access or trunk mode and the access/native VLAN on each port. Compare these settings with the lab requirement before configuring the switch.",
+      "show vlan brief": "Check that the required VLAN exists and that the intended access ports belong to it. Compare the VLAN IDs and port list with the lab requirement.",
+      "show running-config": "Read the current configuration and locate the interfaces and settings used in this lab. Compare them with your intended changes and keep evidence without passwords.",
+    };
+    const task = `On ${target.label}, run ${command}. ${explanation[command] ?? "Read the output and compare it with this lab's requirements."}`;
     return {
       id: item.id,
       deviceId: target.id,
@@ -249,7 +258,7 @@ function guideFor(lab: CcnaLabEntry, checklist: SimulationChecklistItem[], devic
         ? `Start on ${target.label}. Read its role and connections in the topology, then run the command below in its console to check its interfaces.`
         : isFault
           ? `${item.detail ?? "Reproduce the lab fault"} Use the recovery note as your target, then verify the resulting device state.`
-          : item.detail ?? "Run the guided verification command and compare the output with the success criteria.",
+          : `${item.detail ?? "Verify the lab configuration."} ${task}`,
       why: isTopology
         ? "A topology is a plan: identify the device and its role before changing configuration."
         : isFault
