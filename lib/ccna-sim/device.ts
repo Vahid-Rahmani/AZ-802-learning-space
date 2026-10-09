@@ -101,6 +101,7 @@ export function defaultVlanName(id: number) {
 }
 
 const prefixes: readonly (readonly [RegExp, string])[] = [
+  [/^(ethernet|eth)/i, "Eth"],
   [/^(gi|gigabitethernet)/i, "Gi"],
   [/^(fa|fastethernet)/i, "Fa"],
   [/^vl(an)?/i, "Vlan"],

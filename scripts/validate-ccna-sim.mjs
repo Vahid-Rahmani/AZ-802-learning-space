@@ -199,7 +199,9 @@ function assertAuthoredPack(pack) {
   assert.ok(pack.devices.length >= 2, `${pack.labId}: a lab pack needs the lab's devices`);
   assert.ok(pack.links.length >= 1, `${pack.labId}: a lab pack needs the lab's cables`);
   assert.ok(pack.objectives.length >= 1, `${pack.labId}: a lab pack needs at least one objective`);
-  assertPackMatchesPublishedTopology(pack, ccnaLabs.find((lab) => lab.id === pack.labId)?.topology?.nodes ?? []);
+  const handsOn = ccnaLabs.find((lab) => lab.id === pack.labId);
+  if (handsOn) assertPackMatchesPublishedTopology(pack, handsOn.topology?.nodes ?? []);
+  else assert.ok(pack.diagramNote?.trim(), `${pack.labId}: a catalog pack must explain its diagram mapping`);
   for (const objective of pack.objectives) {
     assert.ok(objective.steps.length >= 1, `${pack.labId}/${objective.id}: objective has no steps`);
     for (const step of objective.steps) {
@@ -265,6 +267,55 @@ function assertAuthoredPack(pack) {
   const brokenFailures = [...brokenOutcomes.entries()].filter(([, outcome]) => !outcome.ok).map(([id]) => id);
   assert.ok(brokenFailures.length >= 2, `${pack.labId}: a wrong trunk VLAN broke only ${brokenFailures.length} step(s): ${brokenFailures.join(", ")}`);
   return { labId: pack.labId, steps: solvedOutcomes.size, negativeFailures: brokenFailures.length };
+}
+
+function assertTrunk017(pack) {
+  // Independent contract transcribed from the reference PNG (including port labels).
+  assert.deepEqual(pack.devices.map(n => n.label).sort(), ["HR1", "HR2", "Sales1", "Sales2", "Switch1", "Switch2"]);
+  const cable = link => [link.source, link.target].map(e => `${pack.devices.find(n => n.id === e.deviceId).label}:${portLabelOf(pack, e)}`).sort().join("|");
+  assert.deepEqual(pack.links.map(cable).sort(), ["Switch1:Fa0/1|Switch2:Fa0/1", "Sales1:Eth0|Switch1:Fa0/11", "Sales2:Eth0|Switch2:Fa0/11", "HR1:Eth0|Switch1:Fa0/12", "HR2:Eth0|Switch2:Fa0/12"].sort());
+  const sessions = sessionsFor(pack);
+  runPlan(pack, sessions, pack.solution);
+  const current = () => buildLabModel(snapshotOf(pack, sessions));
+  const outcome = key => gradedOutcomes(pack, current()).get(key);
+  const consolePing = (from, target, ok) => {
+    const result = sessions.get(from).execute(`ping ${target}`);
+    assert.ok(result.lines.some(line => line.includes(ok ? "100 percent (5/5)" : "0 percent (0/5)")), result.lines.join("\n"));
+    assert.equal(current().ping(from, target).ok, ok, "console and grader disagree");
+  };
+  consolePing("sales1", "192.168.10.12", true);
+  consolePing("hr1", "192.168.20.12", true);
+  consolePing("sales1", "192.168.20.12", false); // no router in the picture
+  const sw2 = sessions.get("sw2");
+  for (const command of ["conf t", "interface fa0/1", "switchport trunk allowed vlan 10", "end"]) sw2.execute(command);
+  assert.equal(outcome("switches:sw2-trunk").ok, false);
+  consolePing("sales1", "192.168.10.12", true);
+  consolePing("hr1", "192.168.20.12", false);
+  for (const command of ["conf t", "interface fa0/1", "switchport trunk allowed vlan 10,20", "switchport trunk native vlan 1", "end"]) sw2.execute(command);
+  assert.equal(outcome("switches:sw2-native").ok, false);
+  // Native mismatch must fail its own objective, not invent a failure of tagged VLAN 10.
+  consolePing("sales1", "192.168.10.12", true);
+  assert.equal(outcome("verify:save-sw2").ok, false, "an outdated saved config must fail");
+  for (const command of ["conf t", "interface fa0/1", "switchport trunk native vlan 99", "shutdown", "end"]) sw2.execute(command);
+  consolePing("sales1", "192.168.10.12", false);
+  for (const command of ["conf t", "interface fa0/1", "no shutdown", "exit", "interface fa0/11", "shutdown", "end"]) sw2.execute(command);
+  consolePing("sales1", "192.168.10.12", false);
+  for (const command of ["conf t", "interface fa0/11", "no shutdown", "end"]) sw2.execute(command);
+  const disconnected = snapshotOf(pack, sessions);
+  disconnected.links = disconnected.links.filter(l => l.id !== "trunk");
+  assert.equal(buildLabModel(disconnected).ping("sales1", "192.168.10.12").ok, false);
+  assert.equal(pack.objectives[0].steps.find(s => s.id === "sw1-trunk").check(buildLabModel(disconnected)).ok, false);
+  sessions.get("sales2").execute("ip address 192.168.30.12 255.255.255.0");
+  consolePing("sales1", "192.168.30.12", false); // same VLAN alone does not make a subnet
+  sessions.get("sales2").execute("ip address 192.168.10.12 255.255.255.0");
+  consolePing("sales1", "192.168.10.12", true);
+  // Reset exactly the same sessions the UI uses, retaining identity but losing all solved state.
+  for (const node of pack.devices) {
+    sessions.get(node.id).reset();
+    assert.equal(sessions.get(node.id).state.device.id, node.id);
+  }
+  assert.equal([...gradedOutcomes(pack, current()).values()].filter(o => o.ok).length, 0);
+  return { labId: pack.labId, referenceNodes: 6, referenceCables: 5, resetPassing: 0, linkAndAddressNegatives: "passed", consoleGraderParity: "passed" };
 }
 
 if (printIndex !== -1) {
@@ -358,6 +409,7 @@ for (const file of files) {
 // 5. Authored packs are graded from state: nothing passes at startup, the solution passes, negatives do not.
 assertWorkspaceSharesTheConsoleBuilder();
 const packResults = authoredLabPacks.map((pack) => assertAuthoredPack(pack));
+const trunk017 = assertTrunk017(authoredLabPacks.find(pack => pack.labId === "ccna-topology-017"));
 
 // Regression checks for the interactive terminal, beyond the golden transcripts.
 assert.equal(historyPosition(-1, 3, -1), 2);
@@ -410,6 +462,7 @@ console.log(JSON.stringify({
   singleLanguageFiles: surfaceFiles.length,
   packs: packs.length,
   authoredPacks: packResults,
+  trunk017,
   note: packs.length ? undefined : "no objective packs yet: the lab transcripts carry the end states until slice S3",
 }));
 

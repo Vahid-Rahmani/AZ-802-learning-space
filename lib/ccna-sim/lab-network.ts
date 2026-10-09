@@ -112,9 +112,7 @@ function reachableInVlan(network: LabNetwork, startDeviceId: string, startPortNa
     const neighbour = neighbourOf(network, current.deviceId, current.portName);
     if (!neighbour) continue;
     const { device, port } = neighbour;
-    if (!isUp(device, port)) {
-      if (device.state.role === "router") continue;
-    }
+    if (!isUp(device, port)) continue;
     if (device.state.role === "host") {
       if (device.state.role === "host" && port === device.state.interfaces[0]) hosts.add(device.id);
       continue;
@@ -177,6 +175,9 @@ export function pingFrom(network: LabNetwork, fromDeviceId: string, targetIp: st
   if (!source || source.state.role !== "host") return fail(targetIp, "Only an endpoint console can start a ping in this lab.");
   const nic = source.state.interfaces[0];
   if (!nic?.address) return fail(targetIp, `${source.label} has no IP address on ${nic?.name ?? "its NIC"}.`);
+  if (!nic.adminUp) return fail(targetIp, `${source.label} ${nic.name} is administratively down.`);
+  const firstHop = neighbourOf(network, source.id, nic.name);
+  if (firstHop && !firstHop.port.adminUp) return fail(targetIp, `${firstHop.device.label} ${firstHop.port.name} is administratively down.`);
   const sourceVlan = hostVlan(network, source.id);
   if (sourceVlan === null) return fail(targetIp, `${source.label} is not cabled to a switch access port, so it has no VLAN.`);
   const attachedSwitch = (deviceId: string) => {
@@ -204,6 +205,11 @@ export function pingFrom(network: LabNetwork, fromDeviceId: string, targetIp: st
       return fail(targetIp, `${destinationSwitch.label} has no VLAN ${destinationVlan} in its VLAN database, so ${destinationHost.label}'s port cannot pass traffic.`);
     }
     if (destinationVlan === sourceVlan) {
+      if (!destinationInterface.adminUp) return fail(targetIp, `${destinationHost.label}'s interface is administratively down.`);
+      if (!destinationInterface.address || !sameSubnet(nic.address.ip, targetIp, nic.address.mask)
+        || !sameSubnet(targetIp, nic.address.ip, destinationInterface.address.mask)) {
+        return fail(targetIp, `${source.label} and ${destinationHost.label} do not share a bidirectional IP subnet; VLAN membership alone does not provide routing.`);
+      }
       return local.hosts.has(destinationHost.id)
         ? { ok: true, lines: reply(true, targetIp), reason: `${source.label} and ${destinationHost.label} share VLAN ${sourceVlan}.` }
         : fail(targetIp, `${source.label} and ${destinationHost.label} are both in VLAN ${sourceVlan}, but no cable and trunk path carries it between them.`);

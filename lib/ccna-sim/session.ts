@@ -68,6 +68,7 @@ export class IosSession {
 
   reset() {
     const fresh = createSimState(this.state.device.hostname, this.role, this.portLabels);
+    fresh.device.id = this.state.device.id;
     this.state.device = fresh.device;
     this.state.config = fresh.config;
     this.state.selected = fresh.selected;

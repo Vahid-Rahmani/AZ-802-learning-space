@@ -1674,14 +1674,14 @@ troubleshootingFocus: "checkpoint",
 scenario: {
     role: "You have inherited the network at",
     context: "a veterinary clinic that shares its building with a small laboratory",
-    requirement: "Produce a reading of Switch Trunk Ports that a colleague could follow, backed by the device output you saved.",
+    requirement: "Extend Sales VLAN 10 and HR VLAN 20 across Switch1 and Switch2 on Fa0/1 trunks. Sales hosts use Fa0/11; HR hosts use Fa0/12. Allow exactly VLANs 10,20 and set native VLAN 99 on both ends. Verify Sales1 to Sales2 and HR1 to HR2; there is no router or inter-VLAN path in this diagram.",
     kind: "implementation",
   },
 prerequisites: ["ccna-topology-001","ccna-addressing"], prerequisiteBands: ["ccna-band-01","ccna-band-02"],
 relatedLabIds: ["ccna-vlans","ccna-topology-016","ccna-topology-018","ccna-topology-019"],
 fault: {
     failure: "Remove one department's VLAN from a trunk's allowed list, or set the native VLAN on one side of the trunk only.",
-    recovery: "Restore the allowed VLAN list and make the native VLAN agree on both ends, then re-test each department's gateway before testing the cross-VLAN path.",
+    recovery: "Restore allowed VLANs 10,20 and native VLAN 99 on both Fa0/1 trunks. Verify Sales1 to Sales2 and HR1 to HR2 separately; gateways and inter-VLAN routing are not part of this six-device diagram.",
   },
 verification: ["show vlan brief", "show interfaces switchport", "show interfaces trunk", "show ip interface brief"],
 sourceRefs: [

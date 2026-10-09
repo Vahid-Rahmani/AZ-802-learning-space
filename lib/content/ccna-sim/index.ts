@@ -1,5 +1,6 @@
 import type { SimLabPack } from "../../ccna-sim/lab.ts";
 import { createCcnaVlansPack } from "./ccna-vlans.ts";
+import { createCcnaTopology017Pack } from "./ccna-topology-017.ts";
 
 /**
  * The authored lab packs, one file per lab, named after the lab it belongs to. A lab that has an
@@ -16,7 +17,7 @@ import { createCcnaVlansPack } from "./ccna-vlans.ts";
  * replays its solution headlessly and refuses to pass if any graded step, or any negative case,
  * disagrees.
  */
-const packs: readonly SimLabPack[] = [createCcnaVlansPack()];
+const packs: readonly SimLabPack[] = [createCcnaVlansPack(), createCcnaTopology017Pack()];
 
 const packsByLabId = new Map(packs.map((pack) => [pack.labId, pack]));
 
