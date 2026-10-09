@@ -755,15 +755,20 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   };
 
   return <section className={`ccna-simulation-workspace${className ? ` ${className}` : ""}`} aria-label={`Interactive ${pack.title} lab`}>
+    <header className="ccna-lab-bar">
+      <a className="ccna-lab-brand" href="/ccna">KLYBIT<span>LAB</span></a>
+      <div className="ccna-lab-title"><h1>{pack.title}</h1><p>{completedRequired}/{requiredCount || 0} objectives</p></div>
+      <div className="ccna-lab-actions"><button type="button" onClick={resetLab}>↻ Reset Lab</button><a href="/ccna/library">← Labs</a></div>
+    </header>
     <nav className="ccna-simulation-tabs" aria-label="Simulation panels" role="tablist">
       {panelTabs.map((tab) => <button key={tab.id} id={`ccna-panel-tab-${tab.id}`} type="button" role="tab" aria-selected={activePanel === tab.id} aria-controls={`ccna-panel-${tab.id}`} tabIndex={activePanel === tab.id ? 0 : -1} onClick={() => setActivePanel(tab.id)} onKeyDown={(event) => handlePanelTabKey(event, tab.id)}>{tab.label}</button>)}
     </nav>
 
     <div className="ccna-simulation-layout" data-active-panel={activePanel}>
       <aside id="ccna-panel-scenario" className="ccna-simulation-panel ccna-simulation-scenario" data-panel="scenario" role="tabpanel" aria-labelledby="ccna-panel-tab-scenario" tabIndex={-1}>
-        <div className="ccna-simulation-panel-heading"><span className="ccna-simulation-panel-icon">1</span><h3>Scenario &amp; checklist</h3></div>
+        <div className="ccna-simulation-panel-heading"><span className="ccna-simulation-panel-icon">1</span><h3>Scenario</h3></div>
         {pack.scenario.role && <p className="ccna-simulation-role">{pack.scenario.role}</p>}
-        <details className="ccna-simulation-detail">
+        <details open className="ccna-simulation-detail">
           <summary>Scenario context</summary>
           <p>{pack.scenario.context}</p>
         </details>
@@ -786,7 +791,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
           })}
         </ul>}
         {guidedStages.length > 0 && <section className="ccna-simulation-guide ccna-simulation-guide--scenario" aria-label="Guided lab steps">
-          <div className="ccna-simulation-guide-heading"><div><span className="ccna-simulation-guide-kicker">Guided path</span><strong>{activeStage ? `Stage ${nextStageIndex + 1} of ${guidedStages.length}` : "Lab complete"}</strong></div><span className="ccna-simulation-guide-score">{completedStageIds.size}/{guidedStages.length} verified</span></div>
+          <div className="ccna-simulation-guide-heading"><div><span className="ccna-simulation-guide-kicker">Objectives</span><strong>{activeStage ? `Stage ${nextStageIndex + 1} of ${guidedStages.length}` : "Lab complete"}</strong></div><span className="ccna-simulation-guide-score">{completedStageIds.size}/{guidedStages.length} verified</span></div>
           <ol className="ccna-simulation-stage-list">
             {guidedStages.map((stage, index) => {
               const complete = completedStageIds.has(stage.id);
@@ -824,7 +829,9 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
         <div className="sr-only" data-kind={notice.kind} role="status" aria-live="polite">{notice.text}</div>
         <div className="ccna-simulation-canvas-wrap">
           <svg ref={svgRef} className="ccna-simulation-canvas" viewBox={`0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`} role="group" aria-label="Interactive network topology. Drag devices to move them; select two ports to connect a cable." onPointerDown={handleCanvasPointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerUp}>
+            <defs><pattern id={`lab-dots-${pack.id}`} width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#242730" /></pattern></defs>
             <rect className="ccna-simulation-canvas-background" x="0" y="0" width={CANVAS_WIDTH} height={CANVAS_HEIGHT} rx="16" />
+            <rect x="0" y="0" width={CANVAS_WIDTH} height={CANVAS_HEIGHT} fill={`url(#lab-dots-${pack.id})`} pointerEvents="none" />
             <g transform={`translate(${state.viewport.x} ${state.viewport.y}) scale(${state.viewport.scale})`}>
               {state.links.map((link) => {
                 const source = endpointPoint(state, link.source);

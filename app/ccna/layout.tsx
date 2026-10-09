@@ -106,7 +106,7 @@ export default function CcnaLayout({ children }: { children: ReactNode }) {
   /** Same hard navigation the course switcher uses: the client-side router swallows anchor clicks
    * in this runtime, so a sidebar link must not depend on it. */
   const go = (href: string) => (event: { preventDefault: () => void }) => { event.preventDefault(); window.location.href = href; };
-  return <GoogleSubtitleProvider language={language}><main className="study-app ccna-shell font-scale-content min-h-screen text-[#e8edf5]" style={{ "--wincraft-font-scale": fontScale } as CSSProperties}>
+  return <GoogleSubtitleProvider language={language}><main className="study-app ccna-shell font-scale-content min-h-screen text-[#e8edf5]" data-simulator={pathname === "/ccna/sim" ? "true" : undefined} style={{ "--wincraft-font-scale": fontScale } as CSSProperties}>
     <div className="app-shell mx-auto grid min-h-screen max-w-[1600px] grid-cols-1 lg:grid-cols-[250px_minmax(0,1fr)]">
       <aside className="app-sidebar border-b border-white/10 p-3 sm:p-4 lg:border-b-0 lg:border-e">
         <AppBrand subtitle="Cloud, servers & networking" />

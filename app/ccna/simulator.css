@@ -487,3 +487,92 @@
   .ccna-simulation-workspace *::after { scroll-behavior: auto !important; transition: none !important; }
 }
 
+
+/* Measured SwitchLab lab surface: 61px bar, 25/42/33 columns. Scoped to
+   the simulator route so embedded workspaces and course pages keep their shell. */
+html .study-app.ccna-shell[data-simulator="true"] { background: #16181d; }
+html .study-app.ccna-shell[data-simulator="true"] .app-shell { display: block; max-width: none; }
+html .study-app.ccna-shell[data-simulator="true"] .app-sidebar { display: none; }
+html .study-app.ccna-shell[data-simulator="true"] .app-content { padding: 0; }
+html .study-app.ccna-shell[data-simulator="true"] .app-content > header { display: none; }
+html .study-app .ccna-sim-page .ccna-simulation-workspace {
+  --simulation-bg: #111318;
+  --simulation-surface: #16181d;
+  --simulation-surface-raised: #1e2128;
+  --simulation-line: #292c35;
+  --simulation-text: #e4e6eb;
+  --simulation-muted: #858b98;
+  --simulation-accent: #00aeef;
+  --simulation-success: #46cba5;
+  font-size: calc(14px * var(--wincraft-font-scale, 1));
+  background: var(--simulation-surface);
+}
+.ccna-lab-bar { display: none; align-items: center; gap: 14px; height: 61px; padding: 0 16px; border-bottom: 1px solid var(--simulation-line); background: #16181d; }
+html .study-app .ccna-sim-page .ccna-lab-bar { display: flex; }
+.ccna-lab-brand { flex: none; padding-right: 14px; border-right: 1px solid var(--simulation-line); color: #e4e6eb; font-size: 18px; font-weight: 900; font-style: italic; text-decoration: none; }
+.ccna-lab-brand span { color: var(--simulation-accent); }
+.ccna-lab-title { min-width: 0; }
+.ccna-lab-title h1 { margin: 0; font-size: 14px; font-weight: 700; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.ccna-lab-title p { margin: 2px 0 0; color: var(--simulation-muted); font-size: 12px; }
+.ccna-lab-actions { display: flex; gap: 6px; margin-left: auto; flex: none; }
+.ccna-lab-actions button, .ccna-lab-actions a { padding: 6px 12px; border: 1px solid var(--simulation-line); border-radius: 7px; background: transparent; color: var(--simulation-muted); font: inherit; font-size: 12px; text-decoration: none; cursor: pointer; }
+.ccna-lab-actions button { color: #df7984; border-color: #633c43; }
+html .study-app .ccna-sim-page .ccna-simulation-panel { border-radius: 0; box-shadow: none; background: #16181d; border: 0; }
+html .study-app .ccna-sim-page .ccna-simulation-panel-heading h3 { font-size: 14px; }
+html .study-app .ccna-sim-page .ccna-simulation-panel-icon { display: none; }
+html .study-app .ccna-sim-page .ccna-simulation-role { color: var(--simulation-muted) !important; font-weight: 400; }
+html .study-app .ccna-sim-page .ccna-simulation-progress { background: transparent; border: 0; padding: 0; }
+html .study-app .ccna-sim-page .ccna-simulation-progress-track { height: 3px; background: #292c35; }
+html .study-app .ccna-sim-page .ccna-simulation-progress-track span { background: var(--simulation-accent); }
+html .study-app .ccna-sim-page .ccna-simulation-guide--scenario { margin: 16px 0 0; padding: 0; background: transparent; border: 0; }
+html .study-app .ccna-sim-page .ccna-simulation-stage-list { display: grid; gap: 12px; overflow: visible; }
+html .study-app .ccna-sim-page .ccna-simulation-stage, html .study-app .ccna-sim-page .ccna-simulation-checklist button { min-width: 0; padding: 14px 12px; border: 1px solid #2b2e37; border-radius: 8px; background: #1e2128; box-shadow: none; }
+html .study-app .ccna-sim-page .ccna-simulation-stage strong { white-space: normal; font-size: 12px; font-weight: 400; }
+html .study-app .ccna-sim-page .ccna-simulation-stage small { color: #858b98; font-size: 11px; }
+html .study-app .ccna-sim-page .ccna-simulation-stage.is-locked { opacity: .8; }
+html .study-app .ccna-sim-page .ccna-simulation-stage-marker { width: 14px; height: 14px; flex-basis: 14px; background: transparent; font-size: 9px; }
+html .study-app .ccna-sim-page .ccna-simulation-current-stage { background: #1e2128; border-color: #292c35; }
+html .study-app .ccna-sim-page .ccna-simulation-terminal-panel { background: #111318; border-inline: 1px solid #23262e; }
+html .study-app .ccna-sim-page .ccna-simulation-terminal-panel > .ccna-simulation-panel-heading { display: none; }
+html .study-app .ccna-sim-page .ccna-simulation-device-tabs { padding: 0; gap: 0; background: #16181d; border-color: #292c35; }
+html .study-app .ccna-sim-page .ccna-simulation-device-tab { min-width: 0; min-height: 31px; padding: 6px 12px; flex-direction: row; border: 0; border-radius: 0; background: transparent; font-size: 12px; }
+html .study-app .ccna-sim-page .ccna-simulation-device-tab small { display: none; }
+html .study-app .ccna-sim-page .ccna-simulation-device-tab[aria-selected="true"] { color: var(--simulation-accent); background: transparent; }
+html .study-app .ccna-sim-page .ccna-simulation-terminal-screen { padding: 36px 16px 16px; font-size: 14px; color: #858b98; }
+html .study-app .ccna-sim-page .ccna-simulation-terminal-output p, html .study-app .ccna-sim-page .ccna-simulation-terminal-response { color: #858b98 !important; }
+html .study-app .ccna-sim-page .ccna-simulation-terminal-prompt, html .study-app .ccna-sim-page .ccna-simulation-terminal-cursor { color: #60cc92; }
+html .study-app .ccna-sim-page .ccna-simulation-terminal-actions { padding: 7px 16px; border-color: #292c35; font-size: 10px; color: #858b98; }
+html .study-app .ccna-sim-page .ccna-simulation-terminal-actions button { background: transparent; border-color: #292c35; color: #858b98; }
+html .study-app .ccna-sim-page .ccna-simulation-canvas-wrap { background: #0f1115; border-color: #292c35; border-radius: 12px; }
+html .study-app .ccna-sim-page .ccna-simulation-canvas-background { fill: #0f1115; stroke: #23262e; }
+html .study-app .ccna-sim-page .ccna-simulation-node .ccna-simulation-node-card { fill: #16181d; stroke: #292c35; stroke-width: 1; filter: none; }
+html .study-app .ccna-sim-page .ccna-simulation-node.is-selected .ccna-simulation-node-card { stroke: #00aeef; stroke-width: 2; }
+html .study-app .ccna-sim-page .ccna-simulation-link-line { stroke: #46cba5; stroke-width: 2; }
+html .study-app .ccna-sim-page .ccna-simulation-node-label { fill: #e4e6eb; font-size: 13px; font-style: italic; }
+html .study-app .ccna-sim-page .ccna-simulation-node-subtitle { fill: #858b98; font-size: 10px; }
+html .study-app .ccna-sim-page .ccna-simulation-interface-table thead th { background: #1e2128; }
+html .study-app .ccna-sim-page .ccna-simulation-detail { border-color: #292c35; }
+@media (min-width: 900px) {
+  html .study-app .ccna-sim-page { height: 100dvh; overflow: hidden; }
+  html .study-app .ccna-sim-page .ccna-simulation-workspace { height: 100%; display: flex; flex-direction: column; }
+  .ccna-lab-bar { flex: 0 0 61px; }
+  html .study-app .ccna-sim-page .ccna-simulation-layout { flex: 1; height: auto; min-height: 0; margin: 8px 0 0; gap: 0; grid-template-columns: minmax(0,25fr) minmax(0,42fr) minmax(0,33fr); grid-template-rows: minmax(0,1fr) auto; grid-template-areas: "scenario terminal topology" "scenario terminal reference"; align-items: stretch; }
+  html .study-app .ccna-sim-page .ccna-simulation-scenario { padding: 16px; overflow: auto; }
+  html .study-app .ccna-sim-page .ccna-simulation-topology-panel { padding: 16px; overflow: auto; }
+  html .study-app .ccna-sim-page .ccna-simulation-terminal-panel { padding: 0; overflow: hidden; }
+  html .study-app .ccna-sim-page .ccna-simulation-terminal-screen { flex: 1; height: auto; min-height: 0; }
+  html .study-app .ccna-sim-page .ccna-simulation-canvas-wrap { flex: 1; min-height: 260px; }
+  html .study-app .ccna-sim-page .ccna-simulation-canvas { height: 100%; aspect-ratio: auto; }
+  html .study-app .ccna-sim-page .ccna-simulation-reference-panel { max-height: 140px; padding: 16px; overflow: auto; border-top: 1px solid #292c35; }
+}
+@media (max-width: 899px) {
+  html .study-app .ccna-sim-page .ccna-simulation-tabs { margin: 8px; background: #16181d; }
+  html .study-app .ccna-sim-page .ccna-simulation-terminal-panel { padding: 0; }
+  .ccna-lab-bar { padding-inline: 10px; gap: 8px; }
+  .ccna-lab-brand { font-size: 14px; padding-right: 8px; }
+  .ccna-lab-actions button, .ccna-lab-actions a { padding: 6px; font-size: 10px; }
+}
+
+html .study-app .ccna-sim-page .ccna-simulation-terminal-screen { background: #111318; }
+html .study-app .ccna-sim-page .ccna-simulation-guide--scenario .ccna-simulation-stage-list { max-height: none; overflow: visible; }
+html .study-app.ccna-shell[data-simulator="true"] .app-shell { border: 0; background: #16181d; }
