@@ -121,7 +121,11 @@ export function createKnowledgeSearch(questionBank: readonly KnowledgeQuestion[]
 
   return {
     search(query: string, limit = 6) {
-      const normalized = normalizeSearchText(query);
+      // Conversational filler is not evidence about the requested topic. Keep
+      // technical terms, but do not penalize natural-language questions for it.
+      const normalized = normalizeSearchText(query).split(/\s+/)
+        .filter((token) => !stopWords.has(token) && !["کنم", "کنیم", "کنید"].includes(token))
+        .join(" ");
       const results = normalized.length >= 2 ? index.search(normalized, { limit }) : [];
       const best = results[0];
       const bestScore = best?.score ?? 1;
