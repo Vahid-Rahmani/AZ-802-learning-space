@@ -19,6 +19,8 @@ const routes = [
   { key: "home", href: "/ccna", label: "Home", icon: Layers },
   { key: "learning", href: "/ccna/build", label: "Learning", icon: BookOpen },
   { key: "practice", href: "/ccna/train", label: "Practice", icon: Network },
+  { key: "questions", href: "/ccna/practice", label: "Question bank", icon: BookOpen },
+  { key: "labs", href: "/ccna/library", label: "Lab library", icon: Network },
   { key: "exams", href: "/ccna/exams", label: "Exams", icon: ClipboardCheck },
 ] as const;
 
