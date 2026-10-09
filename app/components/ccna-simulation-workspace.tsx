@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { flushSync } from "react-dom";
 import { createLabSession, IosSession } from "@/lib/ccna-sim/session";
 import { findInterface, portLinkStatus, type SimCableState, type SimInterfaceKind, type SimStaticRoute } from "@/lib/ccna-sim/device";
 import { simulationCableCurve } from "@/lib/ccna-sim/cable-geometry";
@@ -460,6 +461,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   const terminalSessions = useRef<Record<string, TerminalRuntime>>({});
   const svgRef = useRef<SVGSVGElement>(null);
   const terminalSurfaceRef = useRef<HTMLDivElement>(null);
+  const workspaceRef = useRef<HTMLElement>(null);
   const terminalInputRef = useRef<HTMLInputElement>(null);
   const terminalComposing = useRef(false);
   const latestRef = useRef({ state, views: terminalViews });
@@ -659,6 +661,22 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     const screen = terminalSurfaceRef.current;
     if (screen) screen.scrollTop = screen.scrollHeight;
   }, [terminalDraft, terminalViews, activePanel]);
+
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    const resize = () => {
+      workspaceRef.current?.style.setProperty("--simulation-viewport-height", `${viewport?.height ?? window.innerHeight}px`);
+      const screen = terminalSurfaceRef.current;
+      if (screen && document.activeElement === terminalInputRef.current) screen.scrollTop = screen.scrollHeight;
+    };
+    resize();
+    viewport?.addEventListener("resize", resize);
+    window.addEventListener("resize", resize);
+    return () => {
+      viewport?.removeEventListener("resize", resize);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
 
   useEffect(() => {
     if (!requiredCount || completedRequired !== requiredCount || completionNotified.current) return;
@@ -867,12 +885,15 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     const runtime = getTerminalRuntime(node);
     runtime.draft = command;
     runtime.historyCursor = -1;
-    setActiveDeviceId(node.id);
-    setTerminalDraft(command);
-    setTerminalCursor(command.length);
-    setTerminalViews((current) => ({ ...current, [node.id]: terminalView(runtime) }));
-    setActivePanel("terminal");
-    window.requestAnimationFrame(() => terminalInputRef.current?.focus());
+    flushSync(() => {
+      setActiveDeviceId(node.id);
+      setTerminalDraft(command);
+      setTerminalCursor(command.length);
+      setTerminalViews((current) => ({ ...current, [node.id]: terminalView(runtime) }));
+      setActivePanel("terminal");
+    });
+    // Mobile browsers only open the keyboard inside the original tap gesture.
+    terminalInputRef.current?.focus({ preventScroll: true });
   };
 
   const handleTerminalKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
@@ -949,7 +970,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     window.requestAnimationFrame(() => document.getElementById(`ccna-panel-tab-${nextTab.id}`)?.focus());
   };
 
-  return <section className={`ccna-simulation-workspace${className ? ` ${className}` : ""}`} aria-label={`Interactive ${pack.title} lab`}>
+  return <section ref={workspaceRef} className={`ccna-simulation-workspace${className ? ` ${className}` : ""}`} aria-label={`Interactive ${pack.title} lab`}>
     <header className="ccna-lab-bar">
       <a className="ccna-lab-back" href={pack.lab ? `/ccna/labs/${pack.lab.labId}` : "/ccna/library"}>← {pack.lab ? "Lab brief" : "Labs"}</a>
       {/* One header for the lab page: the site header already carries this title as its h1, so the bar
@@ -958,7 +979,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
       <div className="ccna-lab-actions"><button type="button" className="ccna-lab-reset" onClick={resetLab} title="Resets this lab only: device consoles, cables and step progress. Saved answers, quiz grades and evidence are not touched.">Reset lab · this lab only</button></div>
     </header>
     <nav className="ccna-simulation-tabs" aria-label="Simulation panels" role="tablist">
-      {panelTabs.map((tab) => <button key={tab.id} id={`ccna-panel-tab-${tab.id}`} type="button" role="tab" aria-selected={activePanel === tab.id} aria-controls={`ccna-panel-${tab.id}`} tabIndex={activePanel === tab.id ? 0 : -1} onClick={() => setActivePanel(tab.id)} onKeyDown={(event) => handlePanelTabKey(event, tab.id)}>{tab.label}</button>)}
+      {panelTabs.map((tab) => <button key={tab.id} id={`ccna-panel-tab-${tab.id}`} type="button" role="tab" aria-selected={activePanel === tab.id} aria-controls={`ccna-panel-${tab.id}`} tabIndex={activePanel === tab.id ? 0 : -1} onClick={() => { flushSync(() => setActivePanel(tab.id)); if (tab.id === "terminal") terminalInputRef.current?.focus({ preventScroll: true }); }} onKeyDown={(event) => handlePanelTabKey(event, tab.id)}>{tab.label}</button>)}
     </nav>
 
     <div className="ccna-simulation-layout" data-active-panel={activePanel}>
@@ -997,7 +1018,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
                 ? `This step is completed on ${stageDevice?.label ?? selectedNodeData?.label ?? "the target device"}. ${selectedNodeData && stageDevice && selectedNodeData.id !== stageDevice.id ? `${selectedNodeData.label} is not needed for it.` : "It is credited from the device state this console produces, not from typing the command."}`
                 : `You are on ${selectedNodeData?.label ?? "the target device"}. Complete this check here before moving to the next step.`
               : `${selectedNodeData?.label ?? "This device"} is not needed for this step. First select ${stageDevice?.label} to open its console.`}</p>
-            {!isStageDeviceSelected && stageDevice && <button type="button" className="ccna-simulation-open-device" onClick={() => { selectDevice(stageDevice); setActivePanel("terminal"); window.requestAnimationFrame(() => terminalInputRef.current?.focus()); }}>Open {stageDevice.label} console</button>}
+            {!isStageDeviceSelected && stageDevice && <button type="button" className="ccna-simulation-open-device" onClick={() => { flushSync(() => { selectDevice(stageDevice); setActivePanel("terminal"); }); terminalInputRef.current?.focus({ preventScroll: true }); }}>Open {stageDevice.label} console</button>}
             <p>{activeStage.instruction}</p>
             <p className="ccna-simulation-stage-why"><strong>Why:</strong> {activeStage.why}</p>
             {/* A step may legitimately offer the same keyword twice (a range form and its per-port
@@ -1097,7 +1118,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
             const consoleNode = hasConsole(node);
             const view = consoleNode ? terminalViews[node.id] ?? defaultTerminalView(node) : null;
             const selected = node.id === selectedNodeData?.id;
-            return <button key={node.id} type="button" role="tab" aria-selected={selected} aria-controls="ccna-active-device-console" disabled={!consoleNode} title={consoleNode ? undefined : `${node.label} is configured in the lab's own tool, not in an IOS console, so this practice model has no console for it.`} className={`ccna-simulation-device-tab${selected ? " is-active" : ""}${consoleNode ? "" : " is-consoleless"}`} onClick={() => selectDevice(node)}>
+            return <button key={node.id} type="button" role="tab" aria-selected={selected} aria-controls="ccna-active-device-console" disabled={!consoleNode} title={consoleNode ? undefined : `${node.label} is configured in the lab's own tool, not in an IOS console, so this practice model has no console for it.`} className={`ccna-simulation-device-tab${selected ? " is-active" : ""}${consoleNode ? "" : " is-consoleless"}`} onClick={() => { flushSync(() => selectDevice(node)); terminalInputRef.current?.focus({ preventScroll: true }); }}>
               <span>{node.label}</span><small>{view ? simModeLabels[view.mode] : "no console"}</small>
             </button>;
           })}
@@ -1116,7 +1137,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
           </div>
           {activeView && !activeView.closed && <form className="ccna-simulation-terminal-input-line" aria-label="Current command line" onSubmit={(event) => { event.preventDefault(); if (!terminalComposing.current) submitCommand(); }}>
             <span className="ccna-simulation-terminal-prompt">{activeView.prompt}</span>{" "}
-            <input ref={terminalInputRef} className="ccna-simulation-terminal-native-input" type={activeView.inputHidden ? "password" : "text"} aria-label={`Type commands for ${selectedNodeData?.label ?? "the selected device"}`} value={terminalDraft} inputMode="text" enterKeyHint="send" autoCapitalize="off" autoCorrect="off" autoComplete="off" spellCheck={false} dir="ltr" onChange={(event) => updateTerminalDraft(event.currentTarget.value, event.currentTarget.selectionStart ?? event.currentTarget.value.length)} onSelect={(event) => setTerminalCursor(event.currentTarget.selectionStart ?? terminalDraft.length)} onCompositionStart={() => { terminalComposing.current = true; }} onCompositionEnd={() => { terminalComposing.current = false; }} />
+            <input ref={terminalInputRef} className="ccna-simulation-terminal-native-input" type={activeView.inputHidden ? "password" : "text"} aria-label={`Type commands for ${selectedNodeData?.label ?? "the selected device"}`} placeholder={activeView.inputHidden ? "Password" : "Type a command…"} value={terminalDraft} inputMode="text" enterKeyHint="send" autoCapitalize="off" autoCorrect="off" autoComplete="off" spellCheck={false} dir="ltr" onChange={(event) => updateTerminalDraft(event.currentTarget.value, event.currentTarget.selectionStart ?? event.currentTarget.value.length)} onSelect={(event) => setTerminalCursor(event.currentTarget.selectionStart ?? terminalDraft.length)} onCompositionStart={() => { terminalComposing.current = true; }} onCompositionEnd={() => { terminalComposing.current = false; }} />
           </form>}
         </div>
         <div className="ccna-simulation-terminal-actions"><span>↑ ↓ history · Ctrl+L clear · Ctrl+C cancel</span><button type="button" onClick={resetActiveTerminal} disabled={!activeView} title="Restarts only the console you are typing in: this device's history and output. The other consoles and your step progress stay.">Restart this console</button></div>

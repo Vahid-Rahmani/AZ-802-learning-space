@@ -26,16 +26,36 @@ export function AppBrand({ subtitle }: { subtitle: string }) {
 }
 
 function SidebarToggle() {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const sync = () => setOpen(desktop.matches);
+    sync();
+    desktop.addEventListener("change", sync);
+    const closeOnNavigation = (event: MouseEvent) => {
+      if (!desktop.matches && event.target instanceof Element && event.target.closest(".app-sidebar a, .app-sidebar nav button")) setOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") setOpen(false); };
+    document.addEventListener("click", closeOnNavigation);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      desktop.removeEventListener("change", sync);
+      document.removeEventListener("click", closeOnNavigation);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, []);
 
   useEffect(() => {
     document.body.dataset.sidebarState = open ? "open" : "collapsed";
+    document.querySelectorAll<HTMLElement>(".app-sidebar").forEach((sidebar) => { sidebar.inert = !open; });
     return () => {
       delete document.body.dataset.sidebarState;
+      document.querySelectorAll<HTMLElement>(".app-sidebar").forEach((sidebar) => { sidebar.inert = false; });
     };
   }, [open]);
 
-  return <button
+  return <><button type="button" className="sidebar-backdrop" aria-label="Close navigation" onClick={() => setOpen(false)} tabIndex={open ? 0 : -1} /><button
     type="button"
     className="sidebar-toggle-button"
     aria-label={open ? "Collapse navigation" : "Expand navigation"}
@@ -45,7 +65,7 @@ function SidebarToggle() {
   >
     <Menu size={18} aria-hidden="true" />
     <span>Menu</span>
-  </button>;
+  </button></>;
 }
 
 export function StudyHeader({ title, course, t, fontScale, onFontScale, translationLanguage, onTranslationLanguage, onAccount }: Props) {

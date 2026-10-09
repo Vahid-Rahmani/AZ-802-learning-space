@@ -1,0 +1,122 @@
+/* Last in the cascade: one mobile contract for all four learning paths.
+   Desktop layout stays intact; console output alone has a bounded scroll area. */
+.sidebar-backdrop { display: none; }
+html .study-app .ccna-simulation-terminal-screen {
+  flex: none;
+  height: clamp(240px, 60dvh, 640px);
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  overflow-anchor: none;
+}
+@media (min-width: 900px) {
+  html .study-app .ccna-sim-page .ccna-simulation-terminal-screen { flex: 1 1 0; height: 0; min-height: 0; }
+}
+@media (max-width: 1023px) {
+  /* A drawer is closed on entry. Only an explicit Menu tap opens its backdrop. */
+  body[data-sidebar-state] .study-app::before { content: none; display: none; }
+  html .study-app .app-sidebar {
+    width: min(78vw, 268px);
+    padding: 16px 12px;
+    transform: translateX(-110%);
+    visibility: hidden;
+    transition: transform .18s ease, visibility .18s;
+    overscroll-behavior: contain;
+  }
+  body[data-sidebar-state="open"] .study-app .app-sidebar { transform: none; visibility: visible; }
+  body[data-sidebar-state="open"] .sidebar-backdrop {
+    display: block; position: fixed; inset: 0; z-index: 80;
+    padding: 0; border: 0; border-radius: 0; background: #0006;
+  }
+  html .study-app[data-simulator="true"] .sidebar-backdrop { display: none; }
+  html .study-app .app-sidebar nav { margin-top: 16px; gap: 4px; }
+  html .study-app .app-sidebar nav :is(a,button) { min-height: 44px; padding: 9px 10px; font-size: 14px; }
+  html .study-app .app-shell { grid-template-columns: minmax(0,1fr); }
+  html .study-app :is(.app-content,.study-content) { min-width: 0; padding: 12px 12px calc(82px + env(safe-area-inset-bottom)); }
+  html .study-app .certpath-header {
+    display: flex; flex-direction: column-reverse; align-items: stretch;
+    gap: 10px; padding: 10px; margin-bottom: 14px; min-width: 0;
+  }
+  html .study-app .header-mobile-actions { justify-content: flex-start; gap: 6px; min-width: 0; }
+  html .study-app .sidebar-toggle-button {
+    position: static; flex: 0 0 44px; min-height: 44px; padding: 8px;
+  }
+  body[data-sidebar-state="open"] .study-app .sidebar-toggle-button {
+    position: fixed; top: 10px; left: calc(min(78vw,268px) + 8px); z-index: 100;
+  }
+  html .study-app .header-mobile-actions .course-switcher { flex: 1; min-width: 0; position: static; }
+  html .study-app .course-switcher-toggle { width: 100%; min-width: 0; min-height: 44px; justify-content: center; padding: 8px; }
+  html .study-app .course-switcher-toggle-label { display: none; }
+  html .study-app .reading-settings-toggle, html .study-app .account-button { flex: 0 0 44px; min-height: 44px; padding: 8px; justify-content: center; }
+  html .study-app .reading-settings-toggle span { display: none; }
+  html .study-app .header-title { min-width: 0; }
+  html .study-app .header-eyebrow { font-size: 11px; letter-spacing: .04em; }
+  html .study-app .header-eyebrow span { display: none; }
+  html .study-app .certpath-header h1 { font-size: 19px; line-height: 1.35; letter-spacing: 0; white-space: normal; overflow-wrap: anywhere; margin: 2px 0 0; }
+  html .study-app .course-switcher-menu, html .study-app .study-controls {
+    top: 62px; inset-inline: 0; width: 100%; min-width: 0; max-width: 100%;
+    max-height: min(65dvh,480px); overflow-y: auto; z-index: 70;
+  }
+  html .study-app .study-controls { grid-template-columns: minmax(0,1fr); }
+  html .study-app .study-controls > * { min-width: 0; max-width: 100%; }
+  html .study-app .study-controls :is(input,select) { max-width: 100%; }
+  html .study-app :is(h2,h3,h4,p,li,label,a,button) { overflow-wrap: anywhere; }
+  html .study-app :is(section,article,.learning-start,.simple-practice) { min-width: 0; }
+  html .study-app .dashboard-shortcuts { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  html .study-app .dashboard-course-progress { grid-template-columns: minmax(0,1fr); }
+  html .study-app .dashboard-summary article { min-width: 0; padding: 10px; }
+  html .study-app .dashboard-summary strong { font-size: 19px; line-height: 1.3; }
+  html .study-app .dashboard-summary span { font-size: 12px; }
+  html .study-app :is(.learning-start,.simple-practice,.reading-panel) { padding: 16px; }
+  html .study-app :is(.learning-start,.simple-practice) h2 { font-size: 23px; line-height: 1.35; }
+  html .study-app :is(input,textarea,select) { font-size: 16px; }
+  html .study-app :is(pre,.overflow-x-auto) { max-width: 100%; overflow-x: auto; }
+  html .study-app [role="dialog"] { overflow-y: auto; overscroll-behavior: contain; padding: 12px; }
+  html .study-app [role="dialog"] > div { min-width: 0; max-width: 100%; max-height: calc(100dvh - 24px); overflow-y: auto; }
+  html .study-app .mobile-nav { padding-block: 4px max(4px,env(safe-area-inset-bottom)); }
+  html .study-app nav.mobile-nav button { min-height: 52px; }
+}
+@media (max-width: 899px) {
+  html .study-app.ccna-shell[data-simulator="true"] .app-content { padding: 0; }
+  html .study-app .ccna-sim-page { height: 100dvh; overflow: hidden; }
+  html .study-app .ccna-sim-page .ccna-simulation-workspace {
+    height: var(--simulation-viewport-height,100dvh); display: flex; flex-direction: column; min-height: 0;
+  }
+  html .study-app .ccna-sim-page .ccna-lab-bar {
+    display: grid; grid-template-columns: minmax(0,1fr) auto; flex: none;
+    min-height: 0; height: auto; gap: 4px 8px; padding: 8px 12px;
+  }
+  html .study-app .ccna-sim-page .ccna-lab-back { grid-column: 1; grid-row: 1; border: 0; padding: 0; margin: 0; }
+  html .study-app .ccna-sim-page .ccna-lab-title { grid-column: 1/-1; grid-row: 2; }
+  html .study-app .ccna-sim-page .ccna-lab-name { font-size: 15px; white-space: normal; line-height: 1.3; }
+  html .study-app .ccna-sim-page .ccna-lab-title p + p { font-size: 11px; }
+  html .study-app .ccna-sim-page .ccna-lab-actions { grid-column: 2; grid-row: 1; gap: 0; }
+  html .study-app .ccna-sim-page .ccna-lab-actions button { min-height: 36px; font-size: 11px; padding: 4px 8px; }
+  html .study-app .ccna-simulation-tabs { position: static; flex: none; gap: 0; padding: 2px; overflow-x: auto; }
+  html .study-app .ccna-simulation-tabs button { flex: 1; min-width: 0; padding: 10px 5px; font-size: 12px; }
+  html .study-app .ccna-sim-page .ccna-simulation-layout { display: block; flex: 1 1 0; min-height: 0; height: 0; margin: 0; }
+  html .study-app .ccna-sim-page .ccna-simulation-main-column { display: contents; }
+  html .study-app .ccna-sim-page .ccna-simulation-panel { height: 100%; margin: 0; overflow: auto; padding: 12px; min-height: 0; }
+  html .study-app .ccna-sim-page .ccna-simulation-terminal-panel { display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+  html .study-app .ccna-sim-page .ccna-simulation-layout:not([data-active-panel="terminal"]) .ccna-simulation-terminal-panel { display: none; }
+  html .study-app .ccna-simulation-device-tabs { flex: none; flex-wrap: nowrap; overflow-x: auto; }
+  html .study-app .ccna-sim-page .ccna-simulation-device-tab { min-height: 44px; padding: 8px 12px; flex: none; }
+  html .study-app .ccna-sim-page .ccna-simulation-terminal-screen { flex: 1 1 0; height: 0; min-height: 0; padding: 12px; font-size: 16px; }
+  html .study-app .ccna-simulation-terminal-input-line { align-items: center; min-height: 44px; }
+  html .study-app .ccna-simulation-terminal-native-input { min-height: 44px; font-size: 16px; touch-action: manipulation; appearance: none; }
+  html .study-app .ccna-simulation-terminal-native-input::placeholder { color: #8c99ad; opacity: 1; font-size: 14px; }
+  html .study-app .ccna-sim-page .ccna-simulation-terminal-output p { color: #b8c3d4 !important; }
+  /* Preserve IOS table columns; long lines scroll inside the console, not the page. */
+  html .study-app .ccna-simulation-terminal-response { white-space: pre; word-break: normal; overflow-wrap: normal; }
+  html .study-app .ccna-simulation-terminal-actions { flex: none; gap: 8px; padding: 6px 10px; }
+  html .study-app .ccna-simulation-terminal-actions span { font-size: 10px; }
+  html .study-app .ccna-simulation-terminal-actions button { flex: none; min-height: 36px; }
+  html .study-app .ccna-sim-page .ccna-simulation-canvas-wrap { flex: 1 1 0; min-height: 200px; }
+  html .study-app .ccna-sim-page .ccna-simulation-canvas { height: 100%; min-height: 200px; aspect-ratio: auto; }
+  html .study-app .ccna-sim-page .ccna-simulation-topology-panel { display: flex; flex-direction: column; }
+  html .study-app .ccna-sim-page .ccna-simulation-layout:not([data-active-panel="topology"]) .ccna-simulation-topology-panel { display: none; }
+  html .study-app .ccna-simulation-toolbar { flex-wrap: nowrap; gap: 4px; }
+  html .study-app .ccna-simulation-toolbar button { min-height: 36px; padding: 4px 8px; }
+  html .study-app .ccna-simulation-connection-count { width: auto; margin-left: auto; font-size: 11px; }
+  html .study-app .ccna-simulation-interface-table-wrap { flex: none; max-height: 180px; overflow: auto; }
+}

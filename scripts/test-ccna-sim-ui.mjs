@@ -113,10 +113,12 @@ async function click(container, element) {
 }
 
 async function type(container, text) {
-  const target = surface(container);
-  for (const character of text) {
-    await act(async () => { target.dispatchEvent(new window.KeyboardEvent("keydown", { key: character, bubbles: true })); });
-  }
+  const target = container.querySelector('.ccna-simulation-terminal-native-input');
+  assert.ok(target, 'the editable console input is missing');
+  await act(async () => {
+    Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(target, text);
+    target.dispatchEvent(new window.Event('input', { bubbles: true }));
+  });
   await act(async () => { target.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Enter", bubbles: true })); });
   await settle();
 }
@@ -133,6 +135,7 @@ const mobile = await mount("ccna-addressing", "mobile-native-input");
 await click(mobile.container, tab(mobile.container, "SW1"));
 const nativeInput = mobile.container.querySelector('.ccna-simulation-terminal-native-input');
 assert.ok(nativeInput instanceof window.HTMLInputElement, 'a real editable input must open the mobile keyboard');
+assert.equal(window.document.activeElement, nativeInput, 'a device tap must focus the input synchronously, not in a later animation frame');
 assert.equal(nativeInput.getAttribute('inputmode'), 'text');
 assert.equal(nativeInput.getAttribute('autocapitalize'), 'off');
 await act(async () => {
@@ -162,6 +165,10 @@ await click(mobile.container, tab(mobile.container, 'R1'));
 await click(mobile.container, tab(mobile.container, 'SW1'));
 assert.equal(nativeInput.value, 'enable', 'switching devices must retain the native input draft');
 results.mobileNativeInput = 'tapping focuses a real inline input; input-only typing, IME confirmation, Enter, history and device drafts work';
+await act(async () => { mobile.container.querySelector('#ccna-panel-tab-topology').click(); });
+await act(async () => { mobile.container.querySelector('#ccna-panel-tab-terminal').click(); });
+assert.equal(window.document.activeElement, nativeInput, 'Terminal panel tap must retain the mobile keyboard user gesture');
+assert.match(mobile.container.querySelector('.ccna-simulation-workspace').style.getPropertyValue('--simulation-viewport-height'), /px$/);
 await mobile.unmount();
 const workspace = await mount("ccna-addressing");
 assert.equal(workspace.container.querySelectorAll('.ccna-simulation-node-card').length, 0, 'topology must not render rectangular device cards');
