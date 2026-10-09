@@ -2,17 +2,17 @@
    controls. This is a visual layer only; course and simulator behaviour stays
    in the existing components. */
 :root {
-  --switchlab-bg:#040608;
-  --switchlab-surface:#08131b;
-  --switchlab-surface-raised:#0d202c;
-  --switchlab-surface-soft:#102b3a;
-  --switchlab-line:#164457;
-  --switchlab-line-bright:#1d8297;
-  --switchlab-cyan:#08e4f4;
-  --switchlab-cyan-soft:#7aeef6;
-  --switchlab-text:#edfaff;
-  --switchlab-muted:#9ab7c1;
-  --switchlab-green:#41e89a;
+  --switchlab-bg:#111318;
+  --switchlab-surface:#16181d;
+  --switchlab-surface-raised:#1e2128;
+  --switchlab-surface-soft:#23262e;
+  --switchlab-line:#292c35;
+  --switchlab-line-bright:#414650;
+  --switchlab-cyan:#00aeef;
+  --switchlab-cyan-soft:#65cfff;
+  --switchlab-text:#e4e6eb;
+  --switchlab-muted:#9ca3b0;
+  --switchlab-green:#46cba5;
   --switchlab-amber:#ffb454;
   --switchlab-red:#ff7180;
 }
@@ -25,19 +25,23 @@ html[data-theme="classic"] body {
 }
 
 html[data-theme="classic"] .study-app {
-  background:
-    radial-gradient(circle at 50% -14rem, rgba(8,228,244,.12), transparent 30rem),
-    linear-gradient(180deg, #030507 0%, #050b10 55%, #07151c 100%);
+  --cp-surface:#16181d;
+  --cp-alt:#1e2128;
+  --cp-line:#292c35;
+  --cp-text:#e4e6eb;
+  --cp-muted:#9ca3b0;
+  --cp-accent:#00aeef;
+  background:var(--switchlab-bg);
   color:var(--switchlab-text);
 }
 
 html[data-theme="classic"] .study-app .app-shell {
-  background:rgba(3,8,12,.72);
-  border-inline:1px solid rgba(29,130,151,.16);
+  background:var(--switchlab-bg);
+  border-inline:1px solid var(--switchlab-line);
 }
 
 html[data-theme="classic"] .study-app .app-sidebar {
-  background:linear-gradient(180deg, #061016 0%, #04080b 100%);
+  background:var(--switchlab-surface);
   border-color:var(--switchlab-line);
   box-shadow:12px 0 32px rgba(0,0,0,.32);
 }
@@ -69,8 +73,8 @@ html[data-theme="classic"] .certpath-header {
   padding:.4rem .55rem;
   border:1px solid var(--switchlab-line);
   border-radius:6px;
-  background:linear-gradient(180deg, rgba(13,32,44,.92), rgba(7,18,25,.94));
-  box-shadow:0 8px 24px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.035);
+  background:var(--switchlab-surface);
+  box-shadow:none;
 }
 
 html[data-theme="classic"] .certpath-header h1 {
@@ -94,7 +98,7 @@ html[data-theme="classic"] .course-switcher-toggle {
   padding:.3rem .45rem;
   border-color:var(--switchlab-line);
   border-radius:5px;
-  background:#091b25;
+  background:var(--switchlab-surface-raised);
   color:var(--switchlab-text);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
 }
@@ -112,14 +116,14 @@ html[data-theme="classic"] .study-controls,
 html[data-theme="classic"] .course-switcher-menu {
   border-color:var(--switchlab-line-bright);
   border-radius:6px;
-  background:#07131b;
+  background:var(--switchlab-surface);
   box-shadow:0 18px 44px rgba(0,0,0,.62), inset 0 1px 0 rgba(255,255,255,.04);
 }
 
 html[data-theme="classic"] .course-switcher-menu a {
   border-color:var(--switchlab-line);
   border-radius:5px;
-  background:#0a1e29;
+  background:var(--switchlab-surface-raised);
   color:var(--switchlab-text);
 }
 
@@ -136,7 +140,7 @@ html[data-theme="classic"] .study-app .study-context {
   padding:.55rem .7rem;
   border-left:2px solid var(--switchlab-cyan);
   border-radius:0 5px 5px 0;
-  background:rgba(8,24,32,.72);
+  background:var(--switchlab-surface);
   color:var(--switchlab-muted);
   font-size:.78rem;
   box-shadow:none;
@@ -151,8 +155,8 @@ html[data-theme="classic"] .study-app .question-explanation-summary,
 html[data-theme="classic"] .study-app .question-explanation-section {
   border-color:var(--switchlab-line);
   border-radius:6px;
-  background:linear-gradient(145deg, rgba(10,28,38,.96), rgba(5,13,18,.98));
-  box-shadow:0 10px 26px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.025);
+  background:var(--switchlab-surface);
+  box-shadow:none;
   backdrop-filter:none;
 }
 
@@ -170,7 +174,7 @@ html[data-theme="classic"] .study-app input,
 html[data-theme="classic"] .study-app select,
 html[data-theme="classic"] .study-app textarea {
   border-color:var(--switchlab-line);
-  background:#07151d;
+  background:var(--switchlab-bg);
   color:var(--switchlab-text);
 }
 
@@ -326,3 +330,38 @@ html[data-theme="classic"] .ccna-simulation-guide--scenario .ccna-simulation-sta
   html[data-theme="classic"] .certpath-header { padding:.5rem; }
   html[data-theme="classic"] .ccna-simulation-layout { gap:.55rem; }
 }
+
+/* Shared flat surfaces keep course pages consistent with the lab console. */
+html[data-theme="classic"] .study-app :is(.ccna-dashboard-hero, .ccna-dashboard-progress, .ccna-dashboard-workspace-card, .ccna-dashboard-domain-card, .ccna-dashboard-lab-callout, .ccna-detail-hero, .ccna-detail-panel, .ccna-detail-device-card, .ccna-lab-card, .ccna-lab-map-node, .ccna-lab-band-heading, .ccna-lab-controls, .ccna-exam-panel) {
+  background:var(--switchlab-surface);
+  border:1px solid var(--switchlab-line);
+  border-radius:8px;
+  box-shadow:none;
+}
+html[data-theme="classic"] .study-app :is(.ccna-detail-callout, .ccna-detail-outline, .ccna-detail-evidence, .ccna-lab-track, .ccna-lab-coverage, .sidebar-course-card) {
+  background:var(--switchlab-surface-raised);
+  border-color:var(--switchlab-line);
+  box-shadow:none;
+}
+html[data-theme="classic"] .study-app :is(.ccna-detail-hero, .server-labs-heading) { padding:1rem; gap:1rem; }
+html[data-theme="classic"] .study-app :is(.ccna-detail-hero h1, .server-labs-heading h1) { font-size:clamp(1.25rem,2vw,1.8rem); line-height:1.3; }
+html[data-theme="classic"] .study-app .ccna-detail-summary { margin:.5rem 0; }
+html[data-theme="classic"] .study-app .ccna-lab-map { gap:.65rem; }
+html[data-theme="classic"] .study-app .ccna-lab-card { padding:1rem; }
+html[data-theme="classic"] .study-app .ccna-lab-actions { gap:.65rem; align-items:center; }
+html[data-theme="classic"] .study-app .ccna-lab-source { display:inline-flex; align-items:center; gap:.4rem; }
+html[data-theme="classic"] .study-app .ccna-lab-coverage > summary { cursor:pointer; font-weight:600; }
+
+/* Device names and port chips remain readable at normal canvas zoom. */
+html .study-app .ccna-sim-page .ccna-simulation-node .ccna-simulation-node-card { fill:#1e2128; stroke:#454b58; stroke-width:1.5; }
+html .study-app .ccna-sim-page .ccna-simulation-node:is(:hover,:focus-visible,.is-selected) .ccna-simulation-node-card { stroke:#00aeef; stroke-width:2.5; }
+html .study-app .ccna-sim-page .ccna-simulation-node-label { font-size:18px; font-weight:750; font-style:normal; }
+html .study-app .ccna-sim-page .ccna-simulation-node-subtitle { font-size:13px; fill:#b1b8c5; }
+.ccna-simulation-node-console { font-size:10px; fill:#8d98aa; }
+.ccna-simulation-node.is-selected .ccna-simulation-node-console { fill:#65cfff; }
+html .study-app .ccna-sim-page .ccna-simulation-port-dot { fill:#16181d; stroke:#657186; stroke-width:1.5; }
+html .study-app .ccna-sim-page .ccna-simulation-port-dot[data-status="connected"] { stroke:#46cba5; fill:#11342b; }
+html .study-app .ccna-sim-page .ccna-simulation-port-dot[data-status="fault"] { stroke:#ff7180; }
+html .study-app .ccna-sim-page .ccna-simulation-port:is(:hover,:focus-visible,.is-selected) .ccna-simulation-port-dot { stroke:#65cfff; fill:#153545; }
+html .study-app .ccna-sim-page .ccna-simulation-port-label { font-size:10px; font-weight:700; fill:#e4e6eb; }
+html .study-app .ccna-sim-page .ccna-simulation-link-label { fill:#9de7d1; stroke:#0f1115; font-size:12px; }

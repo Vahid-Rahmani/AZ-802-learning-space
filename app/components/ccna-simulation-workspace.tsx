@@ -95,9 +95,9 @@ export type CcnaSimulationWorkspaceProps = {
 
 const CANVAS_WIDTH = 760;
 const CANVAS_HEIGHT = 500;
-const NODE_WIDTH = 184;
-const NODE_HEIGHT = 92;
-const PORT_GAP = 38;
+const NODE_WIDTH = 210;
+const NODE_HEIGHT = 100;
+const PORT_GAP = 48;
 
 const DEVICE_META: Record<SimulationNode["kind"], { label: string; tone: string }> = {
   router: { label: "Router", tone: "router" },
@@ -849,11 +849,12 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
                 <rect className="ccna-simulation-node-card" x={-NODE_WIDTH / 2} y={-NODE_HEIGHT / 2} width={NODE_WIDTH} height={NODE_HEIGHT} rx="14" />
                 <g transform={`translate(${-NODE_WIDTH / 2 + 8} -22)`}><DeviceGlyph kind={node.kind} /></g>
                 <text className="ccna-simulation-node-label" x={-NODE_WIDTH / 2 + 58} y="-7">{node.label}</text>
-                <text className="ccna-simulation-node-subtitle" x={-NODE_WIDTH / 2 + 58} y="14">{node.subtitle ?? DEVICE_META[node.kind].label}</text>
+                <text className="ccna-simulation-node-subtitle" x={-NODE_WIDTH / 2 + 58} y="14">{DEVICE_META[node.kind].label}</text>
+                <text className="ccna-simulation-node-console" x={-NODE_WIDTH / 2 + 58} y="34">{selectedNode === node.id ? "Console open" : "Click for console"}</text>
                 <circle className="ccna-simulation-node-status" cx={NODE_WIDTH / 2 - 18} cy={-NODE_HEIGHT / 2 + 18} r="5" fill={statusColor(node.status)} />
                 {node.ports.map((port, index) => { const point = portPoint(node, index); const localX = point.x - node.x; const localY = point.y - node.y; const selected = selectedPort?.deviceId === node.id && selectedPort.portId === port.id; return <g key={port.id} className={`ccna-simulation-port${selected ? " is-selected" : ""}`} transform={`translate(${localX} ${localY})`} role="button" tabIndex={0} aria-pressed={selected} aria-label={`${node.label} ${port.label}. ${selected ? "Selected" : "Select port"}`} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); handlePort({ deviceId: node.id, portId: port.id }); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); event.stopPropagation(); handlePort({ deviceId: node.id, portId: port.id }); } }}>
-                  <circle className="ccna-simulation-port-dot" r="7" />
-                  <text className="ccna-simulation-port-label" x="0" y="-12">{port.label}</text>
+                  <rect className="ccna-simulation-port-dot" x="-22" y="-9" width="44" height="18" rx="5" data-status={portStatus(state, node.id, port.id).tone} />
+                  <text className="ccna-simulation-port-label" x="0" y="4">{port.label}</text>
                 </g>; })}
               </g>)}
             </g>

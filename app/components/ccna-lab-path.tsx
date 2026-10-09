@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import { AlertTriangle, BookOpen, Eye, Filter, Network, Search, ShieldCheck, X } from "lucide-react";
+import { AlertTriangle, BookOpen, Filter, Network, Search, ShieldCheck, X } from "lucide-react";
 import { GoogleSubtitle } from "./google-translate";
 import {
   ccnaLabBands, ccnaLabById, ccnaLabObjectiveCoverage, ccnaLabPath, ccnaLabPathStats,
@@ -22,11 +21,6 @@ const filters = {
   scenario: (lab: CcnaLabEntry, value: string) => value === ALL || lab.scenarioType === value,
   review: (lab: CcnaLabEntry, value: string) => value === ALL || lab.reviewStatus === value,
 };
-/** Hands-on stages have a workspace; catalog labs open the practice set for their objective domain. */
-const destination = (lab: CcnaLabEntry) => lab.kind === "hands-on"
-  ? `/ccna/build?lab=${encodeURIComponent(lab.id)}`
-  : `/ccna/practice?domain=ccna-domain-v2-${lab.domain === "mixed" ? 1 : lab.domain.split(".")[0]}`;
-
 /** The complete lab library: all 109 labs, organized into twelve bands in learning order, and every
  * one of them joined to its own topology diagram.
  *
@@ -35,7 +29,6 @@ const destination = (lab: CcnaLabEntry) => lab.kind === "hands-on"
  * diagram, its prerequisites, its fault checkpoint and its sources in a single card.
  */
 export function CcnaLabPath({ initialBandId }: { initialBandId?: string } = {}) {
-  const router = useRouter();
   const [query, setQuery] = useState("");
   const [band, setBand] = useState(initialBandId && ccnaLabBands.some((item) => item.id === initialBandId) ? initialBandId : ALL);
   const [tier, setTier] = useState(ALL);
@@ -70,14 +63,14 @@ export function CcnaLabPath({ initialBandId }: { initialBandId?: string } = {}) 
     <header className="server-labs-heading">
       <div>
         <p className="server-lab-kicker"><Copy text="CCNA · lab library" /></p>
-        <h1><Copy text={`All ${ccnaLabPathStats.total} labs in ${ccnaLabPathStats.bands} bands, each with its own topology`} /></h1>
-        <p><Copy text={`Every lab this site publishes — the ${ccnaLabPathStats.handsOn} hands-on build stages and the ${ccnaLabPathStats.catalog} indexed simulation labs — placed in a category band, a difficulty tier and a prerequisite order that follows the six official 200-301 v1.1 domains, with the topology diagram the source publishes for that exact lab attached to its card. Objectives, prerequisites, fault checkpoints and source references were audited on ${ccnaLabSourcesChecked}.`} /></p>
+        <h1><Copy text={initialBandId ? "Choose a lab" : "Choose your practice topic"} /></h1>
+        <p><Copy text="Choose a topic, read the lab and its topology, then start the guided simulator. Search below to find a specific lab." /></p>
       </div>
       <span className="server-lab-badge"><Network size={20} /> <Copy text={`${ccnaLabPathStats.perTier.beginner} beginner · ${ccnaLabPathStats.perTier.intermediate} intermediate · ${ccnaLabPathStats.perTier.advanced} advanced · ${ccnaLabPathStats.perTier.troubleshooting} troubleshooting`} /></span>
     </header>
 
     <nav className="ccna-lab-map" aria-label="Category bands in learning order">
-      {ccnaLabBands.map((item) => <a href={`/ccna/bands/${item.id}`} key={item.id} className={`ccna-lab-map-node ${band === item.id ? "is-active" : ""}`} aria-current={band === item.id ? "page" : undefined} onClick={(event) => { event.preventDefault(); router.push(`/ccna/bands/${item.id}`); }}>
+      {ccnaLabBands.map((item) => <a href={`/ccna/bands/${item.id}`} key={item.id} className={`ccna-lab-map-node ${band === item.id ? "is-active" : ""}`} aria-current={band === item.id ? "page" : undefined}>
         <span className="server-lab-number">{item.order}</span>
         <span className="ccna-lab-map-body">
           <strong><Copy text={item.title} /></strong>
@@ -120,10 +113,10 @@ export function CcnaLabPath({ initialBandId }: { initialBandId?: string } = {}) 
         </button>
         {active && <button type="button" className="ccna-lab-clear" onClick={clear}><X size={16} aria-hidden="true" /><Copy text="Clear" /></button>}
       </div>
-      <p className="server-lab-meta ccna-lab-result" role="status" aria-live="polite"><Copy text={`${filtered.length} of ${ccnaLabPathStats.total} labs shown · ${shownDiagrams} with a topology diagram${active ? " · filters active" : ""}`} /></p>
+      <p className="server-lab-meta ccna-lab-result" role="status" aria-live="polite"><Copy text={active ? `${filtered.length} matching labs · ${shownDiagrams} with a topology diagram` : `${ccnaLabPathStats.total} labs available. Open a topic above or search for a lab.`} /></p>
     </div>
 
-    {ccnaLabBands.map((item) => {
+    {active && ccnaLabBands.map((item) => {
       const labs = filtered.filter((lab) => lab.bandId === item.id);
       if (labs.length === 0) return null;
       const prerequisites = item.prerequisiteBands.map((id) => ccnaLabBands.find((entry) => entry.id === id)).filter(Boolean);
@@ -170,11 +163,8 @@ export function CcnaLabPath({ initialBandId }: { initialBandId?: string } = {}) 
               </figure>
               : <p className="ccna-lab-no-figure"><Copy text={lab.kind === "hands-on" ? "Hands-on stage: build the topology from the diagram described in the workspace steps." : "Concept lab — the source catalog publishes no topology diagram for this lab."} /></p>}
             <div className="ccna-lab-actions">
-              {lab.diagram && <a className="server-lab-primary ccna-lab-view-topology" href={`/ccna/labs/${encodeURIComponent(lab.id)}`}><Eye size={17} aria-hidden="true" /><Copy text="View topology" /></a>}
-              <a className="server-lab-primary" href={`/ccna/labs/${encodeURIComponent(lab.id)}`}><BookOpen size={17} aria-hidden="true" /><Copy text="Open lab brief" /></a>
-              <a className="server-lab-primary" href={`/ccna/sim?lab=${encodeURIComponent(lab.id)}`}><Network size={17} aria-hidden="true" /><Copy text="Open practice terminal & topology" /></a>
-              <a className="server-lab-primary" href={destination(lab)} onClick={(event) => { event.preventDefault(); window.location.href = destination(lab); }}><BookOpen size={17} aria-hidden="true" /><Copy text={lab.kind === "hands-on" ? "Open this lab workspace" : "Practice this domain"} /></a>
-              <a className="ccna-lab-source" href={lab.sourceRefs[0].url} target="_blank" rel="noreferrer"><Copy text={lab.sourceRefs[0].title} /> ↗</a>
+              <a className="server-lab-primary" href={`/ccna/sim?lab=${encodeURIComponent(lab.id)}`}><Network size={17} aria-hidden="true" /><Copy text="Start practice" /></a>
+              <a className="ccna-lab-source" href={`/ccna/labs/${encodeURIComponent(lab.id)}`}><BookOpen size={17} aria-hidden="true" /><Copy text="Lab & topology" /></a>
             </div>
             {/* Collapsed by default: the diagram above is the point of the library, and everything the
                 audit recorded is one click away rather than trimmed to keep the list short. */}
@@ -213,12 +203,13 @@ export function CcnaLabPath({ initialBandId }: { initialBandId?: string } = {}) 
 
     {filtered.length === 0 && <p className="ccna-lab-empty" role="status"><Copy text="No lab matches these filters. Clear one filter to widen the search — every lab here is already published, so nothing has been removed." /></p>}
 
-    <section className="ccna-lab-coverage" aria-labelledby="ccna-lab-coverage-title">
+    <details className="ccna-lab-coverage">
+      <summary><Copy text="Coverage, review notes and source attribution" /></summary>
       <h2 id="ccna-lab-coverage-title"><Copy text="What this library does not cover" /></h2>
       <p><Copy text={`Objective coverage was read from the official 200-301 v1.1 topic list. ${ccnaLabObjectiveCoverage.covered.length} of those topics are built by at least one lab in this library. The topics below are answered by the question bank but built by no lab at all — they are listed instead of being left to look covered:`} /></p>
       <ul>{ccnaLabObjectiveCoverage.noLabInLibrary.map((gap) => <li key={gap.objective}><strong>{gap.objective}</strong> <Copy text={gap.label} /><span className="server-lab-meta"><Copy text={gap.reason} /></span></li>)}</ul>
       <p className="server-lab-meta"><Copy text={`${ccnaLabPathReview.needsReview.length} of ${ccnaLabPathStats.total} labs are marked needs-review because the published catalog metadata does not support their mapping; ${ccnaLabPathReview.summaryIssues.length} of those has a summary the source catalog itself duplicates for another lab. Both lists stay visible instead of being quietly corrected.`} /></p>
       <p className="server-lab-meta"><Copy text={`Lab names, summaries and diagrams come from the ${ccnaTopologySource.catalog} lab catalog (${ccnaTopologySource.exam}), retrieved ${ccnaTopologySource.retrieved}, and are reproduced unedited. This site does not publish that product's lab instructions and is not affiliated with, sponsored by or endorsed by its vendor.`} /> <a href={ccnaTopologySource.notice} target="_blank" rel="noreferrer"><Copy text="Source and attribution" /> ↗</a></p>
-    </section>
+    </details>
   </section>;
 }

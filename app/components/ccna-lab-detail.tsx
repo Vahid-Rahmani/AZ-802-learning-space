@@ -63,7 +63,7 @@ export function CcnaLabDetail({ lab, band, pack, relatedLabs }: CcnaLabDetailPro
         </div>
       </div>
       <div className="ccna-detail-hero-actions">
-        <a className="ccna-detail-primary" href={`/ccna/sim?lab=${encodeURIComponent(lab.id)}`}><Play size={17} aria-hidden="true" /><Copy text="Open simulator" /></a>
+        <a className="ccna-detail-primary" href={`/ccna/sim?lab=${encodeURIComponent(lab.id)}`}><Play size={17} aria-hidden="true" /><Copy text="Start guided practice" /></a>
         <a className="ccna-detail-secondary" href={`/ccna/practice?domain=ccna-domain-v2-${lab.domain === "mixed" ? 1 : lab.domain.split(".")[0]}`}><BookOpen size={17} aria-hidden="true" /><Copy text="Practice related questions" /></a>
       </div>
     </header>
@@ -78,19 +78,19 @@ export function CcnaLabDetail({ lab, band, pack, relatedLabs }: CcnaLabDetailPro
         <div className="ccna-detail-tags">{lab.objectives.map((objective) => <span key={objective}><Copy text={objective} /></span>)}</div>
       </div>
 
-      <div className="ccna-detail-panel">
-        <div className="ccna-detail-panel-heading"><span className="ccna-detail-panel-icon">02</span><h2><Copy text="Prerequisites" /></h2></div>
+      <details className="ccna-detail-panel">
+        <summary><Copy text="Before you start" /></summary>
         {lab.prerequisites.length > 0 ? <ul className="ccna-detail-list">{lab.prerequisites.map((item) => <li key={item}><CheckCircle2 size={16} aria-hidden="true" /><Copy text={item} /></li>)}</ul> : <p><Copy text="No prerequisite lab is required. This is an entry point for the learning path." /></p>}
         <p className="ccna-detail-muted"><Copy text={`This lab belongs to ${band.title}. Complete the prerequisite band before attempting the practical test.`} /></p>
-      </div>
+      </details>
 
-      <div className="ccna-detail-panel">
-        <div className="ccna-detail-panel-heading"><span className="ccna-detail-panel-icon">03</span><h2><Copy text="Fault checkpoint" /></h2></div>
+      <details className="ccna-detail-panel">
+        <summary><Copy text="Troubleshooting challenge" /></summary>
         <p><strong><Copy text="Reproduce" /></strong></p>
         <p><Copy text={lab.fault.failure} /></p>
         <p><strong><Copy text="Recover" /></strong></p>
         <p><Copy text={lab.fault.recovery} /></p>
-      </div>
+      </details>
     </section>
 
     <section className="ccna-detail-topology-section" aria-labelledby="ccna-detail-topology-title">
@@ -98,7 +98,6 @@ export function CcnaLabDetail({ lab, band, pack, relatedLabs }: CcnaLabDetailPro
         <div><p className="server-lab-kicker"><Copy text="Read it before you build it" /></p><h2 id="ccna-detail-topology-title"><Copy text="Topology and device map" /></h2><p><Copy text="Use the published diagram as the reference, then open the simulator to connect ports, inspect the graph and verify the path." /></p></div>
         <div className="ccna-detail-section-actions">
           {lab.diagram && <button type="button" className="ccna-detail-secondary" onClick={() => setTopologyOpen(true)}><Eye size={17} aria-hidden="true" /><Copy text="View topology" /></button>}
-          <a className="ccna-detail-secondary" href={`/ccna/sim?lab=${encodeURIComponent(lab.id)}`}><Network size={17} aria-hidden="true" /><Copy text="Practice this topology" /></a>
         </div>
       </div>
       <div className="ccna-detail-topology-grid">
@@ -120,8 +119,8 @@ export function CcnaLabDetail({ lab, band, pack, relatedLabs }: CcnaLabDetailPro
       </div>
     </section>
 
-    <section className="ccna-detail-workflow" aria-labelledby="ccna-detail-workflow-title">
-      <div className="ccna-detail-section-heading"><div><p className="server-lab-kicker"><Copy text="Work through the lab" /></p><h2 id="ccna-detail-workflow-title"><Copy text="Build, verify and submit evidence" /></h2></div><a className="ccna-detail-primary" href={`/ccna/sim?lab=${encodeURIComponent(lab.id)}`}><Terminal size={17} aria-hidden="true" /><Copy text="Open simulator workspace" /></a></div>
+    <details className="ccna-detail-workflow">
+      <summary><Copy text="Preview practice steps and verification commands" /></summary>
       <div className="ccna-detail-workflow-grid">
         <div className="ccna-detail-panel">
           <div className="ccna-detail-panel-heading"><span className="ccna-detail-panel-icon"><FlaskConical size={17} aria-hidden="true" /></span><h3><Copy text="Practical checklist" /></h3></div>
@@ -133,7 +132,7 @@ export function CcnaLabDetail({ lab, band, pack, relatedLabs }: CcnaLabDetailPro
           <div className="ccna-detail-evidence"><strong><Copy text="Evidence to record" /></strong><p><Copy text="Capture the device name, command or observation, expected result, actual result and time. Never include passwords, tokens or private credentials." /></p></div>
         </div>
       </div>
-    </section>
+    </details>
 
     <section className="ccna-detail-bottom-grid" aria-label="Related resources">
       <div className="ccna-detail-panel">
