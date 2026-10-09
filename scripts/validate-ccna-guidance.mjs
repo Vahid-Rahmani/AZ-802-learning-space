@@ -8,7 +8,11 @@ for (const pack of ccnaSimulationPacks) {
     const node = pack.devices.find((node) => node.id === stage.deviceId);
     assert.ok(node, `${pack.labId}: missing stage device`);
     if (pack.devices.some((device) => device.kind === "switch" || device.kind === "router")) {
-      assert.ok(node.kind === "switch" || node.kind === "router", `${pack.labId}: IOS check assigned to ${node.kind}`);
+      // A lab that publishes IOS devices may only grade a console the simulator really implements: an
+      // IOS device, or an endpoint whose pack declares the host console (an authored pack's PC-A has
+      // one, and its steps are graded from the device's own address and gateway).
+      const hasConsole = node.kind === "switch" || node.kind === "router" || node.role === "host";
+      assert.ok(hasConsole, `${pack.labId}: check assigned to ${node.kind} without a declared console`);
     }
     assert.ok(stage.expected.includes(node.label));
     const key = `${stage.deviceId}:${stage.command}`;

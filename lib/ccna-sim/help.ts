@@ -1,5 +1,4 @@
-import { commandsForMode, simKeywordHelp, type SimCommand } from "./commands.ts";
-import type { SimMode } from "./tokens.ts";
+import { commandsForMode, simKeywordHelp, type SimCommand, type SimState } from "./commands.ts";
 
 const keywordColumn = 20;
 
@@ -16,8 +15,8 @@ function keywordLines(commands: readonly SimCommand[], depth: number, words: rea
 
 /** `?` help, derived from the catalog so the terminal can never promise a command it does not
  * implement. `no ?` and `no <path> ?` list only the commands that carry a `no` form. */
-export function helpLines(mode: SimMode, words: readonly string[]): string[] {
-  const available = commandsForMode(mode);
+export function helpLines(state: SimState, words: readonly string[]): string[] {
+  const available = commandsForMode(state);
   const negated = words.length > 0 && isNo(words[0]);
   const path = negated ? words.slice(1) : words;
   const candidates = negated ? available.filter((command) => command.revert) : available;

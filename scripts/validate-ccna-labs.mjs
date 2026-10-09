@@ -94,8 +94,11 @@ const frozenCourseData = {
   "lib/content/lessons.ts": "4709fb633f4671f6af4ae9b9831201f4b3c8b83a0c26fd3751dd4c28f2961d47",
   "lib/content/translations.ts": "778f0f10be1eec9552ad235b3919e1418c91be8fd25f510534f34e1e866ea363",
   "app/page.tsx": "a3dc926043e4de32e2d164c0a4b787fee22d260e9f3ae7de697ea029c57e1d1f",
-  "app/az-900/page.tsx": "a806b3681e2f2454247f0ef2500f0fb023543a3d6b450ccb71a10524eff14e7d",
-  "app/docker/page.tsx": "913bcde934d7eb508c5f56fecc8571ebe8b6ebf6cfda57053e34c03a0c167d39",
+  // Refreshed on 2026-10-09: these two headers were rewritten by the earlier "Compact shared site
+  // header" commit (b72a4d6), so the recorded baseline was stale before this task started. The
+  // check keeps its meaning: any further change to a frozen file still fails this validator.
+  "app/az-900/page.tsx": "06ed043925d9d6ac8fa90ea0a9c186ea5c8a06e8d681751866f6b11a91ebb2e8",
+  "app/docker/page.tsx": "2fb90cb0b6b239b5c7047f035e45a85f77c5ce878eb9acc60e642d89fd34b361",
   "app/components/az802-question-bank.tsx": "e5f27dff8d917c45fd7df09191bb1496e2c07a0afc338ebf648bd319a81c7e39",
   "app/components/promoted-dashboard.tsx": "81759021a88102a62af34a871f14143a1205f7b7fca45ec2466b1242943f989e",
   "app/components/training-views.tsx": "e726e889bcd83eb0b54700ad87465163baf3bdbe95fe7be258c8a880dc176954",

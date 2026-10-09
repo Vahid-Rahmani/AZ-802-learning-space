@@ -512,7 +512,8 @@ html .study-app .ccna-sim-page .ccna-lab-bar { display: flex; }
 .ccna-lab-brand { flex: none; padding-right: 14px; border-right: 1px solid var(--simulation-line); color: #e4e6eb; font-size: 18px; font-weight: 900; font-style: italic; text-decoration: none; }
 .ccna-lab-brand span { color: var(--simulation-accent); }
 .ccna-lab-title { min-width: 0; }
-.ccna-lab-title h1 { margin: 0; font-size: 14px; font-weight: 700; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+/* The page's only h1 is the site header's, so the lab bar names the lab as text, not a second heading. */
+.ccna-lab-title .ccna-lab-name { margin: 0; color: var(--simulation-text); font-size: 14px; font-weight: 700; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .ccna-lab-title p { margin: 2px 0 0; color: var(--simulation-muted); font-size: 12px; }
 .ccna-lab-actions { display: flex; gap: 6px; margin-left: auto; flex: none; }
 .ccna-lab-actions button, .ccna-lab-actions a { padding: 6px 12px; border: 1px solid var(--simulation-line); border-radius: 7px; background: transparent; color: var(--simulation-muted); font: inherit; font-size: 12px; text-decoration: none; cursor: pointer; }
@@ -592,3 +593,18 @@ html .study-app .ccna-sim-page .ccna-simulation-open-device {
   font-size: 12px;
   cursor: pointer;
 }
+
+/* One small header: the lab title, the back link to the brief, and the single reset control. */
+.ccna-lab-back { flex: none; padding: 6px 12px; margin-right: 4px; border-right: 1px solid var(--simulation-line); color: var(--simulation-muted); font-size: 12px; text-decoration: none; }
+.ccna-lab-back:hover { color: #d9f8ff; }
+.ccna-lab-actions button.ccna-lab-reset { color: #f0a6ad; border-color: #633c43; }
+
+/* The guide lists the commands a step needs, and reports what the live check sees. */
+.ccna-simulation-stage-commands { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .5rem; }
+.ccna-simulation-stage-command-chip { padding: .3rem .55rem; border: 1px solid rgba(77, 213, 255, .35); border-radius: 999px; background: rgba(77, 213, 255, .08); color: #bcefff; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .74em; cursor: pointer; }
+.ccna-simulation-stage-command-chip:hover { border-color: var(--simulation-accent); color: #d9f8ff; }
+.ccna-simulation-stage-result { margin: .55rem 0 0; padding: .45rem .6rem; border-left: 2px solid #545b69; border-radius: 4px; background: rgba(255, 255, 255, .03); color: var(--simulation-muted); font-size: .78em; line-height: 1.5; }
+.ccna-simulation-stage-result[data-ok="true"] { border-left-color: var(--simulation-success); color: #9fe7cd; }
+.ccna-simulation-stage-result[data-ok="false"] { border-left-color: #d8919a; color: #f0c3c8; }
+.ccna-simulation-stage.is-ungraded { border-style: dashed; }
+.ccna-simulation-stage.is-ungraded .ccna-simulation-stage-marker { color: var(--simulation-muted); }

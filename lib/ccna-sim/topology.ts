@@ -7,6 +7,9 @@
  * grader can reuse the same connection rules.
  */
 
+import type { SimDeviceRole } from "./device.ts";
+import type { LabModel, LabStepOutcome, SimLabPack } from "./lab.ts";
+
 export type SimulationDeviceKind = "router" | "switch" | "pc" | "server" | "access-point" | "firewall" | "cloud";
 export type SimulationPortKind = "ethernet" | "serial" | "console" | "wireless";
 
@@ -22,6 +25,8 @@ export type SimulationNode = {
   id: string;
   label: string;
   kind: SimulationDeviceKind;
+  /** The IOS role of this device's console: a switch, a router, or an endpoint host. */
+  role?: SimDeviceRole;
   x: number;
   y: number;
   ports: SimulationPort[];
@@ -59,14 +64,25 @@ export type SimulationChecklistItem = {
  */
 export type SimulationStage = {
   id: string;
-  /** Only this device's console can provide evidence for the step. */
+  /** The console this step is done on. */
   deviceId?: string;
   title: string;
   instruction: string;
   why: string;
+  /** A command the step needs, offered as a hint; it is never the proof that the step is done. */
   command: string;
+  /** Every command this step needs, when it needs more than one. */
+  commands?: string[];
   expected: string;
   hint?: string;
+  /**
+   * The only way a stage is credited: a predicate over live device state. A stage without a check
+   * falls back to terminal evidence, which is how the labs that have no dedicated pack are graded
+   * today; a stage that can never be checked carries `ungraded` instead of a fake success.
+   */
+  check?: (lab: LabModel) => LabStepOutcome;
+  /** Stated plainly when a requirement cannot be evaluated automatically. */
+  ungraded?: string;
 };
 
 export type SimulationScenario = {
@@ -99,6 +115,8 @@ export type SimulationPack = {
   stages?: SimulationStage[];
   terminal?: SimulationTerminalPack;
   references?: Array<{ title: string; url: string }>;
+  /** Present when this lab has its own authored pack instead of the generic starter graph. */
+  lab?: SimLabPack;
 };
 
 export type SimulationViewport = {

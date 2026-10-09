@@ -1,37 +1,22 @@
-# CCNA simulator lab transcript — the ccna-vlans end state, then the no-forms that undo parts of it.
-# Lines starting with "> " are typed into the terminal; every other line is the exact
-# expected output, ending with the prompt the next command will see.
+# CCNA simulator lab transcript — ccna-vlans, the router-on-a-stick lab.
+# "@ <device>" selects one of the lab consoles; "> " lines are typed into it and every other line
+# is the exact expected output, ending with the prompt the next command sees.
+# The first pass deliberately omits VLAN 20, so the cross-VLAN ping fails, and a host console
+# rejects a switch command before the same ping succeeds after the repair.
+@ sw1
 > enable
-Switch#
+SW1#
 > configure terminal
-Switch(config)#
+SW1(config)#
 > hostname SW1
 SW1(config)#
 > vlan 10
 SW1(config-vlan)#
-> name SALES
+> name DEPT-A
 SW1(config-vlan)#
 > exit
 SW1(config)#
-> vlan 20
-SW1(config-vlan)#
-> name ENGINEERING
-SW1(config-vlan)#
-> exit
-SW1(config)#
-> interface gi0/1
-SW1(config-if)#
-> description Uplink to SW2
-SW1(config-if)#
-> switchport mode trunk
-SW1(config-if)#
-> switchport trunk native vlan 99
-SW1(config-if)#
-> switchport trunk allowed vlan 10,20
-SW1(config-if)#
-> exit
-SW1(config)#
-> interface range gi0/2-3
+> interface fa0/1
 SW1(config-if)#
 > switchport mode access
 SW1(config-if)#
@@ -39,7 +24,7 @@ SW1(config-if)#
 SW1(config-if)#
 > exit
 SW1(config)#
-> interface gi0/4
+> interface fa0/2
 SW1(config-if)#
 > switchport mode access
 SW1(config-if)#
@@ -47,96 +32,140 @@ SW1(config-if)#
 SW1(config-if)#
 > exit
 SW1(config)#
-> interface vlan 1
-               ^
-% Invalid input detected at '^' marker.
-SW1(config)#
-> ip address 192.168.10.2 255.255.255.0
-^
-% Invalid input detected at '^' marker.
-SW1(config)#
-> shutdown
-^
-% Invalid input detected at '^' marker.
-SW1(config)#
-> no shutdown
-^
-% Invalid input detected at '^' marker.
-SW1(config)#
+> interface fa0/24
+SW1(config-if)#
+> switchport mode trunk
+SW1(config-if)#
+> switchport trunk allowed vlan 10,20
+SW1(config-if)#
 > exit
-SW1#
+SW1(config)#
 > end
-^
-% Invalid input detected at '^' marker.
 SW1#
 > show vlan brief
 VLAN Name                             Status    Ports
 ---- -------------------------------- --------- -------------------------------
-1    default                          active    
-10   SALES                            active    Gi0/2, Gi0/3
-20   ENGINEERING                      active    Gi0/4
+1    default                          active    Fa0/23
+10   DEPT-A                           active    Fa0/1
 SW1#
+@ r1
+> enable
+R1#
+> configure terminal
+R1(config)#
+> hostname R1
+R1(config)#
+> interface gi0/0
+R1(config-if)#
+> no shutdown
+R1(config-if)#
+> exit
+R1(config)#
+> interface gi0/0.10
+R1(config-if)#
+> encapsulation dot1q 10
+R1(config-if)#
+> ip address 192.168.10.1 255.255.255.0
+R1(config-if)#
+> exit
+R1(config)#
+> interface gi0/0.20
+R1(config-if)#
+> encapsulation dot1q 20
+R1(config-if)#
+> ip address 192.168.20.1 255.255.255.0
+R1(config-if)#
+> exit
+R1(config)#
+> end
+R1#
+> show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+Gi0/0                  unassigned      YESunset       up                    up
+Gi0/1                  unassigned      YESunset       administratively down down
+Gi0/0.10               192.168.10.1    YESmanual      up                    up
+Gi0/0.20               192.168.20.1    YESmanual      up                    up
+R1#
+@ pc-a
+> ip address 192.168.10.10 255.255.255.0
+PC-A>
+> ip default-gateway 192.168.10.1
+PC-A>
+> ipconfig
+Gi0/0           192.168.10.10 255.255.255.0
+Default gateway 192.168.10.1
+PC-A>
+> show vlan brief
+^
+% Invalid input detected at '^' marker.
+PC-A>
+> ping 192.168.20.10
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 192.168.20.10, timeout is 2 seconds:
+.....
+Success rate is 0 percent (0/5)
+% No device in this lab has the address 192.168.20.10.
+PC-A>
+@ pc-b
+> ip address 192.168.20.10 255.255.255.0
+PC-B>
+> ip default-gateway 192.168.20.1
+PC-B>
+> ipconfig
+Gi0/0           192.168.20.10 255.255.255.0
+Default gateway 192.168.20.1
+PC-B>
+> ping 192.168.10.10
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 192.168.10.10, timeout is 2 seconds:
+.....
+Success rate is 0 percent (0/5)
+% SW1 has no VLAN 20 in its VLAN database, so PC-B's port cannot pass traffic.
+PC-B>
+@ sw1
+> configure terminal
+SW1(config)#
+> vlan 20
+SW1(config-vlan)#
+> name DEPT-B
+SW1(config-vlan)#
+> exit
+SW1(config)#
+> end
+SW1#
+> show vlan brief
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa0/23
+10   DEPT-A                           active    Fa0/1
+20   DEPT-B                           active    Fa0/2
+SW1#
+@ pc-a
+> ping 192.168.20.10
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 192.168.20.10, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 1/2/4 ms
+PC-A>
+@ sw1
 > show interfaces status
 Port      Name               Status       Vlan       Duplex  Speed Type
 -------------------------------------------------------------------------------
-Gi0/1     Uplink to SW2      connected    trunk      auto    auto  10/100/1000BaseTX
-Gi0/2                        connected    10         auto    auto  10/100/1000BaseTX
-Gi0/3                        connected    10         auto    auto  10/100/1000BaseTX
-Gi0/4                        connected    20         auto    auto  10/100/1000BaseTX
+Fa0/1                        connected    10         auto    auto  10/100/1000BaseTX
+Fa0/2                        connected    20         auto    auto  10/100/1000BaseTX
+Fa0/23                       notconnect   1          auto    auto  10/100/1000BaseTX
+Fa0/24                       connected    trunk      auto    auto  10/100/1000BaseTX
 Vlan1                        connected    routed     auto    auto  SVI
-SW1#
-> show ip interface brief
-Interface              IP-Address      OK? Method Status                Protocol
-Gi0/1                  unassigned      YESunset       up                    up
-Gi0/2                  unassigned      YESunset       up                    up
-Gi0/3                  unassigned      YESunset       up                    up
-Gi0/4                  unassigned      YESunset       up                    up
-Vlan1                  unassigned      YESunset       up                    up
 SW1#
 > copy running-config startup-config
 Destination filename [startup-config]?
 Building configuration...
 [OK]
 SW1#
-> show startup-config
-Using 476 out of 524288 bytes
-
-version 15.2
-no service password-encryption
-!
-hostname SW1
-!
-vlan 10
- name SALES
-vlan 20
- name ENGINEERING
-!
-interface Gi0/1
- description Uplink to SW2
- switchport mode trunk
- switchport trunk native vlan 99
- switchport trunk allowed vlan 10,20
-!
-interface Gi0/2
- switchport mode access
- switchport access vlan 10
-!
-interface Gi0/3
- switchport mode access
- switchport access vlan 10
-!
-interface Gi0/4
- switchport mode access
- switchport access vlan 20
-!
-interface Vlan1
-!
-end
-SW1#
 > show running-config
 Building configuration...
 
-Current configuration : 476 bytes
+Current configuration : 363 bytes
 !
 version 15.2
 no service password-encryption
@@ -144,145 +173,25 @@ no service password-encryption
 hostname SW1
 !
 vlan 10
- name SALES
+ name DEPT-A
 vlan 20
- name ENGINEERING
+ name DEPT-B
 !
-interface Gi0/1
- description Uplink to SW2
- switchport mode trunk
- switchport trunk native vlan 99
- switchport trunk allowed vlan 10,20
-!
-interface Gi0/2
+interface Fa0/1
  switchport mode access
  switchport access vlan 10
 !
-interface Gi0/3
- switchport mode access
- switchport access vlan 10
-!
-interface Gi0/4
+interface Fa0/2
  switchport mode access
  switchport access vlan 20
 !
-interface Vlan1
+interface Fa0/23
 !
-end
-SW1#
-> configure terminal
-SW1(config)#
-> interface gi0/1
-SW1(config-if)#
-> no description
-SW1(config-if)#
-> switchport trunk allowed vlan add 30
-SW1(config-if)#
-> exit
-SW1(config)#
-> interface gi0/4
-SW1(config-if)#
-> no switchport access vlan
-SW1(config-if)#
-> shutdown
-SW1(config-if)#
-> no shutdown
-SW1(config-if)#
-> exit
-SW1(config)#
-> end
-SW1#
-> show running-config
-Building configuration...
-
-Current configuration : 425 bytes
-!
-version 15.2
-no service password-encryption
-!
-hostname SW1
-!
-vlan 10
- name SALES
-vlan 20
- name ENGINEERING
-!
-interface Gi0/1
+interface Fa0/24
  switchport mode trunk
- switchport trunk native vlan 99
- switchport trunk allowed vlan 10,20,30
-!
-interface Gi0/2
- switchport mode access
- switchport access vlan 10
-!
-interface Gi0/3
- switchport mode access
- switchport access vlan 10
-!
-interface Gi0/4
- switchport mode access
+ switchport trunk allowed vlan 10,20
 !
 interface Vlan1
 !
 end
 SW1#
-> disable
-SW1>
-> show interfaces switchport
-Name: Gi0/1
-Switchport: Enabled
-Administrative Mode: trunk
-Operational Mode: trunk
-Administrative Trunking Encapsulation: dot1q
-Operational Trunking Encapsulation: dot1q
-Negotiation of Trunking: Off
-Access Mode VLAN: 1 (default)
-Trunking Native Mode VLAN: 99 (VLAN0099)
-Trunking VLANs Enabled: 10,20,30
-
-Name: Gi0/2
-Switchport: Enabled
-Administrative Mode: static access
-Operational Mode: static access
-Administrative Trunking Encapsulation: dot1q
-Operational Trunking Encapsulation: dot1q
-Negotiation of Trunking: Off
-Access Mode VLAN: 10 (SALES)
-Trunking Native Mode VLAN: 1 (default)
-Trunking VLANs Enabled: ALL
-
-Name: Gi0/3
-Switchport: Enabled
-Administrative Mode: static access
-Operational Mode: static access
-Administrative Trunking Encapsulation: dot1q
-Operational Trunking Encapsulation: dot1q
-Negotiation of Trunking: Off
-Access Mode VLAN: 10 (SALES)
-Trunking Native Mode VLAN: 1 (default)
-Trunking VLANs Enabled: ALL
-
-Name: Gi0/4
-Switchport: Enabled
-Administrative Mode: static access
-Operational Mode: static access
-Administrative Trunking Encapsulation: dot1q
-Operational Trunking Encapsulation: dot1q
-Negotiation of Trunking: Off
-Access Mode VLAN: 1 (default)
-Trunking Native Mode VLAN: 1 (default)
-Trunking VLANs Enabled: ALL
-
-Name: Vlan1
-Switchport: Enabled
-Administrative Mode: static access
-Operational Mode: static access
-Administrative Trunking Encapsulation: dot1q
-Operational Trunking Encapsulation: dot1q
-Negotiation of Trunking: Off
-Access Mode VLAN: 1 (default)
-Trunking Native Mode VLAN: 1 (default)
-Trunking VLANs Enabled: ALL
-
-SW1>

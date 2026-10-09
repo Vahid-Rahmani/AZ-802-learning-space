@@ -1,6 +1,8 @@
 import { ccnaLabs } from "./ccna.ts";
 import { ccnaLabBands, ccnaLabPath, ccnaLabPathStats, type CcnaLabEntry } from "./ccna-lab-path.ts";
 import type { SimulationPack, SimulationNode, SimulationPort, SimulationLink, SimulationChecklistItem, SimulationStage } from "@/lib/ccna-sim/topology";
+import type { SimLabPack } from "@/lib/ccna-sim/lab.ts";
+import { getAuthoredLabPack } from "./ccna-sim/index.ts";
 import type { ServerLab } from "./server-labs.ts";
 
 /**
@@ -302,12 +304,50 @@ function terminalFor(lab: CcnaLabEntry) {
   return { hostname: lab.title.slice(0, 28), prompt: "Switch#", intro: ["This is a guided, isolated lab terminal.", "Type help to see the read-only checks available."], commands };
 }
 
+/**
+ * A pack that the project authored for this exact lab. Its devices, cables and steps are the lab's
+ * own, and every graded step carries a predicate over live device state, so the workspace can grade
+ * the learner without trusting what was typed into a console.
+ */
+function authoredStages(pack: SimLabPack): SimulationStage[] {
+  return pack.objectives.flatMap((objective) => objective.steps.map((step) => {
+    // The guide names the console this step belongs to, in both directions: a graded step says which
+    // device its check reads, and an ungraded one says no check runs there either (the structural gate
+    // requires the device label in `expected`, and a learner needs to know where a step counts).
+    const deviceLabel = pack.devices.find((device) => device.id === step.deviceId)?.label ?? step.deviceId;
+    return {
+      id: `${objective.id}:${step.id}`,
+      deviceId: step.deviceId,
+      title: step.title,
+      instruction: `${objective.title} — ${step.instruction}`,
+      why: step.why,
+      command: step.commands?.[0] ?? "show running-config",
+      commands: step.commands,
+      expected: step.ungraded
+        ? `${step.ungraded} No check runs on ${deviceLabel} for this step.`
+        : `This step is credited when this lab's own check reads the required state on ${deviceLabel}.`,
+      check: step.check,
+      ungraded: step.ungraded,
+    };
+  }));
+}
+
+function authoredChecklist(pack: SimLabPack): SimulationChecklistItem[] {
+  return pack.objectives.flatMap((objective) => objective.steps.map((step) => ({
+    id: `${objective.id}:${step.id}`,
+    title: step.title,
+    detail: step.ungraded ?? `${objective.title} · on ${pack.devices.find((device) => device.id === step.deviceId)?.label ?? "this lab"}`,
+    required: !step.ungraded,
+  })));
+}
+
 function createPack(lab: CcnaLabEntry): CcnaSimulationPack {
   const handsOn = handsOnById.get(lab.id);
-  const devices = createDevices(lab);
+  const authored = getAuthoredLabPack(lab.id);
+  const devices = authored ? authored.devices.map((node) => ({ ...node, ports: node.ports.map((port) => ({ ...port })) })) : createDevices(lab);
   const topology = handsOn?.topology;
   const sources = lab.sourceRefs.map((source) => ({ title: source.title, url: source.url }));
-  const checklist = checklistFor(lab);
+  const checklist = authored ? authoredChecklist(authored) : checklistFor(lab);
   return {
     id: `ccna-sim-${slug(lab.id)}`,
     labId: lab.id,
@@ -318,7 +358,13 @@ function createPack(lab: CcnaLabEntry): CcnaSimulationPack {
     domain: lab.domain,
     difficulty: lab.tier,
     duration: lab.duration,
-    scenario: {
+    scenario: authored ? {
+      role: authored.scenario.role,
+      context: `${authored.scenario.context}. ${authored.diagramNote}`,
+      objective: `Objectives ${lab.objectives.join(", ")} · ${authored.scenario.objective}`,
+      requirement: authored.scenario.requirement,
+      prerequisites: authored.scenario.prerequisites,
+    } : {
       role: lab.scenario.role,
       context: `${lab.scenario.context}. ${topology?.note ?? "Use the editable starter graph as the working topology."}`,
       objective: `Objectives ${lab.objectives.join(", ")} · ${lab.scenario.requirement}`,
@@ -326,14 +372,15 @@ function createPack(lab: CcnaLabEntry): CcnaSimulationPack {
       prerequisites: lab.prerequisites,
     },
     devices,
-    links: createLinks(devices, lab),
+    links: authored ? authored.links.map((link) => ({ ...link, source: { ...link.source }, target: { ...link.target } })) : createLinks(devices, lab),
     checklist,
-    stages: guideFor(lab, checklist, devices),
+    stages: authored ? authoredStages(authored) : guideFor(lab, checklist, devices),
     terminal: terminalFor(lab),
-    references: sources,
+    references: authored ? [...authored.references] : sources,
     sourceSummary: lab.reviewStatus === "reviewed" ? "Objectives and sources were reviewed for this learning-path entry." : `Draft fallback: ${lab.reviewNote ?? "The catalog mapping still needs review."}`,
-    fallback: lab.kind === "catalog" && lab.artifacts.steps === 0,
+    fallback: authored ? false : lab.kind === "catalog" && lab.artifacts.steps === 0,
     topologyOutline: topology,
+    lab: authored ?? undefined,
     ...(lab.diagram ? { diagram: lab.diagram } : {}),
   };
 }

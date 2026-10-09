@@ -1,4 +1,5 @@
 import { commandsForMode, createSimState, simCommands, type SimCommand, type SimState } from "./commands.ts";
+import type { SimDeviceRole } from "./device.ts";
 import { ambiguousCommand, helpLines, incompleteCommand, invalidInput } from "./help.ts";
 import { modeAfterExit, promptFor } from "./modes.ts";
 import { tokenize, type SimMode, type SimToken } from "./tokens.ts";
@@ -12,6 +13,27 @@ export type SimResult = {
   matched: string | null;
 };
 
+/**
+ * A console for one node of a lab's published topology: the node's own ports plus its role's real
+ * defaults, so a router's ports start administratively down, a switch's access ports start in VLAN
+ * 1, and a host console has no VLAN database at all. The browser workspace and validate:ccna-sim
+ * both build every console through this one function, so a graded step can never read a different
+ * device than the one the learner is typing on.
+ */
+export function createLabSession(
+  node: { id?: string; label: string; role?: SimDeviceRole; ports: readonly { kind?: string; label: string }[] },
+  hostname?: string,
+) {
+  const ethernet = node.ports
+    .filter((port) => port.kind !== "console" && port.kind !== "wireless")
+    .map((port) => port.label);
+  const session = new IosSession(hostname || node.label, node.role ?? "switch", ethernet);
+  // The console's own node id travels with the device, so the lab model can tell which device is
+  // asking even though it holds copies of the state rather than this object.
+  if (node.id) session.state.device.id = node.id;
+  return session;
+}
+
 type Resolution =
   | { kind: "run"; command: SimCommand; args: string[]; negate: boolean }
   | { kind: "invalid"; offset: number }
@@ -23,9 +45,13 @@ type Resolution =
 export class IosSession {
   readonly state: SimState;
   private readonly history: string[] = [];
+  private readonly role: SimDeviceRole;
+  private readonly portLabels?: readonly string[];
 
-  constructor(hostname = "Switch") {
-    this.state = createSimState(hostname);
+  constructor(hostname = "Switch", role: SimDeviceRole = "switch", portLabels?: readonly string[]) {
+    this.role = role;
+    this.portLabels = portLabels;
+    this.state = createSimState(hostname, role, portLabels);
   }
 
   get prompt() {
@@ -37,11 +63,11 @@ export class IosSession {
   }
 
   get availableCommands(): readonly SimCommand[] {
-    return commandsForMode(this.state.mode);
+    return commandsForMode(this.state);
   }
 
   reset() {
-    const fresh = createSimState("Switch");
+    const fresh = createSimState(this.state.device.hostname, this.role, this.portLabels);
     this.state.device = fresh.device;
     this.state.config = fresh.config;
     this.state.selected = fresh.selected;
@@ -58,7 +84,7 @@ export class IosSession {
     const last = tokens[tokens.length - 1];
     if (last && last.value === "?") {
       const words = tokens.slice(0, -1).map((token) => token.value.toLowerCase());
-      return this.result(helpLines(this.state.mode, words), `help ${words.join(" ")}`.trim());
+      return this.result(helpLines(this.state, words), `help ${words.join(" ")}`.trim());
     }
     const resolution = this.resolve(tokens);
     if (resolution.kind === "invalid") return this.result(invalidInput(typed, resolution.offset), null);
