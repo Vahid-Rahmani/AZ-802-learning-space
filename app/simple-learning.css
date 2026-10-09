@@ -17,6 +17,9 @@
 .simple-tools { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
 .simple-tools > button, .simple-tools > a { padding: 9px 12px; border: 1px solid #ffffff20; border-radius: 8px; font-size: 14px; }
 .simple-back { margin: 16px 0; color: #67e8f9; font-size: 14px; }
+.practice-resume { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:16px 0; padding:16px 20px; border:1px solid var(--cp-line,#67e8f940); border-radius:10px; background:var(--cp-surface,#111a28); }
+.practice-resume p { margin-top:6px; font-size:13px; color:var(--cp-muted,#a9b5c5); }
+@media(max-width:640px) { .practice-resume { align-items:stretch; flex-direction:column; } }
 .study-app nav.mobile-nav[data-simple="true"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .simple-course-select { display: block; margin: 20px 0; }
 .simple-course-select select { width: 100%; margin-top: 8px; padding: 12px; border: 1px solid #ffffff25; border-radius: 10px; background: var(--cp-surface, #111a28); color: var(--cp-text, #e8edf5); }

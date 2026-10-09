@@ -5,6 +5,13 @@ import { GoogleSubtitle } from "./google-translate";
 
 export type SimpleNavItem = { key: string; label: string; icon?: ReactNode; href?: string };
 
+export function PracticeResume({ question, total, answered, active, onResume, onPause }: { question: number; total: number; answered: number; active: boolean; onResume: () => void; onPause: () => void }) {
+  return <section className="practice-resume" aria-label="Saved practice">
+    <div><strong><GoogleSubtitle text={active ? "Your practice progress" : "Continue your saved practice"} /></strong><p><GoogleSubtitle text={`Question ${question} of ${total} · ${answered} answered`} /></p></div>
+    <button type="button" className="simple-primary" onClick={active ? onPause : onResume}><GoogleSubtitle text={active ? "Pause & save practice" : "Resume practice"} /> {active ? "Ⅱ" : "→"}</button>
+  </section>;
+}
+
 export function SimpleNavigation({ items, active, onNavigate }: { items: SimpleNavItem[]; active: string; onNavigate?: (key: string) => void }) {
   return <nav className="simple-navigation" aria-label="Primary navigation">{items.map(item => item.href
     ? <a key={item.key} href={item.href} aria-current={active === item.key ? "page" : undefined} onClick={event => { event.preventDefault(); window.location.href = item.href!; }}>{item.icon}<GoogleSubtitle text={item.label} /></a>
