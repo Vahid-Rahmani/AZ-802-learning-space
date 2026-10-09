@@ -11,6 +11,7 @@ import {
   endpointKey,
   findSimulationPort,
   arrangeSimulationNodes,
+  simulationCanvasHeight,
   moveSimulationNode,
   type SimulationEndpoint,
   type SimulationLink,
@@ -73,7 +74,7 @@ type TerminalView = {
 };
 type WorkspaceSnapshot = {
   version: 1 | 2 | 3;
-  layoutVersion?: 2 | 3;
+  layoutVersion?: 2 | 3 | 4;
   state: SimulationState;
   checkedItems: string[];
   completedStages?: string[];
@@ -94,7 +95,6 @@ export type CcnaSimulationWorkspaceProps = {
 };
 
 const CANVAS_WIDTH = 760;
-const CANVAS_HEIGHT = 500;
 const NODE_WIDTH = 210;
 const NODE_HEIGHT = 100;
 const PORT_GAP = 48;
@@ -346,6 +346,7 @@ function stageWasPassed(stage: SimulationStage, views: Record<string, TerminalVi
 }
 
 export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplete, onDeviceSelect }: CcnaSimulationWorkspaceProps) {
+  const CANVAS_HEIGHT = simulationCanvasHeight(pack.devices);
   const storageKey = `ccna-simulation:${persistKey ?? pack.id}`;
   const [state, setState] = useState<SimulationState>(() => cloneSimulationState(pack));
   const [selectedPort, setSelectedPort] = useState<SimulationEndpoint | null>(null);
@@ -409,7 +410,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     const compatibleSnapshot = snapshot && hasCompatibleTopology(snapshot, pack) ? snapshot : null;
     const timer = window.setTimeout(() => {
       if (compatibleSnapshot) {
-        const restoredState = compatibleSnapshot.layoutVersion === 3
+        const restoredState = compatibleSnapshot.layoutVersion === 4
           ? compatibleSnapshot.state
           : {
             ...compatibleSnapshot.state,
@@ -466,7 +467,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     const sessions = Object.fromEntries(state.nodes.map((node) => [node.id, serializeTerminalRuntime(terminalSessions.current[node.id] ?? getTerminalRuntime(node))]));
     const snapshot: WorkspaceSnapshot = {
       version: 3,
-      layoutVersion: 3,
+      layoutVersion: 4,
       state,
       checkedItems: [...checkedItems],
       completedStages: [...completedStageIds],

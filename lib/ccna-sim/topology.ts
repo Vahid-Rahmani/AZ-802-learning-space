@@ -118,7 +118,13 @@ export type SimulationState = {
  * simulator a predictable Packet-Tracer-like starting canvas without
  * changing the lab's devices or links.
  */
-export function arrangeSimulationNodes(nodes: SimulationNode[], width = 760, height = 500) {
+export function simulationCanvasHeight(nodes: Array<{ kind: SimulationDeviceKind }>) {
+  const endpoints = nodes.filter((node) => node.kind === "pc" || node.kind === "server").length;
+  const rows = Math.ceil(endpoints / 3) + Math.ceil((nodes.length - endpoints) / 3);
+  return Math.max(500, 144 + Math.max(0, rows - 1) * 170);
+}
+
+export function arrangeSimulationNodes(nodes: SimulationNode[], width = 760, height = simulationCanvasHeight(nodes)) {
   const isEndpoint = (kind: SimulationDeviceKind) => kind === "pc" || kind === "server";
   const roleRank = (kind: SimulationDeviceKind) => kind === "router" || kind === "firewall" || kind === "cloud"
     ? 0
@@ -128,7 +134,7 @@ export function arrangeSimulationNodes(nodes: SimulationNode[], width = 760, hei
   const ordered = nodes.map((node, index) => ({ node, index })).sort((left, right) => roleRank(left.node.kind) - roleRank(right.node.kind) || left.index - right.index);
   const chunk = (items: typeof ordered) => {
     const result: Array<typeof ordered> = [];
-    for (let index = 0; index < items.length; index += 4) result.push(items.slice(index, index + 4));
+    for (let index = 0; index < items.length; index += 3) result.push(items.slice(index, index + 3));
     return result;
   };
   const endpointRows = chunk(ordered.filter(({ node }) => isEndpoint(node.kind)));
