@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { build } from 'esbuild';
 import { JSDOM } from 'jsdom';
-import { mkdirSync, rmSync } from 'node:fs';
+import { mkdirSync, rmSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -86,7 +86,19 @@ for (const guide of guides.values()) {
   for (const step of guide.steps) {
     assert.ok(step.path.length && step.instruction && step.alt);
     assert.ok(step.image || step.diagram, `${guide.id}/${step.id}: each step needs a real image or explicitly authored diagram`);
-    if (step.image) assert.equal(new URL(adStepImage(step)).hostname, 'learn.microsoft.com');
+    if (step.imageReference) {
+      assert.match(adStepImage(step), /^\/images\/ad-server-2025\/[a-z-]+\.png$/);
+      assert.equal(new URL(step.imageReference.source).hostname, 'github.com');
+      assert.match(step.imageReference.source, /7fe4c1f9f6ff6871b2944f1d9fd18f8e8076e247/);
+      assert.match(step.imageReference.original, /^https:\/\/github.com\/user-attachments\/assets\/[a-f0-9-]+$/);
+      assert.match(step.imageReference.credit, /Hugh Chanetsa.*MIT.*Used with permission from Microsoft/);
+      assert.ok(step.imageReference.note, 'different screenshot context must be disclosed');
+      const png = readFileSync(resolve(repo, 'public', adStepImage(step).slice(1)));
+      assert.equal(png.subarray(0,8).toString('hex'), '89504e470d0a1a0a');
+      assert.equal(png.readUInt32BE(16), step.imageReference.width);
+      assert.equal(png.readUInt32BE(20), step.imageReference.height);
+      assert.match(readFileSync(resolve(repo, 'public', step.imageReference.license.slice(1)), 'utf8'), /Copyright \(c\) 2025 Hugh Chanetsa/);
+    } else if (step.image) assert.equal(new URL(adStepImage(step)).hostname, 'learn.microsoft.com');
     else assert.equal(adStepImage(step), '', 'no fabricated screenshot URL');
     if (step.source) assert.equal(new URL(step.source).protocol, 'https:');
     if (step.diagram) {
@@ -100,7 +112,15 @@ for (const guide of guides.values()) {
     await act(async () => {picker.value = String(guide.steps.indexOf(step)); picker.dispatchEvent(new window.Event('change', {bubbles:true}));});
     assert.equal(document.querySelector('article h4').textContent, step.title);
     assert.equal(!!document.querySelector('.ad-guide-image'), !!step.image);
-    assert.equal(!!document.querySelector('.ad-guide-diagram'), !step.image && !!step.diagram);
+    assert.equal(!!document.querySelector('.ad-guide-diagram'), !!step.diagram, 'screenshots must not erase conceptual explanations');
+    if (step.imageReference) {
+      assert.match(document.querySelector('article').textContent, /real lab screenshot/);
+      assert.doesNotMatch(document.querySelector('article').textContent, /Older Microsoft reference image/);
+      assert.equal(document.querySelector('.ad-guide-credit a').getAttribute('href'), step.imageReference.source);
+      await act(async () => document.querySelector('.ad-guide-image').click());
+      assert.equal(document.querySelector('dialog a').getAttribute('href'), step.imageReference.source, 'enlarged photo links to its actual source, not Microsoft');
+      await act(async () => document.querySelector('[aria-label="Close screenshot"]').click());
+    }
     assert.equal(!!document.querySelector('.ad-guide-command'), !!step.command);
   }
 }
@@ -110,4 +130,5 @@ assert.match(document.querySelector('.ad-guide-image img').src, /demoting-domain
 assert.equal(getAdVisualGuide({ id: 'az802-q-043', domain: 'Another course' }), null);
 await act(async () => root.unmount());
 rmSync(scratch, { recursive: true, force: true });
+console.log(`Local real screenshots: ${bindings.filter(q => getAdVisualGuide(q).guide.steps.some(step => step.imageReference)).length} question walkthroughs; ${new Set([...guides.values()].flatMap(g => g.steps.filter(s => s.imageReference).map(s => s.image))).size} unique images.`);
 console.log(`PASS AD visual guide: ${bindings.length} explicit question bindings, ${guides.size} workflows, ${[...guides.values()].reduce((n,g)=>n+g.steps.length,0)} steps, ${new Set([...guides.values()].flatMap(g => g.steps.map(adStepImage)).filter(Boolean)).size} shared reference screenshots, per-question focus and exam gating, all steps rendered, mobile collapse, enlargement and image failure fallback.`);

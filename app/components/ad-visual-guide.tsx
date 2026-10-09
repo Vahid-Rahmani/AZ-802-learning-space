@@ -9,10 +9,10 @@ type Binding = NonNullable<ReturnType<typeof getAdVisualGuide>>;
 
 function StepImage({ step, onExpand }: { step: AdVisualStep; onExpand: () => void }) {
   const [failed, setFailed] = useState(false);
-  return failed ? <p className="ad-guide-image-fallback" role="status">Screenshot unavailable. Follow the path below or open Microsoft Learn.</p> : <button className="ad-guide-image" type="button" onClick={onExpand} aria-label={`Enlarge screenshot: ${step.title}`}>
-    {/* Source-hosted official media, not a screenshot fabricated by this application. */}
+  return failed ? <p className="ad-guide-image-fallback" role="status">Screenshot unavailable. Follow the path below or open the source.</p> : <button className="ad-guide-image" type="button" onClick={onExpand} aria-label={`Enlarge screenshot: ${step.title}`}>
+    {/* Real source captures, locally hosted when licensed; never generated Windows UI. */}
     {/* eslint-disable-next-line @next/next/no-img-element */}
-    <img src={adStepImage(step)} alt={step.alt} loading="lazy" decoding="async" width={840} height={630} onError={() => setFailed(true)} />
+    <img src={adStepImage(step)} alt={step.alt} loading="lazy" decoding="async" width={step.imageReference?.width ?? 840} height={step.imageReference?.height ?? 630} onError={() => setFailed(true)} />
     <span>Enlarge screenshot ↗</span>
   </button>;
 }
@@ -48,7 +48,15 @@ export function AdVisualGuide({ binding, showTranslations }: { binding: Binding;
           <p className="ad-guide-step-count" aria-live="polite">Step {index + 1} / {guide.steps.length}</p>
           <h4>{caption(step.title)}</h4>
           {step.imageNote && <p className="ad-guide-image-note">{caption(step.imageNote)}</p>}
-          {step.image ? <><p className="ad-guide-image-note">Older Microsoft reference image · not a verified Windows Server 2025 capture.</p><StepImage key={step.id} step={step} onExpand={() => dialog.current?.showModal()} /></> : step.diagram ? <AdGuideDiagram diagram={step.diagram} /> : null}
+          {step.image && <>
+            <p className="ad-guide-image-note">{step.imageReference ? `${step.imageReference.version} · real lab screenshot` : "Older Microsoft reference image · not a verified Windows Server 2025 capture."}</p>
+            <StepImage key={step.id} step={step} onExpand={() => dialog.current?.showModal()} />
+            {step.imageReference ? <>
+              <p className="ad-guide-image-note">{caption(step.imageReference.note)}</p>
+              <p className="ad-guide-credit"><a href={step.imageReference.source} target="_blank" rel="noreferrer">{step.imageReference.credit}</a> · <a href={step.imageReference.license} target="_blank" rel="noreferrer">License</a></p>
+            </> : <p className="ad-guide-credit">Windows Server · Used with permission from Microsoft.</p>}
+          </>}
+          {step.diagram && (step.image ? <details className="ad-guide-notes"><summary>Concept diagram</summary><AdGuideDiagram diagram={step.diagram} /></details> : <AdGuideDiagram diagram={step.diagram} />)}
           <ol className="ad-guide-path" aria-label="Windows Server navigation path">{step.path.map((part, position) => <li key={`${position}:${part}`}>{part}</li>)}</ol>
           <p className="ad-guide-instruction">{caption(step.instruction)}</p>
           {step.command && <pre className="ad-guide-command"><code>{step.command}</code></pre>}
@@ -59,14 +67,15 @@ export function AdVisualGuide({ binding, showTranslations }: { binding: Binding;
           <button type="button" disabled={index === guide.steps.length - 1} onClick={() => setIndex(value => value + 1)}>Next step →</button>
         </nav>
         <details className="ad-guide-notes"><summary>Version and prerequisites</summary><p>{caption(guide.versionNote)}</p><p>{caption(guide.prerequisites)}</p></details>
-        <a className="ad-guide-source" href={guide.source} target="_blank" rel="noreferrer">Microsoft Learn · {guide.kind && guide.kind !== "screenshot" ? "official guidance" : "original screenshots"} ↗</a>
+        <a className="ad-guide-source" href={guide.source} target="_blank" rel="noreferrer">Microsoft Learn · official guidance ↗</a>
       </div>
     </details>
     {step.image && <dialog className="ad-guide-dialog" ref={dialog} aria-label={step.title} onClick={event => { if (event.target === dialog.current) dialog.current?.close(); }}>
       <header><strong>{step.title}</strong><button type="button" onClick={() => dialog.current?.close()} autoFocus aria-label="Close screenshot">Close ×</button></header>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={adStepImage(step)} alt={step.alt} width={840} height={630} loading="lazy" decoding="async" />
-      <a href={guide.source} target="_blank" rel="noreferrer">View source on Microsoft Learn ↗</a>
+      <img src={adStepImage(step)} alt={step.alt} width={step.imageReference?.width ?? 840} height={step.imageReference?.height ?? 630} loading="lazy" decoding="async" />
+      <a href={step.imageReference?.source ?? guide.source} target="_blank" rel="noreferrer">View screenshot source ↗</a>
+      <p><a href={adStepImage(step)} target="_blank" rel="noreferrer">Open full-size image ↗</a></p>
     </dialog>}
   </aside>;
 }

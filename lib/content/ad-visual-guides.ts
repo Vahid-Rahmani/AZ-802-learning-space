@@ -1,4 +1,4 @@
-/** Shared, reviewed workflows. Images stay on Microsoft Learn (not copied into the bank). */
+/** Shared, reviewed workflows; media is separate from the question bank. */
 import type { AdVisualBinding, AdVisualGuideData, AdVisualStep } from "./ad-visual-guide-types";
 import { rodcGuideBindings } from "./ad-visual-guides-rodc";
 import { accountsGuideBindings } from "./ad-visual-guides-accounts";
@@ -6,6 +6,7 @@ import { policyGuideBindings } from "./ad-visual-guides-policy";
 import { identityGuideBindings } from "./ad-visual-guides-identity";
 import { networkGuideBindings } from "./ad-visual-guides-network";
 import { operationsGuideBindings } from "./ad-visual-guides-operations";
+import { withAdScreenshots } from "./ad-visual-screenshots";
 export type { AdVisualBinding, AdVisualGuideData, AdVisualStep } from "./ad-visual-guide-types";
 
 const source = "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/install-a-new-windows-server-2012-active-directory-forest--level-200-";
@@ -81,7 +82,7 @@ const guideBindings: Record<string, Omit<AdVisualBinding, "guide"> & { guide?: A
 
 export function getAdVisualGuide(question: { id: string; domain: string }) {
   const binding = question.domain === "Deploy and manage AD DS" ? guideBindings[question.id] : undefined;
-  return binding ? { ...binding, guide: binding.guide ?? adForestGuide } : null;
+  return binding ? { ...binding, guide: withAdScreenshots(binding.guide ?? adForestGuide) } : null;
 }
 
-export function adStepImage(step: AdVisualStep) { return step.image ? (step.image.startsWith("https://") ? step.image : `${media}${step.image}`) : ""; }
+export function adStepImage(step: AdVisualStep) { return step.image ? (step.image.startsWith("https://") || step.image.startsWith("/images/") ? step.image : `${media}${step.image}`) : ""; }

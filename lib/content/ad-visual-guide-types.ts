@@ -16,6 +16,16 @@ export type AdVisualStep = {
   source?: string;
   alt: string;
   imageNote?: string;
+  imageReference?: {
+    source: string;
+    original: string;
+    version: "Windows Server 2025" | "Windows 11 client";
+    credit: string;
+    license: string;
+    width: number;
+    height: number;
+    note: string;
+  };
 };
 
 export type AdVisualGuideData = {
