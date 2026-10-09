@@ -128,6 +128,41 @@ async function run(container, label, ...commands) {
 }
 
 const results = {};
+// Mobile keyboards/paste may emit input events without printable keydowns.
+const mobile = await mount("ccna-addressing", "mobile-native-input");
+await click(mobile.container, tab(mobile.container, "SW1"));
+const nativeInput = mobile.container.querySelector('.ccna-simulation-terminal-native-input');
+assert.ok(nativeInput instanceof window.HTMLInputElement, 'a real editable input must open the mobile keyboard');
+assert.equal(nativeInput.getAttribute('inputmode'), 'text');
+assert.equal(nativeInput.getAttribute('autocapitalize'), 'off');
+await act(async () => {
+  surface(mobile.container).dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+});
+assert.equal(window.document.activeElement, nativeInput, 'tapping the console must focus its native input');
+await act(async () => {
+  Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(nativeInput, 'enable');
+  nativeInput.dispatchEvent(new window.Event('input', { bubbles: true }));
+  nativeInput.dispatchEvent(new window.CompositionEvent('compositionstart', { bubbles: true }));
+  nativeInput.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', keyCode: 229, isComposing: true, bubbles: true }));
+});
+assert.equal(promptNow(mobile.container), 'SW1>', 'IME confirmation must not submit a command prematurely');
+assert.equal(nativeInput.value, 'enable');
+await act(async () => {
+  nativeInput.dispatchEvent(new window.CompositionEvent('compositionend', { bubbles: true }));
+  nativeInput.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+});
+await settle();
+assert.equal(promptNow(mobile.container), 'SW1#', 'native input events must reach the same engine as physical keys');
+assert.equal(nativeInput.value, '', 'submitted commands must clear the inline draft');
+await act(async () => {
+  nativeInput.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+});
+assert.equal(nativeInput.value, 'enable', 'native input must retain command history');
+await click(mobile.container, tab(mobile.container, 'R1'));
+await click(mobile.container, tab(mobile.container, 'SW1'));
+assert.equal(nativeInput.value, 'enable', 'switching devices must retain the native input draft');
+results.mobileNativeInput = 'tapping focuses a real inline input; input-only typing, IME confirmation, Enter, history and device drafts work';
+await mobile.unmount();
 const workspace = await mount("ccna-addressing");
 assert.equal(workspace.container.querySelectorAll('.ccna-simulation-node-card').length, 0, 'topology must not render rectangular device cards');
 assert.equal(workspace.container.querySelectorAll('.ccna-simulation-node .ccna-simulation-device-art.is-large').length, workspace.pack.devices.length, 'each node must have its own device silhouette');

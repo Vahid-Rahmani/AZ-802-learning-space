@@ -460,6 +460,8 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   const terminalSessions = useRef<Record<string, TerminalRuntime>>({});
   const svgRef = useRef<SVGSVGElement>(null);
   const terminalSurfaceRef = useRef<HTMLDivElement>(null);
+  const terminalInputRef = useRef<HTMLInputElement>(null);
+  const terminalComposing = useRef(false);
   const latestRef = useRef({ state, views: terminalViews });
   const dragRef = useRef<{ type: "node" | "pan"; id?: string; pointerId: number; startX: number; startY: number; originX: number; originY: number } | null>(null);
   const completionNotified = useRef(false);
@@ -652,6 +654,11 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   useEffect(() => {
     latestRef.current = { state, views: terminalViews };
   }, [state, terminalViews]);
+
+  useEffect(() => {
+    const screen = terminalSurfaceRef.current;
+    if (screen) screen.scrollTop = screen.scrollHeight;
+  }, [terminalDraft, terminalViews, activePanel]);
 
   useEffect(() => {
     if (!requiredCount || completedRequired !== requiredCount || completionNotified.current) return;
@@ -865,12 +872,17 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     setTerminalCursor(command.length);
     setTerminalViews((current) => ({ ...current, [node.id]: terminalView(runtime) }));
     setActivePanel("terminal");
-    window.requestAnimationFrame(() => terminalSurfaceRef.current?.focus());
+    window.requestAnimationFrame(() => terminalInputRef.current?.focus());
   };
 
   const handleTerminalKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
     if (!selectedNodeData || !hasConsole(selectedNodeData) || !activeView || activeView.closed) return;
+    // Soft keyboards and IMEs edit through input events, often with keyCode 229.
+    // Let the native inline input handle editing, selection, paste and composition.
+    if (terminalComposing.current || event.nativeEvent.isComposing || event.keyCode === 229) return;
     const key = event.key;
+    if (event.target === terminalInputRef.current && !["Enter", "ArrowUp", "ArrowDown"].includes(key)
+      && !(event.ctrlKey && ["l", "c"].includes(key.toLowerCase()))) return;
     if (key === "Enter") {
       event.preventDefault();
       submitCommand();
@@ -985,10 +997,13 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
                 ? `This step is completed on ${stageDevice?.label ?? selectedNodeData?.label ?? "the target device"}. ${selectedNodeData && stageDevice && selectedNodeData.id !== stageDevice.id ? `${selectedNodeData.label} is not needed for it.` : "It is credited from the device state this console produces, not from typing the command."}`
                 : `You are on ${selectedNodeData?.label ?? "the target device"}. Complete this check here before moving to the next step.`
               : `${selectedNodeData?.label ?? "This device"} is not needed for this step. First select ${stageDevice?.label} to open its console.`}</p>
-            {!isStageDeviceSelected && stageDevice && <button type="button" className="ccna-simulation-open-device" onClick={() => { selectDevice(stageDevice); setActivePanel("terminal"); window.requestAnimationFrame(() => terminalSurfaceRef.current?.focus()); }}>Open {stageDevice.label} console</button>}
+            {!isStageDeviceSelected && stageDevice && <button type="button" className="ccna-simulation-open-device" onClick={() => { selectDevice(stageDevice); setActivePanel("terminal"); window.requestAnimationFrame(() => terminalInputRef.current?.focus()); }}>Open {stageDevice.label} console</button>}
             <p>{activeStage.instruction}</p>
             <p className="ccna-simulation-stage-why"><strong>Why:</strong> {activeStage.why}</p>
-            <div className="ccna-simulation-stage-commands">{(activeStage.commands ?? [activeStage.command]).map((command) => <button key={command} type="button" className="ccna-simulation-stage-command-chip" onClick={() => prepareStageCommand(activeStage, command)}>{command}</button>)}</div>
+            {/* A step may legitimately offer the same keyword twice (a range form and its per-port
+                form, for example), so the chip key includes its position. A duplicate key let React
+                omit or duplicate a chip, and a chip is a control the learner clicks. */}
+            <div className="ccna-simulation-stage-commands">{(activeStage.commands ?? [activeStage.command]).map((command, commandIndex) => <button key={`${commandIndex}-${command}`} type="button" className="ccna-simulation-stage-command-chip" onClick={() => prepareStageCommand(activeStage, command)}>{command}</button>)}</div>
             <p className="ccna-simulation-stage-result" data-ok={activeOutcome ? String(activeOutcome.ok) : "unknown"}>
               {activeOutcome
                 ? activeOutcome.ok ? `Verified: ${activeOutcome.detail}` : `Not yet: ${activeOutcome.detail}`
@@ -1087,7 +1102,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
             </button>;
           })}
         </div>
-        <div ref={terminalSurfaceRef} id="ccna-active-device-console" className="ccna-simulation-terminal-screen" role="textbox" aria-multiline="false" aria-label={`Type commands for ${selectedNodeData?.label ?? "the selected device"}`} tabIndex={0} onPointerDown={() => terminalSurfaceRef.current?.focus()} onKeyDown={handleTerminalKeyDown}>
+        <div ref={terminalSurfaceRef} id="ccna-active-device-console" className="ccna-simulation-terminal-screen" role="group" aria-label={`Console for ${selectedNodeData?.label ?? "the selected device"}`} onClick={(event) => { if (event.target !== terminalInputRef.current && window.getSelection()?.isCollapsed !== false) terminalInputRef.current?.focus(); }} onKeyDown={handleTerminalKeyDown}>
           <div className="ccna-simulation-terminal-output" role="log" aria-live="polite">
             {!activeView && <p className="ccna-simulation-terminal-line">{selectedNodeData
               ? `${selectedNodeData.label} has no IOS console in this practice model: its configuration belongs to the lab's own tool. Select a router, switch or host to type commands.`
@@ -1099,10 +1114,10 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
             {activeView?.closed && <p className="ccna-simulation-terminal-line ccna-simulation-terminal-closed">{simulatorText.closed}</p>}
             {activeView?.entries.map((entry, index) => <div key={`${entry.input}-${index}`} className="ccna-simulation-terminal-entry"><p><span className="ccna-simulation-terminal-prompt">{entry.promptBefore}</span> {entry.input}</p>{entry.output.map((line, lineIndex) => <p key={`${line}-${lineIndex}`} className="ccna-simulation-terminal-response">{line}</p>)}</div>)}
           </div>
-          {activeView && <div className="ccna-simulation-terminal-input-line" aria-label="Current command line">
+          {activeView && !activeView.closed && <form className="ccna-simulation-terminal-input-line" aria-label="Current command line" onSubmit={(event) => { event.preventDefault(); if (!terminalComposing.current) submitCommand(); }}>
             <span className="ccna-simulation-terminal-prompt">{activeView.prompt}</span>{" "}
-            <span>{activeView.inputHidden ? "•".repeat(terminalCursor) : terminalDraft.slice(0, terminalCursor)}</span><span className="ccna-simulation-terminal-cursor" aria-hidden="true">▌</span><span>{(activeView.inputHidden ? "•".repeat(terminalDraft.length - terminalCursor) : terminalDraft.slice(terminalCursor)) || "\u00a0"}</span>
-          </div>}
+            <input ref={terminalInputRef} className="ccna-simulation-terminal-native-input" type={activeView.inputHidden ? "password" : "text"} aria-label={`Type commands for ${selectedNodeData?.label ?? "the selected device"}`} value={terminalDraft} inputMode="text" enterKeyHint="send" autoCapitalize="off" autoCorrect="off" autoComplete="off" spellCheck={false} dir="ltr" onChange={(event) => updateTerminalDraft(event.currentTarget.value, event.currentTarget.selectionStart ?? event.currentTarget.value.length)} onSelect={(event) => setTerminalCursor(event.currentTarget.selectionStart ?? terminalDraft.length)} onCompositionStart={() => { terminalComposing.current = true; }} onCompositionEnd={() => { terminalComposing.current = false; }} />
+          </form>}
         </div>
         <div className="ccna-simulation-terminal-actions"><span>↑ ↓ history · Ctrl+L clear · Ctrl+C cancel</span><button type="button" onClick={resetActiveTerminal} disabled={!activeView} title="Restarts only the console you are typing in: this device's history and output. The other consoles and your step progress stay.">Restart this console</button></div>
       </section>

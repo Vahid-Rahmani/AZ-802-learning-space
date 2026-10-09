@@ -21,6 +21,8 @@ const checks = [
   ["workspace exposes mobile panel tabs", source.workspace.includes('role="tablist"') && source.workspace.includes('aria-controls') && source.workspace.includes('role="tabpanel"')],
   ["panel tabs support keyboard focus management", source.workspace.includes("ArrowRight") && source.workspace.includes("ArrowLeft") && source.workspace.includes("requestAnimationFrame")],
   ["device console tabs are present", source.workspace.includes("ccna-simulation-device-tabs") && source.workspace.includes('role="tab"')],
+  ["terminal has native inline mobile keyboard input", source.workspace.includes('ref={terminalInputRef}') && source.workspace.includes('inputMode="text"') && source.workspace.includes('onChange=') && source.workspace.includes('onCompositionStart=')],
+  ["hidden simulator navigation cannot dim the mobile screen", source.simulatorCss.includes('body[data-sidebar-state="open"] .study-app.ccna-shell[data-simulator="true"]::before { content: none; display: none; }')],
   ["topology nodes and ports are keyboard controls", source.workspace.includes('className={`ccna-simulation-node') && source.workspace.includes('className={`ccna-simulation-port') && source.workspace.includes('aria-pressed')],
   ["lab state persists through localStorage", source.workspace.includes("localStorage.getItem(storageKey)") && source.workspace.includes("localStorage.setItem(storageKey")],
   ["cable connect/disconnect handlers remain wired", source.workspace.includes("connectSimulationPorts") && source.workspace.includes("disconnectSimulationLink")],

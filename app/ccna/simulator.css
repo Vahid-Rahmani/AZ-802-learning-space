@@ -397,6 +397,7 @@
    nothing happens and point at the control that starts it again. */
 .ccna-simulation-terminal-closed { color: #ffd08a !important; }
 .ccna-simulation-terminal-input-line { display: flex; align-items: baseline; margin-top: .75rem; min-height: 1.55em; color: #f3f7fc; white-space: pre-wrap; word-break: break-word; }
+.ccna-simulation-terminal-native-input { flex: 1; min-width: 0; width: 0; padding: 0 0 0 .4ch; border: 0; border-radius: 0; outline: none; background: transparent; color: #f3f7fc; caret-color: #75e5ff; font: inherit; line-height: inherit; }
 .ccna-simulation-terminal-cursor { display: inline-block; min-width: .55ch; color: #75e5ff; animation: ccna-terminal-cursor 1s steps(2, start) infinite; }
 @keyframes ccna-terminal-cursor { 50% { opacity: 0; } }
 .ccna-simulation-terminal-form { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: .45rem; padding: .65rem 1rem .8rem; border-top: 1px solid #25415f; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
@@ -492,6 +493,8 @@ html .study-app.ccna-shell[data-simulator="true"] .app-shell { display: block; m
 html .study-app.ccna-shell[data-simulator="true"] .app-sidebar { display: none; }
 html .study-app.ccna-shell[data-simulator="true"] .app-content { padding: 0; }
 html .study-app.ccna-shell[data-simulator="true"] .app-content > header { display: none; }
+/* Navigation is hidden in labs, including its mobile dimming backdrop. */
+body[data-sidebar-state="open"] .study-app.ccna-shell[data-simulator="true"]::before { content: none; display: none; }
 html .study-app .ccna-sim-page .ccna-simulation-workspace {
   --simulation-bg: #111318;
   --simulation-surface: #16181d;
@@ -565,7 +568,10 @@ html .study-app .ccna-sim-page .ccna-simulation-detail { border-color: #292c35; 
 @media (max-width: 899px) {
   html .study-app .ccna-sim-page .ccna-simulation-tabs { margin: 8px; background: #16181d; }
   html .study-app .ccna-sim-page .ccna-simulation-terminal-panel { padding: 0; }
-  .ccna-lab-bar { padding-inline: 10px; gap: 8px; }
+  html .study-app .ccna-sim-page .ccna-simulation-terminal-screen { height: clamp(220px, 55dvh, 480px); padding: 14px 12px; font-size: 16px; color: #d9e6f5; }
+  .ccna-lab-bar { height: auto; min-height: 61px; padding: 10px; gap: 8px; flex-wrap: wrap; }
+  .ccna-lab-title { flex: 1; }
+  .ccna-lab-title p { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .ccna-lab-brand { font-size: 14px; padding-right: 8px; }
   .ccna-lab-actions button, .ccna-lab-actions a { padding: 6px; font-size: 10px; }
 }
