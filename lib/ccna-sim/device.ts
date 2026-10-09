@@ -3,6 +3,8 @@
  * sets switchport state, a router addresses routed ports and 802.1Q subinterfaces, and a host keeps
  * only its own address and default gateway. Nothing in this module guesses about a neighbour; the
  * link and reachability model lives in `lab-network.ts`. */
+import { managementConfigLines, type SimManagement } from "./management.ts";
+
 export type SimPortMode = "access" | "trunk" | "routed";
 export type SimDeviceRole = "switch" | "router" | "host";
 export type SimInterfaceKind = "ethernet" | "svi" | "subinterface";
@@ -52,6 +54,7 @@ export type SimDeviceState = {
   ipv6Routing: boolean;
   /** IPv6 default gateway of a host endpoint, configured on its console like the IPv4 one. */
   ipv6Gateway: string | null;
+  management?: SimManagement;
 };
 
 const switchPortDefaults = () => ({
@@ -473,6 +476,7 @@ export function configBodyLines(device: SimDeviceState): string[] {
     if (!port.adminUp) body.push(" shutdown");
     body.push("!");
   }
+  body.push(...managementConfigLines(device.management));
   body.push("end");
   return body;
 }

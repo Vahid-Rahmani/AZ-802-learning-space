@@ -7,12 +7,14 @@ import {
 } from "./device.ts";
 import { pingFrom, type LabNetwork } from "./lab-network.ts";
 import type { SimMode } from "./tokens.ts";
+import { managementCommands } from "./management.ts";
 
 export type SimState = {
   device: SimDeviceState;
   mode: SimMode;
   closed: boolean;
-  selected: { interfaces: SimInterface[]; vlan: number | null };
+  rsaPrompt?: boolean;
+  selected: { interfaces: SimInterface[]; vlan: number | null; vty?: number[] };
   config: ConfigState;
   /** The lab this console belongs to. `ping` is the only command that needs the whole network. */
   network?: (() => LabNetwork | null) | null;
@@ -38,6 +40,8 @@ export type SimCommand = {
   /** Extra availability rule, so `?` never lists what this device would refuse. */
   available?: (state: SimState) => boolean;
   validate?: (state: SimState, args: readonly string[]) => boolean;
+  /** Runtime prerequisite failure; no state changes or success output are produced. */
+  error?: (state: SimState, args: readonly string[]) => string | null;
   output?: (state: SimState, args: readonly string[]) => readonly string[];
 };
 
@@ -315,12 +319,9 @@ export const simCommands: readonly SimCommand[] = [
     modes: execModes,
     help: "Show the running system version",
     output: (state) => [
-      "Cisco IOS Software, C2960 Software (C2960-LANBASEK9-M), Version 15.2(7)E3, RELEASE SOFTWARE (fc2)",
-      "ROM: Bootstrap program is C2960 boot loader",
-      "BOOTLDR: C2960 Boot Loader (C2960-HBOOT-M) Version 15.2(7r)E3, RELEASE SOFTWARE (fc1)",
-      "",
-      `${state.device.hostname} uptime is 1 hour, 42 minutes`,
-      'System image file is "flash:c2960-lanbasek9-mz.152-7.E3.bin"',
+      `Educational Cisco IOS-style ${state.device.role} model`,
+      "No hardware, firmware image or real operating-system uptime is emulated.",
+      "Supported commands are listed by ? in the current mode.",
     ],
   },
 
@@ -340,13 +341,15 @@ export const simCommands: readonly SimCommand[] = [
     apply: (state) => { state.config.startup = null; },
     output: () => ["Erasing the nvram filesystem will remove all configuration files! Continue? [confirm]", "[OK]"],
   },
+  ...managementCommands,
+  { name: "ssh -l", modes: execModes, help: "Open a simulated SSH console through the lab network", args: ["<username>", "<ip-address>"], validate: (_, args) => isWord(args[0]) && isIpv4(args[1]) },
 ];
 
 /**
  * A host endpoint is not an IOS device: its console offers exactly the endpoint commands below, so
  * a PC can never answer `show vlan brief` or enter a configuration mode the way a switch does.
  */
-const hostConsoleCommands = new Set(["exit", "ip address", "ipv6 address", "ip default-gateway", "ipv6 default-gateway", "ipconfig", "ping"]);
+const hostConsoleCommands = new Set(["exit", "ip address", "ipv6 address", "ip default-gateway", "ipv6 default-gateway", "ipconfig", "ping", "ssh -l"]);
 
 export function commandsForMode(state: SimState): readonly SimCommand[] {
   const available = simCommands.filter((command) => command.modes.includes(state.mode));

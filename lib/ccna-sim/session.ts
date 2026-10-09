@@ -3,6 +3,7 @@ import type { SimDeviceRole } from "./device.ts";
 import { ambiguousCommand, helpLines, incompleteCommand, invalidInput } from "./help.ts";
 import { modeAfterExit, promptFor } from "./modes.ts";
 import { tokenize, type SimMode, type SimToken } from "./tokens.ts";
+import { pingFrom } from "./lab-network.ts";
 
 export type SimResult = {
   lines: string[];
@@ -47,6 +48,14 @@ export class IosSession {
   private readonly history: string[] = [];
   private readonly role: SimDeviceRole;
   private readonly portLabels?: readonly string[];
+  /** Opens an independent console mode over the target's SAME device/config objects. */
+  remoteSessionFor?: (deviceId: string) => IosSession | null;
+  private pendingLogin: { id: string; username: string; targetIp: string } | null = null;
+  private remote: { id: string; targetIp: string; session: IosSession } | null = null;
+
+  get inputHidden() { return Boolean(this.pendingLogin); }
+  get awaitingInput(): boolean { return Boolean(this.pendingLogin || this.state.rsaPrompt || this.remote?.session.awaitingInput); }
+  get currentMode(): SimMode { return this.remote?.session.state.mode ?? this.state.mode; }
 
   constructor(hostname = "Switch", role: SimDeviceRole = "switch", portLabels?: readonly string[]) {
     this.role = role;
@@ -54,7 +63,10 @@ export class IosSession {
     this.state = createSimState(hostname, role, portLabels);
   }
 
-  get prompt() {
+  get prompt(): string {
+    if (this.pendingLogin) return "Password:";
+    if (this.remote) return this.remote.session.prompt;
+    if (this.state.rsaPrompt) return "How many bits in the modulus [1024]:";
     return this.state.closed ? "" : promptFor(this.state.device.hostname, this.state.mode);
   }
 
@@ -67,6 +79,8 @@ export class IosSession {
   }
 
   reset() {
+    this.pendingLogin = null;
+    this.remote = null;
     const fresh = createSimState(this.state.device.hostname, this.role, this.portLabels);
     fresh.device.id = this.state.device.id;
     this.state.device = fresh.device;
@@ -74,10 +88,35 @@ export class IosSession {
     this.state.selected = fresh.selected;
     this.state.mode = "user";
     this.state.closed = false;
+    this.state.rsaPrompt = false;
     this.history.length = 0;
   }
 
   execute(input: string): SimResult {
+    if (this.state.closed) return this.result([], null);
+    if (this.pendingLogin) return this.authenticate(input);
+    if (this.remote) {
+      const network = this.state.network?.();
+      const reach = network && pingFrom(network, this.state.device.id ?? "", this.remote.targetIp);
+      const bound = this.remoteSessionFor?.(this.remote.id);
+      if (!reach?.ok || bound?.state.device !== this.remote.session.state.device) {
+        this.remote = null;
+        return this.result(["% Simulated SSH connection lost: the network path is down."], null);
+      }
+      const result = this.remote.session.execute(input);
+      if (result.closed) {
+        this.remote = null;
+        return this.result(["Connection to the simulated device closed."], "exit");
+      }
+      return result;
+    }
+    if (this.state.rsaPrompt) {
+      const bits = input.trim() || "1024";
+      this.state.rsaPrompt = false;
+      const result = this.execute(`crypto key generate rsa modulus ${bits}`);
+      if (!result.matched) this.state.rsaPrompt = true;
+      return this.result(result.lines, result.matched);
+    }
     const typed = input.trim();
     if (!typed || this.state.closed) return this.result([], null);
     this.history.push(typed);
@@ -92,6 +131,9 @@ export class IosSession {
     if (resolution.kind === "ambiguous") return this.result(ambiguousCommand(typed), null);
     if (resolution.kind === "incomplete") return this.result(incompleteCommand(), null);
     const { command, args, negate } = resolution;
+    if (command.name === "ssh -l") return this.connect(args[0], args[1]);
+    const error = !negate && command.error?.(this.state, args);
+    if (error) return this.result([error], null);
     if (!negate) {
       if (command.transition === "up") {
         const next = modeAfterExit(this.state.mode);
@@ -110,6 +152,9 @@ export class IosSession {
 
   /** Tab completion over the same catalog `?` prints. */
   complete(input: string): string[] {
+    if (this.pendingLogin) return [];
+    if (this.remote) return this.remote.session.complete(input);
+    if (this.state.rsaPrompt) return [];
     const words = tokenize(input).map((token) => token.value.toLowerCase());
     if (/\s$/.test(input)) words.push("");
     const last = words.length ? words[words.length - 1] : "";
@@ -132,7 +177,44 @@ export class IosSession {
   }
 
   private result(lines: string[], matched: string | null): SimResult {
-    return { lines, prompt: this.prompt, mode: this.state.mode, closed: this.state.closed, matched };
+    return { lines, prompt: this.prompt, mode: this.currentMode, closed: this.state.closed, matched };
+  }
+
+  private connect(username: string, targetIp: string): SimResult {
+    const network = this.state.network?.();
+    if (!network) return this.result(["% The lab network is not attached."], null);
+    const reach = pingFrom(network, this.state.device.id ?? "", targetIp);
+    if (!reach.ok) return this.result([`% SSH destination unreachable: ${reach.reason}`], null);
+    const target = network.devices.find((device) => device.state.role !== "host" && device.state.interfaces.some((port) => port.address?.ip === targetIp));
+    const config = target?.state.management;
+    if (!target || !config?.rsaBits || !config.vty.some((line) => line.loginLocal && line.transport.includes("ssh"))) {
+      return this.result(["% Connection refused: configure RSA keys, login local and transport input ssh on a VTY line."], null);
+    }
+    if (!this.remoteSessionFor) return this.result(["% Remote console binding is not available in this environment."], null);
+    this.pendingLogin = { id: target.id, username, targetIp };
+    return this.result(["Simulated SSH login. No real encrypted connection is opened; use lab-only passwords."], "ssh -l");
+  }
+
+  private authenticate(password: string): SimResult {
+    const login = this.pendingLogin!;
+    this.pendingLogin = null;
+    const session = this.remoteSessionFor?.(login.id);
+    const config = session?.state.device.management;
+    const user = config && Object.hasOwn(config.users, login.username) ? config.users[login.username] : undefined;
+    const network = this.state.network?.();
+    if (!session || !network || !pingFrom(network, this.state.device.id ?? "", login.targetIp).ok || !config?.rsaBits
+      || !config.vty.some((line) => line.loginLocal && line.transport.includes("ssh")) || !user || user.credential !== password) {
+      return this.result(["% Authentication failed or the SSH configuration/network path changed."], null);
+    }
+    session.state.mode = user.privilege === 15 ? "privileged" : "user";
+    this.remote = { id: login.id, targetIp: login.targetIp, session };
+    return this.result([`Connected to ${session.state.device.hostname} (simulated SSH).`], "ssh login");
+  }
+
+  cancelInput() {
+    if (this.remote) this.remote.session.cancelInput();
+    this.pendingLogin = null;
+    this.state.rsaPrompt = false;
   }
 
   private resolve(tokens: SimToken[], negate = false): Resolution {

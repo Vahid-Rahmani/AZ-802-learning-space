@@ -6,8 +6,12 @@ export function simulationCableCurve(source: Point, target: Point) {
   const dy = target.y - source.y;
   const escape = Math.min(150, Math.max(35, Math.hypot(dx, dy) * .25));
   const vertical = Math.abs(dy) > Math.abs(dx) * 1.2;
-  const side = dx < 0 ? -1 : 1;
-  const lateral = vertical ? side * escape : 0;
+  // Keep vertical runs outside the cards instead of cutting through the lower
+  // device. Choose the same side even when source/target order is reversed.
+  const upper = source.y <= target.y ? source : target;
+  const lower = source.y <= target.y ? target : source;
+  const side = lower.x < upper.x ? -1 : 1;
+  const lateral = vertical ? side * Math.max(160, escape) : 0;
   const first = { x: source.x + lateral, y: source.y + escape };
   const second = { x: target.x + lateral, y: target.y + escape };
   return {

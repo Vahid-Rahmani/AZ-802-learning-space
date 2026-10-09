@@ -128,6 +128,9 @@ function reachableInVlan(network: LabNetwork, startDeviceId: string, startPortNa
       continue;
     }
     // A switch passes one VLAN to every port that carries it, then out of the far side of each cable.
+    for (const svi of device.state.interfaces.filter((candidate) => candidate.kind === "svi" && candidate.adminUp && Number(candidate.name.replace(/^Vlan/i, "")) === vlan)) {
+      attachments.push({ device, port: svi, vlan });
+    }
     for (const candidate of device.state.interfaces) {
       if (candidate.kind === "svi") continue;
       if (vlan !== null && !switchPortCarries(device, candidate, vlan)) continue;

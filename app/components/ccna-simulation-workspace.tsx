@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type KeyboardEvent as ReactKeyboardEvent } from "react";
-import { createLabSession, type IosSession } from "@/lib/ccna-sim/session";
+import { createLabSession, IosSession } from "@/lib/ccna-sim/session";
 import { findInterface, portLinkStatus, type SimCableState, type SimInterfaceKind } from "@/lib/ccna-sim/device";
 import { simulationCableCurve } from "@/lib/ccna-sim/cable-geometry";
+import { copyManagement, type SimManagement } from "@/lib/ccna-sim/management";
 import { checkedStageResults } from "@/lib/ccna-sim/guidance";
 import { simulatorText } from "@/lib/ccna-sim/language";
 import { buildLabModel } from "@/lib/ccna-sim/lab";
@@ -47,6 +48,7 @@ type PersistedTerminalSession = {
     gateway?: string | null;
     ipv6Gateway?: string | null;
     ipv6Routing?: boolean;
+    management?: SimManagement;
     vlans: Array<[number, { id: number; name: string }]>;
     interfaces: Array<{
       name: string;
@@ -64,7 +66,7 @@ type PersistedTerminalSession = {
       parent?: string | null;
     }>;
   };
-  selected: { interfaces: string[]; vlan: number | null };
+  selected: { interfaces: string[]; vlan: number | null; vty?: number[] };
   config: { startup: string[] | null };
 };
 type TerminalRuntime = {
@@ -80,6 +82,7 @@ type TerminalRuntime = {
   migrated: boolean;
 };
 type TerminalView = {
+  inputHidden?: boolean;
   kind: SimulationNode["kind"];
   hostname: string;
   prompt: string;
@@ -295,6 +298,7 @@ function createTerminalRuntime(node: SimulationNode, saved?: PersistedTerminalSe
       gateway: saved.device.gateway ?? null,
       ipv6Gateway: saved.device.ipv6Gateway ?? null,
       ipv6Routing: saved.device.ipv6Routing === true,
+      management: copyManagement(saved.device.management),
       vlans: new Map(saved.device.vlans.map(([id, vlan]) => [Number(id), { id: Number(vlan.id), name: vlan.name }])),
       interfaces: saved.device.interfaces.map((port) => ({
         ...port,
@@ -308,6 +312,7 @@ function createTerminalRuntime(node: SimulationNode, saved?: PersistedTerminalSe
     session.state.selected = {
       interfaces: (saved.selected?.interfaces ?? []).map((name) => findInterface(session.state.device, name)).filter((port): port is NonNullable<ReturnType<typeof findInterface>> => Boolean(port)),
       vlan: typeof saved.selected?.vlan === "number" ? saved.selected.vlan : null,
+      vty: (saved.selected?.vty ?? []).filter((id) => Number.isInteger(id) && id >= 0 && id < 16),
     };
     session.state.config = { startup: saved.config?.startup ? [...saved.config.startup] : null };
     session.state.mode = isSimMode(saved?.mode) ? saved.mode : "user";
@@ -342,7 +347,7 @@ function serializeTerminalRuntime(runtime: TerminalRuntime): PersistedTerminalSe
     mode: runtime.session.state.mode,
     closed: runtime.session.state.closed,
     history: [...runtime.history],
-    draft: runtime.draft,
+    draft: runtime.session.inputHidden ? "" : runtime.draft,
     entries: runtime.entries.map((entry) => ({ ...entry, output: [...entry.output] })),
     device: {
       id: device.id,
@@ -351,10 +356,11 @@ function serializeTerminalRuntime(runtime: TerminalRuntime): PersistedTerminalSe
       gateway: device.gateway,
       ipv6Gateway: device.ipv6Gateway,
       ipv6Routing: device.ipv6Routing,
+      management: copyManagement(device.management),
       vlans: [...device.vlans.entries()].map(([id, vlan]) => [id, { ...vlan }]),
       interfaces: device.interfaces.map((port) => ({ ...port, allowedVlans: Array.isArray(port.allowedVlans) ? [...port.allowedVlans] : "all", address: port.address ? { ...port.address } : null, ipv6: port.ipv6 ? { ...port.ipv6 } : null })),
     },
-    selected: { interfaces: runtime.session.state.selected.interfaces.map((port) => port.name), vlan: runtime.session.state.selected.vlan },
+    selected: { interfaces: runtime.session.state.selected.interfaces.map((port) => port.name), vlan: runtime.session.state.selected.vlan, vty: [...(runtime.session.state.selected.vty ?? [])] },
     config: { startup: runtime.session.state.config.startup ? [...runtime.session.state.config.startup] : null },
   };
 }
@@ -365,7 +371,8 @@ function terminalView(runtime: TerminalRuntime): TerminalView {
     kind: runtime.kind,
     hostname: device.hostname,
     prompt: runtime.session.prompt,
-    mode: runtime.session.state.mode,
+    mode: runtime.session.currentMode,
+    inputHidden: runtime.session.inputHidden,
     closed: runtime.session.state.closed,
     entries: runtime.entries.map((entry) => ({ ...entry, output: [...entry.output] })),
     history: [...runtime.history],
@@ -378,6 +385,7 @@ function terminalView(runtime: TerminalRuntime): TerminalView {
       gateway: device.gateway,
       ipv6Gateway: device.ipv6Gateway,
       ipv6Routing: device.ipv6Routing,
+      management: copyManagement(device.management),
       vlans: [...device.vlans.entries()].map(([id, vlan]) => [id, { ...vlan }]),
       interfaces: device.interfaces.map((port) => ({ ...port, allowedVlans: Array.isArray(port.allowedVlans) ? [...port.allowedVlans] : "all", address: port.address ? { ...port.address } : null, ipv6: port.ipv6 ? { ...port.ipv6 } : null })),
     },
@@ -435,6 +443,7 @@ function buildNetworkSnapshot(state: SimulationState, views: Record<string, Term
       gateway: snapshot.gateway ?? null,
       ipv6Gateway: snapshot.ipv6Gateway ?? null,
       ipv6Routing: snapshot.ipv6Routing === true,
+      management: copyManagement(snapshot.management),
       vlans: new Map(snapshot.vlans.map(([id, vlan]) => [Number(id), { id: Number(vlan.id), name: vlan.name }])),
       interfaces: snapshot.interfaces.map((port) => ({
         ...port,
@@ -493,6 +502,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   }, [checkResults, guidedStages]);
   const requiredCount = requiredStages.length;
   const completedRequired = requiredStages.filter((stage) => completedStageIds.has(stage.id)).length;
+  const progressPercent = requiredStages.length ? Math.floor(completedRequired / requiredStages.length * 100) : 0;
   const nextStageIndex = requiredStages.findIndex((stage) => !completedStageIds.has(stage.id));
   const activeStage = nextStageIndex >= 0 ? requiredStages[nextStageIndex] : null;
   const activeStageNumber = nextStageIndex + 1;
@@ -539,6 +549,18 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   const makeTerminalRuntime = useCallback((node: SimulationNode, saved?: PersistedTerminalSession) => {
     const runtime = createTerminalRuntime(node, saved);
     runtime.session.state.network = () => buildNetworkSnapshot(latestRef.current.state, latestRef.current.views);
+    runtime.session.remoteSessionFor = (id) => {
+      const targetNode = latestRef.current.state.nodes.find((candidate) => candidate.id === id && hasConsole(candidate));
+      if (!targetNode) return null;
+      const target = terminalSessions.current[id] ?? createTerminalRuntime(targetNode);
+      terminalSessions.current[id] = target;
+      target.session.state.network = runtime.session.state.network;
+      const remote = new IosSession(target.session.state.device.hostname, target.session.state.device.role);
+      remote.state.device = target.session.state.device;
+      remote.state.config = target.session.state.config;
+      remote.state.network = runtime.session.state.network;
+      return remote;
+    };
     return runtime;
   }, []);
   const getTerminalRuntime = useCallback((node: SimulationNode) => {
@@ -792,9 +814,11 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
 
   const submitCommand = () => {
     const input = terminalDraft.trim();
-    if (!input || !selectedNodeData || !hasConsole(selectedNodeData)) return;
+    if (!selectedNodeData || !hasConsole(selectedNodeData)) return;
     const runtime = getTerminalRuntime(selectedNodeData);
+    if (!input && !runtime.session.awaitingInput) return;
     const promptBefore = runtime.session.prompt;
+    const hidden = runtime.session.inputHidden;
     // A node whose pack declares a role has a real console: the same engine validate:ccna-sim drives,
     // so the screen and the graded state can never disagree (a PC console used to answer from a canned
     // list while its step read device state). A node without a role keeps the guided canned terminal
@@ -802,18 +826,20 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     // One engine for every console, for every lab. A device with no console cannot be typed into at
     // all, so no command can ever be answered from a canned list instead of the real device state.
     const result = runtime.session.execute(input);
-    runtime.history.push(input);
+    if (!hidden) runtime.history.push(input);
     runtime.historyCursor = -1;
     runtime.draftBeforeHistory = "";
     runtime.draft = "";
     if (input.toLowerCase() === "clear") {
       runtime.entries = [];
     } else {
-      runtime.entries = [...runtime.entries, { input, output: result.lines, promptBefore, promptAfter: result.prompt, mode: result.mode, matched: result.matched }];
+      runtime.entries = [...runtime.entries, { input: hidden ? "••••••" : input, output: result.lines, promptBefore, promptAfter: result.prompt, mode: result.mode, matched: result.matched }];
     }
     setTerminalDraft("");
     setTerminalCursor(0);
-    setTerminalViews((current) => ({ ...current, [selectedNodeData.id]: terminalView(runtime) }));
+    // Remote configuration changes the target device, not the source PC. Publish
+    // every console so its tab, interface table and grader see that same mutation.
+    setTerminalViews((current) => ({ ...current, ...Object.fromEntries(Object.entries(terminalSessions.current).map(([id, session]) => [id, terminalView(session)])) }));
   };
 
   const recallHistory = (direction: -1 | 1) => {
@@ -840,6 +866,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   const cancelTerminalInput = () => {
     if (!selectedNodeData) return;
     const runtime = getTerminalRuntime(selectedNodeData);
+    runtime.session.cancelInput();
     runtime.draft = "";
     runtime.historyCursor = -1;
     runtime.draftBeforeHistory = "";
@@ -960,8 +987,8 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
         {pack.scenario.requirement && <details className="ccna-simulation-detail"><summary>Success criteria</summary><p>{pack.scenario.requirement}</p></details>}
         {pack.scenario.prerequisites && pack.scenario.prerequisites.length > 0 && <details className="ccna-simulation-detail"><summary>Prerequisites</summary><ul>{pack.scenario.prerequisites.map((item) => <li key={item}>{item}</li>)}</ul></details>}
         <div className="ccna-simulation-progress" aria-label={requiredCount ? `${completedRequired} of ${requiredCount} graded steps verified` : "No graded step is authored for this lab yet"}>
-          <div><strong>{completedRequired}/{requiredCount}</strong><span>graded steps</span></div>
-          <div className="ccna-simulation-progress-track"><span style={{ width: `${requiredCount ? (completedRequired / requiredCount) * 100 : 0}%` }} /></div>
+          <div><strong>{progressPercent}%</strong><span>{completedRequired}/{requiredCount} graded steps</span></div>
+          <div className="ccna-simulation-progress-track" role="progressbar" aria-label="Verified lab progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progressPercent}><span style={{ width: `${progressPercent}%` }} /></div>
         </div>
         {requiredStages.length === 0 && <section className="ccna-simulation-guide ccna-simulation-guide--observations" aria-label="What to inspect in this lab">
           <div className="ccna-simulation-guide-heading"><div><span className="ccna-simulation-guide-kicker">Not graded yet</span><strong>Inspect this lab&apos;s own evidence</strong></div><span className="ccna-simulation-guide-score">0 graded steps</span></div>
@@ -1007,7 +1034,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
             })}
           </ol>
           </details>
-          {!activeStage && <p className="ccna-simulation-guide-complete">All guided stages are verified. You completed this lab path.</p>}
+          {!activeStage && <p className="ccna-simulation-guide-complete">100% · All guided stages are verified. You completed this lab path. You can keep experimenting with your devices.</p>}
         </section>}
       </aside>
 
@@ -1096,7 +1123,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
           </div>
           {activeView && <div className="ccna-simulation-terminal-input-line" aria-label="Current command line">
             <span className="ccna-simulation-terminal-prompt">{activeView.prompt}</span>{" "}
-            <span>{terminalDraft.slice(0, terminalCursor)}</span><span className="ccna-simulation-terminal-cursor" aria-hidden="true">▌</span><span>{terminalDraft.slice(terminalCursor) || "\u00a0"}</span>
+            <span>{activeView.inputHidden ? "•".repeat(terminalCursor) : terminalDraft.slice(0, terminalCursor)}</span><span className="ccna-simulation-terminal-cursor" aria-hidden="true">▌</span><span>{(activeView.inputHidden ? "•".repeat(terminalDraft.length - terminalCursor) : terminalDraft.slice(terminalCursor)) || "\u00a0"}</span>
           </div>}
         </div>
         <div className="ccna-simulation-terminal-actions"><span>↑ ↓ history · Ctrl+L clear · Ctrl+C cancel</span><button type="button" onClick={resetActiveTerminal} disabled={!activeView} title="Restarts only the console you are typing in: this device's history and output. The other consoles and your step progress stay.">Restart this console</button></div>

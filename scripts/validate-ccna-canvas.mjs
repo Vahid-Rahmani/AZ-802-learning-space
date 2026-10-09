@@ -31,4 +31,13 @@ const moved = simulationCableCurve({ x: 30, y: 30 }, { x: -100, y: 450 });
 assert.notEqual(first.path, moved.path);
 assert.notDeepEqual(first.label, moved.label);
 assert.ok(moved.path.endsWith("-100 450"));
+for (const target of [{ x: 30, y: 500 }, { x: 20, y: -450 }, { x: 600, y: 30 }, { x: -400, y: -120 }]) {
+  const curve = simulationCableCurve({ x: 30, y: 30 }, target);
+  assert.ok(curve.path.startsWith("M 30 30 C "));
+  assert.ok(curve.path.endsWith(`${target.x} ${target.y}`));
+  assert.ok(Number.isFinite(curve.label.x) && Number.isFinite(curve.label.y));
+}
+const forward = simulationCableCurve({ x: 30, y: 30 }, { x: 30, y: 500 });
+const reverse = simulationCableCurve({ x: 30, y: 500 }, { x: 30, y: 30 });
+assert.deepEqual(forward.label, reverse.label, "reversing a cable flipped its route to the other side");
 console.log(`Canvas checks passed: centred zoom, unrestricted pan/move, fit for ${ccnaSimulationPackByLabId.size} packs, adaptive cable and label.`);

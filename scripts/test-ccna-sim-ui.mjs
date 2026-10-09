@@ -96,8 +96,8 @@ const creditedSteps = (container) => all(container, ".ccna-simulation-stage.is-c
 const interfaceRows = (container) => all(container, ".ccna-simulation-interface-table tbody tr")
   .map((row) => [...row.children].map((cell) => cell.textContent.trim()));
 
-async function mount(packId, persistKey = packId) {
-  const pack = getCcnaSimulationPack(packId);
+async function mount(packId, persistKey = packId, overridePack) {
+  const pack = overridePack ?? getCcnaSimulationPack(packId);
   assert.ok(pack, `${packId} has no simulation pack`);
   const container = window.document.createElement("div");
   window.document.body.appendChild(container);
@@ -225,6 +225,52 @@ assert.equal(promptNow(restored.container), "R1#", "the restored session lost R1
 assert.match(screenText(restored.container), /show running-config/, "the restored session lost R1's console transcript");
 await restored.unmount();
 results.saveAndRestore = "a saved session restores every console transcript, the device state and the step progress";
+
+// SSH is free exploration, not an allowlist tied to the lab's prescribed commands.
+const remoteLab = await mount("ccna-addressing", "remote-config");
+await run(remoteLab.container, "R1", "enable", "conf t", "ip domain-name lab.example", "username learner secret LabOnly123", "crypto key generate rsa modulus 2048", "line vty 0 4", "login local", "transport input ssh", "exit", "interface gi0/0", "ip address 192.168.10.1 255.255.255.192", "no shutdown", "end");
+await run(remoteLab.container, "PC-A", "ip address 192.168.10.10 255.255.255.192", "ip default-gateway 192.168.10.1", "ssh -l learner 192.168.10.1");
+assert.equal(promptNow(remoteLab.container), "Password:");
+await type(remoteLab.container, "LabOnly123");
+assert.equal(promptNow(remoteLab.container), "R1>");
+assert.doesNotMatch(screenText(remoteLab.container), /LabOnly123/, "SSH password was echoed in the PC transcript");
+await type(remoteLab.container, "enable");
+await type(remoteLab.container, "conf t");
+await type(remoteLab.container, "interface gi0/0");
+await type(remoteLab.container, "ip address 192.168.10.2 255.255.255.192");
+await click(remoteLab.container, tab(remoteLab.container, "R1"));
+assert.equal(interfaceRows(remoteLab.container).find((row) => row[0] === "Gi0/0")?.[3], "192.168.10.2 255.255.255.192", "remote configuration is missing from the destination interface table");
+assert.ok(!creditedSteps(remoteLab.container).includes("Bring up R1 Gi0/0 with the /26 gateway"), "the grader ignored the remotely changed gateway");
+await run(remoteLab.container, "R1", "conf t", "interface gi0/0", "ip address 192.168.10.1 255.255.255.192", "end");
+assert.equal(remoteLab.container.querySelector('[role="progressbar"]').getAttribute("aria-valuenow"), "27");
+await remoteLab.unmount();
+const remoteRestored = await mount("ccna-addressing", "remote-config");
+await run(remoteRestored.container, "R1", "show ip ssh");
+assert.match(screenText(remoteRestored.container), /SSH Enabled - version 2/);
+assert.equal(remoteRestored.container.querySelector('[role="progressbar"]').getAttribute("aria-valuenow"), "27");
+await remoteRestored.unmount();
+results.sshSharedModel = "free SSH configuration, hidden login, remote changes reach the target table and grader, configuration/progress survive remount";
+
+// A small independent contract proves the last step, not a command echo, yields 100%.
+const sample = getCcnaSimulationPack("ccna-addressing");
+const namedStage = (label) => ({ ...sample.stages[0], id: `name-${label}`, title: `Name ${label}`, ungraded: false,
+  deviceId: sample.devices.find((device) => device.label === label).id,
+  check: (lab) => ({ ok: lab.device(label).hostname === `Branch-${label}`, detail: `Set the hostname to Branch-${label}` }) });
+const completion = await mount("ccna-addressing", "completion-contract", { ...sample, stages: [namedStage("R1"), namedStage("SW1")] });
+const percent = () => completion.container.querySelector('[role="progressbar"]').getAttribute("aria-valuenow");
+assert.equal(percent(), "0");
+await run(completion.container, "R1", "enable", "conf t", "hostname Branch-R1", "end");
+assert.equal(percent(), "50");
+assert.equal(creditedSteps(completion.container).length, 1);
+await run(completion.container, "SW1", "enable", "conf t", "hostname Branch-SW1", "end");
+assert.equal(percent(), "100");
+assert.match(completion.container.querySelector(".ccna-simulation-guide-complete").textContent, /100%/);
+await run(completion.container, "SW1", "conf t", "ip domain-name extra.example", "end");
+assert.equal(percent(), "100", "the completed lab blocked extra configuration");
+await run(completion.container, "SW1", "conf t", "hostname SW1", "end");
+assert.equal(percent(), "50", "undoing a requirement retained a false completion");
+await completion.unmount();
+results.progressCompletesFromState = "0 → 50 → 100%, extra configuration remains allowed, undoing a goal revokes its tick";
 
 // 7. A lab with no authored objectives is honest about it and offers nothing to tick.
 const unauthored = await mount("ccna-topology-006", "observation-only");

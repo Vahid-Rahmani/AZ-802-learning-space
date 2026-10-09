@@ -5,6 +5,7 @@
 enable              Turn on privileged commands
 exit                Exit from the current mode
 show                Show running system information
+ssh                 Open a simulated SSH console through the lab network
 Switch>
 > show ?
 interfaces          Show the port status table
@@ -26,12 +27,9 @@ SW1#
 > disable
 SW1>
 > sh ver
-Cisco IOS Software, C2960 Software (C2960-LANBASEK9-M), Version 15.2(7)E3, RELEASE SOFTWARE (fc2)
-ROM: Bootstrap program is C2960 boot loader
-BOOTLDR: C2960 Boot Loader (C2960-HBOOT-M) Version 15.2(7r)E3, RELEASE SOFTWARE (fc1)
-
-SW1 uptime is 1 hour, 42 minutes
-System image file is "flash:c2960-lanbasek9-mz.152-7.E3.bin"
+Educational Cisco IOS-style switch model
+No hardware, firmware image or real operating-system uptime is emulated.
+Supported commands are listed by ? in the current mode.
 SW1>
 > show vlan
 VLAN Name                             Status    Ports
