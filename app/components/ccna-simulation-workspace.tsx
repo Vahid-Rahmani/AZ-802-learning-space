@@ -828,7 +828,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
         </div>
         <div className="sr-only" data-kind={notice.kind} role="status" aria-live="polite">{notice.text}</div>
         <div className="ccna-simulation-canvas-wrap">
-          <svg ref={svgRef} className="ccna-simulation-canvas" viewBox={`0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`} role="group" aria-label="Interactive network topology. Drag devices to move them; select two ports to connect a cable." onPointerDown={handleCanvasPointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerUp}>
+          <svg ref={svgRef} className="ccna-simulation-canvas" viewBox={`0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`} preserveAspectRatio="none" role="group" aria-label="Interactive network topology. Drag devices to move them; select two ports to connect a cable." onPointerDown={handleCanvasPointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerUp}>
             <defs><pattern id={`lab-dots-${pack.id}`} width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#242730" /></pattern></defs>
             <rect className="ccna-simulation-canvas-background" x="0" y="0" width={CANVAS_WIDTH} height={CANVAS_HEIGHT} rx="16" />
             <rect x="0" y="0" width={CANVAS_WIDTH} height={CANVAS_HEIGHT} fill={`url(#lab-dots-${pack.id})`} pointerEvents="none" />
