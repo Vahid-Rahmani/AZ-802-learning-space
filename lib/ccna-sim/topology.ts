@@ -266,10 +266,10 @@ export function zoomSimulationViewport(viewport: SimulationViewport, scale: numb
 
 export function fitSimulationViewport(nodes: SimulationNode[], width: number, height: number): SimulationViewport {
   if (!nodes.length) return { scale: 1, x: 0, y: 0 };
-  const left = Math.min(...nodes.map((node) => node.x - 125));
-  const right = Math.max(...nodes.map((node) => node.x + 125));
+  const left = Math.min(...nodes.map((node) => node.x - 230));
+  const right = Math.max(...nodes.map((node) => node.x + 230));
   const top = Math.min(...nodes.map((node) => node.y - 70));
-  const bottom = Math.max(...nodes.map((node) => node.y + 85 + Math.floor((node.ports.length - 1) / 4) * 18));
+  const bottom = Math.max(...nodes.map((node) => node.y + 235 + Math.floor((node.ports.length - 1) / 4) * 18));
   const scale = Math.min(3, Math.max(.2, Math.min(width / (right - left), height / (bottom - top))));
   return { scale, x: width / 2 - (left + right) / 2 * scale, y: height / 2 - (top + bottom) / 2 * scale };
 }

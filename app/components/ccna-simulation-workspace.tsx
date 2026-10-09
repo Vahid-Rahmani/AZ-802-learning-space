@@ -333,7 +333,8 @@ function stageWasPassed(stage: SimulationStage, views: Record<string, TerminalVi
 }
 
 export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplete, onDeviceSelect }: CcnaSimulationWorkspaceProps) {
-  const CANVAS_HEIGHT = simulationCanvasHeight(pack.devices);
+  // Reserve room below the last row for the outward cable curves, not a second box.
+  const CANVAS_HEIGHT = simulationCanvasHeight(pack.devices) + 160;
   const storageKey = `ccna-simulation:${persistKey ?? pack.id}`;
   const [state, setState] = useState<SimulationState>(() => cloneSimulationState(pack));
   const [selectedPort, setSelectedPort] = useState<SimulationEndpoint | null>(null);
