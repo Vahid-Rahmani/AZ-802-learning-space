@@ -227,7 +227,7 @@ function guidedCommandFor(text: string, index: number) {
 }
 
 function guideFor(lab: CcnaLabEntry, checklist: SimulationChecklistItem[], devices: SimulationNode[]): SimulationStage[] {
-  return checklist.map((item, index) => {
+  const stages = checklist.map((item, index) => {
     let command = item.id === "evidence"
       ? "show running-config"
       : guidedCommandFor(item.detail ?? item.title, index);
@@ -268,6 +268,24 @@ function guideFor(lab: CcnaLabEntry, checklist: SimulationChecklistItem[], devic
       expected: `A valid ${command} response appears in the ${target.label} console.`,
       hint: `Use ${target.label}, not another device. If the prompt ends with >, enter enable first; if it contains (config), enter end before the check. Unambiguous IOS abbreviations are accepted.`,
     } satisfies SimulationStage;
+  });
+  const checks = new Map<string, SimulationStage>();
+  return stages.filter((stage) => {
+    const key = `${stage.deviceId}:${stage.command}`;
+    const previous = checks.get(key);
+    // The adapter sometimes maps several catalog checks to the same supported
+    // IOS command. They are one diagnostic step, not several achievements.
+    if (previous && stage.id.startsWith("verify-")) {
+      // Full catalog verification notes remain in the lab brief; don't repeat
+      // the same simulated check or inflate this workspace's achievement count.
+      return false;
+    }
+    if (previous) {
+      stage.expected += " Repeating an already credited result does not pass: the output must show a new device state after your changes.";
+      stage.hint += " Make the required lab changes before checking again; rerunning the same unchanged check is not another achievement.";
+    }
+    checks.set(key, stage);
+    return true;
   });
 }
 
