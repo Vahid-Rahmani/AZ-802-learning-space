@@ -3,6 +3,9 @@ import type { AdVisualBinding, AdVisualGuideData, AdVisualStep } from "./ad-visu
 import { rodcGuideBindings } from "./ad-visual-guides-rodc";
 import { accountsGuideBindings } from "./ad-visual-guides-accounts";
 import { policyGuideBindings } from "./ad-visual-guides-policy";
+import { identityGuideBindings } from "./ad-visual-guides-identity";
+import { networkGuideBindings } from "./ad-visual-guides-network";
+import { operationsGuideBindings } from "./ad-visual-guides-operations";
 export type { AdVisualBinding, AdVisualGuideData, AdVisualStep } from "./ad-visual-guide-types";
 
 const source = "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/deploy/install-a-new-windows-server-2012-active-directory-forest--level-200-";
@@ -12,6 +15,7 @@ export const adForestGuide: AdVisualGuideData = {
   id: "ad-first-domain-controller",
   title: "AD DS · first domain controller",
   source,
+  walkthroughs: [{ title: "Install AD DS and create a new forest · MSSQLTips", url: "https://www.mssqltips.com/sqlservertip/11654/install-active-directory-on-windows-server-2025/", version: "Windows Server 2025" }],
   versionNote: "Microsoft screenshots show Windows Server 2012. The Server Manager workflow also applies to newer Windows Server releases; appearance and available functional levels differ. This example creates a NEW forest, not an additional controller in an existing domain.",
   prerequisites: "Use an isolated lab VM with Desktop Experience, a planned server name, stable IP configuration and administrator access. For an existing domain, use its internal DNS and the appropriate deployment option instead.",
   steps: [
@@ -45,16 +49,33 @@ export const adDemotionGuide: AdVisualGuideData = {
   ],
 };
 
+const adDnsClientGuide: AdVisualGuideData = {
+  id: "ad-internal-dns-client",
+  title: "AD DS · configure the DNS client before promotion",
+  kind: "concept",
+  source: "https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/best-practices-for-dns-client-settings",
+  versionNote: "Navigation applies to Windows Server 2025 Desktop Experience. These are authored diagrams, not screenshots. The external 2025 walkthrough covers first-forest setup; an additional controller must instead use existing internal AD DNS.",
+  walkthroughs: [{ title: "IP and DNS setup for a new forest · MSSQLTips", url: "https://www.mssqltips.com/sqlservertip/11654/install-active-directory-on-windows-server-2025/", version: "Windows Server 2025" }],
+  prerequisites: "Use an isolated AD lab and identify whether this is the first controller of a NEW forest or an additional controller of an EXISTING domain. Obtain the correct internal DNS addresses before changing adapter settings.",
+  steps: [
+    { id: "dns-client", title: "Point the adapter at internal AD DNS", path: ["Run → ncpa.cpl", "Target adapter → Properties", "Internet Protocol Version 4 → Properties", "Preferred DNS server"], instruction: "For an existing domain, enter its internal AD DNS address, not a public resolver. For the first and only controller running DNS in a new forest, use the planned local DNS address. External name resolution belongs on internal DNS forwarders or root hints; public DNS is not an AD-client fallback.", alt: "Client resolves directory records through internal AD DNS; external requests can be forwarded by that DNS server.", diagram: { title: "DNS client and server have different jobs", nodes: [{ id: "client", label: "Server adapter DNS", detail: "Points to internal AD DNS" }, { id: "dns", label: "Internal AD DNS", detail: "Answers AD records; forwards external names" }, { id: "public", label: "External resolver", detail: "Not the client's AD DNS backup" }], edges: [{ from: "client", to: "dns", label: "AD domain and locator queries" }, { from: "dns", to: "public", label: "Optional external forwarding" }] } },
+    { id: "dns-check", title: "Verify the existing domain's locator records", path: ["PowerShell", "Resolve-DnsName", "Review the returned SRV targets"], instruction: "Before adding a controller to an existing domain, query its domain-controller locator records. Replace corp.contoso.com with your actual lab domain. For the first controller of a new forest these records do not exist before deployment; verify them after promotion instead.", command: "Resolve-DnsName -Type SRV _ldap._tcp.dc._msdcs.corp.contoso.com", alt: "Existing domain has locator records before promotion; a new forest creates them during promotion.", diagram: { title: "Choose the correct verification moment", nodes: [{ id: "existing", label: "Existing domain", detail: "Internal DNS already hosts DC locator records" }, { id: "new", label: "New forest", detail: "Verify DC locator records after promotion" }], edges: [] } },
+  ],
+};
+
 // Explicit question identity avoids guessing from a broad AD domain or an answer option.
 // New workflows can be attached to other questions without duplicating image sets.
 const guideBindings: Record<string, Omit<AdVisualBinding, "guide"> & { guide?: AdVisualGuideData }> = {
   ...rodcGuideBindings,
   ...accountsGuideBindings,
   ...policyGuideBindings,
+  ...identityGuideBindings,
+  ...networkGuideBindings,
+  ...operationsGuideBindings,
   "az802-q-010": { startStep: "paths", context: "Locate the AD DS database in the Paths screen. This is the deployment workflow behind the database-file question." },
   "az802-q-011": { startStep: "paths", context: "Compare SYSVOL with the separate database and log folders. This screen shows where the domain policy files are stored." },
-  "az802-q-044": { startStep: "checks", context: "Before adding a controller to an existing domain: Network Connections (ncpa.cpl) → adapter Properties → IPv4 Properties → set internal AD DNS. Verify domain resolution. The images below show the RELATED new-forest deployment wizard, not the DNS client settings screen." },
-  "az802-q-045": { startStep: "options", context: "DNS client path: Network Connections (ncpa.cpl) → adapter Properties → IPv4 Properties → Preferred DNS server. Use your internal AD DNS address, not a public resolver. Below is the RELATED new-forest DNS role screen; installing DNS and setting the DNS client are different operations." },
+  "az802-q-044": { guide: adDnsClientGuide, startStep: "dns-check", context: "Check the DNS prerequisites for the actual deployment: existing domain and new forest are different scenarios. This guide shows adapter configuration and the correct verification point." },
+  "az802-q-045": { guide: adDnsClientGuide, startStep: "dns-client", context: "Use internal DNS that can resolve your AD namespace. Installing a DNS server role is different from configuring an adapter's DNS client." },
   "az802-q-046": { guide: adDemotionGuide, startStep: "remove-wizard", context: "This is the GUI path for gracefully removing a healthy, reachable extra domain controller. It is different from forced removal or deleting a computer account." },
 };
 
@@ -63,4 +84,4 @@ export function getAdVisualGuide(question: { id: string; domain: string }) {
   return binding ? { ...binding, guide: binding.guide ?? adForestGuide } : null;
 }
 
-export function adStepImage(step: AdVisualStep) { return step.image.startsWith("https://") ? step.image : `${media}${step.image}`; }
+export function adStepImage(step: AdVisualStep) { return step.image ? (step.image.startsWith("https://") ? step.image : `${media}${step.image}`) : ""; }

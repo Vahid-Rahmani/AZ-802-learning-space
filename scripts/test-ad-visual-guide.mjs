@@ -42,7 +42,10 @@ assert.equal(document.querySelector('dialog').open, false);
 await render({ question: question('az802-q-011') });
 assert.equal(document.querySelector('.ad-guide-step-picker select').value, '6', 'changing questions resets to the correct focus step');
 await render({ question: question('az802-q-001') });
-assert.equal(document.querySelector('.ad-visual-rail'), null, 'FSMO question must not receive an unrelated installation guide');
+assert.match(document.querySelector('.ad-guide-body h3').textContent, /FSMO/, 'FSMO must receive its own guide, not installation');
+assert.ok(document.querySelector('.ad-guide-diagram'));
+assert.ok(document.querySelector('.ad-guide-command'));
+assert.equal(document.querySelector('.ad-guide-image'), null, 'diagram must not masquerade as a screenshot');
 await render({ mode: 'exam' });
 assert.equal(document.querySelector('.ad-visual-rail'), null, 'no guide before exam answer');
 await render({ mode: 'exam', answer: 0 });
@@ -54,8 +57,9 @@ await act(async () => document.querySelector('.ad-guide-image img').dispatchEven
 assert.ok(document.querySelector('.ad-guide-image-fallback'), 'failed image must leave readable instructions and source');
 assert.ok(document.querySelector('.ad-guide-path'));
 const bindings = questions.filter(q => getAdVisualGuide(q));
-assert.deepEqual(bindings.map(q => q.id).sort(), ['010','011','013','014','016','017','018','019','025','026','044','045','046','051','301'].map(id => `az802-q-${id}`), 'only the fifteen reviewed question identities must receive a guide');
-assert.equal(getAdVisualGuide(question('az802-q-043')), null, 'unreviewed preparation question must not get a misleading role-install guide');
+const expectedIds = [...Array.from({length:65},(_,i)=>String(i+1).padStart(3,'0')), ...Array.from({length:15},(_,i)=>String(i+301))].map(id => `az802-q-${id}`);
+assert.deepEqual(bindings.map(q => q.id).sort(), expectedIds.sort(), 'all 80 AD question identities must receive a reviewed guide');
+assert.match(getAdVisualGuide(question('az802-q-043')).context, /stag|pre-create/i, 'staging must not receive an ordinary role-install guide');
 assert.equal(adForestGuide.steps.length, 9);
 const guides = new Map();
 for (const q of bindings) {
@@ -63,6 +67,11 @@ for (const q of bindings) {
   assert.ok(binding.guide.steps.some(s => s.id === binding.startStep), `${q.id}: initial step must exist`);
   assert.ok(binding.context && binding.guide.prerequisites && binding.guide.versionNote);
   assert.equal(new URL(binding.guide.source).hostname, 'learn.microsoft.com');
+  for (const walkthrough of binding.guide.walkthroughs ?? []) {
+    assert.equal(walkthrough.version, 'Windows Server 2025');
+    assert.equal(new URL(walkthrough.url).protocol, 'https:');
+    assert.ok(walkthrough.title);
+  }
   assert.equal(getAdVisualGuide({ ...q, domain: 'Another course' }), null, 'identity must not cross courses');
   if (guides.has(binding.guide.id)) assert.equal(guides.get(binding.guide.id), binding.guide, 'guide identities must be unique');
   guides.set(binding.guide.id, binding.guide);
@@ -76,7 +85,23 @@ for (const guide of guides.values()) {
   assert.equal(new Set(guide.steps.map(s => s.id)).size, guide.steps.length, `${guide.id}: step identities must be unique`);
   for (const step of guide.steps) {
     assert.ok(step.path.length && step.instruction && step.alt);
-    assert.equal(new URL(adStepImage(step)).hostname, 'learn.microsoft.com');
+    assert.ok(step.image || step.diagram, `${guide.id}/${step.id}: each step needs a real image or explicitly authored diagram`);
+    if (step.image) assert.equal(new URL(adStepImage(step)).hostname, 'learn.microsoft.com');
+    else assert.equal(adStepImage(step), '', 'no fabricated screenshot URL');
+    if (step.source) assert.equal(new URL(step.source).protocol, 'https:');
+    if (step.diagram) {
+      const nodes = new Set(step.diagram.nodes.map(node => node.id));
+      assert.equal(nodes.size, step.diagram.nodes.length, 'diagram identities must be unique');
+      for (const edge of step.diagram.edges) assert.ok(nodes.has(edge.from) && nodes.has(edge.to), 'every diagram edge must resolve');
+    }
+    const q = bindings.find(q => getAdVisualGuide(q).guide.id === guide.id);
+    await render({question:q});
+    const picker = document.querySelector('.ad-guide-step-picker select');
+    await act(async () => {picker.value = String(guide.steps.indexOf(step)); picker.dispatchEvent(new window.Event('change', {bubbles:true}));});
+    assert.equal(document.querySelector('article h4').textContent, step.title);
+    assert.equal(!!document.querySelector('.ad-guide-image'), !!step.image);
+    assert.equal(!!document.querySelector('.ad-guide-diagram'), !step.image && !!step.diagram);
+    assert.equal(!!document.querySelector('.ad-guide-command'), !!step.command);
   }
 }
 await render({ question: question('az802-q-046') });
@@ -85,4 +110,4 @@ assert.match(document.querySelector('.ad-guide-image img').src, /demoting-domain
 assert.equal(getAdVisualGuide({ id: 'az802-q-043', domain: 'Another course' }), null);
 await act(async () => root.unmount());
 rmSync(scratch, { recursive: true, force: true });
-console.log(`PASS AD visual guide: ${bindings.length} explicit question bindings, ${guides.size} workflows, ${new Set([...guides.values()].flatMap(g => g.steps.map(adStepImage))).size} shared screenshots, per-question focus and exam gating, mobile collapse, enlargement and image failure fallback.`);
+console.log(`PASS AD visual guide: ${bindings.length} explicit question bindings, ${guides.size} workflows, ${[...guides.values()].reduce((n,g)=>n+g.steps.length,0)} steps, ${new Set([...guides.values()].flatMap(g => g.steps.map(adStepImage)).filter(Boolean)).size} shared reference screenshots, per-question focus and exam gating, all steps rendered, mobile collapse, enlargement and image failure fallback.`);
