@@ -80,16 +80,14 @@ const idsBefore = [...stageIdsBefore.map((id) => id), ...ccnaTopologyLabs.map((l
  * change any of it. An intentional future change updates the baseline deliberately, in review. */
 const frozenCourseData = {
   // Content baseline for the other courses on this site. Hashes are taken over the file content
-  // with CRLF normalised to LF (see sha256 above), so a checkout that has not yet been rewritten
-  // by git cannot fail this check while the content is unchanged.
+  // with CRLF normalised to LF (see sha256 above), so a checkout that git has not rewritten yet
+  // cannot fail this check while the content is unchanged.
   //
-  // Refreshed on 2026-10-09. Commits that landed after the original audit rewrote these files:
-  // b72a4d6 ("Compact shared site header") rewrote the az-900 and docker page headers; e2a0ef8
-  // ("Simplify all learning paths with clear start and practice choices") rewrote those two
-  // headers again plus the home page, the AZ-802 question-bank view and the two learning views;
-  // 3515f80 ("Restore balanced dashboards with progress and direct activity access") rewrote the
-  // home page and the shared views again. Updating the baseline is deliberate, in review: the
-  // check keeps its meaning, because any later change to a frozen file still fails this validator.
+  // Maintenance: when a commit genuinely changes one of these files, refresh that entry in the
+  // same commit. Never delete an entry, and never refresh one to silence a change you have not
+  // reviewed. The baseline was last refreshed on 2026-10-09, after commits b72a4d6, e2a0ef8,
+  // 3515f80, 9e6fa18 and e474ea8 rewrote the shared headers, the home page and the learning views
+  // for work that had nothing to do with the other courses' data.
   "lib/content/az900.ts": "6b9650e737c376102a5704771ef53cacb39b3ec570b02fa8440038332c4f7d38",
   "lib/content/az900-build.ts": "d26352a79d8a89ae7bc0a71f2349e6caef1362c9be908f7363bf2a6953482aee",
   "lib/content/az900-objectives.ts": "72660b98729b5f0fb5690d7b17d886f4923126791ff937d52771a6cffa3318ab",
@@ -109,8 +107,8 @@ const frozenCourseData = {
   "lib/content/skills.ts": "643bed40d91a82fb79c7824e78c2f714b075c07dbec51a5cbaf8bdbbd5ea58bc",
   "lib/content/lessons.ts": "8d3ae626176ea1ab1873aa47989464ebfd6a7198cf4e035129a864ba5c4d3c18",
   "lib/content/translations.ts": "0f8256d272e7e5aec145c353f6051fe83fb827a673c230db2b042db028d473b9",
-  "app/page.tsx": "97d22b17b5803e2a9deb3f747ce0d38b13ce60f6a59738043cd8db38003dd111",
-  "app/az-900/page.tsx": "a2d47fe27eb2cf250af7bcc99811aa78889dea16d2be95c312ce64453290b9a6",
+  "app/page.tsx": "20ba6ea059f9f87d9b5fd2f58b2201bcb7295df08d80d3f824d4580f5c4423fb",
+  "app/az-900/page.tsx": "e8452140fb640e780d1a30e70caa58dadf3e870af9571f351de4c7a642ed9141",
   "app/docker/page.tsx": "c6184716006f26b0e78526c394733ac2c5bb381164230f63798bf621a61e785a",
   "app/components/az802-question-bank.tsx": "ec662b556c66257294f65598aed05fd32c32bd6b4c253e07da854c65556a81e3",
   "app/components/promoted-dashboard.tsx": "ce8340d02fc43a8946870824fbdc4be05d9a01ad1f1fe440519b0ff3e796e748",
