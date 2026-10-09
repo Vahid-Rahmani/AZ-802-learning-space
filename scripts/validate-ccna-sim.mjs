@@ -397,7 +397,7 @@ function assertAddressingLab(pack) {
   assert.equal(outcome("hosts:pc-a-v4").ok, false, "a host outside its own /26 block still passed");
   assert.equal(model().ping("pc-a", "192.168.10.20").ok, false);
   assert.ok(consoleLines("pc-a", "ping 192.168.10.20").includes("0 percent (0/5)"), "the console reported a reachable peer the grader rejects");
-  assert.equal(outcome("proof:ping-gateway").ok, true, "a wrong host mask must not be reported as a gateway failure");
+  assert.equal(outcome("proof:ping-gateway").ok, false, "an off-subnet gateway without an on-link route must not answer a fabricated ping");
   sessions.get("pc-a").execute("ip address 192.168.10.10 255.255.255.192");
   assert.equal(model().ping("pc-a", "192.168.10.20").ok, true);
 

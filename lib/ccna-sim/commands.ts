@@ -1,11 +1,11 @@
 import { emptyConfigState, saveStartup, startupConfigLines, type ConfigState } from "./config.ts";
 import {
   connectedRouteLines, createDevice, createDeviceWithPorts, createVlan, expandInterfaceRange, findInterface,
-  interfaceStatusLines, ipInterfaceBriefLines, ipv6ConnectedRouteLines, ipv6InterfaceBriefLines, normalizeIpv6,
+  interfaceStatusLines, ipInterfaceBriefLines, ipv6ConnectedRouteLines, ipv6InterfaceBriefLines, normalizeIpv6, normalizeInterfaceName,
   openInterfaceForConfig, parseIpv6Cidr, runningConfigLines, switchportDetailLines, trunkLines, vlanBriefLines,
   type SimCableLookup, type SimDeviceRole, type SimDeviceState, type SimInterface,
 } from "./device.ts";
-import { pingFrom, type LabNetwork } from "./lab-network.ts";
+import { pingFrom, ipv4RouteLines, type LabNetwork } from "./lab-network.ts";
 import type { SimMode } from "./tokens.ts";
 import { managementCommands } from "./management.ts";
 
@@ -37,6 +37,8 @@ export type SimCommand = {
   apply?: (state: SimState, args: readonly string[]) => void;
   /** Present only where a real device accepts the `no` form; `no <command>` calls this. */
   revert?: (state: SimState, args: readonly string[]) => void;
+  /** Unlike `no ip address`, deleting a particular route still needs its arguments. */
+  negateRequiresArgs?: boolean;
   /** Extra availability rule, so `?` never lists what this device would refuse. */
   available?: (state: SimState) => boolean;
   validate?: (state: SimState, args: readonly string[]) => boolean;
@@ -77,7 +79,11 @@ const isSwitchDevice = (state: SimState) => state.device.role === "switch";
 const hostNic = (state: SimState) => state.device.interfaces[0] ?? null;
 const isIpv6Cidr = (value: string) => parseIpv6Cidr(value) !== null;
 /** A router subinterface name such as Gi0/0.10 whose parent port already exists. */
-const isSubinterfaceName = (state: SimState, raw: string) => state.device.role === "router" && /^[a-z]+\d+\/\d+\.\d{1,4}$/i.test(raw.trim());
+const isSubinterfaceName = (state: SimState, raw: string) => {
+  const name = normalizeInterfaceName(raw);
+  const match = name && /^(.*)\.(\d{1,4})$/.exec(name);
+  return state.device.role === "router" && Boolean(match && isVlanId(match[2]) && findInterface(state.device, match[1])?.kind === "ethernet");
+};
 
 function parseVlans(text: string): number[] | "all" | null {
   if (text.toLowerCase() === "all") return "all";
@@ -136,6 +142,7 @@ export const simCommands: readonly SimCommand[] = [
   { name: "exit", modes: everyMode, help: "Exit from the current mode", transition: "up" },
   { name: "end", modes: configurationModes, help: "Exit from configuration mode", transition: "privileged" },
   { name: "configure terminal", modes: ["privileged"], help: "Enter configuration mode", transition: "global" },
+  { name: "do", modes: configurationModes, help: "Run an EXEC command without leaving configuration mode", args: ["<exec-command>"], variadic: true },
   { name: "hostname", modes: ["global"], help: "Set the system name", args: ["<name>"], validate: (_, args) => isWord(args[0]), apply: (state, args) => { state.device.hostname = args[0]; } },
 
   // VLAN database.
@@ -149,8 +156,9 @@ export const simCommands: readonly SimCommand[] = [
 
   // Interface selection.
   {
-    name: "interface", modes: ["global"], help: "Select an interface to configure", args: ["<interface>"], transition: "interface",
-    validate: (state, args) => Boolean(findInterface(state.device, args[0])) || isSubinterfaceName(state, args[0]),
+    name: "interface", modes: ["global"], help: "Select an interface to configure", args: ["<interface>"], variadic: true, transition: "interface",
+    validate: (state, args) => Boolean(findInterface(state.device, args[0])) || isSubinterfaceName(state, args[0])
+      || (isSwitchDevice(state) && /^vlan\s*\d+$/i.test(args[0]) && isVlanId(args[0].replace(/^vlan\s*/i, ""))),
     apply: (state, args) => { const opened = openInterfaceForConfig(state.device, args[0]); state.selected.interfaces = opened ? [opened.port] : []; },
   },
   {
@@ -230,7 +238,7 @@ export const simCommands: readonly SimCommand[] = [
   {
     name: "ip default-gateway", modes: ["global", "user"], help: "Set the default gateway", args: ["<ip-address>"],
     // Global configuration on an IOS device, user exec on an endpoint console.
-    available: (state) => state.mode !== "user" && state.device.role !== "router",
+    available: (state) => isHostDevice(state) || (state.mode === "global" && isSwitchDevice(state)),
     validate: (state, args) => isIpv4(args[0]) && (state.device.role === "host" || state.device.role === "switch"),
     apply: (state, args) => { state.device.gateway = args[0]; },
     revert: (state) => { state.device.gateway = null; },
@@ -283,8 +291,7 @@ export const simCommands: readonly SimCommand[] = [
   },
   {
     name: "ping", modes: ["user", "privileged"], help: "Send ICMP echo requests to an address", args: ["<ip-address>"],
-    available: (state) => isHostDevice(state),
-    validate: (state, args) => (isIpv4(args[0]) || normalizeIpv6(args[0]) !== null) && isHostDevice(state),
+    validate: (_, args) => isIpv4(args[0]) || normalizeIpv6(args[0]) !== null,
     output: (state, args) => {
       const network = state.network?.() ?? null;
       if (!network) return ["% The lab network is not attached to this console."];
@@ -310,8 +317,18 @@ export const simCommands: readonly SimCommand[] = [
   { name: "show interfaces trunk", modes: execModes, help: "Show the trunk ports and their allowed VLANs", available: isSwitchDevice, output: (state) => trunkLines(state.device) },
   { name: "show ip interface brief", modes: execModes, help: "Show the interface addresses", output: (state) => ipInterfaceBriefLines(state.device, cableStateFor(state)) },
   { name: "show ipv6 interface brief", modes: execModes, help: "Show the interface IPv6 addresses", output: (state) => ipv6InterfaceBriefLines(state.device, cableStateFor(state)) },
-  { name: "show ip route", modes: execModes, help: "Show the IPv4 routing table", output: (state) => connectedRouteLines(state.device) },
-  { name: "show ip route connected", modes: execModes, help: "Show the directly connected IPv4 routes", output: (state) => connectedRouteLines(state.device) },
+  { name: "ip route", modes: ["global"], help: "Configure an IPv4 static route", args: ["<network>", "<mask>", "<next-hop>"],
+    negateRequiresArgs: true,
+    available: (state) => state.device.role === "router",
+    validate: (_, args) => isIpv4(args[0]) && isIpv4Mask(args[1]) && isIpv4(args[2]) && ((ipToInt(args[0]) & ipToInt(args[1])) >>> 0) === ipToInt(args[0]),
+    apply: (state, args) => {
+      const routes = state.device.staticRoutes ??= [];
+      if (!routes.some((route) => route.network === args[0] && route.mask === args[1] && route.nextHop === args[2])) routes.push({ network: args[0], mask: args[1], nextHop: args[2] });
+    },
+    revert: (state, args) => { state.device.staticRoutes = (state.device.staticRoutes ?? []).filter((route) => route.network !== args[0] || route.mask !== args[1] || route.nextHop !== args[2]); },
+  },
+  { name: "show ip route", modes: execModes, help: "Show the IPv4 routing table", output: (state) => ipv4RouteLines(state.network?.() ?? null, state.device) },
+  { name: "show ip route connected", modes: execModes, help: "Show the directly connected IPv4 routes", output: (state) => state.network?.() ? ipv4RouteLines(state.network(), state.device, true) : connectedRouteLines(state.device) },
   { name: "show ipv6 route", modes: execModes, help: "Show the IPv6 routing table", output: (state) => ipv6ConnectedRouteLines(state.device) },
   { name: "show ipv6 route connected", modes: execModes, help: "Show the directly connected IPv6 routes", output: (state) => ipv6ConnectedRouteLines(state.device) },
   {

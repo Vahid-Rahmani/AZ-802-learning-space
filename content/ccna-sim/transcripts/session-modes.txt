@@ -4,6 +4,7 @@
 > ?
 enable              Turn on privileged commands
 exit                Exit from the current mode
+ping                Send ICMP echo requests to an address
 show                Show running system information
 ssh                 Open a simulated SSH console through the lab network
 Switch>

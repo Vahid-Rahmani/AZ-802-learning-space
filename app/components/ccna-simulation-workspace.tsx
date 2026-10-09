@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { createLabSession, IosSession } from "@/lib/ccna-sim/session";
-import { findInterface, portLinkStatus, type SimCableState, type SimInterfaceKind } from "@/lib/ccna-sim/device";
+import { findInterface, portLinkStatus, type SimCableState, type SimInterfaceKind, type SimStaticRoute } from "@/lib/ccna-sim/device";
 import { simulationCableCurve } from "@/lib/ccna-sim/cable-geometry";
 import { copyManagement, type SimManagement } from "@/lib/ccna-sim/management";
 import { checkedStageResults } from "@/lib/ccna-sim/guidance";
@@ -49,6 +49,7 @@ type PersistedTerminalSession = {
     ipv6Gateway?: string | null;
     ipv6Routing?: boolean;
     management?: SimManagement;
+    staticRoutes?: SimStaticRoute[];
     vlans: Array<[number, { id: number; name: string }]>;
     interfaces: Array<{
       name: string;
@@ -299,6 +300,7 @@ function createTerminalRuntime(node: SimulationNode, saved?: PersistedTerminalSe
       ipv6Gateway: saved.device.ipv6Gateway ?? null,
       ipv6Routing: saved.device.ipv6Routing === true,
       management: copyManagement(saved.device.management),
+      staticRoutes: saved.device.staticRoutes?.map((route) => ({ ...route })),
       vlans: new Map(saved.device.vlans.map(([id, vlan]) => [Number(id), { id: Number(vlan.id), name: vlan.name }])),
       interfaces: saved.device.interfaces.map((port) => ({
         ...port,
@@ -357,6 +359,7 @@ function serializeTerminalRuntime(runtime: TerminalRuntime): PersistedTerminalSe
       ipv6Gateway: device.ipv6Gateway,
       ipv6Routing: device.ipv6Routing,
       management: copyManagement(device.management),
+      staticRoutes: device.staticRoutes?.map((route) => ({ ...route })),
       vlans: [...device.vlans.entries()].map(([id, vlan]) => [id, { ...vlan }]),
       interfaces: device.interfaces.map((port) => ({ ...port, allowedVlans: Array.isArray(port.allowedVlans) ? [...port.allowedVlans] : "all", address: port.address ? { ...port.address } : null, ipv6: port.ipv6 ? { ...port.ipv6 } : null })),
     },
@@ -386,6 +389,7 @@ function terminalView(runtime: TerminalRuntime): TerminalView {
       ipv6Gateway: device.ipv6Gateway,
       ipv6Routing: device.ipv6Routing,
       management: copyManagement(device.management),
+      staticRoutes: device.staticRoutes?.map((route) => ({ ...route })),
       vlans: [...device.vlans.entries()].map(([id, vlan]) => [id, { ...vlan }]),
       interfaces: device.interfaces.map((port) => ({ ...port, allowedVlans: Array.isArray(port.allowedVlans) ? [...port.allowedVlans] : "all", address: port.address ? { ...port.address } : null, ipv6: port.ipv6 ? { ...port.ipv6 } : null })),
     },
@@ -444,6 +448,7 @@ function buildNetworkSnapshot(state: SimulationState, views: Record<string, Term
       ipv6Gateway: snapshot.ipv6Gateway ?? null,
       ipv6Routing: snapshot.ipv6Routing === true,
       management: copyManagement(snapshot.management),
+      staticRoutes: snapshot.staticRoutes?.map((route) => ({ ...route })),
       vlans: new Map(snapshot.vlans.map(([id, vlan]) => [Number(id), { id: Number(vlan.id), name: vlan.name }])),
       interfaces: snapshot.interfaces.map((port) => ({
         ...port,
@@ -559,6 +564,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
       remote.state.device = target.session.state.device;
       remote.state.config = target.session.state.config;
       remote.state.network = runtime.session.state.network;
+      remote.remoteSessionFor = runtime.session.remoteSessionFor;
       return remote;
     };
     return runtime;

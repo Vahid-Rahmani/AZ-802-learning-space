@@ -53,9 +53,9 @@ export class IosSession {
   private pendingLogin: { id: string; username: string; targetIp: string } | null = null;
   private remote: { id: string; targetIp: string; session: IosSession } | null = null;
 
-  get inputHidden() { return Boolean(this.pendingLogin); }
+  get inputHidden(): boolean { return Boolean(this.pendingLogin || this.remote?.session.inputHidden); }
   get awaitingInput(): boolean { return Boolean(this.pendingLogin || this.state.rsaPrompt || this.remote?.session.awaitingInput); }
-  get currentMode(): SimMode { return this.remote?.session.state.mode ?? this.state.mode; }
+  get currentMode(): SimMode { return this.remote?.session.currentMode ?? this.state.mode; }
 
   constructor(hostname = "Switch", role: SimDeviceRole = "switch", portLabels?: readonly string[]) {
     this.role = role;
@@ -119,6 +119,13 @@ export class IosSession {
     }
     const typed = input.trim();
     if (!typed || this.state.closed) return this.result([], null);
+    // Temporarily run EXEC without losing the selected configuration context.
+    if (/^do\s+/i.test(typed) && ["global", "interface", "vlan", "line"].includes(this.state.mode)) {
+      const mode = this.state.mode;
+      this.state.mode = "privileged";
+      try { const result = this.execute(typed.replace(/^do\s+/i, "")); return { ...result, mode, prompt: promptFor(this.state.device.hostname, mode) }; }
+      finally { this.state.mode = mode; }
+    }
     this.history.push(typed);
     const tokens = tokenize(typed);
     const last = tokens[tokens.length - 1];
@@ -262,7 +269,7 @@ export class IosSession {
       : tokens.length === command.name.split(" ").length + args.length && (command.args?.length ?? 0) === args.length);
     if (withArguments.length === 1) return this.checked(withArguments[0], args.map((token) => token.value), tokens, args);
     if (negate) {
-      const targets = matched.filter((command) => command.revert && tokens.length === command.name.split(" ").length && (command.args?.length ?? 0) > args.length);
+      const targets = matched.filter((command) => command.revert && !command.negateRequiresArgs && tokens.length === command.name.split(" ").length && (command.args?.length ?? 0) > args.length);
       if (targets.length === 1) return { kind: "run", command: targets[0], args: args.map((token) => token.value), negate: true };
     }
     if (matched.some((command) => tokens.length < command.name.split(" ").length)) return { kind: "incomplete" };

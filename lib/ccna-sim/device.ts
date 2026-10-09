@@ -33,6 +33,7 @@ export type SimInterface = {
 };
 
 export type SimVlan = { id: number; name: string };
+export type SimStaticRoute = { network: string; mask: string; nextHop: string };
 
 export type SimDeviceState = {
   /**
@@ -55,6 +56,7 @@ export type SimDeviceState = {
   /** IPv6 default gateway of a host endpoint, configured on its console like the IPv4 one. */
   ipv6Gateway: string | null;
   management?: SimManagement;
+  staticRoutes?: SimStaticRoute[];
 };
 
 const switchPortDefaults = () => ({
@@ -146,7 +148,15 @@ export function openInterfaceForConfig(device: SimDeviceState, raw: string): { p
   const existing = findInterface(device, raw);
   if (existing) return { port: existing, created: false };
   const name = normalizeInterfaceName(raw);
-  if (!name || device.role !== "router") return null;
+  if (!name) return null;
+  if (device.role === "switch" && /^Vlan\d{1,4}$/i.test(name)) {
+    const id = Number(name.slice(4));
+    if (id < 1 || id > 4094) return null;
+    const port: SimInterface = { name: `Vlan${id}`, ...routerPortDefaults(), kind: "svi" };
+    device.interfaces.push(port);
+    return { port, created: true };
+  }
+  if (device.role !== "router") return null;
   const match = /^(.*)\.(\d{1,4})$/.exec(name);
   if (!match) return null;
   const parent = findInterface(device, match[1]);
@@ -477,6 +487,8 @@ export function configBodyLines(device: SimDeviceState): string[] {
     body.push("!");
   }
   body.push(...managementConfigLines(device.management));
+  if (device.gateway) body.push(`ip default-gateway ${device.gateway}`);
+  for (const route of device.staticRoutes ?? []) body.push(`ip route ${route.network} ${route.mask} ${route.nextHop}`);
   body.push("end");
   return body;
 }

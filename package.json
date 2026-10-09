@@ -30,6 +30,7 @@
     "validate:questions": "node scripts/validate-question-bank.mjs",
     "test:ccna-sim-ui": "node scripts/test-ccna-sim-ui.mjs",
     "test:ccna-management": "node --experimental-strip-types scripts/test-ccna-management.mjs",
+    "test:ccna-routing": "node --experimental-strip-types scripts/test-ccna-routing.mjs",
     "audit:ccna-readiness": "node scripts/audit-ccna-lab-readiness.mjs"
   },
   "dependencies": {
