@@ -399,6 +399,9 @@
 .ccna-simulation-terminal-entry { margin-top: .75rem; }
 .ccna-simulation-terminal-prompt { color: #75e5ff; }
 .ccna-simulation-terminal-response { color: #b9c8da !important; }
+/* A closed console keeps its transcript but stops accepting keys, so the surface has to say why
+   nothing happens and point at the control that starts it again. */
+.ccna-simulation-terminal-closed { color: #ffd08a !important; }
 .ccna-simulation-terminal-input-line { display: flex; align-items: baseline; margin-top: .75rem; min-height: 1.55em; color: #f3f7fc; white-space: pre-wrap; word-break: break-word; }
 .ccna-simulation-terminal-cursor { display: inline-block; min-width: .55ch; color: #75e5ff; animation: ccna-terminal-cursor 1s steps(2, start) infinite; }
 @keyframes ccna-terminal-cursor { 50% { opacity: 0; } }

@@ -195,6 +195,16 @@ const guidance = workspace.container.querySelector(".ccna-simulation-device-guid
 assert.match(guidance, /SW1 is not needed for this step|PC-A/, "the guide does not direct the learner to the device the current step belongs to");
 results.guidanceNamesDevice = "the guide names the console the current step belongs to and tells the learner when the open device is not needed";
 
+// 5b. A closed console says so, and the surface offers the way back.
+await run(workspace.container, "SW1", "exit", "exit");
+assert.equal(promptNow(workspace.container), "", "a closed console still shows a prompt to type at");
+assert.match(screenText(workspace.container), /Connection closed/, "a closed console does not say why it stopped accepting commands");
+await click(workspace.container, all(workspace.container, ".ccna-simulation-terminal-actions button")[0]);
+assert.equal(promptNow(workspace.container), "SW1>", "restarting the console did not open a fresh session on the same device");
+assert.doesNotMatch(screenText(workspace.container), /Connection closed/, "the closed notice survived the restart");
+assert.match(screenText(workspace.container), /Connected to SW1/, "the restarted console did not open a fresh session");
+results.closedConsoleRecovers = "`exit` at user exec ends the session, the console says the connection closed, and Restart this console opens a fresh one";
+
 // 6. A saved session restores both consoles and the progress.
 const savedKey = "component-restore";
 const first = await mount("ccna-addressing", savedKey);

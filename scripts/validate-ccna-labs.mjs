@@ -48,7 +48,12 @@ const { legacyCcnaIds, restoreCcnaDomain } = await import(`data:text/javascript;
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (relative) => readFileSync(path.join(projectRoot, relative), "utf8");
-const sha256 = (relative) => createHash("sha256").update(readFileSync(path.join(projectRoot, relative))).digest("hex");
+/** Content hash with CRLF normalised to LF. Git stores these files with LF and this checkout has
+ * `core.autocrlf=true`, so the raw bytes of an untouched file differ depending on whether the
+ * checkout has rewritten it yet. Hashing the normalised content is what makes the baseline below
+ * mean "the content did not change" rather than "this working copy uses the same line endings as
+ * the one the hashes were recorded on". A real content change still fails. */
+const sha256 = (relative) => createHash("sha256").update(readFileSync(path.join(projectRoot, relative), "utf8").replace(/\r\n/g, "\n"), "utf8").digest("hex");
 
 /** Topics of the official Cisco CCNA Exam v1.1 (200-301) list, read from the PDF on 2026-10-08. */
 const publishedObjectives = [
@@ -74,39 +79,43 @@ const idsBefore = [...stageIdsBefore.map((id) => id), ...ccnaTopologyLabs.map((l
 /** Content that belongs to the other courses on this site. Recorded at audit time; this task must not
  * change any of it. An intentional future change updates the baseline deliberately, in review. */
 const frozenCourseData = {
-  "lib/content/az900.ts": "31361cc05ff7f0aab4fa10000b251a537c5ac6708daec316bddd1d5fef7ff9c5",
-  "lib/content/az900-build.ts": "df3d1e7139a571486443411054c34868245782c9b9fd499731a5deb30d2fef60",
-  "lib/content/az900-objectives.ts": "03120a36ca4d9e65c067aff236f1c7905b640b482de1a536ee93783005c6ad58",
-  "lib/content/az900-questions.ts": "e6ab81e137076cd7c769509e50fd9356e8af0050418ee8e3fb8ad4c573a9ac53",
-  "lib/content/az900-questions-architecture.ts": "c52641d5ea9b3dd9f38f24bfebba4cb5ceb9af84dc1f4747d0901ace1fe843fc",
-  "lib/content/az900-questions-cloud.ts": "a7a1e0cb09d286460077891fca8e3c0278cbf6cea554d94e4915755c653d0a05",
-  "lib/content/az900-questions-management.ts": "1474b0967cddad4f8d2aad9ac210963c89721869686b3da53a7cb878ca134e62",
-  "lib/content/az900-sources.ts": "b472508fd5f99caaab0ea9dac7cc46948bd29f8167bff7d0e7343fe126cd57bd",
-  "lib/content/az900-types.ts": "3e0af87f19ba13ac62dc45620e86a046e407002769dce59d5508d3e4ec72887e",
-  "lib/content/az900-legacy-slots.ts": "645de4e0d0bb264c34e9138fd12f04e7f762217c0e1eb14b04e028a811623a24",
-  "lib/content/docker.ts": "6ffad6fd4622229887b7fa2f6f69605fe82ec264660dd42c87f019aea60b4f64",
-  "lib/content/server-labs.ts": "81d4d102b2e8c2e52d686ee1a84a4c968ec7f328db47edd0a5f51c716d56ef80",
-  "lib/content/questions.ts": "55078a1c1cd421f656799184b9c4a5909f67c190ba9f502dd008a22d47cae06d",
-  "lib/content/training.ts": "29ef36967fe5ff88ceb37a1c626698122c6aaa3dd47b56ab08194959ef1f8a1a",
-  "lib/course-data.ts": "cd15fa42d44b94c523ba01a290b26482f7426bbbdce055470b490cf8a606fa8a",
-  "lib/content/exam-blueprints.ts": "9c342abb82b8e0b5fa31e522ee84dfc237e83402a9ecf1c88fd6296f70b219c2",
-  "lib/content/skills.ts": "53d12da8533673741ea0c1e4401f6f0fae74353217f35fac59752f61a0035bc1",
-  "lib/content/lessons.ts": "4709fb633f4671f6af4ae9b9831201f4b3c8b83a0c26fd3751dd4c28f2961d47",
-  "lib/content/translations.ts": "778f0f10be1eec9552ad235b3919e1418c91be8fd25f510534f34e1e866ea363",
-  // Refreshed on 2026-10-09. Two commits landed after the original audit and before the CCNA
-  // simulator work started: b72a4d6 ("Compact shared site header") rewrote the az-900 and docker
-  // page headers, then e2a0ef8 ("Simplify all learning paths with clear start and practice
-  // choices") rewrote those two headers again plus the home page, the AZ-802 question-bank view
-  // and the two learning views. The recorded hashes were already stale when this task began.
-  // Updating the baseline is deliberate, in review: the check keeps its meaning, because any
-  // further change to a frozen file still fails this validator.
-  "app/page.tsx": "dc6d20367c806c6eb1b3e118441e76226ecb0664128ceb3feadd893dd2e1149e",
-  "app/az-900/page.tsx": "14cc35b5ec10b8811824f8bc2a40e3dc0f6491fd4c8e541c864f81216b3de55d",
-  "app/docker/page.tsx": "c6c631bc739e25da4844e6fe832aab1e5ee2f8d06280bbf3163a5379e262c1ee",
-  "app/components/az802-question-bank.tsx": "be80d16f1403bcafa4e7569230f917f5a5044cce55e5fc194fc8a3ce0552dd4a",
-  "app/components/promoted-dashboard.tsx": "81759021a88102a62af34a871f14143a1205f7b7fca45ec2466b1242943f989e",
-  "app/components/training-views.tsx": "b8a07a7a62257b146d85cb254417d2e31149e141487f733b220b27153d4a2d94",
-  "app/components/learning-views.tsx": "3923d0eac2bd19c79b4150a14c1cc475558f9394c9c0f76638da59590eabc8c3",
+  // Content baseline for the other courses on this site. Hashes are taken over the file content
+  // with CRLF normalised to LF (see sha256 above), so a checkout that has not yet been rewritten
+  // by git cannot fail this check while the content is unchanged.
+  //
+  // Refreshed on 2026-10-09. Commits that landed after the original audit rewrote these files:
+  // b72a4d6 ("Compact shared site header") rewrote the az-900 and docker page headers; e2a0ef8
+  // ("Simplify all learning paths with clear start and practice choices") rewrote those two
+  // headers again plus the home page, the AZ-802 question-bank view and the two learning views;
+  // 3515f80 ("Restore balanced dashboards with progress and direct activity access") rewrote the
+  // home page and the shared views again. Updating the baseline is deliberate, in review: the
+  // check keeps its meaning, because any later change to a frozen file still fails this validator.
+  "lib/content/az900.ts": "6b9650e737c376102a5704771ef53cacb39b3ec570b02fa8440038332c4f7d38",
+  "lib/content/az900-build.ts": "d26352a79d8a89ae7bc0a71f2349e6caef1362c9be908f7363bf2a6953482aee",
+  "lib/content/az900-objectives.ts": "72660b98729b5f0fb5690d7b17d886f4923126791ff937d52771a6cffa3318ab",
+  "lib/content/az900-questions.ts": "0b7d8afed709b0b4a0104d69e1ba3c1b4fcbdc4ece4f76da2ef377f35c7a1a2f",
+  "lib/content/az900-questions-architecture.ts": "a5d61b7cbc85c18a06f016ff3681fd1d3cee2bdf38c69a68bd17c7c4fc27af66",
+  "lib/content/az900-questions-cloud.ts": "586b784cff021d429995e9e0c5872f6384c0a9c500d253d7ecdad2c386d29948",
+  "lib/content/az900-questions-management.ts": "b90b1242c508c2b5b151b59838cc56ff7e330a8caaa47ebf42fd56a8dfbb3f6d",
+  "lib/content/az900-sources.ts": "71808e50b88626e1bb7d1432b2c6ebdea931fcdc4c669b163cbec38700afb2f9",
+  "lib/content/az900-types.ts": "36ddb972e461a2844c8f9c1b8658ae7798b27aa3c348b4057c195016b58ef1ec",
+  "lib/content/az900-legacy-slots.ts": "af4305c4cfd014285d27448f67b2661dcbc51e1b0fb65fb04eeeeab14da7bbce",
+  "lib/content/docker.ts": "63582d8c3b6872043d96d4ec2b187208749e25b79419dc1345d66f105730d86b",
+  "lib/content/server-labs.ts": "2de2d65de1f7f44430085c9258a02c25a9983f62389d223340e8d21f55d2664b",
+  "lib/content/questions.ts": "808933dcdc83117dc33b17ad554596c042672e70da747eb39f676bc8741c3f5e",
+  "lib/content/training.ts": "e7b082393cd758b234044a054609ddd219ed874e3f193fb6dfaf0468e135be5c",
+  "lib/course-data.ts": "218ac2f695a6e111f6f7fee115f092342c0526048ee70f5252714304c6f9c7cc",
+  "lib/content/exam-blueprints.ts": "b5b53191e7e3b387b5f2e3e17db4a7ab7e021b7a034fb5cea805b056f75a1fc8",
+  "lib/content/skills.ts": "643bed40d91a82fb79c7824e78c2f714b075c07dbec51a5cbaf8bdbbd5ea58bc",
+  "lib/content/lessons.ts": "8d3ae626176ea1ab1873aa47989464ebfd6a7198cf4e035129a864ba5c4d3c18",
+  "lib/content/translations.ts": "0f8256d272e7e5aec145c353f6051fe83fb827a673c230db2b042db028d473b9",
+  "app/page.tsx": "97d22b17b5803e2a9deb3f747ce0d38b13ce60f6a59738043cd8db38003dd111",
+  "app/az-900/page.tsx": "a2d47fe27eb2cf250af7bcc99811aa78889dea16d2be95c312ce64453290b9a6",
+  "app/docker/page.tsx": "c6184716006f26b0e78526c394733ac2c5bb381164230f63798bf621a61e785a",
+  "app/components/az802-question-bank.tsx": "ec662b556c66257294f65598aed05fd32c32bd6b4c253e07da854c65556a81e3",
+  "app/components/promoted-dashboard.tsx": "ce8340d02fc43a8946870824fbdc4be05d9a01ad1f1fe440519b0ff3e796e748",
+  "app/components/training-views.tsx": "55e3194239f47fdba9331e13d02d5ab9c1a9bb702b9aa392b9c477c50435c1e1",
+  "app/components/learning-views.tsx": "98724f1327151b43f4c899c817be4d54fa42436da669ed73e5cc39cff0b07dc9",
 };
 
 // ---------------------------------------------------------------- 1. every original lab is still here

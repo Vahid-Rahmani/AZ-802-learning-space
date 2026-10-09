@@ -5,6 +5,7 @@ import { createLabSession, type IosSession } from "@/lib/ccna-sim/session";
 import { findInterface, portLinkStatus, type SimCableState, type SimInterfaceKind } from "@/lib/ccna-sim/device";
 import { simulationCableCurve } from "@/lib/ccna-sim/cable-geometry";
 import { checkedStageResults } from "@/lib/ccna-sim/guidance";
+import { simulatorText } from "@/lib/ccna-sim/language";
 import { buildLabModel } from "@/lib/ccna-sim/lab";
 import type { LabNetwork } from "@/lib/ccna-sim/lab-network";
 import type { SimMode } from "@/lib/ccna-sim/tokens";
@@ -1090,6 +1091,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
               <p className="ccna-simulation-terminal-line">Connected to {selectedNodeData?.label ?? "the selected device"}.</p>
               <p className="ccna-simulation-terminal-line">Type <code>?</code> or <code>help</code> to see commands for this console.</p>
             </>}
+            {activeView?.closed && <p className="ccna-simulation-terminal-line ccna-simulation-terminal-closed">{simulatorText.closed}</p>}
             {activeView?.entries.map((entry, index) => <div key={`${entry.input}-${index}`} className="ccna-simulation-terminal-entry"><p><span className="ccna-simulation-terminal-prompt">{entry.promptBefore}</span> {entry.input}</p>{entry.output.map((line, lineIndex) => <p key={`${line}-${lineIndex}`} className="ccna-simulation-terminal-response">{line}</p>)}</div>)}
           </div>
           {activeView && <div className="ccna-simulation-terminal-input-line" aria-label="Current command line">
