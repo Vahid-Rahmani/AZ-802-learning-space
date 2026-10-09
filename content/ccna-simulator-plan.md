@@ -128,22 +128,38 @@ Checks are **declarative predicates over model state**. Substring matching of ty
 | **S4** Depth and fault injection | STP, port security, ACLs, OSPF-lite; seeded faults | each of the six troubleshooting-tier labs (band 11 — four ship in W3, two wait for their review notes) has a reproducible seed plus a solver transcript that repairs it to “all objectives pass”; the recompose from the seed is deterministic | L |
 | **S5** Rollout waves and hardening | packs, a11y, mobile, budget, docs | the four waves below ship; per-lab pack loading is lazy and the library page payload is unchanged (measured before/after); 390 px has no horizontal overflow; terminal stays responsive with 2,000 lines; first-lab JS addition ≤ 60 KB gzip | L |
 
-**Slice status (2026-10-08).** S0 is implemented and verified. S1 is being delivered in parts, because
-one end-state fixture per hands-on lab needs a different part of the configuration surface:
+**Slice status (2026-10-09).** S0 and S3 are implemented, and S1 is being delivered in parts, because
+one end-state fixture per hands-on lab needs a different part of the configuration surface.
 
+- **S3 — delivered for five labs, not for the catalog:** the browser flow (type, see the result and the
+  incomplete objectives, reload restores the stage, two-account isolation unchanged) is held down by
+  `npm run test:ccna-sim-ui` and by `npm run test:ccna-sim-labs`, which drives the real component for
+  **every** authored lab and asserts per lab: a fresh lab is unsolved, repeated read commands credit
+  nothing, another device's commands on the wrong console credit nothing, the lab's own solution reaches
+  100%, cutting a cable withdraws its steps and reconnecting restores them, extra configuration is still
+  accepted and cannot create credit, Resume restores the cables, the configuration and the progress, and
+  Reset clears the selected lab only. Which labs are graded, and which capability each ungraded lab is
+  waiting on, is generated into `content/ccna-lab-readiness.md`; the per-lab findings of this batch are
+  in `content/ccna-sim-lab-report.md`.
 - **S1a — delivered:** interfaces, `interface range`, the VLAN database, access/trunk keywords with
   native and allowed VLANs, SVI addressing, `shutdown`/`no shutdown`, the `no` form for every
   negatable command, running-versus-startup configuration with `copy run start`, `write memory` and
   `erase startup-config`, and the `show` commands `running-config`, `startup-config`, `vlan`,
   `vlan brief`, `interfaces status`, `interfaces switchport` and `ip interface brief`. The end state it
   proves is the `ccna-vlans` lab, committed as a golden transcript.
-- **S1b — remaining:** the addressing, routing and services end states (`ip address` on routed ports,
-  `ip route`, IPv6, DHCP and NAT keywords) for `ccna-addressing`, `ccna-routing` and `ccna-services`.
-- **S1c — remaining:** the security end state (SSH, shared secrets, ACLs) for `ccna-security`.
+- **S1b — partly delivered:** the addressing end state is proven by `ccna-addressing`, and `ccna-routing`
+  now grades its addresses, both static routes and the end-to-end path from device state. Still missing:
+  the services end state (DHCP and NAT keywords) for `ccna-services`, and OSPF for `ccna-routing`, whose
+  three protocol steps are declared ungraded until an OSPF engine exists.
+- **S1c — partly delivered:** `ccna-security` grades the SSH end state (domain name, ≥2048-bit RSA key,
+  local secret user, `login local` and `transport input ssh` on all five VTY lines). Still missing: the
+  ordered access list, which needs an ACL engine before a denial can be produced rather than described;
+  those steps are declared ungraded and are never counted.
 - **S1d — remaining:** the EtherChannel end state (`channel-group`, `etherchannel summary`) for
-  `ccna-etherchannel`.
+  `ccna-etherchannel`. Its devices and both bundle members now match its published outline, but no step
+  is graded until the engine models a port-channel.
 
-Sizes are relative estimates, not commitments. S0–S3 is the minimum that is genuinely worth shipping: after S3 a learner can configure a lab in the browser and be graded on the result. S4 and S5 add depth and reach.
+Sizes are relative estimates, not commitments. S0–S3 is the minimum that is genuinely worth shipping: after S3 a learner can configure a lab in the browser and be graded on the result. S4 and S5 add depth and reach. A lab is only a stage once its own objectives are predicates over device state; a lab whose engine capability is missing stays ungraded and says so, and `npm run audit:ccna-readiness -- --check` fails if a lab is ever marked graded while the engine cannot prove what its own text asks for.
 
 ## 10. Coverage — how many labs, computed from the manifest
 
@@ -221,4 +237,12 @@ What changed:
 
 What the engine still cannot prove, stated rather than faked: no static or dynamic routing (no OSPF adjacency, metric or AD), no EtherChannel, no spanning tree, no HSRP/VRRP, no DHCP/DNS/NTP/syslog/TFTP services, no NAT, no ACL/SSH/AAA/password model, no port security, no CDP/LLDP/VTP/MAC-table model, and no wireless or REST/JSON surface. A lab that needs one of these is reported as `no-route` (for routing) or left unauthored, and `content/ccna-lab-readiness.md` lists every lab with the exact missing capability and the commit that shipped the packs that exist.
 
-State of the coverage after this repair: **3 labs graded from device state** (`ccna-addressing` 11 graded steps, `ccna-vlans` 10, `ccna-topology-017` 16 — 37 in total), **106 labs with no authored objective yet**, of which 91 ask for at least one capability the matrix above does not implement. No lab is marked complete on the strength of another lab's work, and none of the missing capabilities is labelled as done.
+State of the coverage after this repair, then after the task-completion batch that followed it: **5 labs graded from device state** (`ccna-addressing` 11 graded steps, `ccna-routing` 8, `ccna-security` 7, `ccna-vlans` 10, `ccna-topology-017` 16 — 52 in total), **104 labs with no authored objective yet**, of which 88 ask for at least one capability the matrix above does not implement. No lab is marked complete on the strength of another lab's work, and none of the missing capabilities is labelled as done.
+
+Two labs are graded in part on purpose. `ccna-routing` grades its addresses, both static routes and the end-to-end path from each device's own table, and declares its three OSPF steps ungraded; `ccna-security` grades the SSH identity and VTY state its own login is gated on, and declares its two ordered-ACL steps and its save step ungraded. An ungraded step is never counted, is named as not evaluated in the learner's own words, and cannot be reached by typing anything.
+
+One repair belongs to this batch's tooling rather than to the product: the acceptance suite typed commands by
+sending synthetic keydowns to the terminal, which stopped being the input path when the console gained a real
+inline `<input>` for soft keyboards. It now drives that input, and it restarts a console the learner's own
+`exit` closed instead of silently abandoning the rest of the step. A harness on the old path reported every
+lab at 0/N, which would have read as a grading failure and was not one.

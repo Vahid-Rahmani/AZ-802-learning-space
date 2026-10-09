@@ -1,5 +1,6 @@
 import { configBodyLines, findInterface, portAllowsVlan, type SimDeviceRole } from "./device.ts";
-import { hostVlan, neighbourOf, pingFrom, sameSubnet, type LabDevice, type LabNetwork } from "./lab-network.ts";
+import { addressOwner, hostVlan, ipv6Owner, neighbourOf, pingFrom, sameSubnet, type LabDevice, type LabNetwork } from "./lab-network.ts";
+import { copyManagement, type SimManagement } from "./management.ts";
 import type { SimulationLink, SimulationNode } from "./topology.ts";
 
 /**
@@ -43,6 +44,18 @@ export type LabDeviceView = {
   /** Ports of this device that carry the VLAN, which is what a trunk or access port must do. */
   carriers: (vlan: number) => LabPortView[];
   neighbour: (portName: string) => { deviceId: string; label: string; port: string; role: SimDeviceRole } | null;
+  /**
+   * The static IPv4 routes this device really holds. A routing objective has to read the table the
+   * device built, not whether a route command was typed, so a check can name the network, the mask
+   * and the next hop it requires and see them disappear when the learner removes the route.
+   */
+  routes: Array<{ network: string; mask: string; nextHop: string }>;
+  /**
+   * This device's management state (domain name, local users, RSA key size, VTY lines), or the IOS
+   * defaults when it is not part of this lab. An SSH or VTY objective reads this, so it grades the
+   * configuration the device carries rather than the fact that a line was typed.
+   */
+  management: SimManagement;
   startupSaved: boolean;
   startupMatchesRunning: boolean;
 };
@@ -54,6 +67,15 @@ export type LabModel = {
   linked: (a: string, b: string) => boolean;
   hostVlan: (deviceId: string) => number | null;
   subnet: (a: string, b: string, mask: string) => boolean;
+  /**
+   * The device that owns an IPv4 or IPv6 address, by id, or null when nothing holds it.
+   *
+   * A proof step such as "PC-A must reach PC-B" has to name the device it must reach, not only an
+   * address: a learner who gives PC-A the address the step pings would otherwise satisfy the step with
+   * a ping to its own interface. The console still answers a self-ping the way a real device does; it
+   * is the graded proof that has to say which device the reply came from.
+   */
+  owner: (address: string) => string | null;
   ping: (fromDeviceId: string, targetIp: string) => LabStepOutcome;
 };
 
@@ -101,6 +123,8 @@ function deviceView(network: LabNetwork, id: string): LabDeviceView {
       const other = neighbourOf(network, device.id, portName);
       return other ? { deviceId: other.device.id, label: other.device.label, port: other.port.name, role: other.device.state.role } : null;
     },
+    routes: (device?.state.staticRoutes ?? []).map((route) => ({ ...route })),
+    management: copyManagement(device?.state.management),
     startupSaved: Boolean(device?.startup),
     startupMatchesRunning: Boolean(device?.startup && configBodyLines(device.state).join("\n") === device.startup.join("\n")),
   };
@@ -119,11 +143,34 @@ export function buildLabModel(network: LabNetwork): LabModel {
     },
     hostVlan: (deviceId) => hostVlan(network, deviceId),
     subnet: sameSubnet,
+    owner: (address) => (addressOwner(network, address) ?? ipv6Owner(network, address))?.device.id ?? null,
     ping: (fromDeviceId, targetIp) => {
       const result = pingFrom(network, fromDeviceId, targetIp);
       return { ok: result.ok, detail: result.reason };
     },
   };
+}
+
+/**
+ * A graded proof that one device really reaches another one, read from the live model.
+ *
+ * The address has to belong to the device the step names before the ping is even attempted: a check
+ * that only pinged an address would be satisfied by a device that was given the peer's address and
+ * pinged itself, which is not the requirement and not what the console shows. The reply then comes
+ * from `lab.ping`, the same live path the console computes, so the two cannot disagree.
+ */
+export function reachesDevice(lab: LabModel, fromDeviceId: string, targetDeviceId: string, targetAddress: string): LabStepOutcome {
+  const owner = lab.owner(targetAddress);
+  const target = lab.device(targetDeviceId).label;
+  if (owner !== targetDeviceId) {
+    return unmet(owner
+      ? `${targetAddress} belongs to ${lab.device(owner).label}, not ${target}; this proof has to reach the device the lab names, and a device answering its own address is not that.`
+      : `No device in this lab holds ${targetAddress} yet, so this proof has no destination.`);
+  }
+  const result = lab.ping(fromDeviceId, targetAddress);
+  return result.ok
+    ? met(`${lab.device(fromDeviceId).label} reaches ${target} at ${targetAddress}. ${result.detail}`)
+    : unmet(result.detail);
 }
 
 export type SimLabStep = {

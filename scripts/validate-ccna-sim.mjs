@@ -213,6 +213,8 @@ function assertPackMatchesPublishedTopology(pack, outlineNodes) {
 const NEGATIVE_MUTATIONS = [
   { match: "switchport trunk allowed vlan 10,20", replace: "switchport trunk allowed vlan 10", why: "an incomplete trunk allowed list" },
   { match: "ip address 192.168.10.10 255.255.255.192", replace: "ip address 192.168.10.64 255.255.255.192", why: "a host placed outside its own /26 block" },
+  { match: "ip route 10.2.2.0 255.255.255.0 10.0.12.2", replace: "ip route 10.2.2.0 255.255.255.0 10.0.12.9", why: "a static route whose next hop is not an address on the transit /30" },
+  { match: "ip address 192.168.60.1 255.255.255.0", replace: "ip address 192.168.60.5 255.255.255.0", why: "a gateway address the clients' configured default gateway does not match" },
 ];
 
 /** Every graded step of an authored pack, proven from state and never from typing. */

@@ -1,4 +1,4 @@
-import { met, unmet, type LabModel, type SimLabPack, type SimLabStep } from "../../ccna-sim/lab.ts";
+import { met, reachesDevice, unmet, type LabModel, type SimLabPack, type SimLabStep } from "../../ccna-sim/lab.ts";
 import type { SimulationLink, SimulationNode, SimulationPort } from "../../ccna-sim/topology.ts";
 import { ccnaLabs } from "../ccna.ts";
 import { ccnaLabPath } from "../ccna-lab-path.ts";
@@ -103,11 +103,6 @@ function ipv6RoutingCheck(lab: LabModel): ReturnType<typeof met> {
   return met("R1 forwards IPv6 unicast traffic (`ipv6 unicast-routing` is configured).");
 }
 
-const ping = (lab: LabModel, from: string, target: string, note: string) => {
-  const result = lab.ping(from, target);
-  return result.ok ? met(`${note} ${result.detail}`) : unmet(result.detail);
-};
-
 const saveCheck = (lab: LabModel, deviceId: string): ReturnType<typeof met> => {
   const device = lab.device(deviceId);
   if (!device.startupSaved) return unmet(`${device.label} has no saved startup configuration yet.`);
@@ -170,21 +165,21 @@ const steps: SimLabStep[] = [
     instruction: "From PC-A run ping 192.168.10.20 and read the reply: five of five.",
     why: "The check recomputes the path from the cables, the switch ports and both addresses, so an address outside the /26 block fails here with the reason instead of a false success.",
     commands: ["ping 192.168.10.20"],
-    check: (lab) => ping(lab, "pc-a", "192.168.10.20", "PC-A reaches PC-B inside 192.168.10.0/26."),
+    check: (lab) => reachesDevice(lab, "pc-a", "pc-b", "192.168.10.20"),
   },
   {
     id: "ping-gateway", title: "Prove the gateway answers on the LAN", deviceId: "pc-a",
     instruction: "From PC-A run ping 192.168.10.1. This is R1's own interface on the same segment.",
     why: "A gateway that is not in the host's subnet, or an interface that is still shut down, cannot answer; the reply is computed from the interface state.",
     commands: ["ping 192.168.10.1"],
-    check: (lab) => ping(lab, "pc-a", V4_GATEWAY, "PC-A reaches the R1 gateway address on its own segment."),
+    check: (lab) => reachesDevice(lab, "pc-a", "r1", V4_GATEWAY),
   },
   {
     id: "ping-ipv6", title: "Prove the local IPv6 path", deviceId: "pc-a",
     instruction: "From PC-A run ping 2001:db8:10::20.",
     why: "The IPv6 reply comes from the same model: both endpoints must be inside the same /64 on an up switch path.",
     commands: ["ping 2001:db8:10::20"],
-    check: (lab) => ping(lab, "pc-a", "2001:db8:10::20", "PC-A reaches PC-B inside 2001:db8:10::/64."),
+    check: (lab) => reachesDevice(lab, "pc-a", "pc-b", "2001:db8:10::20"),
   },
   {
     id: "save-r1", title: "Save R1's configuration", deviceId: "r1",

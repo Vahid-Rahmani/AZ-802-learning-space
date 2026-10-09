@@ -38,14 +38,15 @@ const CAPABILITIES = [
   { id: "endpoint-config", label: "Endpoint address and gateway configuration", supported: true, evidence: "host consoles set the address, mask and gateway, and ipconfig reports them" },
   { id: "reachability", label: "Reachability proof and interface state", supported: true, evidence: "ping from the model with a stated reason, show interfaces status / show ip interface brief" },
   { id: "persistence", label: "Save and compare startup configuration", supported: true, evidence: "copy running-config startup-config and an exact running/startup comparison" },
-  { id: "static-routing", label: "Static, default and host routes", supported: false, evidence: "the model routes only between directly connected interfaces" },
+  { id: "static-routing", label: "Static, default and host routes", supported: true, evidence: "ip route on a router, read back by show ip route and used by the packet walk's longest-prefix lookup" },
   { id: "dynamic-routing", label: "OSPFv2/OSPFv3, adjacencies, metrics and AD", supported: false, evidence: "no routing protocol engine; a lab that needs one is reported as no-route" },
   { id: "etherchannel", label: "EtherChannel / LACP", supported: false, evidence: "no port-channel model" },
   { id: "spanning-tree", label: "Spanning tree (PVST+) and port roles", supported: false, evidence: "no STP computation" },
   { id: "fhrp", label: "HSRP / VRRP first-hop redundancy", supported: false, evidence: "no virtual gateway address or election model" },
   { id: "ip-services", label: "DHCP, DNS, NTP, syslog, TFTP/FTP", supported: false, evidence: "no service processes" },
   { id: "nat", label: "NAT / PAT", supported: false, evidence: "no address translation model" },
-  { id: "security", label: "ACLs, SSH/Telnet, AAA, passwords", supported: false, evidence: "no ACL matching, line access or authentication model" },
+  { id: "security", label: "SSH management, local users, enable/VTY passwords", supported: true, evidence: "ip domain-name, username ... secret, crypto key generate rsa, line vty with login local and transport input ssh, read back by show ip ssh and by the SSH login the console performs" },
+  { id: "acl", label: "ACL matching and access groups", supported: false, evidence: "no packet filter, so a denial cannot be produced or graded" },
   { id: "port-security", label: "Port security", supported: false, evidence: "no MAC learning or violation model" },
   { id: "wireless", label: "Wireless LAN / WLC GUI", supported: false, evidence: "the device has no IOS console; the lab runs in the vendor GUI" },
   { id: "discovery", label: "CDP / LLDP / VTP / MAC table", supported: false, evidence: "no neighbour discovery or VLAN propagation model" },
@@ -59,7 +60,10 @@ const CAPABILITY_PATTERNS = [
   { id: "automation", pattern: /\brest\b|\bapi\b|\bjson\b|\bansible\b|\bchef\b|\bpuppet\b|\bcontroller\b|\bsdn\b|\bautomation\b/i },
   { id: "wireless", pattern: /wireless|wlan|wpa|wlc|ssid|laptop/i },
   { id: "port-security", pattern: /port security|mac address violation|sticky/i },
-  { id: "security", pattern: /\bacl\b|access control list|ssh|telnet|aaa|password|secret|console port|vty/i },
+  // An access list is its own capability: this engine hardens management but implements no packet
+  // filter, so a lab that asks for a denial is reported with that gap instead of being called graded.
+  { id: "acl", pattern: /\bacl\b|\bacls\b|access control list|access-list|access-list number|ip access-group|standard acl|extended acl|named acl|traffic filter/i },
+  { id: "security", pattern: /\bssh\b|telnet|\baaa\b|password|secret|console port|\bvty\b|login local/i },
   { id: "nat", pattern: /\bnat\b|pat\b|translation/i },
   { id: "ip-services", pattern: /\bdhcp\b|\bdns\b|\bntp\b|syslog|tftp|\bftp\b|\bhttp\b|\bqos\b/i },
   { id: "fhrp", pattern: /hsrp|vrrp|first hop|redundant gateway/i },
@@ -194,7 +198,16 @@ if (writeTable) {
     "",
     "## What a graded lab proves",
     "",
-    ...listAuthoredLabPacks().map((pack) => `- \`${pack.labId}\`: ${(pack.stages ?? []).filter((stage) => !stage.ungraded).length} graded steps, ${(pack.objectives ?? []).length} objectives.`),
+    // Counted from the objectives, which is the same list the table above is built from: a step counts
+    // only when it carries the predicate that grades it, so this line can never claim work a lab does
+    // not prove. It used to read `pack.stages`, a field an authored lab does not have, and printed
+    // "0 graded steps" for labs the table above showed with eleven.
+    ...listAuthoredLabPacks().map((pack) => {
+      const steps = pack.objectives.flatMap((objective) => objective.steps);
+      const graded = steps.filter((step) => step.check).length;
+      const ungraded = steps.length - graded;
+      return `- \`${pack.labId}\`: ${graded} graded step${graded === 1 ? "" : "s"} of ${steps.length}, ${pack.objectives.length} objectives${ungraded ? `; ${ungraded} step${ungraded === 1 ? " is" : "s are"} declared ungraded and never counted` : ""}.`;
+    }),
     "",
   ].join("\n");
   writeFileSync(path.join(projectRoot, "content/ccna-lab-readiness.md"), note);

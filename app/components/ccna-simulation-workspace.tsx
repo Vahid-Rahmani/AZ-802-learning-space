@@ -234,8 +234,31 @@ function hasCompatibleTopology(snapshot: WorkspaceSnapshot, pack: SimulationPack
     return expectedPorts === savedPorts;
   });
   if (!nodesMatch) return false;
-  const expectedLinks = new Set((pack.links ?? []).map((link) => link.id));
-  return snapshot.state.links.every((link) => expectedLinks.has(link.id));
+  // The cables are the learner's as much as the lab's. They may re-plug a published cable or add one
+  // of their own, and neither may cost them the session: the earlier rule demanded that every saved
+  // cable be one the pack publishes, so a reconnected or added cable failed this test and Resume
+  // silently discarded the whole lab. What still has to hold is that every saved cable joins two ports
+  // this topology really has, so a stale graph can never be restored over a newly published one.
+  const portsByNode = new Map(snapshot.state.nodes.map((node) => [node.id, new Set(node.ports.map((port) => port.id))]));
+  return snapshot.state.links.every((link) =>
+    Boolean(portsByNode.get(link.source.deviceId)?.has(link.source.portId))
+    && Boolean(portsByNode.get(link.target.deviceId)?.has(link.target.portId)));
+}
+
+/**
+ * The id a cable keeps from the moment it is plugged in.
+ *
+ * A published cable keeps the id the pack gives it, and a cable the learner adds gets an id derived
+ * from its two endpoints instead of a timestamp. The id travels through saving and restoration, so a
+ * stable one is what lets a reconnected or added cable come back on Resume; a timestamped id changed
+ * on every save and made the two ends of one cable look like different cables across sessions.
+ */
+function linkIdFor(pack: SimulationPack, left: SimulationEndpoint, right: SimulationEndpoint) {
+  const key = (endpoint: SimulationEndpoint) => `${endpoint.deviceId}:${endpoint.portId}`;
+  const published = (pack.links ?? []).find((link) =>
+    (key(link.source) === key(left) && key(link.target) === key(right))
+    || (key(link.source) === key(right) && key(link.target) === key(left)));
+  return published?.id ?? `cable-${[key(left), key(right)].sort().join("--")}`;
 }
 
 const simModeLabels: Record<SimMode, string> = {
@@ -706,7 +729,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
       setNotice({ kind: "info", text: "Port selection cleared." });
       return;
     }
-    const result = connectSimulationPorts(state, selectedPort, endpoint);
+    const result = connectSimulationPorts(state, selectedPort, endpoint, linkIdFor(pack, selectedPort, endpoint));
     if (!result.ok) {
       setNotice({ kind: "error", text: result.reason });
       return;
@@ -1047,7 +1070,10 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
             })}
           </ol>
           </details>
-          {!activeStage && <p className="ccna-simulation-guide-complete">100% · All guided stages are verified. You completed this lab path. You can keep experimenting with your devices.</p>}
+          {/* A lab whose engine cannot prove part of itself may not read as fully complete: the ungraded
+              stages are named here with the count, so 100% of the graded work is never mistaken for the
+              whole lab, and the steps list above carries each limitation in its own words. */}
+          {!activeStage && <p className="ccna-simulation-guide-complete">100% · All {requiredCount} graded step{requiredCount === 1 ? "" : "s"} are verified. You can keep experimenting with your devices.{guidedStages.length > requiredCount ? ` ${guidedStages.length - requiredCount} further step${guidedStages.length - requiredCount === 1 ? " is" : "s are"} listed as not evaluated here: this practice model does not implement what ${guidedStages.length - requiredCount === 1 ? "it asks" : "they ask"} for, so ${guidedStages.length - requiredCount === 1 ? "it is" : "they are"} never counted towards this total.` : ""}</p>}
         </section>}
       </aside>
 

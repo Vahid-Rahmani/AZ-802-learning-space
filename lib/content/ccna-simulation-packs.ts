@@ -59,10 +59,60 @@ const ethernetPort = (id: string, label: string): SimulationPort => ({ id, label
  * Reference diagrams are not always simple three-node starter graphs.  Keep
  * explicit mappings for diagrams whose published device map is important to
  * the lesson; the UI and simulator then consume the same device/link data.
- * The first mapping is the ten-device Explore Cisco Devices topology shown in
- * the lab catalogue.
+ * The mappings below are the hands-on labs whose own topology outline names
+ * their devices, ports and cables, plus the ten-device Explore Cisco Devices
+ * topology shown in the lab catalogue.
+ *
+ * A lab that has neither an authored objective pack nor a mapping here keeps
+ * the starter graph, which is a placeholder: its devices and cables are not the
+ * lab's own, and its page says that nothing is graded yet.
  */
 const catalogTopologyOverrides: Record<string, TopologyOverride> = {
+  /**
+   * The two hands-on labs that do not have an authored objective pack yet still publish a device map
+   * of their own, so they get their own devices and cables instead of the starter graph. Their
+   * canvases then match the picture the lab shows even though nothing on the page is graded yet: a
+   * switched LAN for those labs cannot honestly be drawn as PC-A cabled straight to PC-B.
+   *
+   * `ccna-etherchannel` — "PC-A → SW1 F0/1", "SW1 ↔ SW2" (F0/23↔F0/23 + F0/24↔F0/24 · Po1) and
+   * "SW2 F0/1 → PC-B", all in VLAN 30.
+   */
+  "ccna-etherchannel": {
+    devices: [
+      { id: "pc-a", label: "PC-A", kind: "pc", x: 140, y: 120, subtitle: "192.168.30.10/24 · VLAN 30", ports: [ethernetPort("gi0-0", "Gi0/0")], status: "healthy" },
+      { id: "pc-b", label: "PC-B", kind: "pc", x: 620, y: 120, subtitle: "192.168.30.20/24 · VLAN 30", ports: [ethernetPort("gi0-0", "Gi0/0")], status: "healthy" },
+      { id: "sw1", label: "SW1", kind: "switch", x: 230, y: 330, subtitle: "2960 · F0/1 access VLAN 30", ports: [ethernetPort("fa0-1", "Fa0/1"), ethernetPort("fa0-23", "Fa0/23"), ethernetPort("fa0-24", "Fa0/24")], status: "healthy" },
+      { id: "sw2", label: "SW2", kind: "switch", x: 540, y: 330, subtitle: "2960 · F0/1 access VLAN 30", ports: [ethernetPort("fa0-1", "Fa0/1"), ethernetPort("fa0-23", "Fa0/23"), ethernetPort("fa0-24", "Fa0/24")], status: "healthy" },
+    ],
+    links: [
+      { id: "ccna-etherchannel-link-1", source: { deviceId: "pc-a", portId: "gi0-0" }, target: { deviceId: "sw1", portId: "fa0-1" }, status: "up", label: "PC-A → SW1 F0/1" },
+      { id: "ccna-etherchannel-link-2", source: { deviceId: "sw1", portId: "fa0-23" }, target: { deviceId: "sw2", portId: "fa0-23" }, status: "up", label: "Po1 member 1" },
+      { id: "ccna-etherchannel-link-3", source: { deviceId: "sw1", portId: "fa0-24" }, target: { deviceId: "sw2", portId: "fa0-24" }, status: "up", label: "Po1 member 2" },
+      { id: "ccna-etherchannel-link-4", source: { deviceId: "sw2", portId: "fa0-1" }, target: { deviceId: "pc-b", portId: "gi0-0" }, status: "up", label: "SW2 F0/1 → PC-B" },
+    ],
+  },
+  /**
+   * `ccna-services` — "PC-A + inside server → SW1", "R1 G0/0 ↔ G0/1" (inside .50.1/24, outside
+   * 198.51.100.1/24) and "SW2 → outside PC", with the inside server at 192.168.50.20 and the outside
+   * client at 198.51.100.10. Both switches are the ones the outline's note names.
+   */
+  "ccna-services": {
+    devices: [
+      { id: "pc-a", label: "PC-A", kind: "pc", x: 120, y: 120, subtitle: "DHCP client · 192.168.50.0/24", ports: [ethernetPort("gi0-0", "Gi0/0")], status: "healthy" },
+      { id: "server", label: "Server", kind: "server", x: 330, y: 120, subtitle: "inside server · 192.168.50.20/24", ports: [ethernetPort("gi0-0", "Gi0/0")], status: "healthy" },
+      { id: "sw1", label: "SW1", kind: "switch", x: 230, y: 300, subtitle: "inside LAN switch", ports: [ethernetPort("fa0-1", "Fa0/1"), ethernetPort("fa0-2", "Fa0/2"), ethernetPort("fa0-24", "Fa0/24")], status: "healthy" },
+      { id: "r1", label: "R1", kind: "router", x: 380, y: 450, subtitle: "2911 · inside .50.1/24 · outside 198.51.100.1/24", ports: [ethernetPort("gi0-0", "Gi0/0"), ethernetPort("gi0-1", "Gi0/1")], status: "healthy" },
+      { id: "sw2", label: "SW2", kind: "switch", x: 540, y: 600, subtitle: "outside LAN switch", ports: [ethernetPort("fa0-1", "Fa0/1"), ethernetPort("fa0-24", "Fa0/24")], status: "healthy" },
+      { id: "pc-b", label: "PC-B", kind: "pc", x: 620, y: 740, subtitle: "outside client · 198.51.100.10/24", ports: [ethernetPort("gi0-0", "Gi0/0")], status: "healthy" },
+    ],
+    links: [
+      { id: "ccna-services-link-1", source: { deviceId: "pc-a", portId: "gi0-0" }, target: { deviceId: "sw1", portId: "fa0-1" }, status: "up", label: "PC-A → SW1" },
+      { id: "ccna-services-link-2", source: { deviceId: "server", portId: "gi0-0" }, target: { deviceId: "sw1", portId: "fa0-2" }, status: "up", label: "inside server → SW1" },
+      { id: "ccna-services-link-3", source: { deviceId: "sw1", portId: "fa0-24" }, target: { deviceId: "r1", portId: "gi0-0" }, status: "up", label: "SW1 F0/24 ↔ R1 G0/0" },
+      { id: "ccna-services-link-4", source: { deviceId: "r1", portId: "gi0-1" }, target: { deviceId: "sw2", portId: "fa0-24" }, status: "up", label: "R1 G0/1 ↔ SW2 F0/24" },
+      { id: "ccna-services-link-5", source: { deviceId: "sw2", portId: "fa0-1" }, target: { deviceId: "pc-b", portId: "gi0-0" }, status: "up", label: "SW2 → outside PC" },
+    ],
+  },
   "ccna-topology-001": {
     devices: [
       {

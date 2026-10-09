@@ -1,5 +1,5 @@
 import { configBodyLines } from "../../ccna-sim/device.ts";
-import { met, unmet, type LabModel, type SimLabPack } from "../../ccna-sim/lab.ts";
+import { met, reachesDevice, unmet, type LabModel, type SimLabPack } from "../../ccna-sim/lab.ts";
 import type { SimulationLink, SimulationNode, SimulationPort } from "../../ccna-sim/topology.ts";
 import { ccnaLabPath, type CcnaLabEntry } from "../ccna-lab-path.ts";
 
@@ -239,9 +239,8 @@ export function createCcnaVlansPack(): SimLabPack {
           why: "The ping is computed from the live model — VLANs, access ports, the trunk allowed list, the subinterfaces and both gateways — so it fails with the reason whenever any one of them is wrong.",
           commands: ["ping 192.168.20.10"],
           check: (lab) => {
-            const result = lab.ping("pc-a", "192.168.20.10");
-            if (!result.ok && !lab.device("pc-a").port("Gi0/0").address) return unmet("PC-A has no address yet, so there is nothing to source a ping from.");
-            return result;
+            if (!lab.device("pc-a").port("Gi0/0").address) return unmet("PC-A has no address yet, so there is nothing to source a ping from.");
+            return reachesDevice(lab, "pc-a", "pc-b", "192.168.20.10");
           },
         },
         {
