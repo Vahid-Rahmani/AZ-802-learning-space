@@ -8,6 +8,7 @@ import "./ccna-sim.css";
 import "./ccna/simulator.css";
 import "./ccna-lab-detail.css";
 import "./switchlab-theme.css";
+import "./simple-learning.css";
 import { AppearanceProvider } from "@/app/components/appearance-provider";
 export const metadata: Metadata = { title: "Klybit · Learn. Practice. Progress.", description: "Klybit learning paths for Windows Server AZ-802, Azure Fundamentals AZ-900, Docker and Cisco CCNA. Lessons, practice questions, hands-on labs, and spaced review.", icons: { icon: "/favicon.svg" } };
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

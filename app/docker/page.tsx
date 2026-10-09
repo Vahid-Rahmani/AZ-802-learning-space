@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useState, type CSSProperties } from "react";
-import { BookOpen, Container } from "lucide-react";
 import { AccountPanel, AuthPanel } from "@/app/components/learning-views";
 import { AppBrand, StudyHeader } from "@/app/components/study-header";
 import { GoogleSubtitle, GoogleSubtitleProvider } from "@/app/components/google-translate";
 import { LearningLabPath } from "@/app/components/windows-server-labs";
 import { dockerLabs } from "@/lib/content/docker";
+import { LearningStart, PracticeHub, SimpleNavigation } from "@/app/components/simple-learning";
 import { copy } from "@/lib/course-data";
 
 export default function DockerPage() {
+  const [view, setView] = useState<"home" | "learning" | "practice" | "exams" | "questions" | "labs">("home");
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [authOpen, setAuthOpen] = useState(false);
@@ -46,14 +47,15 @@ export default function DockerPage() {
     <div className="app-shell mx-auto grid min-h-screen max-w-[1600px] grid-cols-1 lg:grid-cols-[250px_minmax(0,1fr)]">
       <aside className="app-sidebar border-b border-white/10 p-3 sm:p-4 lg:border-b-0 lg:border-e">
         <AppBrand subtitle="Cloud, servers & containers" />
-        <nav className="mt-8 space-y-2" aria-label="Docker navigation"><a href="#docker-learning-path" className="flex min-h-12 items-center gap-3 rounded-xl border border-cyan-300/20 bg-cyan-300/10 p-3 text-cyan-200"><Container size={19} /><span>Docker learning path</span></a></nav>
-        <div className="sidebar-course-card mt-8 rounded-2xl border border-white/10 p-4"><p className="text-sm text-slate-400">Current track</p><h2 className="mt-2 font-bold">Docker Foundations</h2><p className="mt-2 text-sm text-slate-400">6 stages · 24 learning questions</p><a href="https://docs.docker.com/get-started/" target="_blank" rel="noreferrer" className="mt-5 flex items-center gap-2 text-sm text-cyan-200"><BookOpen size={16} />Official Docker documentation</a></div>
-      </aside>
+        <SimpleNavigation items={[{ key: "home", label: "Home" }, { key: "learning", label: "Learning" }, { key: "practice", label: "Practice" }, { key: "exams", label: "Check knowledge" }]} active={view === "questions" || view === "labs" ? "practice" : view} onNavigate={key => setView(key as typeof view)} /></aside>
       <section className="app-content min-w-0 p-4 sm:p-6 lg:p-8">
-        <StudyHeader title="Docker Foundations" course="Docker" t={copy.en} fontScale={fontScale} onFontScale={setFontScale} translationLanguage={language} onTranslationLanguage={setLanguage} onAccount={() => setAuthOpen(true)} />
-        <section id="docker-learning-path" aria-label="Docker lessons, practical labs and knowledge checks">
-          <LearningLabPath key={userId} userId={userId} labs={dockerLabs} resumeLatest kicker="Docker · Linux containers" title="Learn Docker by building" intro="Study each lesson, run its scoped lab, verify the expected results and answer the knowledge check. Your checklist, answers and evidence save to your account." />
-        </section>
+        <StudyHeader title={view === "home" ? "Docker" : view === "learning" ? "Learning" : view === "exams" || view === "questions" ? "Check knowledge" : "Practice"} course="Docker" t={copy.en} fontScale={fontScale} onFontScale={setFontScale} translationLanguage={language} onTranslationLanguage={setLanguage} onAccount={() => setAuthOpen(true)} />
+        {view === "home" && <LearningStart title="Learn Docker step by step" lesson="Prepare Docker, then run your first container." onStart={() => setView("learning")} />}
+        {view === "practice" && <PracticeHub onQuestions={() => setView("questions")} onLabs={() => setView("labs")} />}
+        {(view === "questions" || view === "labs") && <button className="simple-back" type="button" onClick={() => setView("practice")}>← Practice choices</button>}
+        {view !== "home" && view !== "practice" && <section id="docker-learning-path" aria-label="Docker lessons, practical labs and knowledge checks">
+          <LearningLabPath key={`${userId}:${view}`} userId={userId} labs={dockerLabs} resumeLatest initialTab={view === "exams" || view === "questions" ? "quiz" : view === "labs" ? "test" : undefined} kicker="Docker" title={view === "exams" || view === "questions" ? "Check what you learned" : "Learn by doing"} intro={view === "exams" ? "These short knowledge checks are not a timed certification exam." : "Choose a lesson or lab below. Follow the steps on your own Docker engine."} />
+        </section>}
         <p className="mt-5 text-sm"><GoogleSubtitle text="Original learning exercises based on Docker documentation. This is not an official certification exam. Container execution happens on your own machine, not in this website." /></p>
       </section>
     </div>{authOpen && <AccountPanel onClose={() => setAuthOpen(false)} onSignOut={signOut} />}

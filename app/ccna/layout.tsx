@@ -2,14 +2,13 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { BookOpen, ClipboardCheck, FlaskConical, Layers, Network, Search, Terminal } from "lucide-react";
+import { BookOpen, ClipboardCheck, Layers, Network } from "lucide-react";
 import { AccountPanel, AuthPanel } from "@/app/components/learning-views";
 import { AppBrand, StudyHeader } from "@/app/components/study-header";
-import { GoogleSubtitle, GoogleSubtitleProvider } from "@/app/components/google-translate";
-import { ccnaQuestionCount } from "@/lib/content/ccna-bank";
-import { ccnaLabs, ccnaSources } from "@/lib/content/ccna";
-import { ccnaLabPath, ccnaLabPathStats } from "@/lib/content/ccna-lab-path";
+import { GoogleSubtitleProvider } from "@/app/components/google-translate";
+import { ccnaLabPath } from "@/lib/content/ccna-lab-path";
 import { getCcnaSimulationPack } from "@/lib/content/ccna-simulation-packs";
+import { SimpleNavigation } from "@/app/components/simple-learning";
 import { copy } from "@/lib/course-data";
 import "./dashboard.css";
 
@@ -17,13 +16,10 @@ import "./dashboard.css";
  * and the leveled library of every lab this site publishes. Each page owns its own heading, so no
  * page has to scroll past another page's content to reach its own. */
 const routes = [
-  { href: "/ccna", label: "Overview & domains", icon: Layers },
-  { href: "/ccna/practice", label: "Question practice & Explain", icon: BookOpen },
-  { href: "/ccna/exams", label: "Exam center", icon: ClipboardCheck },
-  { href: "/ccna/library", label: `Lab library · ${ccnaLabPathStats.total} labs`, icon: Network },
-  { href: "/ccna/sim", label: "Topology simulator", icon: Terminal },
-  { href: "/ccna/search", label: "Search questions", icon: Search },
-  { href: "/ccna/build", label: "Guided build stages", icon: FlaskConical },
+  { key: "home", href: "/ccna", label: "Home", icon: Layers },
+  { key: "learning", href: "/ccna/build", label: "Learning", icon: BookOpen },
+  { key: "practice", href: "/ccna/train", label: "Practice", icon: Network },
+  { key: "exams", href: "/ccna/exams", label: "Exams", icon: ClipboardCheck },
 ] as const;
 
 type Shell = {
@@ -52,6 +48,7 @@ export default function CcnaLayout({ children }: { children: ReactNode }) {
     : null;
   const pageTitle = simulatorLab
     ? getCcnaSimulationPack(simulatorLab.id)?.title ?? simulatorLab.title
+    : pathname.startsWith("/ccna/train") ? "Practice"
     : pathname.startsWith("/ccna/practice")
       ? "Question practice & Explain"
       : pathname.startsWith("/ccna/exams")
@@ -98,21 +95,11 @@ export default function CcnaLayout({ children }: { children: ReactNode }) {
   const shell = useMemo<Shell | null>(() => (userId ? { userId, fontScale, language, setFontScale, setLanguage, openAccount: () => setAuthOpen(true) } : null), [userId, fontScale, language]);
   if (loading) return <main className="study-app min-h-screen"><p className="p-8" role="status">Loading your learning account…</p></main>;
   if (!userId || !shell) return <main className="study-app min-h-screen"><div className="auth-required"><AuthPanel onClose={() => undefined} onAuthenticated={setUserId} /></div></main>;
-  const active = (href: string) => {
-    if (href === "/ccna") return pathname === "/ccna";
-    if (href === "/ccna/library") return pathname === href || pathname.startsWith("/ccna/bands/");
-    return pathname === href || pathname.startsWith(`${href}/`);
-  };
-  /** Same hard navigation the course switcher uses: the client-side router swallows anchor clicks
-   * in this runtime, so a sidebar link must not depend on it. */
-  const go = (href: string) => (event: { preventDefault: () => void }) => { event.preventDefault(); window.location.href = href; };
   return <GoogleSubtitleProvider language={language}><main className="study-app ccna-shell font-scale-content min-h-screen text-[#e8edf5]" data-simulator={pathname === "/ccna/sim" ? "true" : undefined} style={{ "--wincraft-font-scale": fontScale } as CSSProperties}>
     <div className="app-shell mx-auto grid min-h-screen max-w-[1600px] grid-cols-1 lg:grid-cols-[250px_minmax(0,1fr)]">
       <aside className="app-sidebar border-b border-white/10 p-3 sm:p-4 lg:border-b-0 lg:border-e">
         <AppBrand subtitle="Cloud, servers & networking" />
-        <nav className="mt-8 space-y-2" aria-label="CCNA navigation">{routes.map((route) => { const Icon = route.icon; const current = active(route.href); return <a key={route.href} href={route.href} onClick={go(route.href)} aria-current={current ? "page" : undefined} className={current ? "flex min-h-12 items-center gap-3 rounded-xl border border-cyan-300/20 bg-cyan-300/10 p-3 text-cyan-200" : "flex min-h-12 items-center gap-3 p-3"}><Icon size={19} /><GoogleSubtitle text={route.label} /></a>; })}</nav>
-        <div className="sidebar-course-card mt-8 rounded-2xl border border-white/10 p-4"><p className="text-sm text-slate-400"><GoogleSubtitle text="Current track" /></p><h2 className="mt-2 font-bold">CCNA Foundations</h2><p className="mt-2 text-sm text-slate-400"><GoogleSubtitle text={`${ccnaLabPathStats.total} labs in ${ccnaLabPathStats.bands} bands · ${ccnaQuestionCount + ccnaLabs.reduce((count, lab) => count + lab.questions.length, 0)} learning questions · ${ccnaLabPathStats.withDiagram} topology diagrams`} /></p><a href={ccnaSources.packetTracer} target="_blank" rel="noreferrer" className="mt-5 flex items-center gap-2 text-sm text-cyan-200"><BookOpen size={16} /><GoogleSubtitle text="Official Packet Tracer course" /></a></div>
-      </aside>
+        <SimpleNavigation items={routes.map(route => ({ ...route, icon: <route.icon size={19} /> }))} active={pathname === "/ccna" ? "home" : pathname.startsWith("/ccna/build") ? "learning" : pathname.startsWith("/ccna/exams") ? "exams" : "practice"} /></aside>
       <section className="app-content min-w-0 p-4 sm:p-6 lg:p-8">
         <StudyHeader title={pageTitle} course="CCNA" t={copy.en} fontScale={fontScale} onFontScale={setFontScale} translationLanguage={language} onTranslationLanguage={setLanguage} onAccount={() => setAuthOpen(true)} />
         <ShellContext.Provider value={shell}>{children}</ShellContext.Provider>

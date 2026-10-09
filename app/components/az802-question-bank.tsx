@@ -32,6 +32,7 @@ export function Az802QuestionBank({
   const [topic, setTopic] = useState("all");
   const [difficulty, setDifficulty] = useState("all");
   const [status, setStatus] = useState("all");
+  const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
   const [attempts, setAttempts] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(false);
@@ -86,6 +87,11 @@ export function Az802QuestionBank({
     });
   }, [domainQuestions, topic, difficulty, status, attempts, query]);
 
+  const pageSize = 10;
+  const pageCount = Math.max(1, Math.ceil(visible.length / pageSize));
+  const currentPage = Math.min(page, pageCount);
+  const pageQuestions = visible.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   // min-w-0 lets the control shrink inside the wrapping filter row on a phone;
   // without it a long option label forces the whole page to scroll sideways.
   const selectClass = "w-full min-w-0 max-w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white outline-none focus:border-cyan-300";
@@ -94,9 +100,9 @@ export function Az802QuestionBank({
   return <section className="mx-auto max-w-6xl space-y-5" aria-label="AZ-802 question bank">
     <div className="rounded-3xl border border-cyan-300/20 bg-gradient-to-br from-[#173147] to-[#111a28] p-6 sm:p-8">
       <p className="text-xs font-bold uppercase tracking-[.14em] text-cyan-200">AZ-802 · question bank</p>
-      <h2 className="mt-2 text-2xl font-bold">Domain → topic → question</h2>
+      <h2 className="mt-2 text-2xl font-bold">Choose a topic and practise</h2>
       <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">
-        Every question stays in its official domain. Pick a domain, narrow it by topic, difficulty, or how you answered it, then open the exact question in practice with its full Explain.
+        Choose a domain below. Open a question to answer it and see the explanation.
       </p>
       <p className="mt-3 text-xs text-slate-400">
         {questions.length} questions in the bank · {domainQuestions.length} in this domain · {answeredCount} answered by your account
@@ -112,7 +118,7 @@ export function Az802QuestionBank({
           key={item.id}
           type="button"
           aria-current={isActive ? "true" : undefined}
-          onClick={() => { setStageId(item.id); setTopic("all"); }}
+          onClick={() => { setStageId(item.id); setTopic("all"); setPage(1); }}
           className={`rounded-2xl border p-4 text-start transition ${isActive ? "border-cyan-300/70 bg-cyan-300/10" : "border-white/10 bg-[#111a28] hover:border-cyan-300/40"}`}
         >
           <span className="flex items-center justify-between gap-2">
@@ -125,17 +131,17 @@ export function Az802QuestionBank({
     </nav>
 
     <div className="rounded-3xl border border-white/10 bg-[#111a28] p-5 sm:p-6">
-      <div className="flex flex-wrap items-end gap-3">
+      <details className="simple-details"><summary>Search and filters</summary><div className="flex flex-wrap items-end gap-3 mt-4">
         <label className={filterLabelClass}>
           <span>Topic</span>
-          <select className={selectClass} value={topic} onChange={(event) => setTopic(event.target.value)} aria-label="Filter by topic">
+          <select className={selectClass} value={topic} onChange={(event) => { setTopic(event.target.value); setPage(1); }} aria-label="Filter by topic">
             <option value="all">All topics ({domainQuestions.length})</option>
             {topicCounts.map(([name, count]) => <option key={name} value={name}>{name} ({count})</option>)}
           </select>
         </label>
         <label className={filterLabelClass}>
           <span>Difficulty</span>
-          <select className={selectClass} value={difficulty} onChange={(event) => setDifficulty(event.target.value)} aria-label="Filter by difficulty">
+          <select className={selectClass} value={difficulty} onChange={(event) => { setDifficulty(event.target.value); setPage(1); }} aria-label="Filter by difficulty">
             <option value="all">Any difficulty</option>
             <option value="easy">Easy</option>
             <option value="medium">Medium</option>
@@ -145,7 +151,7 @@ export function Az802QuestionBank({
         </label>
         <label className={filterLabelClass}>
           <span>Your status</span>
-          <select className={selectClass} value={status} onChange={(event) => setStatus(event.target.value)} aria-label="Filter by answer status">
+          <select className={selectClass} value={status} onChange={(event) => { setStatus(event.target.value); setPage(1); }} aria-label="Filter by answer status">
             <option value="all">All questions</option>
             <option value="answered">Answered</option>
             <option value="unanswered">Not answered yet</option>
@@ -160,28 +166,27 @@ export function Az802QuestionBank({
               type="search"
               dir="auto"
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(event) => { setQuery(event.target.value); setPage(1); }}
               placeholder="FSMO, RODC, quorum…"
               className="w-full rounded-xl border border-white/10 bg-black/20 py-2 pl-9 pr-3 text-sm text-white outline-none focus:border-cyan-300"
             />
           </span>
         </label>
-      </div>
+      </div></details>
 
       <p className="mt-4 text-xs text-slate-400" role="status">
-        {visible.length} of {domainQuestions.length} questions shown
+        {visible.length} matching questions · showing {visible.length ? (currentPage - 1) * pageSize + 1 : 0}–{Math.min(currentPage * pageSize, visible.length)}
         {topic !== "all" ? ` · topic: ${topic}` : ""}
         {difficulty !== "all" ? ` · difficulty: ${difficultyLabels[difficulty] ?? difficulty}` : ""}
         {status !== "all" ? ` · status: ${status}` : ""}
       </p>
 
       <ol className="mt-4 grid gap-3">
-        {visible.map((question: BankQuestion) => {
+        {pageQuestions.map((question: BankQuestion) => {
           const answered = Object.prototype.hasOwnProperty.call(attempts, question.id);
           const correct = attempts[question.id];
           return <li key={question.id} className="rounded-2xl border border-white/10 bg-black/15 p-4">
             <div className="flex flex-wrap items-center gap-2 text-xs">
-              <span className="font-mono text-cyan-200">{question.id}</span>
               <span className="rounded-full border border-white/10 px-2 py-0.5 text-slate-300">{question.topic?.trim() || GENERAL_TOPIC}</span>
               <span className={`rounded-full border px-2 py-0.5 ${question.difficulty ? "border-cyan-300/25 text-cyan-100" : "border-white/10 text-slate-400"}`}>
                 {difficultyLabels[question.difficulty ?? UNRATED] ?? question.difficulty}
@@ -192,7 +197,7 @@ export function Az802QuestionBank({
               {!answered && <span className="rounded-full border border-white/10 px-2 py-0.5 text-slate-400">Not answered yet</span>}
             </div>
             <p className="mt-3 text-sm font-semibold leading-7"><GoogleSubtitle text={question.text} enabled={showTranslations} /></p>
-            {question.objective && <p className="mt-2 text-xs leading-6 text-slate-400"><GoogleSubtitle text={question.objective} enabled={showTranslations} /></p>}
+            {question.objective && <details className="mt-2"><summary className="cursor-pointer text-xs text-slate-400">Learning objective</summary><p className="mt-2 text-xs leading-6 text-slate-400"><GoogleSubtitle text={question.objective} enabled={showTranslations} /></p></details>}
             <button
               type="button"
               onClick={() => onPracticeQuestion(question.id)}
@@ -203,6 +208,7 @@ export function Az802QuestionBank({
           </li>;
         })}
       </ol>
+      {visible.length > pageSize && <nav className="simple-tools" aria-label="Question pages"><button type="button" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>Previous</button><span role="status">Page {currentPage} of {pageCount}</span><button type="button" disabled={currentPage === pageCount} onClick={() => setPage(currentPage + 1)}>Next</button></nav>}
 
       {visible.length === 0 && <p className="mt-6 rounded-2xl border border-amber-300/25 bg-amber-300/5 p-4 text-sm text-amber-100" role="status">
         No question in this domain matches the current filters. Clear a filter to see the rest of the domain.

@@ -2,9 +2,10 @@
 /* eslint-disable react-hooks/set-state-in-effect -- authenticated, account-scoped progress is restored from browser storage after identity is known */
 
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
-import { BookOpen, Cloud, FlaskConical, LayoutDashboard, Layers, ListChecks, Library, Network, Search } from "lucide-react";
+import { BookOpen, FlaskConical, LayoutDashboard, Layers, ListChecks, Library, Network, Search } from "lucide-react";
 import { AccountPanel, AuthPanel } from "@/app/components/learning-views";
 import { AppBrand, StudyHeader } from "@/app/components/study-header";
+import { LearningStart, PracticeHub, SimpleNavigation } from "@/app/components/simple-learning";
 import { MobileNavigation } from "@/app/components/mobile-navigation";
 import { GoogleSubtitle, GoogleSubtitleProvider } from "@/app/components/google-translate";
 import { KnowledgeSearch } from "@/app/components/knowledge-search";
@@ -14,11 +15,9 @@ import {
   az900Course,
   az900DomainDefinitions,
   az900DomainWeights,
-  az900Domains,
   az900Labs,
   az900Lessons,
   az900ObjectiveById,
-  az900ObjectiveCount,
   az900Questions,
   az900QuestionsByDomain,
   az900QuestionsByGroup,
@@ -27,7 +26,7 @@ import {
   type Az900Question,
 } from "@/lib/content/az900";
 
-type View = "home" | "lessons" | "bank" | "graph" | "search" | "exams" | "labs" | "cards";
+type View = "practice" | "home" | "lessons" | "bank" | "graph" | "search" | "exams" | "labs" | "cards";
 type ExamMode = "practice" | "quick" | "stage" | "mixed" | "full";
 type ActiveQuestion = Az900Question & { optionOrder: number[] };
 type StoredState = {
@@ -91,8 +90,6 @@ function selectForMode(mode: Exclude<ExamMode, "practice">, stageId: string, see
 
 function ProgressBar({ value }: { value: number }) { return <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/5"><div className="h-full rounded-full bg-cyan-300" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} /></div>; }
 function domainLabel(domainId: string) { return az900DomainDefinitions.find((domain) => domain.id === domainId)?.title ?? domainId; }
-function domainWeightLabel(domainId: string) { const domain = az900DomainDefinitions.find((item) => item.id === domainId); return domain ? `${domain.weightMin}\u2013${domain.weightMax}%` : ""; }
-function shortObjective(id: string) { const objective = az900ObjectiveById(id); return objective ? objective.text.replace(/^Describe /, "").replace(/^Define /, "") : id; }
 
 export default function Az900Page() {
   const [userId, setUserId] = useState<string | null>(null);
@@ -157,7 +154,6 @@ export default function Az900Page() {
   }, [userId, hydrated, view, selectedStageId, selectedObjectiveId, fontScale, translationLanguage, attemptedIds, correctIds, cardIds, quizQuestions, quizFinished, quizMode, quizAnswers, quizIndex, quizExpiresAt, quizSessionId]);
 
   const stageProgress = useMemo(() => Object.fromEntries(az900Stages.map((stage) => { const answered = stage.questionIds.filter((id) => attemptedIds.includes(id)).length; return [stage.id, stage.questionIds.length ? Math.round((answered / stage.questionIds.length) * 100) : 0]; })), [attemptedIds]);
-  const overallProgress = Math.round((attemptedIds.length / az900Questions.length) * 100);
   const correctRate = attemptedIds.length ? Math.round((correctIds.length / attemptedIds.length) * 100) : 0;
   const selectedStage = az900Stages.find((stage) => stage.id === selectedStageId) ?? az900Stages[0];
 
@@ -194,8 +190,9 @@ export default function Az900Page() {
   if (!userId) return <main className="study-app min-h-screen bg-black text-white"><div className="auth-required"><AuthPanel onClose={() => undefined} onAuthenticated={setUserId} /></div></main>;
 
   const navigation = [
-    { key: "home" as const, label: "Dashboard", icon: <LayoutDashboard size={19} /> },
-    { key: "lessons" as const, label: "Lessons", icon: <BookOpen size={19} /> },
+    { key: "home" as const, label: "Home", icon: <LayoutDashboard size={19} /> },
+    { key: "lessons" as const, label: "Learning", icon: <BookOpen size={19} /> },
+    { key: "practice" as const, label: "Practice", icon: <FlaskConical size={19} /> },
     { key: "bank" as const, label: "Question bank", icon: <Library size={19} /> },
     { key: "graph" as const, label: "Skill graph", icon: <Network size={19} /> },
     { key: "search" as const, label: "Search", icon: <Search size={19} /> },
@@ -204,19 +201,19 @@ export default function Az900Page() {
     { key: "cards" as const, label: "Leitner", icon: <Layers size={19} /> },
   ];
 
+  const sectionView: View = ["bank", "labs", "cards", "search"].includes(view) || (view === "exams" && quizMode === "practice" && quizQuestions.length > 0) ? "practice" : view === "graph" ? "lessons" : view;
+  const primaryNavigation = navigation.filter(item => ["home", "lessons", "practice", "exams"].includes(item.key));
   return <GoogleSubtitleProvider language={translationLanguage}><main className="study-app font-scale-content min-h-screen text-[#e8edf5]" style={{ "--wincraft-font-scale": fontScale } as CSSProperties}>
     <div className="app-shell mx-auto grid min-h-screen max-w-[1600px] grid-cols-1 lg:grid-cols-[250px_minmax(0,1fr)]">
       <aside className="app-sidebar border-b border-white/10 p-3 sm:p-4 lg:border-b-0 lg:border-e">
         <AppBrand subtitle="Azure & Windows Server learning" />
-        <nav aria-label="AZ-900 navigation" className="mt-4 hidden gap-1 lg:grid">{navigation.map((item) => <button type="button" key={item.key} aria-current={view === item.key ? "page" : undefined} onClick={() => setView(item.key)} className={`flex items-center gap-3 rounded-xl border px-3 py-3 text-start text-sm transition ${view === item.key ? "border-cyan-300/50 bg-cyan-300/10 text-cyan-100" : item.key === "search" ? "border-cyan-300/30 bg-cyan-300/5 font-semibold text-cyan-100 shadow-sm shadow-cyan-300/5" : "border-transparent text-slate-400 hover:bg-white/5 hover:text-white"}`}>{item.icon}<span>{item.label}</span>{item.key === "search" && <span className="ms-auto rounded-full bg-cyan-300/15 px-2 py-0.5 text-[10px] font-bold uppercase text-cyan-200">Find</span>}</button>)}</nav>
-        <div className="mt-6 hidden rounded-2xl border border-cyan-300/20 bg-cyan-300/5 p-4 lg:block"><p className="text-xs font-bold uppercase tracking-[.14em] text-cyan-300">AZ-900</p><p className="mt-2 font-semibold">Azure Fundamentals</p><p className="mt-2 text-xs leading-5 text-slate-400">{az900Course.sourceVersion}</p><ProgressBar value={overallProgress} /></div>
-      </aside>
+        <SimpleNavigation items={primaryNavigation} active={sectionView} onNavigate={key => setView(key as View)} /></aside>
       <section className="study-content min-w-0 px-3 pb-44 pt-3 sm:p-7 lg:p-9">
         <StudyHeader title={navigation.find((item) => item.key === view)?.label ?? "Dashboard"} course="AZ-900" t={t} fontScale={fontScale} onFontScale={setFontScale} translationLanguage={translationLanguage} onTranslationLanguage={setTranslationLanguage} onAccount={() => setAuthOpen(true)} />
-        <div className="study-context mt-5"><button type="button" onClick={() => setView("home")} className="text-cyan-100">CertPath</button><span>/</span><strong>AZ-900</strong><span className="ml-auto">{az900Questions.length} reviewed questions · {az900ObjectiveCount} objectives · {az900Stages.length} groups</span></div>
-
-        {view === "home" && <Az900Dashboard progress={overallProgress} correctRate={correctRate} attempted={attemptedIds.length} stageProgress={stageProgress} onOpen={setView} onExam={startQuiz} />}
-        {view === "lessons" && <Az900Lessons selectedStageId={selectedStageId} onSelect={setSelectedStageId} stageProgress={stageProgress} onPractice={() => startQuiz("practice")} />}
+        {view === "home" && <LearningStart title="Learn Azure step by step" lesson={(az900Lessons.find(item => item.stageId === selectedStageId) ?? az900Lessons[0]).title} progress={`${attemptedIds.length}/${az900Questions.length} questions answered · ${correctRate}% correct`} onStart={() => setView("lessons")} />}
+        {view === "practice" && <PracticeHub onQuestions={() => setView("bank")} onLabs={() => setView("labs")}><details className="simple-details"><summary>More practice tools</summary><div className="simple-tools"><button type="button" onClick={() => setView("cards")}>Review saved questions</button><button type="button" onClick={() => setView("search")}>Search questions</button></div></details></PracticeHub>}
+        {["bank", "labs", "cards", "search"].includes(view) && <button className="simple-back" type="button" onClick={() => setView("practice")}>← Practice choices</button>}
+        {view === "lessons" && <><details className="simple-details"><summary>Learning progress</summary><button className="simple-back" type="button" onClick={() => setView("graph")}>Open skill map →</button></details><Az900Lessons selectedStageId={selectedStageId} onSelect={setSelectedStageId} stageProgress={stageProgress} onPractice={() => startQuiz("practice")} /></>}
         {view === "bank" && <Az900BankView selectedObjectiveId={selectedObjectiveId} onSelectObjective={setSelectedObjectiveId} attemptedIds={attemptedIds} onPracticeQuestion={(id) => startQuiz("practice", id)} showTranslations={Boolean(translationLanguage)} />}
         {view === "graph" && <Az900Graph selectedStageId={selectedStageId} onSelect={(id) => { setSelectedStageId(id); setView("lessons"); }} stageProgress={stageProgress} onPractice={(id) => { setSelectedStageId(id); startQuiz("practice", undefined, id); }} />}
         {view === "search" && <KnowledgeSearch questionBank={az900Questions} courseCode="AZ-900" courseName="Azure Fundamentals" examples={["Which service evaluates Azure resource compliance?", "What is the difference between an availability set and availability zones?", "How does a private endpoint differ from a public endpoint?", "CanNotDelete vs ReadOnly locks"]} showTranslations={Boolean(translationLanguage)} onPracticeQuestion={(id) => startQuiz("practice", id)} />}
@@ -224,36 +221,17 @@ export default function Az900Page() {
         {view === "labs" && <Az900Labs userId={userId} showTranslations={Boolean(translationLanguage)} />}
         {view === "cards" && <Az900Cards cardIds={cardIds} onReview={(questionId, quality) => { if (quality === "got-it") setCardIds((ids) => ids.filter((id) => id !== questionId)); void fetch("/api/flashcards", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ questionId, quality }) }).catch(() => undefined); }} />}
       </section>
-      <MobileNavigation items={navigation} primaryKeys={["home", "lessons", "exams", "search"]} active={view} onNavigate={setView} />
+      <MobileNavigation items={primaryNavigation} primaryKeys={["home", "lessons", "practice", "exams"]} active={sectionView} onNavigate={setView} />
     </div>
     {authOpen && <AccountPanel onClose={() => setAuthOpen(false)} onSignOut={signOut} />}
   </main></GoogleSubtitleProvider>;
-}
-
-function Az900Dashboard({ progress, correctRate, attempted, stageProgress, onOpen, onExam }: { progress: number; correctRate: number; attempted: number; stageProgress: Record<string, number>; onOpen: (view: View) => void; onExam: (mode: ExamMode) => void }) {
-  return <div className="space-y-6">
-    <section className="grid gap-4 xl:grid-cols-[1.2fr_.8fr]">
-      <article className="dashboard-overview rounded-3xl border border-white/10 bg-[#111a28] p-6 sm:p-8"><div className="flex items-start justify-between gap-4"><div><p className="text-sm text-cyan-200">Azure Fundamentals learning path</p><h2 className="mt-2 text-2xl font-bold">Build a complete AZ-900 foundation</h2><p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">Three official domains, {az900ObjectiveCount} blueprint objectives, {az900Questions.length} questions reviewed against Microsoft Learn, labs, search, and spaced review.</p></div><span className="progress-ring grid h-24 w-24 shrink-0 place-items-center rounded-full border-[8px] border-cyan-300/25 text-xl font-bold text-cyan-200">{progress}%</span></div><ProgressBar value={progress} /><div className="dashboard-metrics mt-6 grid grid-cols-3 gap-2 sm:gap-3"><Metric label="Answered" value={`${attempted}/${az900Questions.length}`} /><Metric label="Correct" value={`${correctRate}%`} /><Metric label="Groups" value={`${az900Stages.length}`} /></div></article>
-      <article className="dashboard-overview rounded-3xl border border-cyan-300/20 bg-gradient-to-br from-[#173147] to-[#111a28] p-6"><Cloud className="text-cyan-300" /><p className="mt-4 text-sm text-cyan-100">Recommended next lesson</p><h2 className="mt-2 text-xl font-bold"><GoogleSubtitle text={az900Lessons[0].title} /></h2><p className="mt-3 text-sm leading-7 text-slate-300"><GoogleSubtitle text={az900Lessons[0].objective} /></p><button type="button" onClick={() => onOpen("lessons")} className="mt-5 rounded-xl bg-cyan-300 px-4 py-2.5 font-bold text-[#06131a]">Open learning path →</button></article>
-    </section>
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <ActionCard title="Question bank" text={`Browse all ${az900Questions.length} by domain and objective`} onClick={() => onOpen("bank")} />
-      <ActionCard title="Quick Check" text="8 questions · 15 minutes · weighted" onClick={() => onExam("quick")} />
-      <ActionCard title="Smart search" text="Answers from the reviewed AZ-900 bank" onClick={() => onOpen("search")} />
-      <ActionCard title="Hands-on labs" text={`${az900Labs.length} guided activities`} onClick={() => onOpen("labs")} />
-    </section>
-    <section className="rounded-3xl border border-white/10 bg-[#111a28] p-5 sm:p-7">
-      <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-[.14em] text-cyan-300">Official domains</p><h2 className="mt-1 text-xl font-bold">Weighted readiness map</h2></div><a href={az900Course.studyGuide} target="_blank" rel="noreferrer" className="text-sm font-semibold text-cyan-200">Study guide ↗</a></div>
-      <div className="mt-5 grid gap-4 lg:grid-cols-3">{az900Domains.map((domain, index) => { const stages = az900Stages.filter((stage) => stage.domain === domain); const value = stages.length ? Math.round(stages.reduce((sum, stage) => sum + (stageProgress[stage.id] ?? 0), 0) / stages.length) : 0; return <div key={domain} className="rounded-2xl border border-white/10 bg-black/15 p-4"><h3 className="font-semibold">{domain}</h3><p className="mt-1 text-xs text-slate-400">{domainWeightLabel(az900DomainDefinitions[index].id)} · sampled at {az900DomainWeights[az900DomainDefinitions[index].id]}%</p><ProgressBar value={value} /></div>; })}</div>
-    </section>
-  </div>;
 }
 
 function Az900Lessons({ selectedStageId, onSelect, stageProgress, onPractice }: { selectedStageId: string; onSelect: (id: string) => void; stageProgress: Record<string, number>; onPractice: () => void }) {
   const stage = az900Stages.find((item) => item.id === selectedStageId) ?? az900Stages[0];
   const lesson = az900Lessons.find((item) => item.stageId === stage.id) ?? az900Lessons[0];
   return <div className="space-y-5">
-    <section className="rounded-3xl border border-cyan-300/20 bg-[#111a28] p-5 sm:p-7"><p className="text-xs font-bold uppercase tracking-[.14em] text-cyan-300">{az900Stages.length}-group learning path</p><div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{az900Stages.map((item) => <button type="button" key={item.id} onClick={() => onSelect(item.id)} className={`rounded-2xl border p-4 text-start ${item.id === stage.id ? "border-cyan-300/60 bg-cyan-300/10" : "border-white/10 bg-black/10"}`}><span className="text-xs font-bold text-cyan-200">Stage {item.stage}</span><h3 className="mt-2 text-sm font-semibold"><GoogleSubtitle text={item.title} /></h3><p className="mt-2 text-xs text-slate-400">{item.questionIds.length} questions · {item.weight} · {stageProgress[item.id] ?? 0}%</p><ProgressBar value={stageProgress[item.id] ?? 0} /></button>)}</div></section>
+    <label className="simple-course-select">Choose a lesson<select aria-label="Choose a lesson" value={stage.id} onChange={event => onSelect(event.target.value)}>{az900Stages.map(item => <option key={item.id} value={item.id}>{item.stage}. {item.title} · {stageProgress[item.id] ?? 0}%</option>)}</select></label>
     <article className="lesson-panel rounded-3xl border border-white/10 bg-[#111a28] p-6 sm:p-9">
       <p className="text-xs font-bold uppercase tracking-[.14em] text-cyan-300">Stage {stage.stage} · <GoogleSubtitle text={stage.domain} /> · {stage.weight}</p>
       <h2 className="mt-3 text-3xl font-bold"><GoogleSubtitle text={lesson.title} /></h2>
@@ -270,7 +248,7 @@ function Az900BankView({ selectedObjectiveId, onSelectObjective, attemptedIds, o
   const activeObjectiveId = selectedObjectiveId || az900Stages[0].objectives[0].id;
   const activeQuestions = az900QuestionsByObjective.get(activeObjectiveId) ?? [];
   return <div className="space-y-5">
-    <section className="grid gap-4 lg:grid-cols-3">{az900DomainDefinitions.map((domain) => <article key={domain.id} className="rounded-3xl border border-cyan-300/20 bg-[#111a28] p-5"><div className="flex items-baseline justify-between gap-2"><h3 className="font-semibold"><GoogleSubtitle text={domain.title} /></h3><span className="text-xs font-bold text-cyan-200">{domain.weightMin}\u2013{domain.weightMax}%</span></div><p className="mt-2 text-xs text-slate-400">{(az900QuestionsByDomain.get(domain.id) ?? []).length} questions</p><div className="mt-4 space-y-2">{az900Stages.filter((stage) => stage.domainId === domain.id).map((stage) => <div key={stage.id} className="rounded-xl border border-white/10 bg-black/15 p-3"><p className="text-xs font-semibold text-cyan-200">{stage.stage}. <GoogleSubtitle text={stage.title} /></p><div className="mt-2 flex flex-wrap gap-1.5">{stage.objectives.map((objective) => <button type="button" key={objective.id} onClick={() => onSelectObjective(objective.id)} className={`rounded-lg border px-2 py-1 text-[11px] ${objective.id === activeObjectiveId ? "border-cyan-300/70 bg-cyan-300/15 text-cyan-50" : "border-white/10 text-slate-400"}`} title={objective.text}><GoogleSubtitle text={shortObjective(objective.id)} /> <span className="text-cyan-200">{objective.questionCount}</span></button>)}</div></div>)}</div></article>)}</section>
+    <label className="simple-course-select">Choose a topic<select aria-label="Choose a question topic" value={activeObjectiveId} onChange={event => onSelectObjective(event.target.value)}>{az900Stages.map(stage => <optgroup key={stage.id} label={stage.title}>{stage.objectives.map(objective => <option key={objective.id} value={objective.id}>{objective.text} ({objective.questionCount})</option>)}</optgroup>)}</select></label>
     <section className="rounded-3xl border border-white/10 bg-[#111a28] p-5 sm:p-7">
       <p className="text-xs font-bold uppercase tracking-[.14em] text-cyan-300">Objective</p>
       <h2 className="mt-2 text-xl font-bold"><GoogleSubtitle text={az900ObjectiveById(activeObjectiveId)?.text ?? activeObjectiveId} enabled={showTranslations} /></h2>
@@ -288,7 +266,7 @@ function Az900Graph({ selectedStageId, onSelect, stageProgress, onPractice }: { 
 function Az900ExamChooser({ selectedStage, onStart }: { selectedStage: typeof az900Stages[number]; onStart: (mode: ExamMode) => void }) {
   return <section className="rounded-3xl border border-white/10 bg-[#111a28] p-5 sm:p-8">
     <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[.12em] text-cyan-300">Reviewed practice · not exam dumps</p><h2 className="mt-2 text-2xl font-bold">Choose an AZ-900 review mode</h2><p className="mt-2 text-sm text-slate-400">Current group: <GoogleSubtitle text={selectedStage.title} /></p></div><div className="flex gap-3 text-sm"><a href={az900Course.practiceAssessment} target="_blank" rel="noreferrer" className="text-cyan-200">Official Practice Assessment ↗</a><a href={az900Course.examSandbox} target="_blank" rel="noreferrer" className="text-cyan-200">Exam interface demo ↗</a></div></div>
-    <div className="mt-6 grid gap-4 sm:grid-cols-2">{Object.entries(examModes).map(([mode, config]) => <button type="button" key={mode} onClick={() => onStart(mode as ExamMode)} className="rounded-2xl border border-white/10 bg-black/15 p-5 text-start hover:border-cyan-300/50"><span className="text-xs font-bold uppercase tracking-[.12em] text-cyan-300">{config.count} questions · {config.minutes} min</span><h3 className="mt-2 text-lg font-semibold">{config.title}</h3><p className="mt-2 text-sm leading-6 text-slate-400">{config.description}</p></button>)}</div>
+    <button type="button" className="simple-primary mt-6" onClick={() => onStart("quick")}>Start quick check · 8 questions →</button><details className="simple-details"><summary>More exam modes</summary><div className="mt-6 grid gap-4 sm:grid-cols-2">{Object.entries(examModes).filter(([mode]) => mode !== "quick").map(([mode, config]) => <button type="button" key={mode} onClick={() => onStart(mode as ExamMode)} className="rounded-2xl border border-white/10 bg-black/15 p-5 text-start hover:border-cyan-300/50"><span className="text-xs font-bold uppercase tracking-[.12em] text-cyan-300">{config.count} questions · {config.minutes} min</span><h3 className="mt-2 text-lg font-semibold">{config.title}</h3><p className="mt-2 text-sm leading-6 text-slate-400">{config.description}</p></button>)}</div></details>
     <p className="mt-5 rounded-xl border border-amber-300/20 bg-amber-300/5 p-3 text-xs leading-6 text-amber-100">The official AZ-900 assessment allows 45 minutes. Question counts here are internal learning modes and do not claim to reproduce the official exam format.</p>
   </section>;
 }
@@ -333,4 +311,3 @@ function Az900Cards({ cardIds, onReview }: { cardIds: string[]; onReview: (id: s
 }
 
 function Metric({ label, value }: { label: string; value: string }) { return <div className="rounded-xl bg-black/15 p-3"><p className="text-xs text-slate-500">{label}</p><p className="mt-1 font-semibold">{value}</p></div>; }
-function ActionCard({ title, text, onClick }: { title: string; text: string; onClick: () => void }) { return <button type="button" onClick={onClick} className="practice-action-card rounded-2xl border border-white/10 bg-[#111a28] p-5 text-start hover:border-cyan-300/50"><h3 className="practice-action-title font-semibold">{title}</h3><p className="mt-2 text-sm text-slate-400">{text}</p><span className="mt-5 block text-sm font-semibold text-cyan-200">Open →</span></button>; }
