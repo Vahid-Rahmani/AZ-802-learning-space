@@ -18,7 +18,7 @@ export const simulatorText = {
   placeholder: "Type a command, for example: enable",
   run: "Run",
   reset: "Reset terminal",
-  closed: "Connection closed. Reset the terminal to start again.",
+  closed: "Connection closed. Restart this console to start again.",
   stage: "Implemented: CLI modes, help, VLANs, interface configuration and running/startup configuration. Lab-network connectivity and automatic objective grading are not implemented yet.",
   openLibrary: "Open the lab library",
   labMissing: "That lab is not in this course. Choose one in the lab library.",
