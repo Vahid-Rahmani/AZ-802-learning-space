@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { cloneSimulationState, moveSimulationNode, updateSimulationViewport, zoomSimulationViewport, fitSimulationViewport, simulationCanvasHeight } from "../lib/ccna-sim/topology.ts";
 import { simulationCableCurve } from "../lib/ccna-sim/cable-geometry.ts";
+import { simulationEndpointPoint, simulationPortPoint } from "../lib/ccna-sim/port-geometry.ts";
 import { ccnaSimulationPackByLabId } from "../lib/content/ccna-simulation-packs.ts";
 
 const viewport = { scale: 1, x: -900, y: 800 };
@@ -12,6 +13,23 @@ for (const scale of [.2, .5, 1.5, 3]) {
 }
 for (const pack of ccnaSimulationPackByLabId.values()) {
   let state = cloneSimulationState(pack);
+  for (const link of state.links) {
+    const source = simulationEndpointPoint(state, link.source);
+    const target = simulationEndpointPoint(state, link.target);
+    assert.ok(source && target, `${pack.id}: unresolved cable endpoint`);
+    for (const point of [source, target]) assert.ok(Object.values(point).every(Number.isFinite));
+    const node = state.nodes.find((item) => item.id === link.source.deviceId);
+    assert.deepEqual(source, simulationPortPoint(state, node, node.ports.findIndex((port) => port.id === link.source.portId)));
+    const curve = simulationCableCurve(source, target);
+    assert.ok(curve.path.startsWith(`M ${source.x} ${source.y} C `));
+    assert.ok(curve.path.endsWith(`${target.x} ${target.y}`));
+    const reverseLabel = simulationCableCurve(target, source).label;
+    assert.ok(Math.abs(curve.label.x - reverseLabel.x) < 1e-8 && Math.abs(curve.label.y - reverseLabel.y) < 1e-8);
+    const rightPeer = moveSimulationNode(state, link.target.deviceId, node.x + 500, node.y);
+    const leftPeer = moveSimulationNode(state, link.target.deviceId, node.x - 500, node.y);
+    assert.equal(simulationEndpointPoint(rightPeer, link.source).nx, 1, 'port must face its peer to the right');
+    assert.equal(simulationEndpointPoint(leftPeer, link.source).nx, -1, 'port must follow its peer to the left');
+  }
   state = updateSimulationViewport(state, { x: 1200, y: -900, scale: .2 });
   assert.equal(state.viewport.x, 1200);
   assert.equal(state.viewport.y, -900);

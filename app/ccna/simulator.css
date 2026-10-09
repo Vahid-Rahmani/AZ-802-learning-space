@@ -281,36 +281,30 @@
 .ccna-simulation-canvas-background { fill: #091627; stroke: #1b3655; stroke-width: 2; }
 .ccna-simulation-canvas-background { cursor: grab; }
 .ccna-simulation-canvas:active .ccna-simulation-canvas-background { cursor: grabbing; }
-.ccna-simulation-link-line { fill: none; stroke: #4ade80; stroke-width: 3; stroke-linecap: round; pointer-events: none; }
+.ccna-simulation-link-line { fill: none; stroke: #65c3b0; stroke-width: 1.7; stroke-linecap: round; pointer-events: none; }
 .ccna-simulation-link[data-status="down"] .ccna-simulation-link-line { stroke: #94a3b8; stroke-dasharray: 8 7; }
 .ccna-simulation-link[data-status="fault"] .ccna-simulation-link-line { stroke: #fb7185; stroke-dasharray: 8 6; }
 .ccna-simulation-link-hitbox { fill: none; stroke: transparent; stroke-width: 18; stroke-linecap: round; cursor: pointer; }
-.ccna-simulation-link:focus-visible .ccna-simulation-link-line { stroke: #fbbf24; stroke-width: 5; outline: none; }
-.ccna-simulation-link-label { fill: #b6f7c8; font-size: 12px; font-weight: 650; paint-order: stroke; stroke: #07111f; stroke-width: 4px; stroke-linejoin: round; pointer-events: none; text-anchor: middle; }
+.ccna-simulation-link:is(:hover,:focus-visible) .ccna-simulation-link-line { stroke: #b1f0df; stroke-width: 2.5; outline: none; }
+.ccna-simulation-link-label { fill: #b6f7c8; font-size: 12px; font-weight: 650; paint-order: stroke; stroke: #07111f; stroke-width: 4px; stroke-linejoin: round; pointer-events: none; text-anchor: middle; opacity: 0; }
+.ccna-simulation-link:is(:hover,:focus-visible) .ccna-simulation-link-label { opacity: 1; }
 
 .ccna-simulation-node { outline: none; cursor: grab; }
 .ccna-simulation-node:active { cursor: grabbing; }
-.ccna-simulation-node-card { fill: #142943; stroke: #35587f; stroke-width: 2; filter: drop-shadow(0 8px 8px rgba(0, 0, 0, .25)); transition: fill .18s ease, stroke .18s ease, filter .18s ease; }
-.ccna-simulation-node[data-device-kind="router"] .ccna-simulation-node-card { fill: #112f4a; }
-.ccna-simulation-node[data-device-kind="switch"] .ccna-simulation-node-card { fill: #172d49; }
-.ccna-simulation-node[data-device-kind="pc"] .ccna-simulation-node-card { fill: #1b2a43; }
-.ccna-simulation-node[data-device-kind="server"] .ccna-simulation-node-card { fill: #242b4b; }
-.ccna-simulation-node[data-device-kind="access-point"] .ccna-simulation-node-card { fill: #152f3c; }
-.ccna-simulation-node[data-device-kind="firewall"] .ccna-simulation-node-card { fill: #3a263e; }
-.ccna-simulation-node[data-device-kind="cloud"] .ccna-simulation-node-card { fill: #27324a; }
-.ccna-simulation-node:hover .ccna-simulation-node-card,
-.ccna-simulation-node:focus-visible .ccna-simulation-node-card,
-.ccna-simulation-node.is-selected .ccna-simulation-node-card { stroke: var(--simulation-accent); stroke-width: 3; }
-.ccna-simulation-device-icon { display: block; fill: none; stroke: #9deeff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
-.ccna-simulation-device-icon--router { stroke: #6ee7ff; }
-.ccna-simulation-device-icon--switch { stroke: #8bb8ff; }
-.ccna-simulation-device-icon--pc { stroke: #b7c8ff; }
-.ccna-simulation-device-icon--pc .ccna-simulation-device-icon-screen { fill: rgba(77, 213, 255, .25); stroke: #83e6ff; }
-.ccna-simulation-device-icon--server { stroke: #c2b5ff; }
-.ccna-simulation-device-icon--access-point { stroke: #62f1cf; }
-.ccna-simulation-device-icon--firewall { stroke: #ff9bb1; }
-.ccna-simulation-device-icon--cloud { stroke: #a8c6ff; }
-.ccna-simulation-node-label { fill: #f3f7fc; font-size: 15px; font-weight: 700; }
+.ccna-simulation-node-hitbox { fill: transparent; stroke: none; }
+.ccna-simulation-node-halo { fill: none; stroke: var(--simulation-accent); stroke-width: 1.5; opacity: 0; pointer-events: none; }
+.ccna-simulation-node:is(:hover,:focus-visible,.is-selected) .ccna-simulation-node-halo { opacity: .7; }
+.ccna-simulation-node:is(:focus-visible,.is-selected) .ccna-simulation-device-art { filter: drop-shadow(0 0 7px rgba(83, 202, 233, .3)); }
+.ccna-simulation-device-art { display: block; stroke: var(--device-edge, #709aad); stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+.ccna-simulation-device-art.is-large { filter: drop-shadow(0 7px 5px rgba(0, 0, 0, .28)); }
+.ccna-simulation-device-art .device-detail { fill: none; stroke: var(--device-detail, #a0e7f4); stroke-width: 2; }
+.ccna-simulation-device-art .device-seam { fill: none; stroke: var(--device-edge, #709aad); opacity: .5; }
+.ccna-simulation-device-art.is-switch { --device-top:#36566c; --device-face:#243c50; --device-side:#15293b; --device-edge:#82a4b9; }
+.ccna-simulation-device-art.is-pc { --device-top:#29445a; --device-face:#283543; --device-side:#18222d; --device-edge:#98adbc; }
+.ccna-simulation-device-art.is-server { --device-top:#4a516b; --device-face:#30364d; --device-side:#202439; --device-edge:#939fbd; }
+.ccna-simulation-device-art.is-access-point { --device-top:#315852; --device-face:#244540; --device-side:#17352f; --device-edge:#73aaa0; }
+.ccna-simulation-device-art.is-firewall { --device-top:#6a404b; --device-face:#50303c; --device-side:#332332; --device-edge:#bd8496; --device-detail:#efbdcb; }
+.ccna-simulation-device-art.is-cloud { --device-face:#293e53; --device-edge:#91adc9; }
 .ccna-simulation-node-subtitle { fill: #a7b6ca; font-size: 11px; }
 .ccna-simulation-node-status { stroke: #07111f; stroke-width: 3; }
 .ccna-simulation-port { outline: none; cursor: pointer; }
@@ -346,8 +340,8 @@
 
 /* SVG controls do not inherit the browser's native focus affordance. Give
    selected/keyboard-focused devices and ports a reliable visual state. */
-.ccna-simulation-node:focus-visible .ccna-simulation-node-card,
-.ccna-simulation-node[aria-pressed="true"] .ccna-simulation-node-card { stroke: #f5d76e; stroke-width: 3; filter: drop-shadow(0 0 8px rgba(245, 215, 110, .35)); }
+.ccna-simulation-node:focus-visible .ccna-simulation-node-halo,
+.ccna-simulation-node[aria-pressed="true"] .ccna-simulation-node-halo { opacity: 1; stroke: #65cfff; }
 .ccna-simulation-port:focus-visible .ccna-simulation-port-dot { stroke: #f5d76e; stroke-width: 3; filter: drop-shadow(0 0 5px rgba(245, 215, 110, .45)); }
 
 .ccna-simulation-terminal-panel { overflow: hidden; padding: 0; background: #07111f; }
@@ -550,9 +544,7 @@ html .study-app .ccna-sim-page .ccna-simulation-terminal-actions { padding: 7px 
 html .study-app .ccna-sim-page .ccna-simulation-terminal-actions button { background: transparent; border-color: #292c35; color: #858b98; }
 html .study-app .ccna-sim-page .ccna-simulation-canvas-wrap { background: #0f1115; border-color: #292c35; border-radius: 12px; }
 html .study-app .ccna-sim-page .ccna-simulation-canvas-background { fill: #0f1115; stroke: #23262e; }
-html .study-app .ccna-sim-page .ccna-simulation-node .ccna-simulation-node-card { fill: #16181d; stroke: #292c35; stroke-width: 1; filter: none; }
-html .study-app .ccna-sim-page .ccna-simulation-node.is-selected .ccna-simulation-node-card { stroke: #00aeef; stroke-width: 2; }
-html .study-app .ccna-sim-page .ccna-simulation-link-line { stroke: #46cba5; stroke-width: 2; }
+html .study-app .ccna-sim-page .ccna-simulation-link-line { stroke: #65c3b0; stroke-width: 1.7; }
 html .study-app .ccna-sim-page .ccna-simulation-node-label { fill: #e4e6eb; font-size: 13px; font-style: italic; }
 html .study-app .ccna-sim-page .ccna-simulation-node-subtitle { fill: #858b98; font-size: 10px; }
 html .study-app .ccna-sim-page .ccna-simulation-interface-table thead th { background: #1e2128; }

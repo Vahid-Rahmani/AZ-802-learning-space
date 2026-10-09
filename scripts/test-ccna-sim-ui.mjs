@@ -129,6 +129,8 @@ async function run(container, label, ...commands) {
 
 const results = {};
 const workspace = await mount("ccna-addressing");
+assert.equal(workspace.container.querySelectorAll('.ccna-simulation-node-card').length, 0, 'topology must not render rectangular device cards');
+assert.equal(workspace.container.querySelectorAll('.ccna-simulation-node .ccna-simulation-device-art.is-large').length, workspace.pack.devices.length, 'each node must have its own device silhouette');
 
 // 0. The lab does not start solved.
 assert.match(headerLine(workspace.container), /0\/11 steps verified/, "a graded step is already credited before any configuration");

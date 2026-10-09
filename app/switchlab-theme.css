@@ -353,9 +353,7 @@ html[data-theme="classic"] .study-app .ccna-lab-source { display:inline-flex; al
 html[data-theme="classic"] .study-app .ccna-lab-coverage > summary { cursor:pointer; font-weight:600; }
 
 /* Device names and port chips remain readable at normal canvas zoom. */
-html .study-app .ccna-sim-page .ccna-simulation-node .ccna-simulation-node-card { fill:#1e2128; stroke:#454b58; stroke-width:1.5; }
-html .study-app .ccna-sim-page .ccna-simulation-node:is(:hover,:focus-visible,.is-selected) .ccna-simulation-node-card { stroke:#00aeef; stroke-width:2.5; }
-html .study-app .ccna-sim-page .ccna-simulation-node-label { font-size:18px; font-weight:750; font-style:normal; }
+html .study-app .ccna-sim-page .ccna-simulation-node-label { font-size:15px; font-weight:700; font-style:normal; paint-order:stroke; stroke:#0f1115; stroke-width:4px; }
 html .study-app .ccna-sim-page .ccna-simulation-node-subtitle { font-size:13px; fill:#b1b8c5; }
 .ccna-simulation-node-console { font-size:10px; fill:#8d98aa; }
 .ccna-simulation-node.is-selected .ccna-simulation-node-console { fill:#65cfff; }

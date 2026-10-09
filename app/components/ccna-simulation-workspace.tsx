@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as
 import { createLabSession, IosSession } from "@/lib/ccna-sim/session";
 import { findInterface, portLinkStatus, type SimCableState, type SimInterfaceKind, type SimStaticRoute } from "@/lib/ccna-sim/device";
 import { simulationCableCurve } from "@/lib/ccna-sim/cable-geometry";
+import { simulationPortPoint as portPoint, simulationEndpointPoint as endpointPoint } from "@/lib/ccna-sim/port-geometry";
+import { DeviceGlyph } from "./ccna-device-art";
 import { copyManagement, type SimManagement } from "@/lib/ccna-sim/management";
 import { checkedStageResults } from "@/lib/ccna-sim/guidance";
 import { simulatorText } from "@/lib/ccna-sim/language";
@@ -127,8 +129,6 @@ export type CcnaSimulationWorkspaceProps = {
 
 const CANVAS_WIDTH = 760;
 const NODE_WIDTH = 210;
-const NODE_HEIGHT = 100;
-const PORT_GAP = 48;
 
 const DEVICE_META: Record<SimulationNode["kind"], { label: string; tone: string }> = {
   router: { label: "Router", tone: "router" },
@@ -141,35 +141,6 @@ const DEVICE_META: Record<SimulationNode["kind"], { label: string; tone: string 
 };
 const DEVICE_KINDS = Object.keys(DEVICE_META) as Array<SimulationNode["kind"]>;
 
-/** Lightweight original SVG glyphs keep the canvas legible without shipping vendor artwork. */
-function DeviceGlyph({ kind }: { kind: SimulationNode["kind"] }) {
-  const common = { className: `ccna-simulation-device-icon ccna-simulation-device-icon--${DEVICE_META[kind].tone}`, viewBox: "0 0 48 48", width: 42, height: 42, "aria-hidden": true } as const;
-  if (kind === "router") return <svg {...common}><circle cx="24" cy="24" r="17" /><path d="M14 24h20M24 14v20M18 18l12 12M30 18 18 30" /><circle cx="24" cy="24" r="3" /></svg>;
-  if (kind === "switch") return <svg {...common}><rect x="6" y="14" width="36" height="20" rx="5" /><path d="M11 23h26M12 29h4m4 0h4m4 0h4m4 0h2" /><path d="M15 18v2m6-2v2m6-2v2m6-2v2" /></svg>;
-  if (kind === "pc") return <svg {...common}><rect x="8" y="8" width="32" height="23" rx="3" /><path d="M24 31v6M16 40h16M18 37h12" /><rect className="ccna-simulation-device-icon-screen" x="12" y="12" width="24" height="15" rx="1.5" /></svg>;
-  if (kind === "server") return <svg {...common}><rect x="10" y="5" width="28" height="38" rx="4" /><path d="M14 13h20M14 24h20M14 35h20" /><circle cx="17" cy="9" r="1.5" /><circle cx="17" cy="20" r="1.5" /><circle cx="17" cy="31" r="1.5" /><path d="M22 9h8m-8 11h8m-8 11h8" /></svg>;
-  if (kind === "access-point") return <svg {...common}><path d="M14 25a14 14 0 0 1 20 0M18 29a8 8 0 0 1 12 0M22 33a3 3 0 0 1 4 0" /><circle cx="24" cy="38" r="2.5" /><path d="M24 38V15" /><path d="M19 12a7 7 0 0 1 10 0" /></svg>;
-  if (kind === "firewall") return <svg {...common}><path d="m24 5 14 6v10c0 9-6 16-14 22C16 37 10 30 10 21V11l14-6Z" /><path d="M14 17h20M14 23h20M18 11v6m8-6v6m-8 6v6m8-6v6" /></svg>;
-  return <svg {...common}><path d="M12 35h25a7 7 0 0 0 1-14 11 11 0 0 0-21-3 8 8 0 0 0-5 15Z" /><path d="M18 35v3m6-3v3m6-3v3" /></svg>;
-}
-
-function portPoint(node: SimulationNode, index: number) {
-  const columns = Math.max(1, Math.min(4, node.ports.length));
-  const row = Math.floor(index / columns);
-  const column = index % columns;
-  const totalWidth = (columns - 1) * PORT_GAP;
-  return {
-    x: node.x - totalWidth / 2 + column * PORT_GAP,
-    y: node.y + NODE_HEIGHT / 2 + 15 + row * 18,
-  };
-}
-
-function endpointPoint(state: SimulationState, endpoint: SimulationEndpoint) {
-  const node = state.nodes.find((candidate) => candidate.id === endpoint.deviceId);
-  if (!node) return null;
-  const index = node.ports.findIndex((port) => port.id === endpoint.portId);
-  return index < 0 ? null : portPoint(node, index);
-}
 
 function endpointLabel(state: SimulationState, endpoint: SimulationEndpoint) {
   const node = state.nodes.find((candidate) => candidate.id === endpoint.deviceId);
@@ -1069,19 +1040,20 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
                 if (!source || !target) return null;
                 const { path, label: middle } = simulationCableCurve(source, target);
                 return <g key={link.id} className="ccna-simulation-link" data-status={link.status ?? "up"} role="button" tabIndex={0} aria-label={`Disconnect cable between ${endpointLabel(state, link.source)} and ${endpointLabel(state, link.target)}`} onPointerDown={(event) => event.stopPropagation()} onClick={() => handleLink(link)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); handleLink(link); } }}>
+                  <title>{linkPortLabel(state, link)}</title>
                   <path className="ccna-simulation-link-hitbox" d={path} />
-                  <path className="ccna-simulation-link-line" d={path} />
+                  <path className="ccna-simulation-link-line" d={path} vectorEffect="non-scaling-stroke" />
                   <text className="ccna-simulation-link-label" x={middle.x} y={middle.y - 8}>{linkPortLabel(state, link)}</text>
                 </g>;
               })}
               {state.nodes.map((node) => <g key={node.id} className={`ccna-simulation-node${selectedNode === node.id ? " is-selected" : ""}`} data-device-kind={node.kind} transform={`translate(${node.x} ${node.y})`} role="button" tabIndex={0} aria-pressed={selectedNode === node.id} aria-label={`${node.label}, ${DEVICE_META[node.kind].label}. Press Enter to select the device.`} onPointerDown={(event) => handleNodePointerDown(event, node)} onKeyDown={(event) => handleNodeKey(event, node)}>
-                <rect className="ccna-simulation-node-card" x={-NODE_WIDTH / 2} y={-NODE_HEIGHT / 2} width={NODE_WIDTH} height={NODE_HEIGHT} rx="14" />
-                <g transform={`translate(${-NODE_WIDTH / 2 + 8} -22)`}><DeviceGlyph kind={node.kind} /></g>
-                <text className="ccna-simulation-node-label" x={-NODE_WIDTH / 2 + 58} y="-7">{node.label}</text>
-                <text className="ccna-simulation-node-subtitle" x={-NODE_WIDTH / 2 + 58} y="14">{DEVICE_META[node.kind].label}</text>
-                <text className="ccna-simulation-node-console" x={-NODE_WIDTH / 2 + 58} y="34">{selectedNode === node.id ? "Console open" : "Click for console"}</text>
-                <circle className="ccna-simulation-node-status" cx={NODE_WIDTH / 2 - 18} cy={-NODE_HEIGHT / 2 + 18} r="5" fill={statusColor(node.status)} />
-                {node.ports.map((port, index) => { const point = portPoint(node, index); const localX = point.x - node.x; const localY = point.y - node.y; const selected = selectedPort?.deviceId === node.id && selectedPort.portId === port.id; return <g key={port.id} className={`ccna-simulation-port${selected ? " is-selected" : ""}`} transform={`translate(${localX} ${localY})`} role="button" tabIndex={0} aria-pressed={selected} aria-label={`${node.label} ${port.label}, ${portState(node.id, port.label).label}. ${selected ? "Selected" : "Select port"}`} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); handlePort({ deviceId: node.id, portId: port.id }); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); event.stopPropagation(); handlePort({ deviceId: node.id, portId: port.id }); } }}>
+                <title>{node.label} · {DEVICE_META[node.kind].label} · {selectedNode === node.id ? "Console open" : "Click for console"}</title>
+                <rect className="ccna-simulation-node-hitbox" x={-NODE_WIDTH / 2} y="-64" width={NODE_WIDTH} height="130" rx="20" />
+                <ellipse className="ccna-simulation-node-halo" cx="0" cy="-8" rx="79" ry="57" />
+                <g transform="translate(-66 -56)"><DeviceGlyph kind={node.kind} large /></g>
+                <text className="ccna-simulation-node-label" x="0" y="56" textAnchor="middle">{node.label}</text>
+                <circle className="ccna-simulation-node-status" cx="69" cy="50" r="4" fill={statusColor(node.status)} />
+                {node.ports.map((port, index) => { const point = portPoint(state, node, index); const localX = point.x - node.x; const localY = point.y - node.y; const selected = selectedPort?.deviceId === node.id && selectedPort.portId === port.id; return <g key={port.id} className={`ccna-simulation-port${selected ? " is-selected" : ""}`} transform={`translate(${localX} ${localY})`} role="button" tabIndex={0} aria-pressed={selected} aria-label={`${node.label} ${port.label}, ${portState(node.id, port.label).label}. ${selected ? "Selected" : "Select port"}`} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); handlePort({ deviceId: node.id, portId: port.id }); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); event.stopPropagation(); handlePort({ deviceId: node.id, portId: port.id }); } }}>
                   <rect className="ccna-simulation-port-dot" x="-22" y="-9" width="44" height="18" rx="5" data-status={portState(node.id, port.label).tone} />
                   <text className="ccna-simulation-port-label" x="0" y="4">{port.label}</text>
                 </g>; })}
