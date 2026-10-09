@@ -9,6 +9,7 @@ Switch>
 > show ?
 interfaces          Show the port status table
 ip                  Show the interface addresses
+ipv6                Show the interface IPv6 addresses
 running-config      Show the running configuration
 startup-config      Show the saved startup configuration
 version             Show the running system version

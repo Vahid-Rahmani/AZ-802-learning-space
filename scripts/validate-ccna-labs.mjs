@@ -93,16 +93,20 @@ const frozenCourseData = {
   "lib/content/skills.ts": "53d12da8533673741ea0c1e4401f6f0fae74353217f35fac59752f61a0035bc1",
   "lib/content/lessons.ts": "4709fb633f4671f6af4ae9b9831201f4b3c8b83a0c26fd3751dd4c28f2961d47",
   "lib/content/translations.ts": "778f0f10be1eec9552ad235b3919e1418c91be8fd25f510534f34e1e866ea363",
-  "app/page.tsx": "a3dc926043e4de32e2d164c0a4b787fee22d260e9f3ae7de697ea029c57e1d1f",
-  // Refreshed on 2026-10-09: these two headers were rewritten by the earlier "Compact shared site
-  // header" commit (b72a4d6), so the recorded baseline was stale before this task started. The
-  // check keeps its meaning: any further change to a frozen file still fails this validator.
-  "app/az-900/page.tsx": "06ed043925d9d6ac8fa90ea0a9c186ea5c8a06e8d681751866f6b11a91ebb2e8",
-  "app/docker/page.tsx": "2fb90cb0b6b239b5c7047f035e45a85f77c5ce878eb9acc60e642d89fd34b361",
-  "app/components/az802-question-bank.tsx": "e5f27dff8d917c45fd7df09191bb1496e2c07a0afc338ebf648bd319a81c7e39",
+  // Refreshed on 2026-10-09. Two commits landed after the original audit and before the CCNA
+  // simulator work started: b72a4d6 ("Compact shared site header") rewrote the az-900 and docker
+  // page headers, then e2a0ef8 ("Simplify all learning paths with clear start and practice
+  // choices") rewrote those two headers again plus the home page, the AZ-802 question-bank view
+  // and the two learning views. The recorded hashes were already stale when this task began.
+  // Updating the baseline is deliberate, in review: the check keeps its meaning, because any
+  // further change to a frozen file still fails this validator.
+  "app/page.tsx": "dc6d20367c806c6eb1b3e118441e76226ecb0664128ceb3feadd893dd2e1149e",
+  "app/az-900/page.tsx": "14cc35b5ec10b8811824f8bc2a40e3dc0f6491fd4c8e541c864f81216b3de55d",
+  "app/docker/page.tsx": "c6c631bc739e25da4844e6fe832aab1e5ee2f8d06280bbf3163a5379e262c1ee",
+  "app/components/az802-question-bank.tsx": "be80d16f1403bcafa4e7569230f917f5a5044cce55e5fc194fc8a3ce0552dd4a",
   "app/components/promoted-dashboard.tsx": "81759021a88102a62af34a871f14143a1205f7b7fca45ec2466b1242943f989e",
-  "app/components/training-views.tsx": "e726e889bcd83eb0b54700ad87465163baf3bdbe95fe7be258c8a880dc176954",
-  "app/components/learning-views.tsx": "71b89f14006d350dfb0ad91984d075bf95adb0e7786a772e2dbd145b852555a4",
+  "app/components/training-views.tsx": "b8a07a7a62257b146d85cb254417d2e31149e141487f733b220b27153d4a2d94",
+  "app/components/learning-views.tsx": "3923d0eac2bd19c79b4150a14c1cc475558f9394c9c0f76638da59590eabc8c3",
 };
 
 // ---------------------------------------------------------------- 1. every original lab is still here

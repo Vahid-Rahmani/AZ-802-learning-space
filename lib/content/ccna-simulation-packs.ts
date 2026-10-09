@@ -1,5 +1,6 @@
 import { ccnaLabs } from "./ccna.ts";
 import { ccnaLabBands, ccnaLabPath, ccnaLabPathStats, type CcnaLabEntry } from "./ccna-lab-path.ts";
+import type { SimDeviceRole } from "@/lib/ccna-sim/device";
 import type { SimulationPack, SimulationNode, SimulationPort, SimulationLink, SimulationChecklistItem, SimulationStage } from "@/lib/ccna-sim/topology";
 import type { SimLabPack } from "@/lib/ccna-sim/lab.ts";
 import { getAuthoredLabPack } from "./ccna-sim/index.ts";
@@ -150,16 +151,32 @@ function deviceLabels(lab: CcnaLabEntry): string[] {
   return ["R1", "SW1", "PC-A"];
 }
 
+/**
+ * The console role of a generated node. Every device this adapter publishes gets exactly one role,
+ * so the workspace builds its console with `createLabSession` and never has to guess a role or fall
+ * back to a canned transcript. A device whose real control surface is a vendor GUI (a wireless
+ * access point, a controller or a cloud) has no role: the lab says so instead of inventing an IOS
+ * console that the device does not have.
+ */
+function roleFor(kind: SimulationNode["kind"]): SimDeviceRole | null {
+  if (kind === "router" || kind === "firewall") return "router";
+  if (kind === "switch") return "switch";
+  if (kind === "pc" || kind === "server") return "host";
+  return null;
+}
+
 function createDevices(lab: CcnaLabEntry): SimulationNode[] {
   const override = catalogTopologyOverrides[lab.id];
-  if (override) return override.devices.map((device) => ({ ...device, ports: device.ports.map((port) => ({ ...port })) }));
+  if (override) return override.devices.map((device) => ({ ...device, role: device.role ?? roleFor(device.kind) ?? undefined, ports: device.ports.map((port) => ({ ...port })) }));
   const context = `${lab.title} ${lab.scenario.context} ${lab.scenario.requirement}`;
   return deviceLabels(lab).map((label, index) => {
     const kind = kindFor(label, context);
+    const role = roleFor(kind);
     return {
       id: `${slug(label)}-${index + 1}`,
       label,
       kind,
+      ...(role ? { role } : {}),
       x: 130 + (index % 3) * 280,
       y: 130 + Math.floor(index / 3) * 190,
       subtitle: kind === "router" ? "Layer 3 forwarding" : kind === "switch" ? "Layer 2 switching" : kind === "pc" ? "Endpoint" : kind === "server" ? "Service endpoint" : "Wireless access",
@@ -193,115 +210,68 @@ function createLinks(devices: SimulationNode[], lab: CcnaLabEntry): SimulationLi
   return links;
 }
 
-function checklistFor(lab: CcnaLabEntry): SimulationChecklistItem[] {
-  const verification = lab.verification.length > 0 ? lab.verification : ["Verify the intended end-to-end path and record the observed result."];
-  return [
-    { id: "topology", title: "Connect the intended topology", detail: lab.diagram ? "Use the published diagram as the reference, then verify every cable in the editable graph." : "Use the starter graph and document any topology assumption before configuring it.", required: true },
-    ...verification.map((item, index) => ({ id: `verify-${index + 1}`, title: `Verification ${index + 1}`, detail: item, required: true })),
-    { id: "fault", title: "Reproduce and recover the expected fault", detail: `${lab.fault.failure} Recovery: ${lab.fault.recovery}`, required: true },
-    { id: "evidence", title: "Save evidence without credentials", detail: "Record the device, command or observation and time; never include passwords or tokens.", required: true },
-  ];
-}
+/**
+ * A read command is only ever offered on a console whose role implements it, so the guide can never
+ * suggest `show vlan brief` on a router or any command this engine would reject. This table is the
+ * adapter's side of the contract with `lib/ccna-sim/commands.ts`.
+ */
+const READ_COMMANDS: Array<{ name: string; roles: readonly SimDeviceRole[]; note: string }> = [
+  { name: "show version", roles: ["router", "switch"], note: "Read the device identity and image before choosing commands; this engine answers with the running platform it models." },
+  { name: "show ip interface brief", roles: ["router", "switch"], note: "Read each interface's address, line and protocol state; administratively down means the port is shut down." },
+  { name: "show ipv6 interface brief", roles: ["router", "switch"], note: "Read the IPv6 address and prefix of each interface; IPv6 is configured per interface, next to IPv4." },
+  { name: "show vlan brief", roles: ["switch"], note: "Read which VLANs exist and which access ports carry them. A router does not implement this command, so this step is only offered on a switch." },
+  { name: "show interfaces switchport", roles: ["switch"], note: "Read the access or trunk mode, the access VLAN and the trunk allowed list of every port." },
+  { name: "show interfaces status", roles: ["switch"], note: "Read each port's state from its real cable: connected, notconnect or disabled." },
+  { name: "show ip route connected", roles: ["router", "switch"], note: "Read the directly connected networks; a route disappears when its interface goes down." },
+  { name: "show ipv6 route connected", roles: ["router", "switch"], note: "Read the directly connected IPv6 prefixes; IPv6 forwarding also needs `ipv6 unicast-routing`." },
+  { name: "show running-config", roles: ["router", "switch"], note: "Read the current configuration and compare it with this lab's requirement." },
+  { name: "ipconfig", roles: ["host"], note: "Read this endpoint's address, mask and default gateway." },
+];
 
-const supportedReadCommands = [
-  "show version",
-  "show ip interface brief",
-  "show interfaces status",
-  "show interfaces switchport",
-  "show vlan brief",
-  "show running-config",
-] as const;
-
-/** Turn long catalog verification prose into a command that the local IOS
- * model can actually execute.  The prose remains visible in the scenario;
- * the guided step only offers a safe, deterministic command for this slice. */
-function guidedCommandFor(text: string, index: number) {
+/** Map one catalog verification sentence to a command this engine really implements. */
+function readCommandFor(text: string) {
   const value = text.trim().toLowerCase();
-  if (value.startsWith("show version")) return "show version";
-  if (value.startsWith("show ip interface")) return "show ip interface brief";
-  if (value.startsWith("show interfaces switchport")) return "show interfaces switchport";
-  if (value.startsWith("show interfaces status")) return "show interfaces status";
-  if (value.startsWith("show vlan")) return "show vlan brief";
-  if (value.startsWith("show running-config")) return "show running-config";
-  if (value.includes("vlan")) return "show vlan brief";
-  if (value.includes("interface")) return "show ip interface brief";
-  return supportedReadCommands[(index + 1) % supportedReadCommands.length];
+  const exact = READ_COMMANDS.find((entry) => value.startsWith(entry.name));
+  if (exact) return exact;
+  if (value.includes("ipv6")) return READ_COMMANDS.find((entry) => entry.name === "show ipv6 interface brief") ?? null;
+  if (value.includes("vlan") || value.includes("switchport")) return READ_COMMANDS.find((entry) => entry.name === "show vlan brief") ?? null;
+  if (value.includes("route")) return READ_COMMANDS.find((entry) => entry.name === "show ip route connected") ?? null;
+  if (value.includes("running")) return READ_COMMANDS.find((entry) => entry.name === "show running-config") ?? null;
+  if (value.includes("interface") || value.includes("ping") || value.includes("address")) return READ_COMMANDS.find((entry) => entry.name === "show ip interface brief") ?? null;
+  return READ_COMMANDS[0];
 }
 
-function guideFor(lab: CcnaLabEntry, checklist: SimulationChecklistItem[], devices: SimulationNode[]): SimulationStage[] {
-  const stages = checklist.map((item, index) => {
-    let command = item.id === "evidence"
-      ? "show running-config"
-      : guidedCommandFor(item.detail ?? item.title, index);
-    const isTopology = item.id === "topology";
-    const isFault = item.id === "fault";
-    const switching = /vlan|switchport|interfaces status/.test(command);
-    const routing = /routing|ospf|static route|ipv6|subnet/.test(lab.title.toLowerCase());
-    const target = devices.find((node) => node.kind === (switching || !routing ? "switch" : "router"))
-      ?? devices.find((node) => node.kind === "router" || node.kind === "switch")
-      ?? devices[0];
-    if (target.kind !== "router" && target.kind !== "switch") {
-      command = item.id === "evidence" ? "show running-config" : isTopology ? "show version" : "show ip interface brief";
-    }
-    const explanation: Record<string, string> = {
-      "show version": "Check the device identity and IOS version. Read the model and software information before deciding which configuration commands to use.",
-      "show ip interface brief": "Check the IP address, Status and Protocol of each interface. Compare connected ports with the topology; up/up indicates an active interface, while administratively down means it is shut down.",
-      "show interfaces status": "Check which physical ports are connected, their VLAN, speed and duplex. Compare each port with its cable in the topology before changing settings.",
-      "show interfaces switchport": "Check access or trunk mode and the access/native VLAN on each port. Compare these settings with the lab requirement before configuring the switch.",
-      "show vlan brief": "Check that the required VLAN exists and that the intended access ports belong to it. Compare the VLAN IDs and port list with the lab requirement.",
-      "show running-config": "Read the current configuration and locate the interfaces and settings used in this lab. Compare them with your intended changes and keep evidence without passwords.",
-    };
-    const task = `On ${target.label}, run ${command}. ${explanation[command] ?? "Read the output and compare it with this lab's requirements."}`;
-    return {
-      id: item.id,
-      deviceId: target.id,
-      title: item.title,
-      instruction: isTopology
-        ? `Start on ${target.label}. Read its role and connections in the topology, then run the command below in its console to check its interfaces.`
-        : isFault
-          ? `${item.detail ?? "Reproduce the lab fault"} Use the recovery note as your target, then verify the resulting device state.`
-          : `${item.detail ?? "Verify the lab configuration."} ${task}`,
-      why: isTopology
-        ? "A topology is a plan: identify the device and its role before changing configuration."
-        : isFault
-          ? "Troubleshooting is evidence-led. Confirm the state after the recovery instead of trusting a typed command."
-          : "The output is the evidence that the step is complete; the next stage stays locked until it is produced.",
-      command,
-      expected: `A valid ${command} response appears in the ${target.label} console.`,
-      hint: `Use ${target.label}, not another device. If the prompt ends with >, enter enable first; if it contains (config), enter end before the check. Unambiguous IOS abbreviations are accepted.`,
-    } satisfies SimulationStage;
+/**
+ * What a lab without authored objectives offers instead: the evidence its own catalog entry names,
+ * each sentence mapped to a command the target console actually implements. These are observations,
+ * never achievements: they carry `required: false`, are not stages, and are never counted as work.
+ */
+function observationsFor(lab: CcnaLabEntry, devices: SimulationNode[]): SimulationChecklistItem[] {
+  const verification = lab.verification.length > 0 ? lab.verification : ["show version"];
+  const seen = new Set<string>();
+  const items: SimulationChecklistItem[] = [];
+  for (const [index, text] of verification.entries()) {
+    const command = readCommandFor(text);
+    const device = command ? devices.find((node) => node.role && command.roles.includes(node.role)) ?? null : null;
+    const key = `${device?.id ?? "none"}:${command?.name ?? text}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    items.push({
+      id: `observe-${index + 1}`,
+      title: command && device ? `${device.label} · ${command.name}` : "This lab's own tool",
+      detail: command && device
+        ? `${text} ${command.note}`
+        : `${text} This lab's devices have no IOS console in this practice model, so this check belongs to the lab's own tool.`,
+      required: false,
+    });
+  }
+  items.push({
+    id: "observe-boundary",
+    title: "What this practice model does not prove yet",
+    detail: `Expected fault: ${lab.fault.failure} Recovery: ${lab.fault.recovery} No graded objective is authored for this lab yet, so nothing on this page is credited as completed work.`,
+    required: false,
   });
-  const checks = new Map<string, SimulationStage>();
-  return stages.filter((stage) => {
-    const key = `${stage.deviceId}:${stage.command}`;
-    const previous = checks.get(key);
-    // The adapter sometimes maps several catalog checks to the same supported
-    // IOS command. They are one diagnostic step, not several achievements.
-    if (previous && stage.id.startsWith("verify-")) {
-      // Full catalog verification notes remain in the lab brief; don't repeat
-      // the same simulated check or inflate this workspace's achievement count.
-      return false;
-    }
-    if (previous) {
-      stage.expected += " Repeating an already credited result does not pass: the output must show a new device state after your changes.";
-      stage.hint += " Make the required lab changes before checking again; rerunning the same unchanged check is not another achievement.";
-    }
-    checks.set(key, stage);
-    return true;
-  });
-}
-
-function terminalFor(lab: CcnaLabEntry) {
-  const verification = lab.verification.slice(0, 8);
-  const commands: Record<string, string[]> = {
-    help: ["show version", "show ip interface brief", "show interfaces status", "show running-config", ...verification],
-    "show version": ["Cisco IOS Software, guided CCNA lab image", `Lab: ${lab.title}`, `Domain: ${lab.domain}`],
-    "show ip interface brief": ["Interface              IP-Address      OK? Method Status                Protocol", "Gi0/0                  unassigned      YES unset  administratively down down", "Gi0/1                  unassigned      YES unset  administratively down down"],
-    "show interfaces status": ["Port      Name               Status       Vlan       Duplex  Speed Type", "Fa0/1                       connected    1          a-full  a-100 10/100BaseTX", "Fa0/24                      notconnect   1          auto    auto 10/100BaseTX"],
-    "show running-config": [`! Guided baseline for ${lab.id}`, "! Apply only the commands required by the scenario.", "version 15.2", `! ${lab.fault.failure}`],
-  };
-  for (const command of verification) commands[command.toLowerCase()] ??= [`Evidence target: ${command}`, "Run this check in the simulator after applying the lab change."];
-  return { hostname: lab.title.slice(0, 28), prompt: "Switch#", intro: ["This is a guided, isolated lab terminal.", "Type help to see the read-only checks available."], commands };
+  return items;
 }
 
 /**
@@ -347,7 +317,7 @@ function createPack(lab: CcnaLabEntry): CcnaSimulationPack {
   const devices = authored ? authored.devices.map((node) => ({ ...node, ports: node.ports.map((port) => ({ ...port })) })) : createDevices(lab);
   const topology = handsOn?.topology;
   const sources = lab.sourceRefs.map((source) => ({ title: source.title, url: source.url }));
-  const checklist = authored ? authoredChecklist(authored) : checklistFor(lab);
+  const checklist = authored ? authoredChecklist(authored) : observationsFor(lab, devices);
   return {
     id: `ccna-sim-${slug(lab.id)}`,
     labId: lab.id,
@@ -374,8 +344,9 @@ function createPack(lab: CcnaLabEntry): CcnaSimulationPack {
     devices,
     links: authored ? authored.links.map((link) => ({ ...link, source: { ...link.source }, target: { ...link.target } })) : createLinks(devices, lab),
     checklist,
-    stages: authored ? authoredStages(authored) : guideFor(lab, checklist, devices),
-    terminal: terminalFor(lab),
+    // Only an authored pack has graded stages. A generated pack carries no stage a learner could
+    // complete, because this site will not credit work it cannot check against device state.
+    stages: authored ? authoredStages(authored) : [],
     references: authored ? [...authored.references] : sources,
     sourceSummary: lab.reviewStatus === "reviewed" ? "Objectives and sources were reviewed for this learning-path entry." : `Draft fallback: ${lab.reviewNote ?? "The catalog mapping still needs review."}`,
     fallback: authored ? false : lab.kind === "catalog" && lab.artifacts.steps === 0,

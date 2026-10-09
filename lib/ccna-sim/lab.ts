@@ -24,6 +24,7 @@ export type LabPortView = {
   dot1q: number;
   parent: string | null;
   address: { ip: string; mask: string } | null;
+  ipv6: { address: string; prefix: number } | null;
 };
 
 export type LabDeviceView = {
@@ -33,6 +34,9 @@ export type LabDeviceView = {
   role: SimDeviceRole | null;
   hostname: string;
   gateway: string | null;
+  ipv6Gateway: string | null;
+  /** `ipv6 unicast-routing`: whether this device forwards IPv6 between its own prefixes. */
+  ipv6Routing: boolean;
   vlans: number[];
   vlan: (id: number) => { exists: boolean; name: string | null };
   port: (name: string) => LabPortView;
@@ -55,7 +59,7 @@ export type LabModel = {
 
 const missingPort: LabPortView = {
   exists: false, name: "", kind: null, mode: null, accessVlan: 1, nativeVlan: 1, allowed: null,
-  adminUp: false, dot1q: 0, parent: null, address: null,
+  adminUp: false, dot1q: 0, parent: null, address: null, ipv6: null,
 };
 
 function portView(device: LabDevice | null, name: string): LabPortView {
@@ -65,6 +69,7 @@ function portView(device: LabDevice | null, name: string): LabPortView {
     exists: true, name: port.name, kind: port.kind, mode: port.mode, accessVlan: port.accessVlan,
     nativeVlan: port.nativeVlan, allowed: port.allowedVlans, adminUp: port.adminUp,
     dot1q: port.dot1q, parent: port.parent, address: port.address ? { ...port.address } : null,
+    ipv6: port.ipv6 ? { ...port.ipv6 } : null,
   };
 }
 
@@ -80,6 +85,8 @@ function deviceView(network: LabNetwork, id: string): LabDeviceView {
     role: device?.state.role ?? null,
     hostname: device?.state.hostname ?? "",
     gateway: device?.state.gateway ?? null,
+    ipv6Gateway: device?.state.ipv6Gateway ?? null,
+    ipv6Routing: Boolean(device?.state.ipv6Routing),
     vlans: device ? [...device.state.vlans.keys()].sort((left, right) => left - right) : [],
     vlan: (vlanId) => {
       const vlan = device?.state.vlans.get(vlanId) ?? null;

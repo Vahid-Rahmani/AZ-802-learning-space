@@ -1,4 +1,4 @@
-import { findInterface, portAllowsVlan, type SimDeviceState, type SimDeviceRole, type SimInterface } from "./device.ts";
+import { findInterface, normalizeIpv6, portAllowsVlan, sameIpv6Prefix, type SimDeviceState, type SimDeviceRole, type SimInterface } from "./device.ts";
 
 /**
  * The lab network: the devices a lab publishes, the cables between them, and the only place where a
@@ -36,15 +36,16 @@ export type PingOutcome = {
 
 const ipToInt = (ip: string) => ip.split(".").reduce((total, part) => (total << 8) + Number(part), 0) >>> 0;
 
-function maskToInt(mask: string) {
-  const value = ipToInt(mask);
-  return value === 0 ? 0 : (0xffffffff << (32 - mask.split(".").filter((part) => Number(part) === 255).length * 8)) >>> 0;
-}
-
-/** True when both addresses are inside the same subnet described by `mask`. */
+/**
+ * True when both addresses are inside the same subnet described by `mask`.
+ *
+ * The mask is used as the dotted value it is. Counting only full 255 octets would turn every mask
+ * that is not /8, /16, /24 or /32 into a shorter one, so a /26 lab computed its neighbours as if the
+ * boundary sat at /24 and an address outside the block looked reachable.
+ */
 export function sameSubnet(left: string, right: string, mask: string) {
-  const maskValue = maskToInt(mask);
-  return (ipToInt(left) & maskValue) >>> 0 === (ipToInt(right) & maskValue) >>> 0;
+  const maskValue = ipToInt(mask);
+  return ((ipToInt(left) & maskValue) >>> 0) === ((ipToInt(right) & maskValue) >>> 0);
 }
 
 const deviceOf = (network: LabNetwork, id: string) => network.devices.find((device) => device.id === id);
@@ -152,6 +153,18 @@ export function addressOwner(network: LabNetwork, address: string) {
   return null;
 }
 
+/** The interface that owns an IPv6 address, addressed the same way as the IPv4 owner above. */
+export function ipv6Owner(network: LabNetwork, address: string) {
+  const wanted = normalizeIpv6(address);
+  if (!wanted) return null;
+  for (const device of network.devices) {
+    for (const port of device.state.interfaces) {
+      if (port.ipv6 && normalizeIpv6(port.ipv6.address) === wanted) return { device, port };
+    }
+  }
+  return null;
+}
+
 function configuredRoute(network: LabNetwork, router: LabDevice, targetIp: string) {
   for (const port of router.state.interfaces) {
     if (!port.address || !port.adminUp) continue;
@@ -169,11 +182,71 @@ const reply = (ok: boolean, targetIp: string): string[] => [
 
 const fail = (targetIp: string, reason: string): PingOutcome => ({ ok: false, lines: reply(false, targetIp), reason });
 
+/**
+ * One IPv6 ping, decided by the model exactly like the IPv4 one: the source prefix has to contain the
+ * target, the Layer 2 path (access port, VLAN database, trunks) has to carry the VLAN, and an
+ * off-prefix target needs a configured IPv6 gateway on a router that actually forwards IPv6.
+ */
+function pingV6(network: LabNetwork, source: LabDevice, nic: SimInterface | undefined, targetIp: string): PingOutcome {
+  if (!nic?.ipv6) return fail(targetIp, `${source.label} has no IPv6 address on ${nic?.name ?? "its NIC"}.`);
+  if (!nic.adminUp) return fail(targetIp, `${source.label} ${nic.name} is administratively down.`);
+  const firstHop = neighbourOf(network, source.id, nic.name);
+  if (firstHop && !firstHop.port.adminUp) return fail(targetIp, `${firstHop.device.label} ${firstHop.port.name} is administratively down.`);
+  const sourceVlan = hostVlan(network, source.id);
+  if (sourceVlan === null) return fail(targetIp, `${source.label} is not cabled to a switch access port, so it has no VLAN.`);
+  const local = reachableInVlan(network, source.id, nic.name, sourceVlan);
+  const wanted = normalizeIpv6(targetIp);
+  const destinationHost = network.devices.find((device) => device.state.role === "host" && device.state.interfaces[0]?.ipv6
+    && normalizeIpv6(device.state.interfaces[0].ipv6!.address) === wanted) ?? null;
+  const destinationOwner = destinationHost ? { device: destinationHost, port: destinationHost.state.interfaces[0] } : ipv6Owner(network, targetIp);
+  if (!destinationOwner?.port) return fail(targetIp, `No device in this lab has the IPv6 address ${targetIp}.`);
+  const destination = destinationOwner.port;
+  const onLink = Boolean(destination.ipv6
+    && sameIpv6Prefix(nic.ipv6.address, destination.ipv6.address, nic.ipv6.prefix)
+    && sameIpv6Prefix(nic.ipv6.address, destination.ipv6.address, destination.ipv6.prefix));
+  if (onLink) {
+    if (!destination.adminUp) return fail(targetIp, `${destinationOwner.device.label} ${destination.name} is administratively down.`);
+    if (destinationHost) {
+      return local.hosts.has(destinationHost.id)
+        ? { ok: true, lines: reply(true, targetIp), reason: `${source.label} and ${destinationHost.label} share IPv6 prefix ${nic.ipv6.address}/${nic.ipv6.prefix} in VLAN ${sourceVlan}.` }
+        : fail(targetIp, `${source.label} and ${destinationHost.label} share the IPv6 prefix of VLAN ${sourceVlan}, but no cable and trunk path carries it between them.`);
+    }
+    const attachment = local.attachments.find((candidate) => candidate.device.id === destinationOwner.device.id && candidate.port.name === destination.name);
+    return attachment
+      ? { ok: true, lines: reply(true, targetIp), reason: `${targetIp} is the ${destinationOwner.device.label} ${destination.name} address, reachable in VLAN ${sourceVlan}.` }
+      : fail(targetIp, `${targetIp} is inside ${source.label}'s own IPv6 prefix but does not answer on the local segment.`);
+  }
+  if (!source.state.ipv6Gateway) return fail(targetIp, `${source.label} has no IPv6 default gateway, so it cannot reach another IPv6 prefix.`);
+  const gateway = ipv6Owner(network, source.state.ipv6Gateway);
+  const gatewayAttachment = gateway
+    ? local.attachments.find((candidate) => candidate.device.id === gateway.device.id && candidate.port.name === gateway.port.name)
+    : undefined;
+  if (!gateway || !gateway.port.adminUp || !gatewayAttachment) {
+    return fail(targetIp, `${source.label}'s IPv6 gateway ${source.state.ipv6Gateway} is not configured on an up router interface in VLAN ${sourceVlan}.`);
+  }
+  const router = gateway.device;
+  if (!router.state.ipv6Routing) return fail(targetIp, `${router.label} has IPv6 addresses but IPv6 unicast routing is off, so it does not forward IPv6 packets.`);
+  const egress = destination.ipv6
+    ? router.state.interfaces.find((port) => port.ipv6 && port.adminUp && sameIpv6Prefix(port.ipv6.address, destination.ipv6!.address, port.ipv6.prefix)) ?? null
+    : null;
+  if (!egress) return fail(targetIp, `${router.label} has no directly connected IPv6 interface for ${targetIp}. IPv6 routing protocols are outside this lab.`);
+  if (destinationHost) {
+    if (!destinationHost.state.ipv6Gateway) return fail(targetIp, `${destinationHost.label} has no IPv6 default gateway, so the reply cannot leave its own prefix.`);
+    const remoteVlan = hostVlan(network, destinationHost.id);
+    const remote = remoteVlan === null ? null : reachableInVlan(network, router.id, egress.name, remoteVlan);
+    if (!remote || !remote.hosts.has(destinationHost.id)) {
+      return fail(targetIp, `${router.label} cannot reach ${destinationHost.label}: the switch path for its IPv6 prefix is incomplete.`);
+    }
+  }
+  return { ok: true, lines: reply(true, targetIp), reason: `${router.label} forwards IPv6 from ${source.label} to ${targetIp}.` };
+}
+
 /** One ping, decided by the model and nothing else. */
 export function pingFrom(network: LabNetwork, fromDeviceId: string, targetIp: string): PingOutcome {
   const source = deviceOf(network, fromDeviceId);
   if (!source || source.state.role !== "host") return fail(targetIp, "Only an endpoint console can start a ping in this lab.");
   const nic = source.state.interfaces[0];
+  if (normalizeIpv6(targetIp)) return pingV6(network, source, nic, targetIp);
   if (!nic?.address) return fail(targetIp, `${source.label} has no IP address on ${nic?.name ?? "its NIC"}.`);
   if (!nic.adminUp) return fail(targetIp, `${source.label} ${nic.name} is administratively down.`);
   const firstHop = neighbourOf(network, source.id, nic.name);
@@ -193,7 +266,10 @@ export function pingFrom(network: LabNetwork, fromDeviceId: string, targetIp: st
   }
 
   const destinationHost = network.devices.find((device) => device.state.role === "host" && device.state.interfaces[0]?.address?.ip === targetIp) ?? null;
-  const destinationInterface = destinationHost ? destinationHost.state.interfaces[0] : addressOwner(network, targetIp)?.port ?? null;
+  const destinationOwner = destinationHost
+    ? { device: destinationHost, port: destinationHost.state.interfaces[0] }
+    : addressOwner(network, targetIp);
+  const destinationInterface = destinationOwner?.port ?? null;
   if (!destinationInterface) return fail(targetIp, `No device in this lab has the address ${targetIp}.`);
 
   const start = nic.name;
@@ -215,6 +291,15 @@ export function pingFrom(network: LabNetwork, fromDeviceId: string, targetIp: st
         : fail(targetIp, `${source.label} and ${destinationHost.label} are both in VLAN ${sourceVlan}, but no cable and trunk path carries it between them.`);
     }
   } else if (destinationInterface.address && sameSubnet(nic.address.ip, targetIp, nic.address.mask)) {
+    // A router's own interface does answer a ping from the segment it terminates. Anything else in
+    // the source's own subnet that the model cannot reach is reported as silent, never as success.
+    const owner = destinationOwner;
+    const attachment = owner
+      ? local.attachments.find((candidate) => candidate.device.id === owner.device.id && candidate.port.name === destinationInterface.name)
+      : undefined;
+    if (attachment && owner && destinationInterface.adminUp) {
+      return { ok: true, lines: reply(true, targetIp), reason: `${targetIp} is the ${owner.device.label} ${destinationInterface.name} address, reachable in VLAN ${sourceVlan}.` };
+    }
     return fail(targetIp, `${targetIp} is in ${source.label}'s own subnet but does not answer on the local segment.`);
   }
 

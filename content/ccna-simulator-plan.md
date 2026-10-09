@@ -176,6 +176,8 @@ New: `scripts/validate-ccna-sim.mjs` and `npm run validate:ccna-sim`. It refuses
 - a lab with a pack but no entry point from both `/ccna/build` and the library;
 - any edit to a frozen AZ-802 / AZ-900 / Docker file rather than an addition.
 
+Added later, same commit as the device-model repair below: `npm run test:ccna-sim-ui` (the workspace component in jsdom, driving real keyboard and click events) and `npm run audit:ccna-readiness` (the per-lab readiness table, with `--check` failing a lab that claims graded work it cannot prove). `scripts/validate-ccna-guidance.mjs` was removed with the transcript-credit rule it tested: a `show` command can no longer be evidence for a graded step at all, so the rule it guarded does not exist.
+
 Must stay green, unchanged: `validate:ccna-labs`, `validate:ccna-topologies`, `verify:ccna-lab-sources`, `validate:az802`, `validate:az900`, `validate:questions`, `tsc`, `npm run build`.
 
 Browser acceptance is manual, per slice, recorded by extending [ccna-lab-audit.md](ccna-lab-audit.md) — never by replacing its earlier evidence.
@@ -200,3 +202,21 @@ No drag-and-drop topology builder, no classroom or multi-user features, no wirel
 The single-language decision is confirmed: **English-only simulator content** (§2). Nothing else is open — the slice count, the module count and the 91/18 coverage split do not depend on it.
 
 First step on approval: slice S0, ending with a working `/ccna/sim?lab=ccna-addressing` served locally, plus the validator and the golden transcript that proves determinism.
+
+## 15. Recorded after the device-model repair (2026-10-09)
+
+A learner reported four faults in `ccna-addressing`: `enable` on R1 answered "Unknown command", `show vlan brief` on SW1 was refused although the guide offered it, the topology showed a port connected while the console said `administratively down`, and switching device tabs lost the console.
+
+Cause, proven from the code: only an *authored* pack has devices with a console role, and the workspace chose its console implementation from that role. The 106 labs without an authored pack therefore had a **canned transcript** instead of the engine — a fixed string table that did not contain `enable` or `show vlan brief`, that printed `administratively down` regardless of the cables, and that could never carry a second device's state. The engine that would have answered all four correctly was already there and unused for those labs.
+
+What changed:
+
+- **One device model.** Every lab now builds every console through `createLabSession`, one console per node with a stable node id. The canned transcript path (`terminalResponse`, `terminalFor`, `SimulationTerminalPack`) is deleted, and `validate:ccna-sim` fails if it comes back. A device whose real control surface is a vendor GUI (access point, cloud) has no console role, and the workspace says so instead of inventing one.
+- **Status from cable and admin state, everywhere.** The canvas dot, the interface table and `show interfaces status` / `show ip interface brief` all read `portLinkStatus` from the same model, so one port cannot be "connected" on screen and down in its own console.
+- **Per-console state.** Each console keeps its own transcript, history, draft and device state; switching tabs no longer touches another device. A snapshot is restored per device, and a snapshot from an older device model keeps its transcript while its device state is rebuilt from the lab's current defaults — with a visible explanation.
+- **No transcript credit.** A step is credited only by a predicate over live device state. A lab with no authored objective shows its own evidence checks as a read-only observation list and credits nothing.
+- **Engine: IPv6 and mask arithmetic.** `ipv6 address <addr>/<prefix>`, `ipv6 default-gateway`, `ipv6 unicast-routing`, `show ipv6 interface brief`, `show ip route connected`, `show ipv6 route connected`, `show interfaces trunk` and IPv6 ping are implemented from the model. The subnet comparison was computing every mask as /8, /16, /24 or /32 (it counted 255 octets), so a /26 lab treated `.64` as a neighbour of `.10`; it now ANDs the real dotted mask, and an non-contiguous mask is refused the way a device refuses it.
+
+What the engine still cannot prove, stated rather than faked: no static or dynamic routing (no OSPF adjacency, metric or AD), no EtherChannel, no spanning tree, no HSRP/VRRP, no DHCP/DNS/NTP/syslog/TFTP services, no NAT, no ACL/SSH/AAA/password model, no port security, no CDP/LLDP/VTP/MAC-table model, and no wireless or REST/JSON surface. A lab that needs one of these is reported as `no-route` (for routing) or left unauthored, and `content/ccna-lab-readiness.md` lists every lab with the exact missing capability and the commit that shipped the packs that exist.
+
+State of the coverage after this repair: **3 labs graded from device state** (`ccna-addressing` 11 graded steps, `ccna-vlans` 10, `ccna-topology-017` 16 — 37 in total), **106 labs with no authored objective yet**, of which 91 ask for at least one capability the matrix above does not implement. No lab is marked complete on the strength of another lab's work, and none of the missing capabilities is labelled as done.

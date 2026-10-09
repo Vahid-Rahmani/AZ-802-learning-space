@@ -1,4 +1,5 @@
 import type { SimLabPack } from "../../ccna-sim/lab.ts";
+import { createCcnaAddressingPack } from "./ccna-addressing.ts";
 import { createCcnaVlansPack } from "./ccna-vlans.ts";
 import { createCcnaTopology017Pack } from "./ccna-topology-017.ts";
 
@@ -17,7 +18,7 @@ import { createCcnaTopology017Pack } from "./ccna-topology-017.ts";
  * replays its solution headlessly and refuses to pass if any graded step, or any negative case,
  * disagrees.
  */
-const packs: readonly SimLabPack[] = [createCcnaVlansPack(), createCcnaTopology017Pack()];
+const packs: readonly SimLabPack[] = [createCcnaAddressingPack(), createCcnaVlansPack(), createCcnaTopology017Pack()];
 
 const packsByLabId = new Map(packs.map((pack) => [pack.labId, pack]));
 

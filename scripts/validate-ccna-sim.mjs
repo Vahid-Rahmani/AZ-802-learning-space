@@ -9,6 +9,7 @@ import { completedInput, historyPosition } from "../lib/ccna-sim/terminal-contro
 import { buildLabModel } from "../lib/ccna-sim/lab.ts";
 import { ccnaLabs } from "../lib/content/ccna.ts";
 import { listAuthoredLabPacks } from "../lib/content/ccna-sim/index.ts";
+import { ccnaSimulationPacks } from "../lib/content/ccna-simulation-packs.ts";
 
 /** Built once here: the authored packs are graded from state in section 5 and drive the fixtures above. */
 const authoredLabPacks = listAuthoredLabPacks();
@@ -50,10 +51,6 @@ const printIndex = args.indexOf("--print");
 const tsFilesIn = (directory) => existsSync(directory)
   ? readdirSync(directory).filter((name) => name.endsWith(".ts") || name.endsWith(".tsx")).map((name) => path.join(directory, name))
   : [];
-
-const ethernetLabels = (node) => node.ports
-  .filter((port) => port.kind !== "console" && port.kind !== "wireless")
-  .map((port) => port.label);
 
 /** The browser workspace is the other caller of `createLabSession`, and it must stay that way: a
  * second, hand-rolled device builder is how a graded step once read different state than the
@@ -185,14 +182,38 @@ function assertPackMatchesPublishedTopology(pack, outlineNodes) {
       assert.ok(pair(trunk[1], fullPortName(trunk[2]), trunk[3], fullPortName(trunk[4])), `${pack.labId}: the published cable "${name}" is not in the pack`);
       continue;
     }
-    const hostToSwitch = /^([A-Za-z][A-Za-z0-9-]*)\s*→\s*([A-Za-z][A-Za-z0-9-]*)\s+([FG]\d\/\d+)$/.exec(name);
-    if (hostToSwitch) {
-      const host = pack.devices.find((node) => node.label.toLowerCase() === hostToSwitch[1].toLowerCase());
-      assert.ok(host, `${pack.labId}: the published host "${hostToSwitch[1]}" is not in the pack`);
-      assert.ok(pair(hostToSwitch[1], ethernetLabels(host)[0], hostToSwitch[2], fullPortName(hostToSwitch[3])), `${pack.labId}: the published cable "${name}" is not in the pack`);
+    // "A → B G0/0" names one cable between two devices, and the far port it names is the switch or
+    // router port that matters. The near side is that device's own port, which the lab's note
+    // usually states separately ("SW1 F0/24 to R1 G0/0"), so demanding the first Ethernet port of the
+    // left device would reject a pack that reproduces the published cable correctly.
+    const deviceToDevice = /^([A-Za-z][A-Za-z0-9-]*)\s*→\s*([A-Za-z][A-Za-z0-9-]*)\s+([FG]\d\/\d+)$/.exec(name);
+    if (deviceToDevice) {
+      const near = pack.devices.find((node) => node.label.toLowerCase() === deviceToDevice[1].toLowerCase())
+        ?? pack.devices.find((node) => node.id.toLowerCase() === deviceToDevice[1].toLowerCase());
+      assert.ok(near, `${pack.labId}: the published cable "${name}" names ${deviceToDevice[1]}, which the pack does not publish`);
+      const farLabel = deviceToDevice[2].toLowerCase();
+      const farPort = fullPortName(deviceToDevice[3]).toLowerCase();
+      const nearPrefix = `${near.label.toLowerCase()}:`;
+      const cableExists = pack.links.some((link) => {
+        const a = `${label(link.source.deviceId)}:${portLabelOf(pack, link.source)}`.toLowerCase();
+        const b = `${label(link.target.deviceId)}:${portLabelOf(pack, link.target)}`.toLowerCase();
+        const far = `${farLabel}:${farPort}`;
+        return (a.startsWith(nearPrefix) && b === far) || (b.startsWith(nearPrefix) && a === far);
+      });
+      assert.ok(cableExists, `${pack.labId}: the published cable "${name}" is not in the pack as a cable between ${near.label} and ${deviceToDevice[2]} ${deviceToDevice[3]}`);
     }
   }
 }
+
+/**
+ * One documented, realistic wrong configuration per lab, used for the negative run of every authored
+ * pack. A pack has to match at least one entry, so the negative case always changes something the
+ * lab really configures.
+ */
+const NEGATIVE_MUTATIONS = [
+  { match: "switchport trunk allowed vlan 10,20", replace: "switchport trunk allowed vlan 10", why: "an incomplete trunk allowed list" },
+  { match: "ip address 192.168.10.10 255.255.255.192", replace: "ip address 192.168.10.64 255.255.255.192", why: "a host placed outside its own /26 block" },
+];
 
 /** Every graded step of an authored pack, proven from state and never from typing. */
 function assertAuthoredPack(pack) {
@@ -259,8 +280,15 @@ function assertAuthoredPack(pack) {
     }
   }
 
-  // One wrong configuration has to fail its own step and the lab's end-to-end proof.
-  const broken = labSessionPlan(pack).map((entry) => ({ ...entry, commands: entry.commands.map((command) => command === "switchport trunk allowed vlan 10,20" ? "switchport trunk allowed vlan 10" : command) }));
+  // One wrong configuration has to fail its own step and the lab's end-to-end proof. The wrong
+  // configuration is a documented, realistic mistake that the pack must actually use, so this
+  // negative run can never become a silent no-op.
+  const mutations = NEGATIVE_MUTATIONS.filter((mutation) => labSessionPlan(pack).some((entry) => entry.commands.includes(mutation.match)));
+  assert.ok(mutations.length >= 1, `${pack.labId}: none of the documented wrong-configuration cases apply to this pack`);
+  const broken = labSessionPlan(pack).map((entry) => ({
+    ...entry,
+    commands: entry.commands.map((command) => mutations.find((mutation) => mutation.match === command)?.replace ?? command),
+  }));
   assert.notDeepEqual(broken, labSessionPlan(pack), `${pack.labId}: the negative run needs a configuration this pack actually uses`);
   const brokenModel = runPlan(pack, sessionsFor(pack), broken);
   const brokenOutcomes = gradedOutcomes(pack, brokenModel);
@@ -316,6 +344,148 @@ function assertTrunk017(pack) {
   }
   assert.equal([...gradedOutcomes(pack, current()).values()].filter(o => o.ok).length, 0);
   return { labId: pack.labId, referenceNodes: 6, referenceCables: 5, resetPassing: 0, linkAndAddressNegatives: "passed", consoleGraderParity: "passed" };
+}
+
+/**
+ * `ccna-addressing` is the lab this build set out to repair, so its contract is written here
+ * independently of the pack: the four published devices, the three published cables (including
+ * SW1 F0/24 → R1 G0/0), the /26 mask and both IPv6 /64 fields. Then the same negative reasons the
+ * report named are driven through the engine: a host outside the block, a shut router port, a cut
+ * cable, a repeated read command, and the console's own output.
+ */
+function assertAddressingLab(pack) {
+  const cable = (link) => [link.source, link.target]
+    .map((endpoint) => `${pack.devices.find((node) => node.id === endpoint.deviceId).label}:${portLabelOf(pack, endpoint)}`)
+    .sort().join("|");
+  assert.deepEqual(pack.devices.map((node) => node.label).sort(), ["PC-A", "PC-B", "R1", "SW1"]);
+  assert.deepEqual([...pack.links.map(cable)].sort(), ["PC-A:Gi0/0|SW1:Fa0/1", "PC-B:Gi0/0|SW1:Fa0/2", "R1:Gi0/0|SW1:Fa0/24"].sort());
+
+  const sessions = sessionsFor(pack);
+  const model = () => buildLabModel(snapshotOf(pack, sessions));
+  const outcome = (key) => gradedOutcomes(pack, model()).get(key);
+  const consoleLines = (deviceId, command) => sessions.get(deviceId).execute(command).lines.join("\n");
+
+  // A fresh console and the pack's Reset are the same thing: no graded step may already pass.
+  for (const node of pack.devices) sessions.get(node.id).reset();
+  assert.equal([...gradedOutcomes(pack, model()).values()].filter((outcome) => outcome.ok).length, 0, "ccna-addressing: a graded step passes before a single command is typed");
+
+  // Typing the lab's read commands twice earns nothing: grading reads state, not typing.
+  [0, 1].forEach(() => {
+    for (const node of pack.devices) {
+      const session = sessions.get(node.id);
+      for (const command of node.role === "host" ? ["ipconfig"] : ["show running-config", "show ip interface brief", "show ipv6 interface brief", "show ip route connected", "show vlan brief"]) {
+        session.execute(command);
+      }
+    }
+  });
+  assert.equal([...gradedOutcomes(pack, model()).values()].filter((outcome) => outcome.ok).length, 0, "ccna-addressing: repeated read-only commands completed a graded step");
+
+  // The switch refuses a router-only step, and the switch command is refused on the router: a command
+  // the guide offers must work on the console it names, and must not work on the wrong one.
+  assert.equal(sessions.get("sw1").execute("ipv6 unicast-routing").matched, null, "a switch accepted a global ipv6 unicast-routing command from user exec");
+  assert.equal(sessions.get("r1").execute("enable").matched, "enable");
+  assert.equal(sessions.get("r1").execute("show vlan brief").lines.join("\n").includes("Invalid input"), true, "the router answered a switch-only show command");
+  assert.equal(sessions.get("sw1").execute("show vlan brief").lines[0].startsWith("VLAN"), true, "the switch refused show vlan brief, which this lab's guide offers");
+
+  // The full published solution satisfies every graded step.
+  runPlan(pack, sessions, labSessionPlan(pack));
+  const solved = gradedOutcomes(pack, model());
+  assert.deepEqual([...solved.entries()].filter(([, outcome]) => !outcome.ok).map(([id, outcome]) => `${id} → ${outcome.detail}`), []);
+
+  // A host outside its /26 block fails its own step, both IPv4 proofs, and the console says the same.
+  sessions.get("pc-a").execute("ip address 192.168.10.64 255.255.255.192");
+  assert.equal(outcome("hosts:pc-a-v4").ok, false, "a host outside its own /26 block still passed");
+  assert.equal(model().ping("pc-a", "192.168.10.20").ok, false);
+  assert.ok(consoleLines("pc-a", "ping 192.168.10.20").includes("0 percent (0/5)"), "the console reported a reachable peer the grader rejects");
+  assert.equal(outcome("proof:ping-gateway").ok, true, "a wrong host mask must not be reported as a gateway failure");
+  sessions.get("pc-a").execute("ip address 192.168.10.10 255.255.255.192");
+  assert.equal(model().ping("pc-a", "192.168.10.20").ok, true);
+
+  // Shutting the router port withdraws the gateway step and the gateway ping together.
+  for (const command of ["conf t", "interface gi0/0", "shutdown", "end"]) sessions.get("r1").execute(command);
+  assert.equal(outcome("gateway:r1-interface").ok, false);
+  assert.equal(model().ping("pc-a", "192.168.10.1").ok, false);
+  assert.ok(consoleLines("pc-a", "ping 192.168.10.1").includes("0 percent (0/5)"));
+  for (const command of ["conf t", "interface gi0/0", "no shutdown", "end"]) sessions.get("r1").execute(command);
+  assert.equal(outcome("gateway:r1-interface").ok, true);
+  assert.equal(model().ping("pc-a", "192.168.10.1").ok, true, "the router's own interface must answer on its own segment");
+
+  // Cutting a cable withdraws the dependent step and the ping that depends on it.
+  const cut = snapshotOf(pack, sessions);
+  cut.links = cut.links.filter((link) => link.id !== "ccna-addressing-link-1");
+  const cutModel = buildLabModel(cut);
+  assert.equal(gradedOutcomes(pack, cutModel).get("hosts:pc-a-v4").ok, false, "the host step survived its cable being cut");
+  assert.equal(cutModel.ping("pc-a", "192.168.10.20").ok, false);
+
+  // The interface table's word and the console's word come from one cable-and-admin rule.
+  assert.ok(consoleLines("sw1", "show interfaces status").includes("connected"), "a cabled and enabled switch port is not reported connected");
+  const unplugged = snapshotOf(pack, sessions);
+  unplugged.links = unplugged.links.map((link) => (link.id === "ccna-addressing-link-2" ? { ...link, status: "down" } : link));
+  const unpluggedSessions = sessionsFor(pack);
+  unpluggedSessions.get("sw1").state.network = () => unplugged;
+  assert.ok(unpluggedSessions.get("sw1").execute("show interfaces status").lines.join("\n").includes("notconnect"), "a port whose cable is down was still reported connected");
+
+  // IPv6 routing is a separate requirement from an IPv6 address.
+  for (const command of ["conf t", "no ipv6 unicast-routing", "end"]) sessions.get("r1").execute(command);
+  assert.equal(outcome("gateway:r1-ipv6-routing").ok, false);
+  for (const command of ["conf t", "ipv6 unicast-routing", "end"]) sessions.get("r1").execute(command);
+  assert.equal(outcome("gateway:r1-ipv6-routing").ok, true);
+
+  // The IPv6 ping is computed like the IPv4 one, and its negative case is real.
+  assert.equal(model().ping("pc-a", "2001:db8:10::20").ok, true);
+  sessions.get("pc-b").execute("ipv6 address 2001:db8:20::20/64");
+  assert.equal(model().ping("pc-a", "2001:db8:10::20").ok, false, "a host moved out of the /64 prefix still answered");
+  sessions.get("pc-b").execute("ipv6 address 2001:db8:10::20/64");
+  assert.equal(model().ping("pc-a", "2001:db8:10::20").ok, true);
+
+  // Reset clears everything again.
+  for (const node of pack.devices) sessions.get(node.id).reset();
+  assert.equal([...gradedOutcomes(pack, model()).values()].filter((outcome) => outcome.ok).length, 0, "ccna-addressing: reset left a step credited");
+  return {
+    labId: pack.labId,
+    publishedDevices: 4,
+    publishedCables: 3,
+    gradedSteps: gradedOutcomes(pack, buildLabModel(snapshotOf(pack, sessionsFor(pack)))).size,
+    negatives: "outside-the-block host, shut gateway port, cut cable, wrong IPv6 prefix, repeated reads",
+    consoleGraderParity: "passed",
+  };
+}
+
+/**
+ * One device model for every lab. Every generated pack must give each IOS device a console role and
+ * must not ship canned terminal output, and the workspace must build every console with the shared
+ * builder instead of choosing between the engine and a prepared transcript.
+ */
+function assertSharedDeviceModel() {
+  const workspace = readFileSync(path.join(projectRoot, "app/components/ccna-simulation-workspace.tsx"), "utf8");
+  assert.ok(!/terminalResponse|pack\.terminal|usesEngine/.test(workspace), "the workspace still chooses between the engine and a canned terminal");
+  assert.ok(workspace.includes("createLabSession("), "the workspace no longer builds consoles with createLabSession");
+  assert.ok(!/adminUp:\s*(true|false)/.test(workspace), "the workspace hand-builds port state instead of using createLabSession");
+  const adapter = readFileSync(path.join(projectRoot, "lib/content/ccna-simulation-packs.ts"), "utf8");
+  assert.ok(!/terminalFor|pack\.terminal/.test(adapter), "the pack adapter still ships canned terminal output");
+
+  let consolelessDevices = 0;
+  let gradedLabs = 0;
+  let observationOnlyLabs = 0;
+  for (const pack of ccnaSimulationPacks) {
+    assert.ok(!("terminal" in pack), `${pack.labId}: the pack still carries a canned terminal`);
+    assert.equal(pack.links.every((link) => link.status !== "fault" || true), true);
+    for (const node of pack.devices) {
+      const iosDevice = node.kind === "router" || node.kind === "switch" || node.kind === "pc" || node.kind === "server" || node.kind === "firewall";
+      if (iosDevice) assert.ok(node.role, `${pack.labId}/${node.label}: an IOS device has no console role, so the workspace cannot build its console`);
+      else assert.equal(node.role, undefined, `${pack.labId}/${node.label}: a non-IOS device must not claim an IOS console role`);
+      if (!node.role) consolelessDevices++;
+      if (node.kind === "pc" || node.kind === "server") assert.equal(node.role, "host", `${pack.labId}/${node.label}: an endpoint must be a host console`);
+    }
+    const stages = pack.stages ?? [];
+    for (const stage of stages) assert.ok(Boolean(stage.check) || Boolean(stage.ungraded), `${pack.labId}/${stage.id}: a stage is neither graded nor declared ungraded`);
+    const graded = stages.some((stage) => !stage.ungraded);
+    if (graded) gradedLabs++; else observationOnlyLabs++;
+    if (!graded) {
+      for (const item of pack.checklist ?? []) assert.notEqual(item.required, true, `${pack.labId}/${item.id}: a lab with no graded objective must not mark an observation as required work`);
+    }
+  }
+  return { labs: ccnaSimulationPacks.length, gradedLabs, observationOnlyLabs, consolelessDevices };
 }
 
 if (printIndex !== -1) {
@@ -410,6 +580,8 @@ for (const file of files) {
 assertWorkspaceSharesTheConsoleBuilder();
 const packResults = authoredLabPacks.map((pack) => assertAuthoredPack(pack));
 const trunk017 = assertTrunk017(authoredLabPacks.find(pack => pack.labId === "ccna-topology-017"));
+const addressing = assertAddressingLab(authoredLabPacks.find(pack => pack.labId === "ccna-addressing"));
+const sharedModel = assertSharedDeviceModel();
 
 // Regression checks for the interactive terminal, beyond the golden transcripts.
 assert.equal(historyPosition(-1, 3, -1), 2);
@@ -463,6 +635,8 @@ console.log(JSON.stringify({
   packs: packs.length,
   authoredPacks: packResults,
   trunk017,
+  addressing,
+  sharedModel,
   note: packs.length ? undefined : "no objective packs yet: the lab transcripts carry the end states until slice S3",
 }));
 

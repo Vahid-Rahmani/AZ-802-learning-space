@@ -1,8 +1,8 @@
 import { emptyConfigState, saveStartup, startupConfigLines, type ConfigState } from "./config.ts";
 import {
-  createDevice, createDeviceWithPorts, createVlan, expandInterfaceRange, findInterface, interfaceStatusLines,
-  ipInterfaceBriefLines, openInterfaceForConfig, runningConfigLines, switchportDetailLines,
-  vlanBriefLines,
+  connectedRouteLines, createDevice, createDeviceWithPorts, createVlan, expandInterfaceRange, findInterface,
+  interfaceStatusLines, ipInterfaceBriefLines, ipv6ConnectedRouteLines, ipv6InterfaceBriefLines, normalizeIpv6,
+  openInterfaceForConfig, parseIpv6Cidr, runningConfigLines, switchportDetailLines, trunkLines, vlanBriefLines,
   type SimCableLookup, type SimDeviceRole, type SimDeviceState, type SimInterface,
 } from "./device.ts";
 import { pingFrom, type LabNetwork } from "./lab-network.ts";
@@ -47,19 +47,31 @@ export const simKeywordHelp: Record<string, string> = {
   no: "Negate a command or set its defaults",
   interface: "Select an interface to configure",
   switchport: "Set switching mode characteristics",
+  ipv6: "IPv6 configuration commands",
 };
 
 const execModes = ["user", "privileged"] as const;
 const configurationModes = ["global", "interface", "vlan", "line"] as const;
 const everyMode = ["user", "privileged", "global", "interface", "vlan", "line"] as const;
 
+const ipToInt = (value: string) => value.split(".").reduce((total, part) => (total << 8) + Number(part), 0) >>> 0;
 const isVlanId = (value: string) => /^\d{1,4}$/.test(value) && Number(value) >= 1 && Number(value) <= 4094;
 const isWord = (value: string) => value.length >= 1 && value.length <= 32 && !/\s/.test(value);
 const isIpv4 = (value: string) => /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.test(value) && value.split(".").every((part) => Number(part) <= 255);
+/**
+ * A usable IPv4 subnet mask is contiguous: 255.255.255.192, not 255.255.255.193. A real device
+ * refuses the second one, and so does this engine, so a typo cannot look like a configured mask.
+ */
+const isIpv4Mask = (value: string) => {
+  if (!isIpv4(value)) return false;
+  const inverted = ~ipToInt(value) >>> 0;
+  return (inverted & (inverted + 1)) === 0;
+};
 const isHostDevice = (state: SimState) => state.device.role === "host";
 /** The Layer 2 command set belongs to a switch; a router ports are routed unless configured otherwise. */
 const isSwitchDevice = (state: SimState) => state.device.role === "switch";
 const hostNic = (state: SimState) => state.device.interfaces[0] ?? null;
+const isIpv6Cidr = (value: string) => parseIpv6Cidr(value) !== null;
 /** A router subinterface name such as Gi0/0.10 whose parent port already exists. */
 const isSubinterfaceName = (state: SimState, raw: string) => state.device.role === "router" && /^[a-z]+\d+\/\d+\.\d{1,4}$/i.test(raw.trim());
 
@@ -194,7 +206,7 @@ export const simCommands: readonly SimCommand[] = [
     name: "ip address", modes: ["interface", "user"], help: "Set the interface address", args: ["<ip-address>", "<mask>"],
     // The user-exec form belongs to an endpoint console, which is where a real PC sets its address.
     available: (state) => state.mode !== "user",
-    validate: (state, args) => isIpv4(args[0]) && isIpv4(args[1]) && (state.mode !== "user" || isHostDevice(state)),
+    validate: (state, args) => isIpv4(args[0]) && isIpv4Mask(args[1]) && (state.mode !== "user" || isHostDevice(state)),
     apply: (state, args) => {
       if (state.mode === "user") { const nic = hostNic(state); if (nic) nic.address = { ip: args[0], mask: args[1] }; return; }
       eachSelected(state, (port) => { port.address = { ip: args[0], mask: args[1] }; });
@@ -220,6 +232,35 @@ export const simCommands: readonly SimCommand[] = [
     revert: (state) => { state.device.gateway = null; },
   },
   {
+    name: "ipv6 address", modes: ["interface", "user"], help: "Set the interface IPv6 address and prefix", args: ["<address>/<prefix>"],
+    available: (state) => state.mode !== "user",
+    validate: (state, args) => isIpv6Cidr(args[0]) && (state.mode !== "user" || isHostDevice(state)),
+    apply: (state, args) => {
+      const parsed = parseIpv6Cidr(args[0]);
+      if (!parsed) return;
+      if (state.mode === "user") { const nic = hostNic(state); if (nic) nic.ipv6 = { ...parsed }; return; }
+      eachSelected(state, (port) => { port.ipv6 = { ...parsed }; });
+    },
+    revert: (state) => {
+      if (state.mode === "user") { const nic = hostNic(state); if (nic) nic.ipv6 = null; return; }
+      eachSelected(state, (port) => { port.ipv6 = null; });
+    },
+  },
+  {
+    name: "ipv6 unicast-routing", modes: ["global"], help: "Enable IPv6 unicast routing",
+    // A router or a Layer 3 switch can forward IPv6; an endpoint console has no routing table at all.
+    available: (state) => isSwitchDevice(state) || state.device.role === "router",
+    apply: (state) => { state.device.ipv6Routing = true; },
+    revert: (state) => { state.device.ipv6Routing = false; },
+  },
+  {
+    name: "ipv6 default-gateway", modes: ["global", "user"], help: "Set this endpoint's IPv6 default gateway", args: ["<ipv6-address>"],
+    available: (state) => state.mode !== "user" && state.device.role !== "router",
+    validate: (state, args) => normalizeIpv6(args[0]) !== null && state.device.role !== "router",
+    apply: (state, args) => { state.device.ipv6Gateway = normalizeIpv6(args[0]); },
+    revert: (state) => { state.device.ipv6Gateway = null; },
+  },
+  {
     name: "ipconfig", modes: ["user"], help: "Show this endpoint's IP configuration",
     available: (state) => isHostDevice(state),
     validate: (state) => isHostDevice(state),
@@ -230,13 +271,16 @@ export const simCommands: readonly SimCommand[] = [
       return [
         `${name.padEnd(16)}${nic?.address ? `${nic.address.ip} ${nic.address.mask}` : "unassigned"}`,
         `Default gateway ${state.device.gateway ?? "not set"}`,
+        // The IPv6 half appears only on a dual-stack host, so a single-stack endpoint reports exactly
+        // what its configuration holds instead of printing empty IPv6 fields.
+        ...(nic?.ipv6 ? [`IPv6 Address    ${nic.ipv6.address}/${nic.ipv6.prefix}`, `IPv6 Gateway    ${state.device.ipv6Gateway ?? "not set"}`] : []),
       ];
     },
   },
   {
     name: "ping", modes: ["user", "privileged"], help: "Send ICMP echo requests to an address", args: ["<ip-address>"],
     available: (state) => isHostDevice(state),
-    validate: (state, args) => isIpv4(args[0]) && isHostDevice(state),
+    validate: (state, args) => (isIpv4(args[0]) || normalizeIpv6(args[0]) !== null) && isHostDevice(state),
     output: (state, args) => {
       const network = state.network?.() ?? null;
       if (!network) return ["% The lab network is not attached to this console."];
@@ -255,11 +299,17 @@ export const simCommands: readonly SimCommand[] = [
   // Verification.
   { name: "show running-config", modes: execModes, help: "Show the running configuration", output: (state) => runningConfigLines(state.device) },
   { name: "show startup-config", modes: execModes, help: "Show the saved startup configuration", output: (state) => startupConfigLines(state.config) },
-  { name: "show vlan", modes: execModes, help: "Show the VLAN database", output: (state) => vlanBriefLines(state.device) },
-  { name: "show vlan brief", modes: execModes, help: "Show the VLAN database in brief", output: (state) => vlanBriefLines(state.device) },
-  { name: "show interfaces status", modes: execModes, help: "Show the port status table", output: (state) => interfaceStatusLines(state.device, cableStateFor(state)) },
-  { name: "show interfaces switchport", modes: execModes, help: "Show the switchport state of every port", output: (state) => state.device.interfaces.flatMap((port) => [...switchportDetailLines(state.device, port), ""]) },
+  { name: "show vlan", modes: execModes, help: "Show the VLAN database", available: isSwitchDevice, output: (state) => vlanBriefLines(state.device) },
+  { name: "show vlan brief", modes: execModes, help: "Show the VLAN database in brief", available: isSwitchDevice, output: (state) => vlanBriefLines(state.device) },
+  { name: "show interfaces status", modes: execModes, help: "Show the port status table", available: isSwitchDevice, output: (state) => interfaceStatusLines(state.device, cableStateFor(state)) },
+  { name: "show interfaces switchport", modes: execModes, help: "Show the switchport state of every port", available: isSwitchDevice, output: (state) => state.device.interfaces.flatMap((port) => [...switchportDetailLines(state.device, port), ""]) },
+  { name: "show interfaces trunk", modes: execModes, help: "Show the trunk ports and their allowed VLANs", available: isSwitchDevice, output: (state) => trunkLines(state.device) },
   { name: "show ip interface brief", modes: execModes, help: "Show the interface addresses", output: (state) => ipInterfaceBriefLines(state.device, cableStateFor(state)) },
+  { name: "show ipv6 interface brief", modes: execModes, help: "Show the interface IPv6 addresses", output: (state) => ipv6InterfaceBriefLines(state.device, cableStateFor(state)) },
+  { name: "show ip route", modes: execModes, help: "Show the IPv4 routing table", output: (state) => connectedRouteLines(state.device) },
+  { name: "show ip route connected", modes: execModes, help: "Show the directly connected IPv4 routes", output: (state) => connectedRouteLines(state.device) },
+  { name: "show ipv6 route", modes: execModes, help: "Show the IPv6 routing table", output: (state) => ipv6ConnectedRouteLines(state.device) },
+  { name: "show ipv6 route connected", modes: execModes, help: "Show the directly connected IPv6 routes", output: (state) => ipv6ConnectedRouteLines(state.device) },
   {
     name: "show version",
     modes: execModes,
@@ -296,7 +346,7 @@ export const simCommands: readonly SimCommand[] = [
  * A host endpoint is not an IOS device: its console offers exactly the endpoint commands below, so
  * a PC can never answer `show vlan brief` or enter a configuration mode the way a switch does.
  */
-const hostConsoleCommands = new Set(["exit", "ip address", "ip default-gateway", "ipconfig", "ping"]);
+const hostConsoleCommands = new Set(["exit", "ip address", "ipv6 address", "ip default-gateway", "ipv6 default-gateway", "ipconfig", "ping"]);
 
 export function commandsForMode(state: SimState): readonly SimCommand[] {
   const available = simCommands.filter((command) => command.modes.includes(state.mode));

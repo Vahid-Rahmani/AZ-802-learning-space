@@ -57,10 +57,9 @@ export type SimulationChecklistItem = {
 };
 
 /**
- * A small, ordered learning step for the browser lab.  The command is a
- * canonical IOS command (or a deterministic read-only command in a generic
- * endpoint console); completion is inferred from the terminal transcript,
- * never from a learner ticking a box by hand.
+ * A graded learning step for the browser lab. Its `check` is the only thing that can credit it, and
+ * the `command` is the hint the learner runs to see the state the check reads. There is no
+ * transcript-based fallback and no manual tick: a step without a check is not a stage.
  */
 export type SimulationStage = {
   id: string;
@@ -76,9 +75,9 @@ export type SimulationStage = {
   expected: string;
   hint?: string;
   /**
-   * The only way a stage is credited: a predicate over live device state. A stage without a check
-   * falls back to terminal evidence, which is how the labs that have no dedicated pack are graded
-   * today; a stage that can never be checked carries `ungraded` instead of a fake success.
+   * The only way a stage is credited: a predicate over live device state. A stage that cannot be
+   * checked carries `ungraded` instead of a fake success, and an ungraded stage is shown to the
+   * learner without ever being counted.
    */
   check?: (lab: LabModel) => LabStepOutcome;
   /** Stated plainly when a requirement cannot be evaluated automatically. */
@@ -93,14 +92,6 @@ export type SimulationScenario = {
   prerequisites?: string[];
 };
 
-export type SimulationTerminalPack = {
-  hostname?: string;
-  prompt?: string;
-  intro?: string[];
-  /** Optional deterministic command transcript for the generic workspace. */
-  commands?: Record<string, string[]>;
-};
-
 export type SimulationPack = {
   id: string;
   title: string;
@@ -113,7 +104,6 @@ export type SimulationPack = {
   links?: SimulationLink[];
   checklist?: SimulationChecklistItem[];
   stages?: SimulationStage[];
-  terminal?: SimulationTerminalPack;
   references?: Array<{ title: string; url: string }>;
   /** Present when this lab has its own authored pack instead of the generic starter graph. */
   lab?: SimLabPack;

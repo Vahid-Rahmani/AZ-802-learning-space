@@ -81,10 +81,10 @@ R1(config)#
 R1#
 > show ip interface brief
 Interface              IP-Address      OK? Method Status                Protocol
-Gi0/0                  unassigned      YESunset       up                    up
-Gi0/1                  unassigned      YESunset       administratively down down
-Gi0/0.10               192.168.10.1    YESmanual      up                    up
-Gi0/0.20               192.168.20.1    YESmanual      up                    up
+Gi0/0                  unassigned      YES unset       up                    up
+Gi0/1                  unassigned      YES unset       administratively down down
+Gi0/0.10               192.168.10.1    YES manual      up                    up
+Gi0/0.20               192.168.20.1    YES manual      up                    up
 R1#
 @ pc-a
 > ip address 192.168.10.10 255.255.255.0

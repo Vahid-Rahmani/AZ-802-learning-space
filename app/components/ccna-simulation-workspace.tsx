@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as
 import { createLabSession, type IosSession } from "@/lib/ccna-sim/session";
 import { findInterface, portLinkStatus, type SimCableState, type SimInterfaceKind } from "@/lib/ccna-sim/device";
 import { simulationCableCurve } from "@/lib/ccna-sim/cable-geometry";
-import { checkedStageResults, completedSimulationStages } from "@/lib/ccna-sim/guidance";
+import { checkedStageResults } from "@/lib/ccna-sim/guidance";
 import { buildLabModel } from "@/lib/ccna-sim/lab";
 import type { LabNetwork } from "@/lib/ccna-sim/lab-network";
 import type { SimMode } from "@/lib/ccna-sim/tokens";
@@ -44,6 +44,8 @@ type PersistedTerminalSession = {
     hostname: string;
     role?: "switch" | "router" | "host";
     gateway?: string | null;
+    ipv6Gateway?: string | null;
+    ipv6Routing?: boolean;
     vlans: Array<[number, { id: number; name: string }]>;
     interfaces: Array<{
       name: string;
@@ -56,6 +58,7 @@ type PersistedTerminalSession = {
       modeExplicit: boolean;
       adminUp: boolean;
       address: { ip: string; mask: string } | null;
+      ipv6?: { address: string; prefix: number } | null;
       dot1q?: number;
       parent?: string | null;
     }>;
@@ -72,6 +75,8 @@ type TerminalRuntime = {
   draft: string;
   historyCursor: number;
   draftBeforeHistory: string;
+  /** True when a saved console came from an older device model and only its transcript was kept. */
+  migrated: boolean;
 };
 type TerminalView = {
   kind: SimulationNode["kind"];
@@ -87,7 +92,7 @@ type TerminalView = {
   startup: string[] | null;
 };
 type WorkspaceSnapshot = {
-  version: 1 | 2 | 3 | 4;
+  version: 1 | 2 | 3 | 4 | 5;
   /**
    * Which console model produced the saved devices. Version 1 snapshots predate
    * `createLabSession`: their devices were hand-built with every port up, so a router's port could
@@ -186,14 +191,6 @@ function portMode(kind: string | undefined) {
   return "access";
 }
 
-function portStatus(state: SimulationState, nodeId: string, portId: string) {
-  const link = state.links.find((candidate) => endpointKey(candidate.source) === `${nodeId}:${portId}` || endpointKey(candidate.target) === `${nodeId}:${portId}`);
-  if (!link) return { label: "disabled", tone: "disabled" };
-  if (link.status === "fault") return { label: "fault", tone: "fault" };
-  if (link.status === "down") return { label: "down", tone: "down" };
-  return { label: "connected", tone: "connected" };
-}
-
 /**
  * The interface table prints the same word `show interfaces status` prints (`portLinkStatus`), from the
  * same cable state, so the screen, the console and a graded check can never describe one port
@@ -212,17 +209,31 @@ function portStateLabel(port: { kind: SimInterfaceKind; adminUp: boolean }, cabl
 }
 
 function preferredDevice(nodes: SimulationNode[]) {
-  return nodes.find((node) => node.kind === "switch") ?? nodes[0] ?? null;
+  return nodes.find((node) => node.kind === "switch" && node.role)
+    ?? nodes.find((node) => Boolean(node.role))
+    ?? nodes[0]
+    ?? null;
 }
 
 function isSnapshot(value: unknown): value is WorkspaceSnapshot {
   if (!value || typeof value !== "object") return false;
   const snapshot = value as Partial<WorkspaceSnapshot>;
-  return (snapshot.version === 1 || snapshot.version === 2 || snapshot.version === 3 || snapshot.version === 4) && Boolean(snapshot.state && Array.isArray(snapshot.state.nodes) && Array.isArray(snapshot.state.links));
+  return (snapshot.version === 1 || snapshot.version === 2 || snapshot.version === 3 || snapshot.version === 4 || snapshot.version === 5) && Boolean(snapshot.state && Array.isArray(snapshot.state.nodes) && Array.isArray(snapshot.state.links));
 }
 
 /** The console model version this build can restore, see `WorkspaceSnapshot.deviceModel`. */
 const DEVICE_MODEL_VERSION = 2;
+
+/**
+ * Whether a saved console still describes the console this lab publishes today. The published node's
+ * role is the contract — the saved copy of it only exists to restore what the learner had — so a
+ * save whose device role no longer matches is migrated instead of restored.
+ */
+function savedConsoleMatchesPublishedModel(node: SimulationNode, saved?: PersistedTerminalSession) {
+  if (!saved?.device) return false;
+  const publishedRole = node.role ?? "host";
+  return (saved.device.role ?? publishedRole) === publishedRole;
+}
 
 function hasCurrentDeviceModel(snapshot: WorkspaceSnapshot) {
   return snapshot.deviceModel === DEVICE_MODEL_VERSION;
@@ -265,17 +276,30 @@ function createTerminalRuntime(node: SimulationNode, saved?: PersistedTerminalSe
   // One console builder for the browser and for validate:ccna-sim, so the device a graded step reads
   // is always the device on screen: the node's published ports with its role's real defaults.
   const session = createLabSession(node, saved?.hostname);
-  if (saved?.device && Array.isArray(saved.device.interfaces) && Array.isArray(saved.device.vlans) && (saved.device.interfaces.length > 0 || saved.device.vlans.length > 0)) {
+  const savedDevice = saved?.device;
+  /**
+   * A saved console is restored only when it still describes the device this lab publishes. A save
+   * from an older model keeps its transcript and its draft, which is the learner's own work, and
+   * starts its device settings from the current defaults — so an obsolete save cannot credit a step
+   * the learner never did, and nothing they typed is silently thrown away.
+   */
+  const restoreDeviceState = savedConsoleMatchesPublishedModel(node, saved)
+    && Array.isArray(savedDevice?.interfaces) && Array.isArray(savedDevice?.vlans)
+    && (savedDevice!.interfaces.length > 0 || savedDevice!.vlans.length > 0);
+  if (restoreDeviceState && savedDevice) {
     session.state.device = {
       id: saved.device.id ?? node.id,
       hostname: saved.device.hostname || saved.hostname || node.label,
       role: saved.device.role ?? node.role ?? "switch",
       gateway: saved.device.gateway ?? null,
+      ipv6Gateway: saved.device.ipv6Gateway ?? null,
+      ipv6Routing: saved.device.ipv6Routing === true,
       vlans: new Map(saved.device.vlans.map(([id, vlan]) => [Number(id), { id: Number(vlan.id), name: vlan.name }])),
       interfaces: saved.device.interfaces.map((port) => ({
         ...port,
         allowedVlans: Array.isArray(port.allowedVlans) ? [...port.allowedVlans] : "all",
         address: port.address ? { ...port.address } : null,
+        ipv6: port.ipv6 ? { ...port.ipv6 } : null,
         dot1q: port.dot1q ?? 0,
         parent: port.parent ?? null,
       })),
@@ -285,9 +309,9 @@ function createTerminalRuntime(node: SimulationNode, saved?: PersistedTerminalSe
       vlan: typeof saved.selected?.vlan === "number" ? saved.selected.vlan : null,
     };
     session.state.config = { startup: saved.config?.startup ? [...saved.config.startup] : null };
+    session.state.mode = isSimMode(saved?.mode) ? saved.mode : "user";
   }
-  session.state.mode = isSimMode(saved?.mode) ? saved.mode : "user";
-  session.state.closed = saved?.closed === true;
+  session.state.closed = saved?.closed === true && restoreDeviceState;
   const entries = (saved?.entries ?? []).map((entry) => ({
     input: entry.input,
     output: [...entry.output],
@@ -305,6 +329,7 @@ function createTerminalRuntime(node: SimulationNode, saved?: PersistedTerminalSe
     draft: saved?.draft ?? "",
     historyCursor: -1,
     draftBeforeHistory: "",
+    migrated: Boolean(savedDevice) && !restoreDeviceState,
   };
 }
 
@@ -323,8 +348,10 @@ function serializeTerminalRuntime(runtime: TerminalRuntime): PersistedTerminalSe
       hostname: device.hostname,
       role: device.role,
       gateway: device.gateway,
+      ipv6Gateway: device.ipv6Gateway,
+      ipv6Routing: device.ipv6Routing,
       vlans: [...device.vlans.entries()].map(([id, vlan]) => [id, { ...vlan }]),
-      interfaces: device.interfaces.map((port) => ({ ...port, allowedVlans: Array.isArray(port.allowedVlans) ? [...port.allowedVlans] : "all", address: port.address ? { ...port.address } : null })),
+      interfaces: device.interfaces.map((port) => ({ ...port, allowedVlans: Array.isArray(port.allowedVlans) ? [...port.allowedVlans] : "all", address: port.address ? { ...port.address } : null, ipv6: port.ipv6 ? { ...port.ipv6 } : null })),
     },
     selected: { interfaces: runtime.session.state.selected.interfaces.map((port) => port.name), vlan: runtime.session.state.selected.vlan },
     config: { startup: runtime.session.state.config.startup ? [...runtime.session.state.config.startup] : null },
@@ -348,8 +375,10 @@ function terminalView(runtime: TerminalRuntime): TerminalView {
       hostname: device.hostname,
       role: device.role,
       gateway: device.gateway,
+      ipv6Gateway: device.ipv6Gateway,
+      ipv6Routing: device.ipv6Routing,
       vlans: [...device.vlans.entries()].map(([id, vlan]) => [id, { ...vlan }]),
-      interfaces: device.interfaces.map((port) => ({ ...port, allowedVlans: Array.isArray(port.allowedVlans) ? [...port.allowedVlans] : "all", address: port.address ? { ...port.address } : null })),
+      interfaces: device.interfaces.map((port) => ({ ...port, allowedVlans: Array.isArray(port.allowedVlans) ? [...port.allowedVlans] : "all", address: port.address ? { ...port.address } : null, ipv6: port.ipv6 ? { ...port.ipv6 } : null })),
     },
   };
 }
@@ -358,45 +387,59 @@ function defaultTerminalView(node: SimulationNode): TerminalView {
   return {
     kind: node.kind, hostname: node.label, prompt: `${node.label}>`, mode: "user", closed: false,
     entries: [], history: [], draft: "", startup: null,
-    device: { hostname: node.label, role: node.role ?? "switch", gateway: null, vlans: [[1, { id: 1, name: "default" }]], interfaces: [] },
+    device: { hostname: node.label, role: node.role ?? "switch", gateway: null, ipv6Gateway: null, ipv6Routing: false, vlans: [[1, { id: 1, name: "default" }]], interfaces: [] },
   };
 }
 
-function terminalResponse(pack: SimulationPack, command: string) {
-  const normalized = command.trim().toLowerCase();
-  const configured = pack.terminal?.commands?.[normalized] ?? pack.terminal?.commands?.[command.trim()];
-  if (configured) return configured;
-  if (normalized === "help" || normalized === "?") return Object.keys(pack.terminal?.commands ?? {}).sort().map((item) => `  ${item}`);
-  if (normalized === "clear") return [];
-  return [`% Unknown command: ${command.trim() || "(empty)"}`, "% Type help to see the commands supported by this lab."];
+/**
+ * Which labs get a real console and which do not. A node whose real control surface is a vendor GUI
+ * (a wireless access point, a controller, a cloud) has no role, and this workspace says so instead of
+ * inventing an IOS console for it. There is deliberately no canned transcript path left: a device
+ * either runs the engine the graded steps read, or it has no console at all.
+ */
+function hasConsole(node: SimulationNode) {
+  return Boolean(node.role);
 }
 
 /**
- * The live lab model every authored check is graded against. It is built from the consoles the
- * learner is actually using, so it always describes the current VLANs, port modes, subinterfaces,
- * host addresses and saved configurations.
+ * The console session a node starts with, which is the one builder the browser and the headless
+ * validator share. A node whose real control surface is a vendor GUI has no console role; it is
+ * still modelled as a passive endpoint so its cable and its VLAN are visible to the same model that
+ * answers a ping, without inventing an IOS device that the learner could configure.
  */
-function buildNetworkSnapshot(pack: SimulationPack, state: SimulationState, views: Record<string, TerminalView>): LabNetwork | null {
-  if (!pack.lab) return null;
+function consoleSessionFor(node: SimulationNode) {
+  return createLabSession(hasConsole(node) ? node : { ...node, role: "host" });
+}
+
+/**
+ * The live lab model every check is graded against, and the only source the interface table, the
+ * canvas and a graded predicate read. It is built from the consoles the learner is actually using,
+ * so it always describes the current VLANs, port modes, subinterfaces, addresses and saved
+ * configurations — for every lab, whether or not that lab has authored objectives yet.
+ */
+function buildNetworkSnapshot(state: SimulationState, views: Record<string, TerminalView>): LabNetwork {
   const devices = state.nodes.map((node) => {
     const view = views[node.id];
     if (!view) {
       // A node whose console has not been opened yet still has to report the state its console would
       // start with, or a graded step could read a hand-built default instead of the real device.
-      const fresh = createLabSession(node).state.device;
+      const fresh = consoleSessionFor(node).state.device;
       return { id: node.id, label: node.label, role: fresh.role, state: fresh, startup: null };
     }
     const snapshot = view.device;
     const device = {
       id: snapshot.id ?? node.id,
       hostname: snapshot.hostname || node.label,
-      role: snapshot.role ?? node.role ?? "switch",
+      role: snapshot.role ?? node.role ?? "host",
       gateway: snapshot.gateway ?? null,
+      ipv6Gateway: snapshot.ipv6Gateway ?? null,
+      ipv6Routing: snapshot.ipv6Routing === true,
       vlans: new Map(snapshot.vlans.map(([id, vlan]) => [Number(id), { id: Number(vlan.id), name: vlan.name }])),
       interfaces: snapshot.interfaces.map((port) => ({
         ...port,
         allowedVlans: Array.isArray(port.allowedVlans) ? [...port.allowedVlans] : "all" as const,
         address: port.address ? { ...port.address } : null,
+        ipv6: port.ipv6 ? { ...port.ipv6 } : null,
         dot1q: port.dot1q ?? 0,
         parent: port.parent ?? null,
       })),
@@ -411,6 +454,7 @@ function buildNetworkSnapshot(pack: SimulationPack, state: SimulationState, view
   }));
   return { devices, links };
 }
+
 
 export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplete, onDeviceSelect }: CcnaSimulationWorkspaceProps) {
   // Reserve room below the last row for the outward cable curves, not a second box.
@@ -434,29 +478,20 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   const dragRef = useRef<{ type: "node" | "pan"; id?: string; pointerId: number; startX: number; startY: number; originX: number; originY: number } | null>(null);
   const completionNotified = useRef(false);
 
-  const requiredItems = useMemo(() => (pack.checklist ?? []).filter((item) => item.required !== false), [pack.checklist]);
   const guidedStages = useMemo(() => pack.stages ?? [], [pack.stages]);
-  // A step that cannot be evaluated is shown to the learner but never counted as work.
+  // A step that cannot be evaluated is shown to the learner but never counted as work, and no step is
+  // ever credited from the transcript: only a predicate over live device state can complete one.
   const requiredStages = useMemo(() => guidedStages.filter((stage) => !stage.ungraded), [guidedStages]);
-  const labNetwork = useMemo(() => buildNetworkSnapshot(pack, state, terminalViews), [pack, state, terminalViews]);
-  const labModel = useMemo(() => (labNetwork ? buildLabModel(labNetwork) : null), [labNetwork]);
+  const labNetwork = useMemo(() => buildNetworkSnapshot(state, terminalViews), [state, terminalViews]);
+  const labModel = useMemo(() => buildLabModel(labNetwork), [labNetwork]);
   const checkResults = useMemo(() => checkedStageResults(guidedStages, labModel), [guidedStages, labModel]);
-  const transcriptCompleted = useMemo(() => completedSimulationStages(guidedStages, terminalViews), [guidedStages, terminalViews]);
   const completedStageIds = useMemo(() => {
     const done = new Set<string>();
-    for (const stage of guidedStages) {
-      if (stage.check) {
-        if (checkResults.get(stage.id)?.ok) done.add(stage.id);
-        continue;
-      }
-      if (transcriptCompleted.has(stage.id)) done.add(stage.id);
-    }
+    for (const stage of guidedStages) if (stage.check && checkResults.get(stage.id)?.ok) done.add(stage.id);
     return done;
-  }, [checkResults, guidedStages, transcriptCompleted]);
-  const requiredCount = requiredStages.length || requiredItems.length;
-  const completedRequired = requiredStages.length
-    ? requiredStages.filter((stage) => completedStageIds.has(stage.id)).length
-    : requiredItems.filter((item) => checkedItems.has(item.id)).length;
+  }, [checkResults, guidedStages]);
+  const requiredCount = requiredStages.length;
+  const completedRequired = requiredStages.filter((stage) => completedStageIds.has(stage.id)).length;
   const nextStageIndex = requiredStages.findIndex((stage) => !completedStageIds.has(stage.id));
   const activeStage = nextStageIndex >= 0 ? requiredStages[nextStageIndex] : null;
   const activeStageNumber = nextStageIndex + 1;
@@ -470,13 +505,30 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     const link = state.links.find((candidate) => endpointKey(candidate.source) === endpointKey(endpoint) || endpointKey(candidate.target) === endpointKey(endpoint));
     return link?.status ?? null;
   };
+  /** Only a device the lab gives a console role can be typed into; the others are still on the
+   * canvas as cabling and are labelled as GUI devices. */
+  const consoleNodes = useMemo(() => state.nodes.filter(hasConsole), [state.nodes]);
+  /**
+   * The state word of one published port, from its real cable and the port's administrative state.
+   * The canvas dot, the interface table and `show interfaces status` all answer with this one word,
+   * so a port can never be "connected" on screen while its own console says it is down.
+   */
+  const portState = (nodeId: string, portLabel: string) => {
+    const device = labNetwork.devices.find((candidate) => candidate.id === nodeId);
+    const port = device?.state.interfaces.find((candidate) => candidate.name.toLowerCase() === portLabel.toLowerCase());
+    const cable = cableStatusFor(nodeId, portLabel);
+    if (!port) return cable ? { label: "connected", tone: "connected" as const } : { label: "disabled", tone: "disabled" as const };
+    return portStateLabel(port, cable);
+  };
   const selectedNode = activeDeviceId;
-  const effectiveActiveDeviceId = activeDeviceId ?? state.nodes[0]?.id ?? null;
-  const selectedNodeData = state.nodes.find((node) => node.id === effectiveActiveDeviceId);
+  const effectiveActiveDeviceId = activeDeviceId && state.nodes.some((node) => node.id === activeDeviceId && hasConsole(node))
+    ? activeDeviceId
+    : preferredDevice(state.nodes)?.id ?? null;
+  const selectedNodeData = state.nodes.find((node) => node.id === effectiveActiveDeviceId) ?? null;
   const stageDevice = state.nodes.find((node) => node.id === activeStage?.deviceId);
   const isStageDeviceSelected = !stageDevice || stageDevice.id === effectiveActiveDeviceId;
   const stageIsChecked = Boolean(activeStage?.check);
-  const liveDevice = labNetwork?.devices.find((device) => device.id === selectedNodeData?.id) ?? null;
+  const liveDevice = labNetwork.devices.find((device) => device.id === selectedNodeData?.id) ?? null;
   /**
    * The only console factory in this component. Every console gets the live lab attached, because a
    * host console answers `ping` from the current topology and configuration rather than from a canned
@@ -485,9 +537,9 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
    */
   const makeTerminalRuntime = useCallback((node: SimulationNode, saved?: PersistedTerminalSession) => {
     const runtime = createTerminalRuntime(node, saved);
-    runtime.session.state.network = () => buildNetworkSnapshot(pack, latestRef.current.state, latestRef.current.views);
+    runtime.session.state.network = () => buildNetworkSnapshot(latestRef.current.state, latestRef.current.views);
     return runtime;
-  }, [pack]);
+  }, []);
   const getTerminalRuntime = useCallback((node: SimulationNode) => {
     const existing = terminalSessions.current[node.id];
     if (existing) return existing;
@@ -495,7 +547,9 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     terminalSessions.current[node.id] = runtime;
     return runtime;
   }, [makeTerminalRuntime]);
-  const activeView = selectedNodeData ? terminalViews[selectedNodeData.id] ?? defaultTerminalView(selectedNodeData) : null;
+  const activeView = selectedNodeData && hasConsole(selectedNodeData)
+    ? terminalViews[selectedNodeData.id] ?? defaultTerminalView(selectedNodeData)
+    : null;
 
   useEffect(() => {
     hydratedKey.current = null;
@@ -522,9 +576,9 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
           };
         setState(restoredState);
         setCheckedItems(new Set(compatibleSnapshot.checkedItems ?? []));
-        const firstDevice = restoredState.nodes[0];
+        const firstDevice = restoredState.nodes.find(hasConsole);
         const savedSessions = compatibleSnapshot.sessions ?? {};
-        terminalSessions.current = Object.fromEntries(restoredState.nodes.map((node) => {
+        terminalSessions.current = Object.fromEntries(restoredState.nodes.filter(hasConsole).map((node) => {
           const saved = savedSessions[node.id];
           if (saved) return [node.id, makeTerminalRuntime(node, saved)];
           return [node.id, makeTerminalRuntime(node, node.id === firstDevice?.id && compatibleSnapshot.terminalEntries ? {
@@ -539,25 +593,35 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
             config: { startup: null },
           } : undefined)];
         }));
-        setTerminalViews(Object.fromEntries(restoredState.nodes.map((node) => [node.id, terminalView(terminalSessions.current[node.id])] )));
+        setTerminalViews(Object.fromEntries(restoredState.nodes.filter(hasConsole).map((node) => [node.id, terminalView(terminalSessions.current[node.id])] )));
         const preferred = preferredDevice(restoredState.nodes);
-        const restoredActiveId = compatibleSnapshot.activeDeviceId && restoredState.nodes.some((node) => node.id === compatibleSnapshot?.activeDeviceId) ? compatibleSnapshot.activeDeviceId : preferred?.id ?? null;
+        const restoredActiveId = compatibleSnapshot.activeDeviceId
+          && restoredState.nodes.some((node) => node.id === compatibleSnapshot?.activeDeviceId && hasConsole(node))
+          ? compatibleSnapshot.activeDeviceId
+          : preferred?.id ?? null;
         setActiveDeviceId(restoredActiveId);
         const restoredDraft = restoredActiveId ? terminalSessions.current[restoredActiveId]?.draft ?? "" : "";
         setTerminalDraft(restoredDraft);
         setTerminalCursor(restoredDraft.length);
+        const migratedLabels = restoredState.nodes.filter((node) => terminalSessions.current[node.id]?.migrated).map((node) => node.label);
+        if (migratedLabels.length) {
+          setNotice({ kind: "info", text: `This lab's console model changed since your last visit, so ${migratedLabels.join(", ")} kept the console history and ${migratedLabels.length === 1 ? "its" : "their"} device settings were rebuilt from this lab's current defaults. Nothing is credited automatically: run the lab's own steps again.` });
+        }
       } else {
-        // Migrate progress from an older graph, but never keep its stale
-        // nodes/links or terminal sessions after a topology definition changes.
+        // A saved session whose topology no longer matches this lab keeps its checkpoint progress and
+        // starts its consoles from the current topology, and the learner is told why.
         setState(cloneSimulationState(pack));
         setCheckedItems(new Set(snapshot?.checkedItems ?? []));
-        const defaults = Object.fromEntries(pack.devices.map((node) => {
+        const defaults = Object.fromEntries(pack.devices.filter(hasConsole).map((node) => {
           const runtime = makeTerminalRuntime(node);
           terminalSessions.current[node.id] = runtime;
           return [node.id, terminalView(runtime)];
         }));
         setTerminalViews(defaults);
         setActiveDeviceId(preferredDevice(pack.devices)?.id ?? null);
+        if (snapshot) {
+          setNotice({ kind: "info", text: "A saved session from a previous version of this lab's topology was found. Saved checkpoints were kept and the consoles start from the topology this lab publishes today." });
+        }
       }
       hydratedKey.current = storageKey;
       setHydrated(true);
@@ -567,9 +631,9 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
 
   useEffect(() => {
     if (!hydrated || hydratedKey.current !== storageKey) return;
-    const sessions = Object.fromEntries(state.nodes.map((node) => [node.id, serializeTerminalRuntime(terminalSessions.current[node.id] ?? getTerminalRuntime(node))]));
+    const sessions = Object.fromEntries(consoleNodes.map((node) => [node.id, serializeTerminalRuntime(terminalSessions.current[node.id] ?? getTerminalRuntime(node))]));
     const snapshot: WorkspaceSnapshot = {
-      version: 4,
+      version: 5,
       deviceModel: DEVICE_MODEL_VERSION,
       layoutVersion: 4,
       state,
@@ -583,7 +647,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     } catch {
       // Persistence is best-effort; the current session remains usable.
     }
-  }, [activeDeviceId, checkedItems, completedStageIds, getTerminalRuntime, hydrated, state, storageKey, terminalViews]);
+  }, [activeDeviceId, checkedItems, completedStageIds, consoleNodes, getTerminalRuntime, hydrated, state, storageKey, terminalViews]);
 
   useEffect(() => {
     latestRef.current = { state, views: terminalViews };
@@ -634,13 +698,21 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   };
 
   const selectDevice = (node: SimulationNode) => {
-    const runtime = getTerminalRuntime(node);
+    // A device without a console is still selectable as a cabling node, but there is nothing to type
+    // into: the panel says so instead of opening an invented console.
+    const runtime = hasConsole(node) ? getTerminalRuntime(node) : null;
+    if (!runtime) {
+      setActiveDeviceId(node.id);
+      setNotice({ kind: "info", text: `${node.label} is configured in the lab's own tool, not in an IOS console, so this practice model has no console for it.` });
+      return;
+    }
+    const runtimeForConsole = runtime;
     setActiveDeviceId(node.id);
     onDeviceSelect?.(node);
-    setTerminalDraft(runtime.draft);
-    setTerminalViews((current) => ({ ...current, [node.id]: terminalView(runtime) }));
+    setTerminalDraft(runtimeForConsole.draft);
+    setTerminalViews((current) => ({ ...current, [node.id]: terminalView(runtimeForConsole) }));
     setActivePanel("terminal");
-    setTerminalCursor(runtime.draft.length);
+    setTerminalCursor(runtimeForConsole.draft.length);
     setNotice({ kind: "info", text: `${node.label} console selected. Choose a port to connect a cable.` });
   };
 
@@ -685,7 +757,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     setSelectedPort(null);
     setCheckedItems(new Set());
     terminalSessions.current = {};
-    const resetViews = Object.fromEntries(pack.devices.map((node) => {
+    const resetViews = Object.fromEntries(pack.devices.filter(hasConsole).map((node) => {
       const runtime = makeTerminalRuntime(node);
       terminalSessions.current[node.id] = runtime;
       return [node.id, terminalView(runtime)];
@@ -699,7 +771,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   };
 
   const resetActiveTerminal = () => {
-    if (!selectedNodeData) return;
+    if (!selectedNodeData || !hasConsole(selectedNodeData)) return;
     const runtime = makeTerminalRuntime(selectedNodeData);
     terminalSessions.current[selectedNodeData.id] = runtime;
     setTerminalViews((current) => ({ ...current, [selectedNodeData.id]: terminalView(runtime) }));
@@ -719,17 +791,16 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
 
   const submitCommand = () => {
     const input = terminalDraft.trim();
-    if (!input || !selectedNodeData) return;
+    if (!input || !selectedNodeData || !hasConsole(selectedNodeData)) return;
     const runtime = getTerminalRuntime(selectedNodeData);
     const promptBefore = runtime.session.prompt;
     // A node whose pack declares a role has a real console: the same engine validate:ccna-sim drives,
     // so the screen and the graded state can never disagree (a PC console used to answer from a canned
     // list while its step read device state). A node without a role keeps the guided canned terminal
     // the generated packs ship, so no published lab changes underneath its learners.
-    const usesEngine = Boolean(selectedNodeData.role);
-    const result = usesEngine
-      ? runtime.session.execute(input)
-      : { lines: terminalResponse(pack, input), prompt: runtime.session.prompt, mode: runtime.session.state.mode, closed: false, matched: null };
+    // One engine for every console, for every lab. A device with no console cannot be typed into at
+    // all, so no command can ever be answered from a canned list instead of the real device state.
+    const result = runtime.session.execute(input);
     runtime.history.push(input);
     runtime.historyCursor = -1;
     runtime.draftBeforeHistory = "";
@@ -777,7 +848,9 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   };
 
   const prepareStageCommand = (stage: SimulationStage, command = stage.command) => {
-    const node = state.nodes.find((node) => node.id === stage.deviceId) ?? selectedNodeData ?? state.nodes[0];
+    const node = state.nodes.find((node) => node.id === stage.deviceId && hasConsole(node))
+      ?? (selectedNodeData && hasConsole(selectedNodeData) ? selectedNodeData : null)
+      ?? consoleNodes[0];
     if (!node || !command) return;
     const runtime = getTerminalRuntime(node);
     runtime.draft = command;
@@ -791,7 +864,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   };
 
   const handleTerminalKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
-    if (!selectedNodeData || !activeView || activeView.closed) return;
+    if (!selectedNodeData || !hasConsole(selectedNodeData) || !activeView || activeView.closed) return;
     const key = event.key;
     if (key === "Enter") {
       event.preventDefault();
@@ -829,14 +902,6 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     }
   };
 
-  const toggleChecklist = (itemId: string) => {
-    setCheckedItems((current) => {
-      const next = new Set(current);
-      if (next.has(itemId)) next.delete(itemId); else next.add(itemId);
-      return next;
-    });
-  };
-
   const setZoom = (delta: number) => setState((current) => ({ ...current, viewport: zoomSimulationViewport(current.viewport, current.viewport.scale + delta, { x: CANVAS_WIDTH / 2, y: CANVAS_HEIGHT / 2 }) }));
   const fitView = () => setState((current) => ({ ...current, viewport: fitSimulationViewport(current.nodes, CANVAS_WIDTH, CANVAS_HEIGHT) }));
   const toggleTopologyFullscreen = () => {
@@ -872,7 +937,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
       <a className="ccna-lab-back" href={pack.lab ? `/ccna/labs/${pack.lab.labId}` : "/ccna/library"}>← {pack.lab ? "Lab brief" : "Labs"}</a>
       {/* One header for the lab page: the site header already carries this title as its h1, so the bar
           shows the same name as text and keeps the only reset control, with its scope in the label. */}
-      <div className="ccna-lab-title"><p className="ccna-lab-name">{pack.title}</p><p>{completedRequired}/{requiredCount || 0} steps verified · practice model, not a device</p></div>
+      <div className="ccna-lab-title"><p className="ccna-lab-name">{pack.title}</p><p>{requiredCount ? `${completedRequired}/${requiredCount} steps verified` : "No graded steps authored yet"} · practice model, not a device</p></div>
       <div className="ccna-lab-actions"><button type="button" className="ccna-lab-reset" onClick={resetLab} title="Resets this lab only: device consoles, cables and step progress. Saved answers, quiz grades and evidence are not touched.">Reset lab · this lab only</button></div>
     </header>
     <nav className="ccna-simulation-tabs" aria-label="Simulation panels" role="tablist">
@@ -893,19 +958,20 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
         </details>
         {pack.scenario.requirement && <details className="ccna-simulation-detail"><summary>Success criteria</summary><p>{pack.scenario.requirement}</p></details>}
         {pack.scenario.prerequisites && pack.scenario.prerequisites.length > 0 && <details className="ccna-simulation-detail"><summary>Prerequisites</summary><ul>{pack.scenario.prerequisites.map((item) => <li key={item}>{item}</li>)}</ul></details>}
-        <div className="ccna-simulation-progress" aria-label={`${completedRequired} of ${requiredCount} required checklist items complete`}>
-          <div><strong>{completedRequired}/{requiredCount || 0}</strong><span>{guidedStages.length ? "guided stages" : "required checks"}</span></div>
+        <div className="ccna-simulation-progress" aria-label={requiredCount ? `${completedRequired} of ${requiredCount} graded steps verified` : "No graded step is authored for this lab yet"}>
+          <div><strong>{completedRequired}/{requiredCount}</strong><span>graded steps</span></div>
           <div className="ccna-simulation-progress-track"><span style={{ width: `${requiredCount ? (completedRequired / requiredCount) * 100 : 0}%` }} /></div>
         </div>
-        {guidedStages.length === 0 && <ul className="ccna-simulation-checklist">
-          {(pack.checklist ?? []).map((item) => {
-            const complete = guidedStages.length ? completedStageIds.has(item.id) : checkedItems.has(item.id);
-            return <li key={item.id} className={complete ? "is-complete" : ""}>
-              <button type="button" aria-pressed={complete} disabled={guidedStages.length > 0} onClick={() => toggleChecklist(item.id)}><span aria-hidden="true">{complete ? "✓" : "○"}</span><span><strong>{item.title}</strong>{item.detail && <small>{item.detail}</small>}{guidedStages.length > 0 && <small className="ccna-simulation-checklist-status">{complete ? "Verified from the terminal" : "Complete the guided step in the console"}</small>}</span></button>
-            </li>;
-          })}
-        </ul>}
-        {guidedStages.length > 0 && <section className="ccna-simulation-guide ccna-simulation-guide--scenario" aria-label="Guided lab steps">
+        {requiredStages.length === 0 && <section className="ccna-simulation-guide ccna-simulation-guide--observations" aria-label="What to inspect in this lab">
+          <div className="ccna-simulation-guide-heading"><div><span className="ccna-simulation-guide-kicker">Not graded yet</span><strong>Inspect this lab&apos;s own evidence</strong></div><span className="ccna-simulation-guide-score">0 graded steps</span></div>
+          <p className="ccna-simulation-device-guidance">This lab publishes its reference diagram and the evidence its catalog entry names, but its device-state objectives are not authored yet, so nothing on this page is credited as completed work. The checks below are read-only: run each one on the device it names to see the state the lab is about.</p>
+          <ul className="ccna-simulation-checklist">
+            {(pack.checklist ?? []).map((item) => <li key={item.id}>
+              <div><strong>{item.title}</strong>{item.detail && <small>{item.detail}</small>}</div>
+            </li>)}
+          </ul>
+        </section>}
+        {requiredStages.length > 0 && <section className="ccna-simulation-guide ccna-simulation-guide--scenario" aria-label="Guided lab steps">
           <div className="ccna-simulation-guide-heading"><div><span className="ccna-simulation-guide-kicker">Objectives</span><strong>{activeStage ? `Step ${activeStageNumber} of ${requiredCount}` : "Every step verified"}</strong></div><span className="ccna-simulation-guide-score">{completedRequired}/{requiredCount} verified</span></div>
           {activeStage && <div className="ccna-simulation-current-stage" aria-live="polite">
             <p className="ccna-simulation-current-stage-title">{stageDevice ? `Next on ${stageDevice.label}: ` : "Next: "}{activeStage.title}</p>
@@ -981,8 +1047,8 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
                 <text className="ccna-simulation-node-subtitle" x={-NODE_WIDTH / 2 + 58} y="14">{DEVICE_META[node.kind].label}</text>
                 <text className="ccna-simulation-node-console" x={-NODE_WIDTH / 2 + 58} y="34">{selectedNode === node.id ? "Console open" : "Click for console"}</text>
                 <circle className="ccna-simulation-node-status" cx={NODE_WIDTH / 2 - 18} cy={-NODE_HEIGHT / 2 + 18} r="5" fill={statusColor(node.status)} />
-                {node.ports.map((port, index) => { const point = portPoint(node, index); const localX = point.x - node.x; const localY = point.y - node.y; const selected = selectedPort?.deviceId === node.id && selectedPort.portId === port.id; return <g key={port.id} className={`ccna-simulation-port${selected ? " is-selected" : ""}`} transform={`translate(${localX} ${localY})`} role="button" tabIndex={0} aria-pressed={selected} aria-label={`${node.label} ${port.label}. ${selected ? "Selected" : "Select port"}`} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); handlePort({ deviceId: node.id, portId: port.id }); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); event.stopPropagation(); handlePort({ deviceId: node.id, portId: port.id }); } }}>
-                  <rect className="ccna-simulation-port-dot" x="-22" y="-9" width="44" height="18" rx="5" data-status={portStatus(state, node.id, port.id).tone} />
+                {node.ports.map((port, index) => { const point = portPoint(node, index); const localX = point.x - node.x; const localY = point.y - node.y; const selected = selectedPort?.deviceId === node.id && selectedPort.portId === port.id; return <g key={port.id} className={`ccna-simulation-port${selected ? " is-selected" : ""}`} transform={`translate(${localX} ${localY})`} role="button" tabIndex={0} aria-pressed={selected} aria-label={`${node.label} ${port.label}, ${portState(node.id, port.label).label}. ${selected ? "Selected" : "Select port"}`} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); handlePort({ deviceId: node.id, portId: port.id }); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); event.stopPropagation(); handlePort({ deviceId: node.id, portId: port.id }); } }}>
+                  <rect className="ccna-simulation-port-dot" x="-22" y="-9" width="44" height="18" rx="5" data-status={portState(node.id, port.label).tone} />
                   <text className="ccna-simulation-port-label" x="0" y="4">{port.label}</text>
                 </g>; })}
               </g>)}
@@ -995,9 +1061,9 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
           <div className="ccna-simulation-interface-table-wrap">
             <table className="ccna-simulation-interface-table">
               <thead><tr><th scope="col">Port</th><th scope="col">Mode</th><th scope="col">VLAN</th>{liveDevice && <th scope="col">Address</th>}<th scope="col">Status</th></tr></thead>
-              <tbody>{liveDevice
-                ? liveDevice.state.interfaces.map((port) => { const state2 = portStateLabel(port, cableStatusFor(liveDevice.id, port.name)); return <tr key={port.name}><th scope="row">{port.name}</th><td>{port.kind === "subinterface" ? "subinterface" : port.mode}</td><td>{port.dot1q ? `dot1q ${port.dot1q}` : port.kind === "svi" || port.mode === "routed" ? "—" : String(port.accessVlan)}</td><td>{port.address ? `${port.address.ip} ${port.address.mask}` : "unassigned"}</td><td><span className={`ccna-simulation-status-dot is-${state2.tone}`} />{state2.label}</td></tr>; })
-                : selectedNodeData.ports.map((port) => { const status = portStatus(state, selectedNodeData.id, port.id); return <tr key={port.id}><th scope="row">{port.label}</th><td>{portMode(port.kind)}</td><td>{portMode(port.kind) === "routed" ? "—" : "1"}</td><td><span className={`ccna-simulation-status-dot is-${status.tone}`} />{status.label}</td></tr>; })}</tbody>
+          <tbody>{liveDevice
+            ? liveDevice.state.interfaces.map((port) => { const state2 = portStateLabel(port, cableStatusFor(liveDevice.id, port.name)); return <tr key={port.name}><th scope="row">{port.name}</th><td>{port.kind === "subinterface" ? "subinterface" : port.mode}</td><td>{port.dot1q ? `dot1q ${port.dot1q}` : port.kind === "svi" || port.mode === "routed" ? "—" : String(port.accessVlan)}</td><td>{port.address ? `${port.address.ip} ${port.address.mask}` : "unassigned"}{port.ipv6 && <><br />{`${port.ipv6.address}/${port.ipv6.prefix}`}</>}</td><td><span className={`ccna-simulation-status-dot is-${state2.tone}`} />{state2.label}</td></tr>; })
+            : selectedNodeData.ports.map((port) => { const status = portState(selectedNodeData.id, port.label); return <tr key={port.id}><th scope="row">{port.label}</th><td>{portMode(port.kind)}</td><td>{portMode(port.kind) === "routed" ? "—" : "1"}</td><td>{status.label}</td></tr>; })}</tbody>
             </table>
           </div>
         </section>}
@@ -1007,25 +1073,29 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
         <div className="ccna-simulation-panel-heading"><span className="ccna-simulation-panel-icon">3</span><h3 id="ccna-terminal-title">Device console</h3><span className="ccna-simulation-terminal-host">{selectedNodeData ? `${selectedNodeData.label} · ${activeView ? simModeLabels[activeView.mode] : "user"}` : "Select a device"}</span></div>
         <div className="ccna-simulation-device-tabs" role="tablist" aria-label="Device consoles">
           {state.nodes.map((node) => {
-            const view = terminalViews[node.id] ?? defaultTerminalView(node);
+            const consoleNode = hasConsole(node);
+            const view = consoleNode ? terminalViews[node.id] ?? defaultTerminalView(node) : null;
             const selected = node.id === selectedNodeData?.id;
-            return <button key={node.id} type="button" role="tab" aria-selected={selected} aria-controls="ccna-active-device-console" className={`ccna-simulation-device-tab${selected ? " is-active" : ""}`} onClick={() => selectDevice(node)}>
-              <span>{node.label}</span><small>{simModeLabels[view.mode]}</small>
+            return <button key={node.id} type="button" role="tab" aria-selected={selected} aria-controls="ccna-active-device-console" disabled={!consoleNode} title={consoleNode ? undefined : `${node.label} is configured in the lab's own tool, not in an IOS console, so this practice model has no console for it.`} className={`ccna-simulation-device-tab${selected ? " is-active" : ""}${consoleNode ? "" : " is-consoleless"}`} onClick={() => selectDevice(node)}>
+              <span>{node.label}</span><small>{view ? simModeLabels[view.mode] : "no console"}</small>
             </button>;
           })}
         </div>
         <div ref={terminalSurfaceRef} id="ccna-active-device-console" className="ccna-simulation-terminal-screen" role="textbox" aria-multiline="false" aria-label={`Type commands for ${selectedNodeData?.label ?? "the selected device"}`} tabIndex={0} onPointerDown={() => terminalSurfaceRef.current?.focus()} onKeyDown={handleTerminalKeyDown}>
           <div className="ccna-simulation-terminal-output" role="log" aria-live="polite">
+            {!activeView && <p className="ccna-simulation-terminal-line">{selectedNodeData
+              ? `${selectedNodeData.label} has no IOS console in this practice model: its configuration belongs to the lab's own tool. Select a router, switch or host to type commands.`
+              : "Select a device to open its console."}</p>}
             {!activeView?.entries.length && <>
               <p className="ccna-simulation-terminal-line">Connected to {selectedNodeData?.label ?? "the selected device"}.</p>
               <p className="ccna-simulation-terminal-line">Type <code>?</code> or <code>help</code> to see commands for this console.</p>
             </>}
             {activeView?.entries.map((entry, index) => <div key={`${entry.input}-${index}`} className="ccna-simulation-terminal-entry"><p><span className="ccna-simulation-terminal-prompt">{entry.promptBefore}</span> {entry.input}</p>{entry.output.map((line, lineIndex) => <p key={`${line}-${lineIndex}`} className="ccna-simulation-terminal-response">{line}</p>)}</div>)}
           </div>
-          <div className="ccna-simulation-terminal-input-line" aria-label="Current command line">
-            <span className="ccna-simulation-terminal-prompt">{activeView?.prompt ?? "Select a device>"}</span>{" "}
+          {activeView && <div className="ccna-simulation-terminal-input-line" aria-label="Current command line">
+            <span className="ccna-simulation-terminal-prompt">{activeView.prompt}</span>{" "}
             <span>{terminalDraft.slice(0, terminalCursor)}</span><span className="ccna-simulation-terminal-cursor" aria-hidden="true">▌</span><span>{terminalDraft.slice(terminalCursor) || "\u00a0"}</span>
-          </div>
+          </div>}
         </div>
         <div className="ccna-simulation-terminal-actions"><span>↑ ↓ history · Ctrl+L clear · Ctrl+C cancel</span><button type="button" onClick={resetActiveTerminal} disabled={!activeView} title="Restarts only the console you are typing in: this device's history and output. The other consoles and your step progress stay.">Restart this console</button></div>
       </section>
