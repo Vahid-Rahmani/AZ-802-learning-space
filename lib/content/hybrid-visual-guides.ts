@@ -2,6 +2,9 @@ import type { AdVisualBinding, AdVisualGuideData } from "./ad-visual-guide-types
 import { hybridArcBindings } from "./hybrid-arc-guides";
 import { hybridAutomationAccessBindings } from "./hybrid-automation-access-guides";
 import { hybridMonitorUpdateBindings } from "./hybrid-monitor-update-guides";
+import { hybridRemotingBindings } from "./hybrid-remoting-guides";
+import { hybridPolicyConfigBindings } from "./hybrid-policy-config-guides";
+import { hybridWacRdsBindings } from "./hybrid-wac-rds-guides";
 
 const source = "https://learn.microsoft.com/en-us/windows-server/manage/windows-admin-center/use/get-started";
 const media = "https://learn.microsoft.com/en-us/windows-server/manage/windows-admin-center/media/launch/";
@@ -23,6 +26,9 @@ const bindings: Record<string, AdVisualBinding> = {
   ...hybridArcBindings,
   ...hybridAutomationAccessBindings,
   ...hybridMonitorUpdateBindings,
+  ...hybridRemotingBindings,
+  ...hybridPolicyConfigBindings,
+  ...hybridWacRdsBindings,
   "az802-q-066": { guide: connections, startStep: "resource", context: "See the browser console and the resources Windows Admin Center can manage." },
   "az802-q-323": { guide: connections, startStep: "connections", context: "Follow the browser interface used to connect to Windows Server management tools." },
 };

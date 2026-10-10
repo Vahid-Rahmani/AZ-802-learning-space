@@ -202,7 +202,7 @@ for (const id of ['az802-q-066', 'az802-q-323']) {
   await render({question:{...question(id),domain:'Another course'},mode:'practice'});
   assert.equal(document.querySelector('.ad-visual-rail'), null, 'hybrid identity must not cross course domains');
 }
-const hybridIds = ['066','069','070','071','072','073','074','083','086','087','088','093','094','095','318','320','321','322','323','326'].map(id=>`az802-q-${id}`);
+const hybridIds = [...Array.from({length:34},(_,index)=>String(index+66).padStart(3,'0')), ...Array.from({length:13},(_,index)=>String(index+316))].map(id=>`az802-q-${id}`);
 const hybridBindings = questions.filter(q=>q.domain==='Manage Windows Server instances and workloads in a hybrid environment' && getQuestionVisualGuide(q));
 assert.deepEqual(hybridBindings.map(q=>q.id).sort(), [...hybridIds].sort(), 'only explicitly reviewed hybrid questions receive a guide');
 for (const q of hybridBindings) {
@@ -222,7 +222,7 @@ for (const q of hybridBindings) {
     assert.equal(!!document.querySelector('.ad-guide-image'),!!step.image);
     assert.equal(!!document.querySelector('.ad-guide-command'),!!step.command);
     if(step.image) {
-      assert.equal(new URL(step.image).hostname,'learn.microsoft.com');
+      assert.ok(['learn.microsoft.com','techcommunity.microsoft.com'].includes(new URL(step.image).hostname), 'only reviewed original Microsoft references');
       assert.ok(step.screenshotLabel && (step.source||step.screenshotSource));
       if(!q.id.endsWith('066')&&!q.id.endsWith('323'))assert.ok(step.imageNote && step.screenshotCredit, 'new photos require context and attribution');
       await act(async()=>document.querySelector('.ad-guide-image').click());
@@ -244,6 +244,15 @@ for (const q of hybridBindings) {
 }
 assert.equal(getQuestionVisualGuide(question('az802-q-071')).startStep,'agent');
 assert.equal(getQuestionVisualGuide(question('az802-q-095')).startStep,'agent');
+for (const [id,focus] of [['079','service'],['080','keys'],['090','firewall'],['097','capability'],['099','audit'],['325','route'],['328','connectivity']]) {
+  assert.equal(getQuestionVisualGuide(question(`az802-q-${id}`)).startStep,focus,'specific concepts must not open on a loosely related screenshot');
+}
+const keyBinding=getQuestionVisualGuide(question('az802-q-080'));
+const keyStep=keyBinding.guide.steps.find(step=>step.id==='keys');
+assert.ok(keyStep.diagram && !keyStep.image,'key authentication needs an accurate explanation, not an SSH installation photo');
+assert.match(keyStep.instruction,/Installing OpenSSH is not deploying a public key/);
+const hopGuide=getQuestionVisualGuide(question('az802-q-325')).guide;
+assert.match(hopGuide.steps.find(step=>step.id==='design').instruction,/do not solve a second WinRM hop/);
 console.log(`PASS hybrid walkthroughs: ${hybridBindings.length} exact question mappings; all steps rendered; source links, mobile collapse, image enlargement and exam gating verified.`);
 await act(async () => root.unmount());
 rmSync(scratch, { recursive: true, force: true });

@@ -168,26 +168,52 @@ Questions: az802-q-308, az802-q-309
 Continue in bank order after AD: hybrid administration, virtualization/containers, networking, storage/file services, security, high availability/recovery. Each requires an explicit question mapping, matched screenshots, verified source/version and exam-mode hint gating.
 
 - az802-q-066: hybrid-wac-connections; 3 official reference images, opening step photographed: true.
+- az802-q-067: hybrid-wac-gateway-deployment; 2 official reference images, opening step photographed: false.
+- az802-q-068: hybrid-wac-gateway-deployment; 2 official reference images, opening step photographed: true.
 - az802-q-069: hybrid-arc-agent-health; 2 official reference images, opening step photographed: true.
 - az802-q-070: hybrid-arc-agent-health; 2 official reference images, opening step photographed: true.
 - az802-q-071: hybrid-arc-agent-health; 2 official reference images, opening step photographed: true.
 - az802-q-072: hybrid-update-assessment; 2 official reference images, opening step photographed: true.
 - az802-q-073: hybrid-automation-schedule-jobs; 3 official reference images, opening step photographed: true.
 - az802-q-074: hybrid-automation-managed-identity; 2 official reference images, opening step photographed: true.
+- az802-q-075: hybrid-winrm-diagnostics; 0 official reference images, opening step photographed: false.
+- az802-q-076: hybrid-winrm-diagnostics; 0 official reference images, opening step photographed: false.
+- az802-q-077: hybrid-remoting-second-hop; 0 official reference images, opening step photographed: false.
+- az802-q-078: hybrid-jea-scope-audit; 0 official reference images, opening step photographed: false.
+- az802-q-079: hybrid-windows-ssh-access; 2 official reference images, opening step photographed: true.
+- az802-q-080: hybrid-windows-ssh-access; 2 official reference images, opening step photographed: false.
+- az802-q-081: hybrid-rds-sessions-gateway; 2 official reference images, opening step photographed: false.
+- az802-q-082: hybrid-rds-sessions-gateway; 2 official reference images, opening step photographed: false.
 - az802-q-083: hybrid-bastion-browser-connect; 2 official reference images, opening step photographed: true.
+- az802-q-084: hybrid-arc-policy-configuration; 1 official reference images, opening step photographed: false.
+- az802-q-085: hybrid-policy-initiatives; 2 official reference images, opening step photographed: true.
 - az802-q-086: hybrid-monitor-event-collection; 4 official reference images, opening step photographed: true.
 - az802-q-087: hybrid-monitor-event-collection; 4 official reference images, opening step photographed: true.
 - az802-q-088: hybrid-monitor-event-collection; 4 official reference images, opening step photographed: true.
+- az802-q-089: hybrid-arc-extension-least-privilege; 1 official reference images, opening step photographed: true.
+- az802-q-090: hybrid-windows-ssh-access; 2 official reference images, opening step photographed: true.
+- az802-q-091: hybrid-winrm-diagnostics; 0 official reference images, opening step photographed: false.
+- az802-q-092: hybrid-operational-design; 0 official reference images, opening step photographed: false.
 - az802-q-093: hybrid-update-assessment; 2 official reference images, opening step photographed: true.
 - az802-q-094: hybrid-update-maintenance; 1 official reference images, opening step photographed: true.
 - az802-q-095: hybrid-arc-agent-health; 2 official reference images, opening step photographed: true.
+- az802-q-096: hybrid-arc-policy-configuration; 1 official reference images, opening step photographed: false.
+- az802-q-097: hybrid-jea-scope-audit; 0 official reference images, opening step photographed: false.
+- az802-q-098: hybrid-wac-azure-integration; 1 official reference images, opening step photographed: true.
+- az802-q-099: hybrid-jea-scope-audit; 0 official reference images, opening step photographed: false.
+- az802-q-316: hybrid-operational-design; 0 official reference images, opening step photographed: false.
+- az802-q-317: hybrid-rds-sessions-gateway; 2 official reference images, opening step photographed: false.
 - az802-q-318: hybrid-bastion-browser-connect; 2 official reference images, opening step photographed: true.
+- az802-q-319: hybrid-policy-initiatives; 2 official reference images, opening step photographed: true.
 - az802-q-320: hybrid-automation-managed-identity; 2 official reference images, opening step photographed: true.
 - az802-q-321: hybrid-monitor-event-collection; 4 official reference images, opening step photographed: true.
 - az802-q-322: hybrid-update-assessment; 2 official reference images, opening step photographed: true.
 - az802-q-323: hybrid-wac-connections; 3 official reference images, opening step photographed: true.
+- az802-q-324: hybrid-winrm-diagnostics; 0 official reference images, opening step photographed: false.
+- az802-q-325: hybrid-remoting-second-hop; 0 official reference images, opening step photographed: false.
 - az802-q-326: hybrid-automation-schedule-jobs; 3 official reference images, opening step photographed: true.
-- Manage Windows Server instances and workloads in a hybrid environment: 27 questions have no mapped visual walkthrough (not a claim that they have no other learning media).
+- az802-q-327: hybrid-windows-ssh-access; 2 official reference images, opening step photographed: false.
+- az802-q-328: hybrid-arc-agent-health; 2 official reference images, opening step photographed: false.
 - Manage virtual machines: 47 questions have no mapped visual walkthrough (not a claim that they have no other learning media).
 - Implement and manage on-premises and hybrid networking: 57 questions have no mapped visual walkthrough (not a claim that they have no other learning media).
 - Manage storage and file services: 59 questions have no mapped visual walkthrough (not a claim that they have no other learning media).
