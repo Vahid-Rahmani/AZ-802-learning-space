@@ -36,12 +36,13 @@
 .ad-guide-diagram svg { display: block; width: 100%; height: auto; }
 .ad-guide-connections { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; }
 .ad-guide-command { margin: 12px 0; padding: 12px; border: 1px solid #5eead440; border-radius: 8px; font-size: 12px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; background: #07111b; color: #b4f4e8; }
-.ad-guide-dialog { width: min(1440px,94vw); max-height: 90dvh; margin: auto; padding: 16px; border: 1px solid #64748b; border-radius: 12px; background: #111a28; color: #e8edf5; overflow: auto; }
+.ad-guide-dialog { width: fit-content; max-width: min(1440px,94vw); max-height: 90dvh; box-sizing: border-box; margin: auto; padding: 16px; border: 1px solid #64748b; border-radius: 12px; background: #111a28; color: #e8edf5; overflow: auto; }
 .ad-guide-dialog::backdrop { background: #0009; }
 .ad-guide-dialog header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.ad-guide-dialog button { min-height: 44px; padding: 8px 12px; border: 1px solid #64748b; border-radius: 8px; }
-.ad-guide-dialog img { width: 100%; height: auto; display: block; margin: 12px 0; }
-.ad-guide-dialog a { font-size: 13px; color: #67e8f9; }
+.ad-guide-dialog header strong { min-width: 0; max-width: 40ch; overflow-wrap: anywhere; }
+.ad-guide-dialog button { flex-shrink: 0; min-height: 44px; padding: 8px 12px; border: 1px solid #64748b; border-radius: 8px; }
+.ad-guide-dialog img { display: block; width: auto; height: auto; max-width: 100%; max-height: calc(90dvh - 180px); object-fit: contain; margin: 12px auto; }
+.ad-guide-dialog a { font-size: 13px; color: #67e8f9; overflow-wrap: anywhere; }
 @container ad-study (min-width: 900px) {
   .ad-question-layout { grid-template-columns: minmax(0,1fr) clamp(320px,35cqi,400px); }
   .ad-visual-rail { position: sticky; top: 16px; }

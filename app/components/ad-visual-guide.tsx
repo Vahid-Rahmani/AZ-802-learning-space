@@ -73,7 +73,7 @@ export function AdVisualGuide({ binding, showTranslations }: { binding: Binding;
     {step.image && <dialog className="ad-guide-dialog" ref={dialog} aria-label={step.title} onClick={event => { if (event.target === dialog.current) dialog.current?.close(); }}>
       <header><strong>{step.title}</strong><button type="button" onClick={() => dialog.current?.close()} autoFocus aria-label="Close screenshot">Close ×</button></header>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={adStepImage(step)} alt={step.alt} width={step.imageReference?.width ?? 840} height={step.imageReference?.height ?? 630} loading="lazy" decoding="async" />
+      <img src={adStepImage(step)} alt={step.alt} width={step.imageReference?.width} height={step.imageReference?.height} decoding="async" />
       <a href={step.imageReference?.source ?? step.screenshotSource ?? step.source ?? guide.source} target="_blank" rel="noreferrer">View screenshot source ↗</a>
       <p><a href={adStepImage(step)} target="_blank" rel="noreferrer">Open full-size image ↗</a></p>
     </dialog>}

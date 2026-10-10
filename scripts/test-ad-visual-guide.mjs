@@ -68,12 +68,22 @@ for (const [id, scope] of [['az802-q-017','Domain local'], ['az802-q-018','Globa
   assert.match(binding.guide.steps.find(s=>s.id===binding.startStep).image, /sad_116\.png$/);
   await render({ question: question(id) });
   assert.equal(document.querySelector('.ad-guide-image img').getAttribute('width'), null, 'small reference dialog must keep its native width, not a fabricated 840px');
+  await act(async()=>document.querySelector('.ad-guide-image').click());
+  assert.equal(document.querySelector('dialog img').getAttribute('width'), null, 'enlargement must not manufacture a wide 840px image');
+  assert.equal(document.querySelector('dialog img').getAttribute('height'), null, 'enlargement must use the original aspect ratio');
+  await act(async()=>document.querySelector('[aria-label="Close screenshot"]').click());
 }
 assert.match(getAdVisualGuide(question('az802-q-018')).guide.steps.find(s=>s.id==='global-role-members').image, /group-members\.png$/);
-for (const [id, step] of [['055','gpo-order'],['058','gpo-block'],['061','gpo-model'],['062','gpo-filter'],['024','privilege'],['027','account'],['030','contents']]) {
+for (const [id, step] of [['055','gpo-order'],['061','gpo-model'],['024','privilege'],['027','account'],['030','contents']]) {
   assert.equal(getAdVisualGuide(question(`az802-q-${id}`)).guide.steps.find(s=>s.id===step).image, undefined, `${id}/${step}: do not substitute a loosely related screenshot`);
 }
 assert.ok(!getAdVisualGuide(question('az802-q-063')).guide.steps.some(s=>s.id.startsWith('preference-drive') || s.id==='preference-group-example' || s.id==='preference-saved-item'), 'loopback must not receive unrelated Drive Maps extras');
+for (const [id, step, marker] of [['058','gpo-block','13629-7271.jpg'],['062','gpo-filter','gpmc-policy-scope-security-filtering.png'],['063','loopback-enable','revision=4'],['064','loopback-modes','revision=4'],['031','logon','removegc1.png'],['033','subnet','revision=5']]) {
+  const imageStep = getAdVisualGuide(question(`az802-q-${id}`)).guide.steps.find(s=>s.id===step);
+  assert.ok(imageStep.image.includes(marker), `${id}: exact control screenshot must be retained`);
+  assert.ok(imageStep.diagram && imageStep.imageNote && imageStep.screenshotSource);
+  assert.match(imageStep.screenshotLabel, /(?:Windows version unspecified|Windows 8|Windows Server 2012|OS version unknown)/i, 'reference version must be honestly disclosed');
+}
 await render({question:question('az802-q-012')});
 assert.match(document.querySelector('.ad-guide-credit a').href, /answers\/questions\/1609606/);
 await act(async()=>document.querySelector('.ad-guide-image').click());
@@ -136,7 +146,13 @@ for (const guide of guides.values()) {
       assert.equal(png.subarray(0,8).toString('hex'), '89504e470d0a1a0a');
       assert.match(step.screenshotLabel, /Windows version unspecified/);
       assert.match(step.source, /^https:\/\/learn\.microsoft\.com\//);
-    } else if (step.image) assert.equal(new URL(adStepImage(step)).hostname, 'learn.microsoft.com');
+    } else if (step.image) {
+      assert.ok(['learn.microsoft.com', 'learn-attachment.microsoft.com', 'techcommunity.microsoft.com'].includes(new URL(adStepImage(step)).hostname), 'reference image must be Microsoft-hosted');
+      if (step.screenshotSource) {
+        assert.ok(step.screenshotCredit && step.screenshotLabel && step.imageNote, 'reference screenshots need source, credit, version and context');
+        assert.ok(['learn.microsoft.com', 'techcommunity.microsoft.com'].includes(new URL(step.screenshotSource).hostname));
+      }
+    }
     else assert.equal(adStepImage(step), '', 'no fabricated screenshot URL');
     if (step.source) assert.equal(new URL(step.source).protocol, 'https:');
     if (step.diagram) {
