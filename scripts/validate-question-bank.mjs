@@ -44,7 +44,7 @@ for (const [index, question] of questions.entries()) {
   if (typeof question.textDe !== "string" || !question.textDe.trim()) warnings.push(`${id}: German question translation is pending review`);
   if (!Array.isArray(question.optionsDe) || question.optionsDe.length !== 4) warnings.push(`${id}: exactly four German options are required before publication`);
   if (!question.rationale || typeof question.rationale.en !== "string" || typeof question.rationale.fa !== "string" || typeof question.rationale.de !== "string") errors.push(`${id}: all three rationale translations are required`);
-  if (typeof question.rationale?.de === "string" && /Die richtige Antwort ist .*; sie passt zum Bereich .* und zum beschriebenen Szenario/.test(question.rationale.de)) warnings.push(`${id}: German rationale is still a template and needs content review`);
+  if (typeof question.rationale?.de === "string" && /Die technischen Details stehen|Die richtige Antwort ist .*; sie passt zum Bereich/.test(question.rationale.de)) errors.push(`${id}: German rationale is a generic placeholder, not an explanation of this question`);
   if (typeof question.source !== "string" || !/^https:\/\//.test(question.source)) errors.push(`${id}: an HTTPS source URL is required`);
   if (typeof question.domain !== "string" || !DOMAIN_TO_STAGE.has(question.domain)) errors.push(`${id}: domain is not connected to a known training stage`);
   if (typeof question.skillId !== "string" || !question.skillId) errors.push(`${id}: skillId is missing`);

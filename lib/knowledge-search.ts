@@ -121,12 +121,22 @@ export function createKnowledgeSearch(questionBank: readonly KnowledgeQuestion[]
 
   return {
     search(query: string, limit = 6) {
+      const verbatim = normalizeSearchText(query);
+      const exactIndex = verbatim.length >= 2
+        ? items.findIndex((item) => item.questionSearch === verbatim || item.questionFaSearch === verbatim)
+        : -1;
       // Conversational filler is not evidence about the requested topic. Keep
       // technical terms, but do not penalize natural-language questions for it.
       const normalized = normalizeSearchText(query).split(/\s+/)
         .filter((token) => !stopWords.has(token) && !["کنم", "کنیم", "کنید"].includes(token))
         .join(" ");
-      const results = normalized.length >= 2 ? index.search(normalized, { limit }) : [];
+      const fuzzyResults = normalized.length >= 2 ? index.search(normalized, { limit }) : [];
+      // Token similarity must not outrank the actual question pasted by a learner.
+      // Keep the ordinary fuzzy ranking for all non-exact queries.
+      const results = exactIndex >= 0
+        ? [{ item: items[exactIndex], refIndex: exactIndex, score: 0 },
+          ...fuzzyResults.filter((result) => result.item.id !== items[exactIndex].id)].slice(0, limit)
+        : fuzzyResults;
       const best = results[0];
       const bestScore = best?.score ?? 1;
       const supported = Boolean(best && (bestScore <= 0.35 || (bestScore <= 0.62 && hasEvidenceOverlap(query, best.item))));

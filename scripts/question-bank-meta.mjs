@@ -8,7 +8,7 @@ import path from "node:path";
  * so no validator ever demands questions that do not exist yet. It always
  * describes real bank data; it is never a target.
  */
-export const EXPECTED_QUESTION_COUNT = 410;
+export const EXPECTED_QUESTION_COUNT = 441;
 
 /** The seven officially assessed AZ-802 domains, verbatim from the study guide. */
 export const OFFICIAL_DOMAINS = [

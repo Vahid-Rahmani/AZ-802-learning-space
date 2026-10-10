@@ -15,6 +15,7 @@
     "verify:distractors": "node scripts/check-distractor-reasons.mjs",
     "sync:review-status": "node scripts/sync-review-status.mjs",
     "validate:az802": "node scripts/validate-az802-coverage.mjs",
+    "test:az802-networking": "node scripts/test-networking-question-gaps.mjs",
     "validate:search": "node --experimental-strip-types scripts/validate-knowledge-search.mjs",
     "validate:az900": "node --experimental-strip-types scripts/validate-az900-bank.mjs",
     "validate:ccna-topologies": "node --experimental-strip-types scripts/validate-ccna-topologies.mjs",

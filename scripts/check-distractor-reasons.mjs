@@ -54,6 +54,9 @@ const WEAK_TOKENS = new Set([
  * reason is reported as unexplained purely because the noun was pluralised.
  */
 function stem(token) {
+  // "leases" and "leasing" refer to the same DHCP operation. The generic
+  // suffix rule otherwise yields "lease" versus "leas" and flags a valid reason.
+  if (/^leas(?:e|es|ed|ing)$/.test(token)) return "lease";
   return token
     .replace(/(ingly|edly|ing|ed|ies|s)$/, "")
     .replace(/([^aeiou])\1$/, "$1");
