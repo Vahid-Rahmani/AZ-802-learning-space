@@ -168,8 +168,26 @@ Questions: az802-q-308, az802-q-309
 Continue in bank order after AD: hybrid administration, virtualization/containers, networking, storage/file services, security, high availability/recovery. Each requires an explicit question mapping, matched screenshots, verified source/version and exam-mode hint gating.
 
 - az802-q-066: hybrid-wac-connections; 3 official reference images, opening step photographed: true.
+- az802-q-069: hybrid-arc-agent-health; 2 official reference images, opening step photographed: true.
+- az802-q-070: hybrid-arc-agent-health; 2 official reference images, opening step photographed: true.
+- az802-q-071: hybrid-arc-agent-health; 2 official reference images, opening step photographed: true.
+- az802-q-072: hybrid-update-assessment; 2 official reference images, opening step photographed: true.
+- az802-q-073: hybrid-automation-schedule-jobs; 3 official reference images, opening step photographed: true.
+- az802-q-074: hybrid-automation-managed-identity; 2 official reference images, opening step photographed: true.
+- az802-q-083: hybrid-bastion-browser-connect; 2 official reference images, opening step photographed: true.
+- az802-q-086: hybrid-monitor-event-collection; 4 official reference images, opening step photographed: true.
+- az802-q-087: hybrid-monitor-event-collection; 4 official reference images, opening step photographed: true.
+- az802-q-088: hybrid-monitor-event-collection; 4 official reference images, opening step photographed: true.
+- az802-q-093: hybrid-update-assessment; 2 official reference images, opening step photographed: true.
+- az802-q-094: hybrid-update-maintenance; 1 official reference images, opening step photographed: true.
+- az802-q-095: hybrid-arc-agent-health; 2 official reference images, opening step photographed: true.
+- az802-q-318: hybrid-bastion-browser-connect; 2 official reference images, opening step photographed: true.
+- az802-q-320: hybrid-automation-managed-identity; 2 official reference images, opening step photographed: true.
+- az802-q-321: hybrid-monitor-event-collection; 4 official reference images, opening step photographed: true.
+- az802-q-322: hybrid-update-assessment; 2 official reference images, opening step photographed: true.
 - az802-q-323: hybrid-wac-connections; 3 official reference images, opening step photographed: true.
-- Manage Windows Server instances and workloads in a hybrid environment: 45 questions have no mapped visual walkthrough (not a claim that they have no other learning media).
+- az802-q-326: hybrid-automation-schedule-jobs; 3 official reference images, opening step photographed: true.
+- Manage Windows Server instances and workloads in a hybrid environment: 27 questions have no mapped visual walkthrough (not a claim that they have no other learning media).
 - Manage virtual machines: 47 questions have no mapped visual walkthrough (not a claim that they have no other learning media).
 - Implement and manage on-premises and hybrid networking: 57 questions have no mapped visual walkthrough (not a claim that they have no other learning media).
 - Manage storage and file services: 59 questions have no mapped visual walkthrough (not a claim that they have no other learning media).
