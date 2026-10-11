@@ -65,7 +65,7 @@ try {
   for (const id of ["001", "004", "045", "048"]) {
     const t = learningTasks.find(t => t.id === id), f = await mount(t);
     if (t.assessment === "guided-knowledge") assert.equal(f.container.querySelector(".ccna-simulation-terminal-screen"), null, "guided appliance/advanced case invented an executable console");
-    const selects = [...f.container.querySelectorAll("select")]; assert.equal(selects.length, t.reviewQuestions.length);
+    const selects = [...f.container.querySelectorAll(".cisco-lesson label:not(.cisco-learning-language-control) select")]; assert.equal(selects.length, t.reviewQuestions.length);
     assert.ok(!JSON.parse(localStorage.getItem("cisco-learning:v1:ui-learner")).completed.includes(id));
     for (let i = 0; i < selects.length; i++) await act(async () => { selects[i].value = t.reviewQuestions[i].answerFa; selects[i].dispatchEvent(new window.Event("change", { bubbles: true })); });
     assert.ok(JSON.parse(localStorage.getItem("cisco-learning:v1:ui-learner")).completed.includes(id));

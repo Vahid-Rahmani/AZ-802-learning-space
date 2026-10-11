@@ -51,7 +51,7 @@ export default function CcnaLayout({ children }: { children: ReactNode }) {
     ? ccnaLabPath.find((entry) => entry.id === requestedLab) ?? ccnaLabPath.find((entry) => entry.kind === "hands-on")
     : null;
   const learningTask = pathname === "/ccna/sim" ? learningTasks.find(t => t.id === searchParams.get("task")) : null;
-  const pageTitle = learningTask ? `${learningTask.id} · ${learningTask.titleFa}` : pathname === "/ccna/learning" ? "Cisco · مسیر آموزشی" : simulatorLab
+  const pageTitle = learningTask ? `${learningTask.id} · Learning task` : pathname === "/ccna/learning" ? "Cisco learning path" : simulatorLab
     ? getCcnaSimulationPack(simulatorLab.id)?.title ?? simulatorLab.title
     : pathname.startsWith("/ccna/train") ? "Practice"
     : pathname.startsWith("/ccna/practice")

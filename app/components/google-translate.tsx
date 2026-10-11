@@ -13,7 +13,7 @@ const inFlight = new Map<string, Promise<string | null>>();
 
 // Public Google web translation, requested from the visitor's browser rather
 // than the deployment server. No Cloud credentials or paid API are involved.
-async function translateInBrowser(language: string, text: string): Promise<string | null> {
+async function translateInBrowser(language: string, text: string, sourceLanguage = "en"): Promise<string | null> {
   const target = getGoogleTranslateLanguage(language);
   if (!target) return null;
   const chunks: string[] = [];
@@ -27,7 +27,7 @@ async function translateInBrowser(language: string, text: string): Promise<strin
   if (remaining) chunks.push(remaining);
   const results: string[] = [];
   for (const chunk of chunks) {
-    const params = new URLSearchParams({ client: "gtx", sl: "en", tl: target.googleCode ?? target.code, dt: "t", q: chunk });
+    const params = new URLSearchParams({ client: "gtx", sl: sourceLanguage, tl: target.googleCode ?? target.code, dt: "t", q: chunk });
     if (target.romanize) params.append("dt", "rm");
     try {
       const response = await fetch(`https://translate.googleapis.com/translate_a/single?${params}`, { credentials: "omit", signal: AbortSignal.timeout(10000) });
@@ -45,8 +45,8 @@ async function translateInBrowser(language: string, text: string): Promise<strin
   return results.join(" ");
 }
 
-function keyFor(language: string, text: string) {
-  return `${language}\u0000${text}`;
+function keyFor(sourceLanguage: string, language: string, text: string) {
+  return `${sourceLanguage}\u0000${language}\u0000${text}`;
 }
 
 function isRtlLanguage(language: string) {
@@ -59,13 +59,14 @@ async function flushQueue() {
   if (queueRunning) return;
   const firstKey = waiting.keys().next().value as string | undefined;
   if (!firstKey) return;
-  const language = firstKey.split("\u0000", 1)[0];
-  const matching = [...waiting.entries()].filter(([key]) => key.startsWith(`${language}\u0000`)).slice(0, 2);
+  const [sourceLanguage, language] = firstKey.split("\u0000", 2);
+  const prefix = `${sourceLanguage}\u0000${language}\u0000`;
+  const matching = [...waiting.entries()].filter(([key]) => key.startsWith(prefix)).slice(0, 2);
   queueRunning = true;
   for (const [key] of matching) waiting.delete(key);
   try {
     await Promise.all(matching.map(async ([key, resolvers]) => {
-        const request = translateInBrowser(language, key.slice(language.length + 1));
+        const request = translateInBrowser(language, key.slice(prefix.length), sourceLanguage);
         inFlight.set(key, request);
         const translation = await request;
         if (translation) cache.set(key, translation);
@@ -78,8 +79,8 @@ async function flushQueue() {
   }
 }
 
-function requestTranslation(language: string, text: string) {
-  const key = keyFor(language, text);
+function requestTranslation(language: string, text: string, sourceLanguage = "en") {
+  const key = keyFor(sourceLanguage, language, text);
   const existing = cache.get(key);
   if (existing) return Promise.resolve(existing);
   const running = inFlight.get(key);
@@ -92,6 +93,13 @@ function requestTranslation(language: string, text: string) {
   });
 }
 
+/** Translate text from an explicit source language in the visitor's browser.
+ * This reuses the same public Google web endpoint as the subtitle control and
+ * deliberately does not require an API key or server-side credentials. */
+export function requestGoogleTranslation(language: string, text: string, sourceLanguage = "en") {
+  return requestTranslation(language, text, sourceLanguage);
+}
+
 export function GoogleSubtitleProvider({ language, children }: { language: string; children: ReactNode }) {
   const value = useMemo(() => ({ language }), [language]);
   return <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>;
@@ -100,7 +108,7 @@ export function GoogleSubtitleProvider({ language, children }: { language: strin
 /** Keeps English visible and renders the selected Google translation below it. */
 export function GoogleSubtitle({ text, className = "", subtitleClassName = "", enabled = true }: { text: string; className?: string; subtitleClassName?: string; enabled?: boolean }) {
   const { language } = useContext(TranslationContext);
-  const lookupKey = enabled && language && text.trim() ? keyFor(language, text) : "";
+  const lookupKey = enabled && language && text.trim() ? keyFor("en", language, text) : "";
   const [result, setResult] = useState<{ key: string; translation: string | null }>({ key: "", translation: null });
   const [retry, setRetry] = useState(0);
   useEffect(() => {
@@ -112,7 +120,7 @@ export function GoogleSubtitle({ text, className = "", subtitleClassName = "", e
   useEffect(() => {
     let cancelled = false;
     if (!lookupKey) return;
-    void requestTranslation(language, text).then((result) => {
+    void requestTranslation(language, text, "en").then((result) => {
       if (!cancelled) setResult({ key: lookupKey, translation: result });
     });
     return () => { cancelled = true; };

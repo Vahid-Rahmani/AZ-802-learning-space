@@ -13,6 +13,7 @@ import { simulatorText } from "@/lib/ccna-sim/language";
 import { buildLabModel } from "@/lib/ccna-sim/lab";
 import type { LabNetwork } from "@/lib/ccna-sim/lab-network";
 import type { SimMode } from "@/lib/ccna-sim/tokens";
+import { LearningText, type LearningLanguage } from "./cisco-learning-language";
 import {
   cloneSimulationState,
   connectSimulationPorts,
@@ -126,6 +127,8 @@ export type CcnaSimulationWorkspaceProps = {
   onComplete?: (packId: string) => void;
   lesson?: ReactNode;
   backHref?: string;
+  /** Optional language for the authored Cisco learning content. Existing catalog labs stay unchanged. */
+  learningLanguage?: LearningLanguage;
   /** Integration hook for a future per-device console dock. */
   onDeviceSelect?: (node: SimulationNode) => void;
 };
@@ -468,7 +471,7 @@ function buildNetworkSnapshot(state: SimulationState, views: Record<string, Term
 }
 
 
-export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplete, onDeviceSelect, lesson, backHref }: CcnaSimulationWorkspaceProps) {
+export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplete, onDeviceSelect, lesson, backHref, learningLanguage }: CcnaSimulationWorkspaceProps) {
   // Reserve room below the last row for the outward cable curves, not a second box.
   const CANVAS_HEIGHT = simulationCanvasHeight(pack.devices) + 160;
   const storageKey = `ccna-simulation:${persistKey ?? pack.id}`;
@@ -976,6 +979,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     }
     void canvas.requestFullscreen?.();
   };
+  const localized = (text: string | undefined) => text ? (learningLanguage ? <LearningText text={text} /> : text) : null;
   const panelTabs: Array<{ id: WorkspacePanel; label: string }> = [
     { id: "scenario", label: "Scenario" },
     { id: "topology", label: "Topology" },
@@ -1000,7 +1004,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
       <a className="ccna-lab-back" href={backHref ?? (pack.lab ? `/ccna/labs/${pack.lab.labId}` : "/ccna/library")}>← {backHref ? "Learning path" : pack.lab ? "Lab brief" : "Labs"}</a>
       {/* One header for the lab page: the site header already carries this title as its h1, so the bar
           shows the same name as text and keeps the only reset control, with its scope in the label. */}
-      <div className="ccna-lab-title"><p className="ccna-lab-name">{pack.title}</p><p>{requiredCount ? `${completedRequired}/${requiredCount} steps verified` : "No graded steps authored yet"} · practice model, not a device</p></div>
+      <div className="ccna-lab-title"><p className="ccna-lab-name">{localized(pack.title)}</p><p>{requiredCount ? `${completedRequired}/${requiredCount} steps verified` : "No graded steps authored yet"} · practice model, not a device</p></div>
       <div className="ccna-lab-actions"><button type="button" className="ccna-lab-reset" onClick={resetLab} title="Resets this lab only: device consoles, cables and step progress. Saved answers, quiz grades and evidence are not touched.">Reset lab · this lab only</button></div>
     </header>
     <nav className="ccna-simulation-tabs" aria-label="Simulation panels" role="tablist">
@@ -1011,17 +1015,17 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
       <aside id="ccna-panel-scenario" className="ccna-simulation-panel ccna-simulation-scenario" data-panel="scenario" role="tabpanel" aria-labelledby="ccna-panel-tab-scenario" tabIndex={-1}>
         <div className="ccna-simulation-panel-heading"><span className="ccna-simulation-panel-icon">1</span><h3>Scenario</h3></div>
         {lesson}
-        {pack.scenario.role && <p className="ccna-simulation-role">{pack.scenario.role}</p>}
+        {pack.scenario.role && <p className="ccna-simulation-role">{localized(pack.scenario.role)}</p>}
         <details className="ccna-simulation-detail">
           <summary>Scenario context</summary>
-          <p>{pack.scenario.context}</p>
+          <p>{localized(pack.scenario.context)}</p>
         </details>
         <details className="ccna-simulation-detail">
           <summary>Objective</summary>
-          <p>{pack.scenario.objective}</p>
+          <p>{localized(pack.scenario.objective)}</p>
         </details>
-        {pack.scenario.requirement && <details className="ccna-simulation-detail"><summary>Success criteria</summary><p>{pack.scenario.requirement}</p></details>}
-        {pack.scenario.prerequisites && pack.scenario.prerequisites.length > 0 && <details className="ccna-simulation-detail"><summary>Prerequisites</summary><ul>{pack.scenario.prerequisites.map((item) => <li key={item}>{item}</li>)}</ul></details>}
+        {pack.scenario.requirement && <details className="ccna-simulation-detail"><summary>Success criteria</summary><p>{localized(pack.scenario.requirement)}</p></details>}
+        {pack.scenario.prerequisites && pack.scenario.prerequisites.length > 0 && <details className="ccna-simulation-detail"><summary>Prerequisites</summary><ul>{pack.scenario.prerequisites.map((item) => <li key={item}>{localized(item)}</li>)}</ul></details>}
         <div className="ccna-simulation-progress" aria-label={requiredCount ? `${completedRequired} of ${requiredCount} graded steps verified` : "No graded step is authored for this lab yet"}>
           <div><strong>{progressPercent}%</strong><span>{completedRequired}/{requiredCount} graded steps</span></div>
           <div className="ccna-simulation-progress-track" role="progressbar" aria-label="Verified lab progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progressPercent}><span style={{ width: `${progressPercent}%` }} /></div>
@@ -1031,22 +1035,22 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
           <p className="ccna-simulation-device-guidance">This lab publishes its reference diagram and the evidence its catalog entry names, but its device-state objectives are not authored yet, so nothing on this page is credited as completed work. The checks below are read-only: run each one on the device it names to see the state the lab is about.</p>
           <ul className="ccna-simulation-checklist">
             {(pack.checklist ?? []).map((item) => <li key={item.id}>
-              <div><strong>{item.title}</strong>{item.detail && <small>{item.detail}</small>}</div>
+              <div><strong>{localized(item.title)}</strong>{item.detail && <small>{localized(item.detail)}</small>}</div>
             </li>)}
           </ul>
         </section>}
         {requiredStages.length > 0 && <section className="ccna-simulation-guide ccna-simulation-guide--scenario" aria-label="Guided lab steps">
           <div className="ccna-simulation-guide-heading"><div><span className="ccna-simulation-guide-kicker">Objectives</span><strong>{activeStage ? `Step ${activeStageNumber} of ${requiredCount}` : "Every step verified"}</strong></div><span className="ccna-simulation-guide-score">{completedRequired}/{requiredCount} verified</span></div>
           {activeStage && <div className="ccna-simulation-current-stage" aria-live="polite">
-            <p className="ccna-simulation-current-stage-title">{stageDevice ? `Next on ${stageDevice.label}: ` : "Next: "}{activeStage.title}</p>
+            <p className="ccna-simulation-current-stage-title">{stageDevice ? `Next on ${stageDevice.label}: ` : "Next: "}{localized(activeStage.title)}</p>
             <p className="ccna-simulation-device-guidance">{isStageDeviceSelected
               ? stageIsChecked
                 ? `This step is completed on ${stageDevice?.label ?? selectedNodeData?.label ?? "the target device"}. ${selectedNodeData && stageDevice && selectedNodeData.id !== stageDevice.id ? `${selectedNodeData.label} is not needed for it.` : "It is credited from the device state this console produces, not from typing the command."}`
                 : `You are on ${selectedNodeData?.label ?? "the target device"}. Complete this check here before moving to the next step.`
               : `${selectedNodeData?.label ?? "This device"} is not needed for this step. First select ${stageDevice?.label} to open its console.`}</p>
             {!isStageDeviceSelected && stageDevice && <button type="button" className="ccna-simulation-open-device" onClick={() => { flushSync(() => { selectDevice(stageDevice); setActivePanel("terminal"); }); terminalInputRef.current?.focus({ preventScroll: true }); }}>Open {stageDevice.label} console</button>}
-            <p>{activeStage.instruction}</p>
-            <p className="ccna-simulation-stage-why"><strong>Why:</strong> {activeStage.why}</p>
+            <p>{localized(activeStage.instruction)}</p>
+            <p className="ccna-simulation-stage-why"><strong>Why:</strong> {localized(activeStage.why)}</p>
             {/* A step may legitimately offer the same keyword twice (a range form and its per-port
                 form, for example), so the chip key includes its position. A duplicate key let React
                 omit or duplicate a chip, and a chip is a control the learner clicks. */}
@@ -1056,7 +1060,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
                 ? activeOutcome.ok ? `Verified: ${activeOutcome.detail}` : `Not yet: ${activeOutcome.detail}`
                 : stageIsChecked ? "Credited when the named device's state matches this lab's requirement." : "Credited from the console output this step asks for."}
             </p>
-            <small className="ccna-simulation-stage-expected">{activeStage.expected} {activeStage.hint}</small>
+            <small className="ccna-simulation-stage-expected">{localized(activeStage.expected)} {localized(activeStage.hint)}</small>
           </div>}
           <details className="ccna-simulation-detail"><summary>All {guidedStages.length} steps</summary>
           <ol className="ccna-simulation-stage-list">
@@ -1068,7 +1072,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
               const unlocked = Boolean(stage.check) || index === 0 || completedStageIds.has(guidedStages[index - 1]?.id);
               return <li key={stage.id} className={`ccna-simulation-stage${complete ? " is-complete" : ""}${activeStage?.id === stage.id ? " is-current" : ""}${!unlocked ? " is-locked" : ""}${stage.ungraded ? " is-ungraded" : ""}`}>
                 <span className="ccna-simulation-stage-marker" aria-hidden="true">{stage.ungraded ? "·" : complete ? "✓" : index + 1}</span>
-                <span><strong>{stage.title}</strong><small>{stage.ungraded ? "Not evaluated here" : complete ? "Verified" : outcome && !outcome.ok ? outcome.detail : unlocked ? "Ready" : "Locked until the previous step passes"}</small></span>
+                <span><strong>{localized(stage.title)}</strong><small>{stage.ungraded ? "Not evaluated here" : complete ? "Verified" : outcome && !outcome.ok ? outcome.detail : unlocked ? "Ready" : "Locked until the previous step passes"}</small></span>
               </li>;
             })}
           </ol>
