@@ -53,6 +53,7 @@ function fixture(t) {
   return { pack, sessions, network, links, outcomes, run };
 }
 let graded = 0, negatives = 0, steps = 0;
+assert.equal(learningTasks.filter(t => t.assessment === "live-state").length, 13, "all practical tasks must participate in the replay gate");
 for (const t of learningTasks.filter(t => t.assessment === "live-state")) {
   const f = fixture(t); const before = [...f.outcomes()];
   assert.ok(before.some(([, o]) => !o.ok), `${t.id} starts solved`);

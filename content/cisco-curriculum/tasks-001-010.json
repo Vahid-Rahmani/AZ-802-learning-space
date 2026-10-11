@@ -78,7 +78,7 @@
       "faults": [{ "id": "002-f1", "descriptionFa": "بعد از Save، ورود VTYهای 5 تا 15 دوباره باز شده است.", "commands": [{ "deviceId": "sw1", "commands": ["enable", "configure terminal", "line vty 5 15", "transport input all", "end"] }], "expectedFailureFa": "هم سیاست دسترسی ناقص است و هم Startup با Running نهایی یکی نیست.", "repair": [{ "deviceId": "sw1", "commands": ["enable", "configure terminal", "line vty 0 15", "login local", "transport input none", "end", "copy running-config startup-config"] }] }],
       "solution": [{ "deviceId": "sw1", "commands": ["enable", "configure terminal", "hostname SW1", "username netadmin privilege 15 secret LabOnly-001", "line vty 0 15", "login local", "transport input none", "end", "copy running-config startup-config"] }],
       "explanationFa": "VTY بسته یعنی فعلاً ورود شبکه‌ای لازم نیست؛ Console همچنان مسیر کار است. حساب برای درس‌های بعدی آماده می‌شود، ولی بستن VTY به معنی حفاظت Console یا enable نیست. Secret در موتور مخزن امن یا رمزنگاری واقعی ندارد. این هدف Hardening کامل نیست.",
-      "assessment": "state-contract-not-runtime-installed", "passCriteria": [
+      "assessment": "live-state", "passCriteria": [
         { "id": "002-hostname", "deviceId": "sw1", "assertionFa": "hostname برابر SW1 است.", "failureFa": "نام SW1 را روی Switch هدف تنظیم کن." },
         { "id": "002-user", "deviceId": "sw1", "assertionFa": "netadmin با kind=secret و privilege=15 وجود دارد؛ رمز فقط آزمایشگاهی است.", "failureFa": "حساب آزمایشگاهی netadmin را روی SW1 بساز." },
         { "id": "002-vty", "deviceId": "sw1", "assertionFa": "تمام 16 VTY دارای loginLocal=true و transport خالی‌اند.", "failureFa": "محدودیت را برای تمام VTYهای 0 تا 15 اعمال کن." },
@@ -99,7 +99,7 @@
       "faults": [{ "id": "003-f1", "descriptionFa": "PC-B اشتباهاً در شبکهٔ دیگری قرار گرفته است.", "commands": [{ "deviceId": "pc-b", "commands": ["ip address 192.168.20.20 255.255.255.0"] }], "expectedFailureFa": "آدرس هدف به PC-B تعلق ندارد و Same-subnet connectivity برقرار نیست.", "repair": [{ "deviceId": "pc-b", "commands": ["ip address 192.168.10.20 255.255.255.0"] }] }],
       "solution": [{ "deviceId": "pc-a", "commands": ["ip address 192.168.10.10 255.255.255.0"] }, { "deviceId": "pc-b", "commands": ["ip address 192.168.10.20 255.255.255.0"] }],
       "explanationFa": "هر دو آدرس در 192.168.10.0/24 هستند و از Access portهای VLAN 1 عبور می‌کنند. Router برای این مقصد محلی لازم نیست. نبود Gateway در این تمرین خطا نیست.",
-      "assessment": "state-contract-not-runtime-installed", "passCriteria": [
+      "assessment": "live-state", "passCriteria": [
         { "id": "003-addresses", "deviceId": "pc-a", "assertionFa": "PC-A روی Gi0/0 برابر .10/24 و PC-B برابر .20/24 است؛ هر IP تنها یک مالک دارد.", "failureFa": "IP، Mask و یکتایی آدرس‌های هر دو PC را بررسی کن." },
         { "id": "003-path", "deviceId": "sw1", "assertionFa": "دو کابل base موجود، پورت‌ها فعال و در Access VLAN 1 هستند.", "failureFa": "کابل و VLAN پورت‌های Gi0/1 و Gi0/2 را بررسی کن." },
         { "id": "003-reach", "deviceId": "pc-a", "assertionFa": "reachesDevice در هر دو جهت بین pc-a و pc-b موفق است.", "failureFa": "هر PC باید دستگاه دیگر را با IP خودش پیدا کند." }
@@ -122,7 +122,7 @@
       "solution": [], "solutionFa": "PC-A برای مقصد محلی .20 به MAC برابر 02:00:00:00:00:20 نیاز دارد. SW1 این MAC را در VLAN 1 به Gi0/2 مرتبط می‌کند. ورودی Gi0/1 با نقشه سازگار نیست.",
       "explanationFa": "ARP نگاشت IP↔MAC است و MAC table نگاشت VLAN/MAC↔Port. جدول ARP خود Switch همهٔ میزبان‌های عبوری را الزاماً شامل نمی‌شود. این تمرین مدل MAC learning، ARP cache یا حملهٔ ARP ایجاد نمی‌کند.",
       "reviewQuestions": [{ "questionFa": "اگر MAC در جدول نیست، آیا به معنی نبودن IP است؟", "answerFa": "نه؛ جدول یادگیری MAC و آدرس‌دهی IP دو وضعیت متفاوت‌اند." }, { "questionFa": "جدول آموزشی با MAC مربوط به PC-B روی Gi0/1 چه ایرادی دارد؟", "answerFa": "با کابل واقعی PC-B روی Gi0/2 مطابقت ندارد." }],
-      "assessment": "guided-evidence-not-automatic", "passCriteria": [{ "id": "004-report", "assertionFa": "زنجیرهٔ صحیح IP→MAC→Port، تفاوت جدول‌ها و Fault نمونه توضیح داده شود؛ نیازمند بررسی پاسخ خارج از grader فعلی است." }],
+      "assessment": "guided-evidence-not-automatic", "passCriteria": [{ "id": "004-report", "assertionFa": "زنجیرهٔ صحیح IP→MAC→Port، تفاوت جدول‌ها و Fault نمونه با بررسی فهم درس جدا از تنظیمات سنجیده شود." }],
       "skills": ["Ethernet", "ARP", "MAC learning concepts", "Layer 2 versus Layer 3"],
       "simulatorMapping": { "targetDeviceIds": ["pc-a", "sw1"], "roles": ["host", "switch"], "modelFeature": "Existing nodes as conceptual context only", "limitationFa": "ARP/MAC commands پشتیبانی نمی‌شوند؛ نمونه‌ها واقعی یا خودکار معرفی نشوند.", "relatedExistingLabs": ["ccna-addressing"] }, "sourceIds": ["mac-arp"]
     },
@@ -138,7 +138,7 @@
       "faults": [{ "id": "005-f1", "descriptionFa": "VLAN 20 وجود دارد ولی Gi0/2 در VLAN 1 مانده است.", "commands": [{ "deviceId": "sw1", "commands": ["enable", "configure terminal", "interface gi0/2", "switchport access vlan 1", "end"] }], "expectedFailureFa": "عضویت پورت هدف غلط است، حتی اگر ping به علت IPها باز هم شکست بخورد.", "repair": [{ "deviceId": "sw1", "commands": ["enable", "configure terminal", "interface gi0/2", "switchport access vlan 20", "end", "copy running-config startup-config"] }] }],
       "solution": [{ "deviceId": "sw1", "commands": ["enable", "configure terminal", "vlan 10", "name SALES", "exit", "vlan 20", "name FINANCE", "exit", "interface gi0/1", "switchport mode access", "switchport access vlan 10", "exit", "interface gi0/2", "switchport mode access", "switchport access vlan 20", "end", "copy running-config startup-config"] }, { "deviceId": "pc-b", "commands": ["ip address 192.168.20.20 255.255.255.0"] }],
       "explanationFa": "هر واحد VLAN و Subnet جدا دارد. بین VLANها به Routing نیاز داریم؛ بنابراین اینجا شکست ping انتظار می‌رود. اما شکست ping به‌تنهایی اثبات VLAN صحیح نیست؛ کابل، IP و عضویت پورت باید جدا بررسی شوند.",
-      "assessment": "state-contract-not-runtime-installed", "passCriteria": [
+      "assessment": "live-state", "passCriteria": [
         { "id": "005-vlans", "deviceId": "sw1", "assertionFa": "VLAN 10 SALES و VLAN 20 FINANCE موجودند.", "failureFa": "VLAN و نام هر دو واحد را بساز." },
         { "id": "005-access", "deviceId": "sw1", "assertionFa": "Gi0/1 فعال در Access VLAN 10 و Gi0/2 فعال در Access VLAN 20 است؛ کابل‌های base صحیح‌اند.", "failureFa": "پورت واقعی هر PC را در VLAN درست قرار بده." },
         { "id": "005-address", "deviceId": "pc-b", "assertionFa": "PC-A برابر 192.168.10.10/24 و PC-B برابر 192.168.20.20/24 با آدرس‌های یکتا است.", "failureFa": "آدرس هر واحد را مطابق هدف تنظیم کن." },
@@ -159,7 +159,7 @@
       "faults": [{ "id": "006-f1", "descriptionFa": "پس از تعمیر پورت، کابل PC-B قطع می‌شود.", "commands": [], "linkChanges": [{ "id": "pc-b-sw1", "status": "down" }], "expectedFailureFa": "پورت Admin-up است ولی اتصال عملی کابل ندارد.", "repair": [], "repairFa": "کابل را به Gi0/2 برگردان؛ no shutdown را بی‌هدف تکرار نکن." }],
       "solution": [{ "deviceId": "sw1", "commands": ["enable", "configure terminal", "interface gi0/2", "switchport mode access", "switchport access vlan 20", "no shutdown", "end", "copy running-config startup-config"] }],
       "explanationFa": "فقط فعال‌کردن پورت کافی نیست؛ VLAN غلط هم باید اصلاح شود. برعکس، VLAN صحیح روی پورت خاموش ارتباط نمی‌سازد. جداسازی فروش و مالی باید بعد از تعمیر حفظ شود.",
-      "assessment": "state-contract-not-runtime-installed", "passCriteria": [
+      "assessment": "live-state", "passCriteria": [
         { "id": "006-port", "deviceId": "sw1", "assertionFa": "Gi0/2 فعال، Access و VLAN 20 است و به pc-b:Gi0/0 وصل است.", "failureFa": "کابل، Admin state و VLAN پورت مالی را جدا بررسی کن." },
         { "id": "006-preserve", "deviceId": "pc-b", "assertionFa": "آدرس 192.168.20.20/24 و تنظیمات سالم فروش حفظ شده و جداسازی برقرار است.", "failureFa": "تنظیمات سالم را تغییر نده؛ هدف فقط تعمیر مالی است." },
         { "id": "006-save", "deviceId": "sw1", "assertionFa": "Startup با Running نهایی مطابق است.", "failureFa": "تعمیر نهایی را Save کن." }
@@ -179,7 +179,7 @@
       "faults": [{ "id": "007-f1", "descriptionFa": "PC-B اشتباهاً .70/26 شده است.", "commands": [{ "deviceId": "pc-b", "commands": ["ip address 192.168.10.70 255.255.255.192"] }], "expectedFailureFa": "PC-B در 192.168.10.64/26 است، نه Subnet هدف .0/26.", "repair": [{ "deviceId": "pc-b", "commands": ["ip address 192.168.10.20 255.255.255.192"] }] }],
       "solution": [{ "deviceId": "sw1", "commands": ["enable", "configure terminal", "interface gi0/2", "switchport access vlan 10", "end", "copy running-config startup-config"] }, { "deviceId": "pc-a", "commands": ["ip address 192.168.10.10 255.255.255.192"] }, { "deviceId": "pc-b", "commands": ["ip address 192.168.10.20 255.255.255.192"] }],
       "explanationFa": "دو PC هم VLAN و هم Subnet مشترک دارند. حتی اگر ping با Mask اشتباه در نمونه‌ای موفق شود، طرح /26 هنوز اجرا نشده؛ معیار قبولی باید Mask دقیق را بررسی کند.",
-      "assessment": "state-contract-not-runtime-installed", "passCriteria": [
+      "assessment": "live-state", "passCriteria": [
         { "id": "007-address", "deviceId": "pc-a", "assertionFa": "آدرس‌های یکتای .10 و .20 با Mask دقیق 255.255.255.192 روی دو Host هستند.", "failureFa": "Subnet، IP و Mask هر دو PC را اصلاح کن." },
         { "id": "007-membership", "deviceId": "sw1", "assertionFa": "هر دو Access port فعال، کابل‌های base صحیح و Access VLAN هر دو 10 است.", "failureFa": "پورت PC-B هنوز باید به فروش منتقل شود." },
         { "id": "007-connect-save", "deviceId": "sw1", "assertionFa": "Reachability دوطرفهٔ named-device و Startup مطابق Running است.", "failureFa": "ارتباط واقعی دو PC و Save تغییر Switch را بررسی کن." }
@@ -199,7 +199,7 @@
       "faults": [{ "id": "008-f1", "descriptionFa": "PC-B در Prefix اشتباه IPv6 قرار گرفته است.", "commands": [{ "deviceId": "pc-b", "commands": ["ipv6 address 2001:db8:20::20/64"] }], "expectedFailureFa": "هدف IPv6 صحیح نیست؛ IPv4 باید همچنان برقرار بماند.", "repair": [{ "deviceId": "pc-b", "commands": ["ipv6 address 2001:db8:10::20/64"] }] }],
       "solution": [{ "deviceId": "pc-a", "commands": ["ipv6 address 2001:db8:10::10/64"] }, { "deviceId": "pc-b", "commands": ["ipv6 address 2001:db8:10::20/64"] }],
       "explanationFa": "IPv6 و IPv4 هر کدام باید آدرس، Prefix/Mask و مسیر صحیح داشته باشند. اضافه‌کردن IPv6 نباید با تغییر IPv4 سالم انجام شود. این تمرین خروجی ND یا Packet capture تولید نمی‌کند.",
-      "assessment": "state-contract-not-runtime-installed", "passCriteria": [
+      "assessment": "live-state", "passCriteria": [
         { "id": "008-v6", "deviceId": "pc-a", "assertionFa": "دو آدرس IPv6 هدف یکتا و با Prefix دقیق /64 وجود دارند.", "failureFa": "آدرس و Prefix هر دو Host را بررسی کن." },
         { "id": "008-preserve", "deviceId": "sw1", "assertionFa": "IPv4 تسک 007، VLAN 10 و کابل‌های base حفظ شده‌اند.", "failureFa": "برای ساخت IPv6، IPv4 یا VLAN سالم را تغییر نده." },
         { "id": "008-dual", "deviceId": "pc-b", "assertionFa": "reachesDevice بین pc-a و pc-b در هر دو جهت و هر دو خانواده موفق است.", "failureFa": "هر چهار مسیر واقعی را بررسی کن؛ Self-ping کافی نیست." }
@@ -219,7 +219,7 @@
       "faults": [{ "id": "009-f1", "descriptionFa": "Trunk روی SW2 فقط VLAN 20 را مجاز کرده است.", "commands": [{ "deviceId": "sw2", "commands": ["enable", "configure terminal", "interface gi0/1", "switchport trunk allowed vlan 20", "end"] }], "expectedFailureFa": "VLAN فروش از لینک بین Switchها عبور نمی‌کند.", "repair": [{ "deviceId": "sw2", "commands": ["enable", "configure terminal", "interface gi0/1", "switchport trunk allowed vlan 10", "end", "copy running-config startup-config"] }] }],
       "solution": [{ "deviceId": "sw1", "commands": ["enable", "configure terminal", "interface gi0/3", "switchport mode trunk", "switchport trunk allowed vlan 10", "no shutdown", "end", "copy running-config startup-config"] }, { "deviceId": "sw2", "commands": ["enable", "configure terminal", "hostname SW2", "username netadmin privilege 15 secret LabOnly-001", "vlan 10", "name SALES", "exit", "interface gi0/1", "switchport mode trunk", "switchport trunk allowed vlan 10", "no shutdown", "exit", "interface gi0/2", "switchport mode access", "switchport access vlan 10", "no shutdown", "exit", "line vty 0 15", "login local", "transport input none", "end", "copy running-config startup-config"] }],
       "explanationFa": "VLAN 10 روی هر دو Switch وجود دارد؛ Access portها میزبان‌ها را عضو آن می‌کنند و Trunk مسیر بین دو Switch است. محدودکردن Allowed list به 10 نیاز همین Change را پوشش می‌دهد؛ VLANهای دیگر بدون نیاز باز نمی‌شوند. این هنوز STP یا EtherChannel نیست.",
-      "assessment": "state-contract-not-runtime-installed", "passCriteria": [
+      "assessment": "live-state", "passCriteria": [
         { "id": "009-topology", "deviceId": "sw1", "assertionFa": "هر سه کابل expanded به پورت‌های دقیق متصل و فعال‌اند.", "failureFa": "مسیر کابل PC-B و لینک Gi0/3↔Gi0/1 را بررسی کن." },
         { "id": "009-vlan", "deviceId": "sw2", "assertionFa": "VLAN 10 SALES در هر دو Switch و Access فعال VLAN 10 روی SW1 Gi0/1 و SW2 Gi0/2 وجود دارد.", "failureFa": "VLAN و پورت میزبان باید در هر دو Switch صحیح باشند." },
         { "id": "009-trunk", "deviceId": "sw1", "assertionFa": "SW1 Gi0/3 و SW2 Gi0/1 فعال و Trunk با Allowed list دقیق [10] و Native VLAN برابر 1 هستند.", "failureFa": "هر دو سر Trunk باید VLAN فروش را طبق طرح حمل کنند." },
@@ -242,7 +242,7 @@
       "solution": [{ "deviceId": "sw1", "commands": ["enable", "configure terminal", "interface gi0/1", "no shutdown", "end", "copy running-config startup-config"] }, { "deviceId": "sw2", "commands": ["enable", "configure terminal", "interface gi0/1", "switchport trunk allowed vlan 10", "exit", "line vty 0 15", "login local", "transport input none", "end", "copy running-config startup-config"] }],
       "solutionFa": "خاموشی Gi0/1 مسیر PC-A را قطع کرده؛ Allowed VLAN اشتباه، فروش را از Trunk حذف کرده؛ transport all سیاست مدیریت را نقض کرده است. هر سه را اصلاح، هر دو Switch را Save و هر چهار ping را بررسی کن. در Variation، Access VLAN 20ِ PC-B باید به 10 برگردد.",
       "explanationFa": "راه‌حل درست کم‌دامنه است و تنظیمات سالم را حفظ می‌کند. VTY باز در این مدل به معنی وجود سرویس رمزنگاری واقعی نیست، اما با سیاست محتوای درس ناسازگار است. یک ping موفق، سه ایراد یا Save را همزمان تأیید نمی‌کند.",
-      "assessment": "state-plus-guided-report-not-runtime-installed", "passCriteria": [
+      "assessment": "live-state", "passCriteria": [
         { "id": "010-state", "deviceId": "sw1", "assertionFa": "تمام پنج معیار 009 دوباره برقرار باشند؛ کابل، VLAN، Trunk، سیاست مدیریت، آدرس‌ها و ارتباط چهارجهته جدا بررسی شوند.", "failureFa": "بازیابی فقط یک Fault کافی نیست؛ وضعیت هدف 009 را کامل بررسی کن." },
         { "id": "010-save", "deviceId": "sw2", "assertionFa": "Startup هر دو Switch با Running نهایی مطابق است.", "failureFa": "بعد از آخرین تعمیر هر دو Switch را ذخیره کن." },
         { "id": "010-report", "assertionFa": "گزارش سه علت و تعمیر متناظر بررسی شود؛ این بخش انسانی و جدا از امتیاز خودکار مدل است." }
