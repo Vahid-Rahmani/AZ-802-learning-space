@@ -3,10 +3,10 @@
   "id": "madar-cisco-path",
   "titleFa": "مسیر عملی شبکهٔ شرکت مدار",
   "reviewedAt": "2026-10-11",
-  "status": "authored-content-not-runtime-integrated",
-  "taskData": "tasks-001-010.json",
+  "status": "connected-live-model-and-labelled-guided-cases",
+  "taskData": ["tasks-001-010.json", "tasks-011-015.json", "routing-tasks.ts", "advanced-tasks.ts"],
   "companyFa": "شرکت مدار از دو PC و یک Switch شروع می‌کند و همان شبکه را به واحدها، شعبه، WAN، Wireless، Identity، Firewall و Automation گسترش می‌دهد.",
-  "coverageClaim": "Stage-level map and 10 fully authored tasks; not exhaustive certification preparation or full IOS emulation.",
+  "coverageClaim": "48 authored tasks across 13 stages, published incrementally by release.json; supported basics use live device-state checks, absent features use explicitly labelled knowledge cases. Not exhaustive certification preparation or full IOS emulation.",
   "examAlignment": [
     { "track": "CCNA", "exam": "200-301", "version": "1.1", "sourceIds": ["ccna-current", "ccna-refresh"], "overlay": { "version": "2.0", "effectiveFrom": "2027-02-03", "sourceIds": ["ccna-v2"], "stageChanges": { "OSPFv3": "S04", "AAA client": "S06", "DHCP snooping / DAI / storm control / RA guard": "S06", "SFTP/SCP": "S06", "DNS troubleshooting": "S05", "Ansible / AI recommendations": "S06" }, "migration": "Stable task IDs; review changed objectives individually; no automatic completion of new objectives." } },
     { "track": "CCNP Enterprise", "exam": "350-401 ENCOR", "version": "1.2", "selectedConcentration": "300-410 ENARSI v1.1", "isOnlyConcentration": false, "sourceIds": ["enterprise-release", "enarsi"] },

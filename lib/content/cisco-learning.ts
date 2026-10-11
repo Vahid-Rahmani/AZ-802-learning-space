@@ -2,6 +2,8 @@ import taskData from "../../content/cisco-curriculum/tasks-001-010.json" with { 
 import curriculum from "../../content/cisco-curriculum/curriculum.json" with { type: "json" };
 import extra from "../../content/cisco-curriculum/tasks-011-015.json" with { type: "json" };
 import { routingTasks, routingTopologies } from "../../content/cisco-curriculum/routing-tasks.ts";
+import { advancedTasks } from "../../content/cisco-curriculum/advanced-tasks.ts";
+import release from "../../content/cisco-curriculum/release.json" with { type: "json" };
 import { met, unmet, reachesDevice, type LabModel, type LabStepOutcome } from "../ccna-sim/lab.ts";
 import type { SimulationPack, SimulationNode } from "../ccna-sim/topology.ts";
 
@@ -17,11 +19,23 @@ export type LearningTask = {
   passCriteria: { id: string; deviceId?: string; assertionFa: string; failureFa?: string }[];
   skills: string[]; sourceIds: string[]; reviewQuestions?: { questionFa: string; answerFa: string }[];
   simulatorMapping: { limitationFa: string; targetDeviceIds: string[] };
+  referenceTopology?: string;
 };
 
 export const learningStages = curriculum.stages;
-export const learningSources = [...curriculum.sources, { id: "ssh", title: "Cisco · Configure SSH", url: "https://www.cisco.com/c/en/us/support/docs/security-vpn/secure-shell-ssh/4145-ssh.html" }];
-export const learningTasks: LearningTask[] = [...taskData.tasks, ...extra.tasks, ...routingTasks] as LearningTask[];
+export const learningSources = [...curriculum.sources.map(s => ({ ...s, title: s.supports })),
+  { id: "ssh", title: "Cisco · Configure SSH", url: "https://www.cisco.com/c/en/us/support/docs/security-vpn/secure-shell-ssh/4145-ssh.html" },
+  { id: "stp", title: "Cisco IOS XE 17.12 · STP", url: "https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst9500/software/release/17-12/configuration_guide/lyr2/b_1712_lyr2_9500_cg/configuring_spanning_tree_protocol.html" },
+  { id: "etherchannel", title: "Cisco IOS XE 17.12 · EtherChannel", url: "https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst9500/software/release/17-12/configuration_guide/lyr2/b_1712_lyr2_9500_cg/configuring_etherchannels.html" },
+  { id: "dot1x", title: "Cisco IOS XE 17.12 · 802.1X", url: "https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst9500/software/release/17-12/configuration_guide/sec/b_1712_sec_9500_cg/configuring_ieee_802_1x_port_based_authentication.html" },
+  { id: "fmc-policy", title: "Cisco FMC · Configuration guides (select deployed release)", url: "https://www.cisco.com/c/en/us/support/security/secure-firewall-management-center/products-installation-and-configuration-guides-list.html" },
+];
+export const learningTasks: LearningTask[] = [...taskData.tasks, ...extra.tasks, ...routingTasks,
+  ...advancedTasks.filter(t => t.stageIds.every(id => Number(id.slice(1)) <= release.throughStage))] as LearningTask[];
+export function knowledgePassed(task: LearningTask, answers: readonly string[]): boolean {
+  return task.assessment.startsWith("guided") && Boolean(task.reviewQuestions?.length)
+    && task.reviewQuestions!.every((q, i) => answers[i] === q.answerFa);
+}
 const portId = (label: string) => label.toLowerCase().replace(/\//g, "-");
 const save = (l: LabModel, id: string) => l.device(id).startupSaved && l.device(id).startupMatchesRunning;
 const account = (l: LabModel, id: string) => {

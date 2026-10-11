@@ -15,7 +15,7 @@ export default function CcnaSimPage() {
   const taskId = params.get("task");
   if (taskId) {
     const task = learningTasks.find(t => t.id === taskId);
-    return <section className="ccna-sim-page">{task ? <CiscoLearningTask key={task.id} task={task} /> : <p>تمرین پیدا نشد. <a href="/ccna/learning">مسیر آموزشی</a></p>}</section>;
+    return <section className="ccna-sim-page">{task ? <CiscoLearningTask key={task.id} task={task} /> : <p>Task not found. <a href="/ccna/learning">Learning path</a></p>}</section>;
   }
   const fallback = ccnaLabPath.find((entry) => entry.kind === "hands-on") ?? ccnaLabPath[0];
   const lab = requested ? ccnaLabPath.find((entry) => entry.id === requested) : fallback;

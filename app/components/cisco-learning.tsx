@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useCcnaShell } from "@/app/ccna/layout";
-import { learningTasks, learningStages, learningPack, type LearningTask } from "@/lib/content/cisco-learning";
+import { learningTasks, learningStages, learningSources, learningPack, knowledgePassed, type LearningTask } from "@/lib/content/cisco-learning";
 import { CcnaSimulationWorkspace } from "./ccna-simulation-workspace";
 
 const href = (id: string) => `/ccna/sim?task=${encodeURIComponent(id)}`;
@@ -17,7 +17,10 @@ function useLearningProgress() {
     let saved = empty;
     try {
       const p = JSON.parse(localStorage.getItem(key) ?? "null");
-      if (p && Array.isArray(p.completed) && p.completed.every((id: unknown) => typeof id === "string") && p.answers && typeof p.answers === "object") saved = p;
+      if (p && Array.isArray(p.completed) && p.completed.every((id: unknown) => typeof id === "string") && p.answers && typeof p.answers === "object" && !Array.isArray(p.answers)) {
+        saved = { completed: [...new Set<string>(p.completed)].filter(id => learningTasks.some(t => t.id === id)), answers: p.answers,
+          lastTask: learningTasks.some(t => t.id === p.lastTask) ? p.lastTask : undefined };
+      }
     } catch { /* A damaged local save must not prevent learning. */ }
     setProgress(saved); setReady(true);
   }, [key]);
@@ -54,7 +57,7 @@ export function CiscoLearningPath() {
 
 export function CiscoLearningTask({ task }: { task: LearningTask }) {
   const { progress, ready, update, userId } = useLearningProgress();
-  const [pack] = useState(() => learningPack(task));
+  const [pack] = useState(() => task.assessment === "guided-knowledge" ? null : learningPack(task));
   const [hint, setHint] = useState(0);
   const complete = useCallback(() => update(p => ({ ...p, completed: [...new Set([...p.completed, task.id])] })), [task.id, update]);
   useEffect(() => { if (ready) update(p => ({ ...p, lastTask: task.id })); }, [ready, task.id, update]);
@@ -66,26 +69,34 @@ export function CiscoLearningTask({ task }: { task: LearningTask }) {
     <p>{task.preLessonFa}</p>
     <p><strong>هدف:</strong> {task.goalFa}</p>
     <details><summary>وضعیت شروع و پیش‌نیاز</summary><p>{task.initialState.descriptionFa}</p><p>{task.prerequisites.join("، ") || "ندارد"}</p></details>
+    {task.referenceTopology && <section><p>نقشهٔ مرجع آموزشی؛ دستگاه‌ها و لینک‌های زیر روی موتور اجرا نمی‌شوند.</p><pre dir="ltr">{task.referenceTopology}</pre></section>}
+    {!pack && <ol>{task.steps.map((s, i) => <li key={i}>{s.instructionFa}</li>)}</ol>}
     {questions.length > 0 && <section aria-label="بررسی فهم درس">
       <p>بررسی فهم درس؛ این نتیجه تیک تنظیمات دستگاه نیست. {correct}/{questions.length}</p>
       {questions.map((q, i) => <label key={q.questionFa}>{q.questionFa}<select value={answers[i] ?? ""} onChange={event => {
         const value = event.target.value;
         update(p => {
           const nextAnswers = [...(Array.isArray(p.answers[task.id]) ? p.answers[task.id] : [])]; nextAnswers[i] = value;
-          const done = questions.every((question, n) => nextAnswers[n] === question.answerFa);
+          const done = knowledgePassed(task, nextAnswers);
           return { ...p, answers: { ...p.answers, [task.id]: nextAnswers }, completed: done ? [...new Set([...p.completed, task.id])] : p.completed.filter(id => id !== task.id) };
         });
       }}><option value="">پاسخ را انتخاب کن</option>{questions.map((question, n) => <option key={n} value={question.answerFa}>{question.answerFa}</option>)}</select><small>{answers[i] ? answers[i] === q.answerFa ? "✓ درست" : "دوباره توضیح درس را بررسی کن" : ""}</small></label>)}
     </section>}
     <button type="button" onClick={() => setHint(n => Math.min(n + 1, task.hintsFa.length))} disabled={hint >= task.hintsFa.length}>راهنمای بعدی</button>
     {task.hintsFa.slice(0, hint).map(h => <p key={h}>{h}</p>)}
-    <details><summary>آزمون موفقیت</summary>{task.verification.map((v, i) => <div key={i}><strong dir="ltr">{v.deviceId}</strong><pre dir="ltr">{v.commands.join("\n")}</pre><p>{v.expectedFa}</p></div>)}</details>
+    <details><summary>آزمون موفقیت</summary>{task.verification.map((v, i) => <div key={i}><strong dir="ltr">{v.deviceId}</strong>{v.commands.length > 0 && <pre dir="ltr">{v.commands.join("\n")}</pre>}<p>{v.expectedFa}</p></div>)}</details>
     <details><summary>چالش عیب‌یابی</summary>{task.faults.map(f => <div key={f.id}><p>{f.descriptionFa}</p><p>{f.expectedFailureFa}</p>{f.commands.map((b, i) => <pre key={i} dir="ltr">{b.deviceId}{"\n"}{b.commands.join("\n")}</pre>)}<details><summary>تعمیر</summary>{f.repair.map((b, i) => <pre key={i} dir="ltr">{b.deviceId}{"\n"}{b.commands.join("\n")}</pre>)}<p>{f.repairFa}</p></details></div>)}</details>
     <details><summary>راه‌حل و دلیل</summary>{task.solution.map((b, i) => <pre key={i} dir="ltr">{b.deviceId}{"\n"}{b.commands.join("\n")}</pre>)}<p>{task.explanationFa}</p></details>
     <details><summary>محدودیت مدل</summary><p>{task.simulatorMapping.limitationFa}</p><p>رمز واقعی وارد نکن. تنظیمات و پیشرفت در همین مرورگر و برای حساب فعلی ذخیره می‌شود.</p></details>
+    <details><summary>منابع رسمی Cisco و مهارت‌ها</summary><p dir="ltr">{task.skills.join(" · ")}</p>{learningSources.filter(s => task.sourceIds.includes(s.id)).map(s => <p key={s.id}><a href={s.url} target="_blank" rel="noreferrer">{s.title}</a></p>)}</details>
     {progress.completed.includes(task.id) && <p>✓ این تمرین قبلاً تکمیل شده است؛ وضعیت فعلی دستگاه را جدا در اهداف بررسی کن.</p>}
     {next && <a href={href(next.id)}>تمرین بعدی: {next.titleFa}</a>}
   </div>;
   if (!ready) return <p role="status">در حال خواندن ادامهٔ تمرین…</p>;
+  if (!pack) return <section className="cisco-learning-path" dir="rtl" lang="fa">
+    <a href="/ccna/learning">بازگشت به مسیر</a><p>{task.id} · {task.titleFa} · {task.minutes} دقیقه</p>
+    <p>{task.scenarioFa}</p><p role="note">پروندهٔ هدایت‌شده: تیک پاسخ آموزشی، نه اجرای دستگاه. هدف و ارزیابی این درس از تنظیمات عملی شبیه‌ساز جداست.</p>
+    {lesson}
+  </section>;
   return <CcnaSimulationWorkspace pack={pack} persistKey={`cisco-learning:v1:${userId}:${task.id}`} lesson={lesson} backHref="/ccna/learning" onComplete={complete} />;
 }

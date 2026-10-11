@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "curriculumId": "madar-cisco-path",
   "language": "fa",
-  "status": "authored-content-not-runtime-integrated",
-  "initialStateContract": "Restore predecessor solution in an isolated practice copy, normalize each console to user EXEC, then apply explicit setup/fault blocks. Guided tasks do not alter device state. This is an authoring contract, not an installed initializer.",
-  "assessmentContract": "passCriteria are content specifications, not executable predicates. Implement future checks using the existing LabModel and named-device reachesDevice helper. Observation tasks need independent reviewed answers; no automatic transcript credit. Preserve free exploration and existing user progress.",
+  "status": "connected-through-cisco-learning-adapter",
+  "initialStateContract": "createLabSession restores predecessor solution in an isolated practice copy and applies explicit setup blocks; normalize consoles to user EXEC. Existing lab saves are separate and unchanged.",
+  "assessmentContract": "lib/content/cisco-learning.ts maps practical criteria to live LabModel predicates with named-device reachesDevice. Observation tasks use separately labelled knowledge answers; show commands earn no configuration credit.",
   "limitationsFa": [
-    "این ۱۰ تسک هنوز در صفحات سایت یا رجیستری SimLabPack فعال نشده‌اند.",
+    "این ۱۰ تسک از /ccna/learning به همان Workspace وصل‌اند؛ رجیستری ۱۰۹ لب قبلی تغییر نکرده است.",
     "فرمان‌های IP روی Host قرارداد کنسول آموزشی سایت‌اند، نه دستور Windows/Linux.",
     "Secret و SSH و RSA مدل آموزشی‌اند؛ رمز واقعی وارد نکن.",
     "مدل ARP/MAC و حفاظت کامل Console/enable در موتور فعلی وجود ندارد.",
@@ -63,7 +63,7 @@
       ],
       "assessment": "guided-evidence-not-automatic", "passCriteria": [{ "id": "001-report", "assertionFa": "گزارش سه پاسخ صحیح و تطبیق پورت با نقشه و خروجی؛ صرف تایپ Show کافی نیست." }],
       "skills": ["Console", "Help", "EXEC modes", "Interface inspection"],
-      "simulatorMapping": { "targetDeviceIds": ["sw1"], "roles": ["switch"], "modelFeature": "Existing console/help/show commands", "limitationFa": "ارزیاب پاسخ در UI فعلی وجود ندارد؛ تیک خودکار برای این مشاهده جعل نشود.", "relatedExistingLabs": ["ccna-addressing"] },
+      "simulatorMapping": { "targetDeviceIds": ["sw1"], "roles": ["switch"], "modelFeature": "Existing console/help/show commands", "limitationFa": "بررسی پاسخ آموزشی جدا از تیک تنظیمات است؛ Show به‌تنهایی امتیاز نمی‌دهد.", "relatedExistingLabs": ["ccna-addressing"] },
       "sourceIds": ["ccna-current"]
     },
     {
