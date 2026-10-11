@@ -1,7 +1,7 @@
 "use client";
+/* eslint-disable @next/next/no-html-link-for-pages -- Native navigation avoids the deployed vinext Link chunk's missing router exports. */
 
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
-import Link from "next/link";
 import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, Clock3, Network, Play, ShieldCheck, Terminal, Trophy } from "lucide-react";
 import { useCcnaShell } from "@/app/ccna/layout";
 import { learningTasks, learningStages, learningSources, learningPack, knowledgePassed, gradedLearningCriteria, type LearningTask } from "@/lib/content/cisco-learning";
@@ -66,7 +66,7 @@ function CiscoLearningPathContent() {
       <div><p className="cisco-learning-kicker"><Network size={16} /> CCNA → Enterprise → CCIE</p>
         <h2><GoogleSubtitle text="One network. A clear next step." /></h2>
         <p><GoogleSubtitle text="Build your skills one lesson at a time. Choose a stage, review a lesson, then start its exercise." /></p>
-        <Link className="cisco-learning-primary" href={overviewHref(resume.id)}><Play size={16} /><GoogleSubtitle text={progress.lastTask ? "Resume learning" : "Start learning"} /><ArrowRight size={16} /></Link>
+        <a className="cisco-learning-primary" href={overviewHref(resume.id)}><Play size={16} /><GoogleSubtitle text={progress.lastTask ? "Resume learning" : "Start learning"} /><ArrowRight size={16} /></a>
       </div>
       <ProgressRing percent={Math.floor(completed / learningTasks.length * 100)} label={`${completed} / ${learningTasks.length} lessons`} />
     </div>
@@ -86,14 +86,14 @@ function CiscoLearningPathContent() {
         <div className="cisco-lesson-grid">{tasks.map(task => {
           const m = taskMeasurement(task, progress);
           const Icon = m.complete ? CheckCircle2 : task.assessment === "live-state" ? Terminal : BookOpen;
-          return <Link className={`cisco-lesson-card${m.complete ? " is-complete" : ""}`} key={task.id} href={overviewHref(task.id)}>
+          return <a className={`cisco-lesson-card${m.complete ? " is-complete" : ""}`} key={task.id} href={overviewHref(task.id)}>
             <div className="cisco-card-top"><span className="cisco-card-icon"><Icon size={22} /></span><span>LESSON {task.id}</span><span className="cisco-card-status">{m.complete ? "Complete" : m.percent || progress.lastTask === task.id ? "In progress" : "Ready to start"}</span></div>
             <h3><GoogleSubtitle text={learningTitles[task.id]} /></h3>
             <p>{task.skills.slice(0, 3).join(" · ")}</p>
             <div className="cisco-card-meta"><span><Clock3 size={14} /> {task.minutes} min</span><span>{task.assessment === "guided-knowledge" ? "Guided case study" : m.knowledge ? "Console + knowledge check" : "Hands-on lab"}</span></div>
             <ProgressBar percent={m.percent} label={`Lesson ${task.id} progress`} />
             <div className="cisco-card-bottom"><span>{m.percent}% · {m.passed}/{m.total} checks</span><strong>View lesson <ArrowRight size={15} /></strong></div>
-          </Link>;
+          </a>;
         })}</div>
         <div className="cisco-stage-note"><strong><GoogleSubtitle text="Before this stage" /></strong><p>{stage.prerequisites.length ? stage.prerequisites.map(id => stageTitles[id]).join(" · ") : "No prerequisites. Start with your first switch."}</p><LearningText text={stage.exitCriteriaFa} /></div>
       </div>
@@ -115,8 +115,8 @@ export function CiscoLearningOverview({ task }: { task: LearningTask }) {
   const m = taskMeasurement(task, progress);
   const previous = learningTasks.filter(t => task.prerequisites.includes(t.id));
   return <section className="cisco-learning-path cisco-lesson-overview" dir="ltr" lang="en">
-    <Link className="cisco-back-link" href="/ccna/learning"><ArrowLeft size={16} /><GoogleSubtitle text="Learning path" /></Link>
-    <div className="cisco-path-hero"><div><p className="cisco-learning-kicker">LESSON {task.id} · {task.stageIds.map(id => stageTitles[id]).join(" / ")}</p><h2><GoogleSubtitle text={learningTitles[task.id]} /></h2><p><LearningText text={task.goalFa} /></p><Link className="cisco-learning-primary" href={href(task.id)}><Play size={16} /><GoogleSubtitle text={m.complete ? "Practise again" : m.percent || progress.lastTask === task.id ? "Continue exercise" : "Start exercise"} /><ArrowRight size={16} /></Link></div><ProgressRing percent={m.percent} label={ready ? `${m.passed}/${m.total} checks passed` : "Loading progress…"} /></div>
+    <a className="cisco-back-link" href="/ccna/learning"><ArrowLeft size={16} /><GoogleSubtitle text="Learning path" /></a>
+    <div className="cisco-path-hero"><div><p className="cisco-learning-kicker">LESSON {task.id} · {task.stageIds.map(id => stageTitles[id]).join(" / ")}</p><h2><GoogleSubtitle text={learningTitles[task.id]} /></h2><p><LearningText text={task.goalFa} /></p><a className="cisco-learning-primary" href={href(task.id)}><Play size={16} /><GoogleSubtitle text={m.complete ? "Practise again" : m.percent || progress.lastTask === task.id ? "Continue exercise" : "Start exercise"} /><ArrowRight size={16} /></a></div><ProgressRing percent={m.percent} label={ready ? `${m.passed}/${m.total} checks passed` : "Loading progress…"} /></div>
     <div className="cisco-path-stats"><span><Clock3 size={18} />{task.minutes} minutes</span><span>{task.assessment === "guided-knowledge" ? <BookOpen size={18} /> : <Terminal size={18} />}{task.assessment === "guided-knowledge" ? "Guided case study" : "Simulator exercise"}</span><span><Trophy size={18} />{m.total} success checks</span></div>
     <div className="cisco-overview-columns"><div className="cisco-overview-panel"><h3><GoogleSubtitle text="Your success checklist" /></h3><p><GoogleSubtitle text={m.knowledge ? "Answer the lesson questions correctly to pass each check." : "Each check passes when your device configuration meets the goal."} /></p><table className="cisco-measurement-table"><thead><tr><th>Check</th><th>Status</th></tr></thead><tbody>{m.criteria.map((criterion, i) => <tr key={criterion.id}><td><span className="cisco-check-number">{i + 1}</span><LearningText text={criterion.title} /></td><td><span className={`cisco-check-status${criterion.passed ? " is-passed" : ""}`}>{criterion.passed && <Check size={14} />}{criterion.passed ? "Passed" : "To do"}</span></td></tr>)}</tbody></table><p className="cisco-measurement-note">{m.knowledge ? "This percentage measures knowledge answers. It does not claim a running OSPF, firewall or appliance." : "Live device checks are updated when you open the exercise. You can experiment beyond the lesson."}</p></div>
       <aside className="cisco-overview-panel"><h3><GoogleSubtitle text="Prepare for this lesson" /></h3><p className="cisco-learning-kicker">Prerequisites</p>{previous.length ? previous.map(t => <a className="cisco-prerequisite" key={t.id} href={overviewHref(t.id)}><span>{taskMeasurement(t, progress).complete ? <CheckCircle2 size={16} /> : <BookOpen size={16} />}</span><GoogleSubtitle text={learningTitles[t.id]} /><ArrowRight size={14} /></a>) : <p>No prerequisites. This is your first lesson.</p>}<p className="cisco-learning-kicker">Skills you will practise</p><div className="cisco-skill-tags">{task.skills.map(skill => <span key={skill}>{skill}</span>)}</div><p><LearningText text={task.scenarioFa} /></p></aside>
@@ -178,11 +178,11 @@ function CiscoLearningTaskContent({ task }: { task: LearningTask }) {
     <details><summary>{fa ? "محدودیت مدل" : german ? "Modellgrenze" : "Model limitation"}</summary><p><LearningText text={task.simulatorMapping.limitationFa} /></p><p>{fa ? "رمز واقعی وارد نکن. تنظیمات و پیشرفت در همین مرورگر و برای حساب فعلی ذخیره می‌شود." : german ? "Gib keine echten Passwörter ein. Einstellungen und Fortschritt werden in diesem Browser gespeichert." : "Do not enter real passwords. Settings and progress are stored in this browser for the current account."}</p></details>
     <details><summary>{fa ? "منابع رسمی Cisco و مهارت‌ها" : german ? "Offizielle Cisco-Quellen und Fähigkeiten" : "Official Cisco sources and skills"}</summary><p dir="ltr">{task.skills.join(" · ")}</p>{learningSources.filter(s => task.sourceIds.includes(s.id)).map(s => <p key={s.id}><a href={s.url} target="_blank" rel="noreferrer">{s.title}</a></p>)}</details>
     {progress.completed.includes(task.id) && <p>✓ {fa ? "این تمرین قبلاً تکمیل شده است؛ وضعیت فعلی دستگاه را جدا در اهداف بررسی کن." : german ? "Diese Übung ist bereits abgeschlossen; prüfe den aktuellen Gerätestatus separat." : "This exercise is already complete; verify the current device state separately in the objectives."}</p>}
-    {next && <Link className="cisco-next-lesson" href={overviewHref(next.id)}><GoogleSubtitle text={`Next lesson: ${learningTitles[next.id]}`} /><ArrowRight size={16} /></Link>}
+    {next && <a className="cisco-next-lesson" href={overviewHref(next.id)}><GoogleSubtitle text={`Next lesson: ${learningTitles[next.id]}`} /><ArrowRight size={16} /></a>}
   </div>;
   if (!ready) return <p role="status">Loading your saved exercise…</p>;
   if (!pack) return <section className="cisco-learning-path cisco-guided-exercise" dir="ltr" lang="en">
-    <Link className="cisco-back-link" href={overviewHref(task.id)}><ArrowLeft size={16} /><GoogleSubtitle text="Lesson overview" /></Link>
+    <a className="cisco-back-link" href={overviewHref(task.id)}><ArrowLeft size={16} /><GoogleSubtitle text="Lesson overview" /></a>
     <div className="cisco-path-hero"><div><p className="cisco-learning-kicker">LESSON {task.id} · GUIDED CASE STUDY</p><h2><GoogleSubtitle text={learningTitles[task.id]} /></h2><p><LearningText text={task.scenarioFa} /></p><span className="cisco-card-meta"><Clock3 size={16} /> {task.minutes} minutes · {correct}/{questions.length} answers verified</span></div><ProgressRing percent={measured.percent} label={`${correct}/${questions.length} checks passed`} /></div>
     <div className="cisco-guided-columns"><div className="cisco-overview-panel">{lesson}</div><aside className="cisco-overview-panel cisco-guided-progress"><h3><GoogleSubtitle text="Lesson progress" /></h3><ProgressBar percent={measured.percent} label="Lesson progress" /><p>{measured.percent}% · {measured.passed}/{measured.total} checks</p><ol>{measured.criteria.map((c, i) => <li className={c.passed ? "is-passed" : ""} key={c.id}><span>{c.passed ? <CheckCircle2 size={18} /> : i + 1}</span><LearningText text={c.title} /></li>)}</ol><p><GoogleSubtitle text="Read the case, work through its steps, then answer the knowledge check. Each correct answer passes its own check." /></p><p className="cisco-measurement-note"><GoogleSubtitle text="This is a guided case study. These features are not executed by the simulator." /></p><div className="cisco-skill-tags">{task.skills.map(skill => <span key={skill}>{skill}</span>)}</div></aside></div>
   </section>;

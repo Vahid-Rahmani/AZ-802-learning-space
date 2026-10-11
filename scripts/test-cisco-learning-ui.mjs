@@ -14,8 +14,6 @@ try {
     b.onLoad({ filter: /^auth-context$/, namespace: "test" }, () => ({ contents: 'export const useCcnaShell = () => ({userId: "ui-learner", language: ""});', loader: "js" }));
     b.onResolve({ filter: /(?:google-translate|cisco-learning-language)$/ }, args => ({ path: args.path.endsWith("google-translate") ? "google" : "language", namespace: "test" }));
     b.onLoad({ filter: /^(google|language)$/, namespace: "test" }, () => ({ contents: 'export const LearningText = ({text}) => text; export const GoogleSubtitle = ({text}) => text;', loader: "js" }));
-    b.onResolve({ filter: /^next\/link$/ }, () => ({ path: "link", namespace: "test" }));
-    b.onLoad({ filter: /^link$/, namespace: "test" }, () => ({ contents: 'import React from "react"; export default function Link(props) { return React.createElement("a", props); }', loader: "js" }));
   } }] });
   const dom = new JSDOM("<!doctype html><html><body></body></html>", { url: "https://lab.local/ccna/sim?task=001", pretendToBeVisual: true });
   const { window } = dom;
