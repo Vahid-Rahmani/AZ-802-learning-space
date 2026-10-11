@@ -142,6 +142,11 @@ const predicates: Record<string, (lab: LabModel) => boolean> = {
   "015-default": l => route(l, "r1", "0.0.0.0", "0.0.0.0", "10.0.12.2") && !l.device("r1").routes.some(r => r.network === "192.168.30.0") && branchAddresses(l) && returns(l),
   "015-proof": l => branchProof(l) && ["r1", "r2"].every(id => save(l, id)),
 };
+/** Keep dashboard measurements identical to the workspace's executable checks. */
+export function gradedLearningCriteria(task: LearningTask) {
+  return task.passCriteria.filter(criterion => Boolean(predicates[criterion.id]));
+}
+
 export function learningCheck(id: string, lab: LabModel): LabStepOutcome {
   const criterion = learningTasks.flatMap(t => t.passCriteria).find(c => c.id === id);
   const check = predicates[id];

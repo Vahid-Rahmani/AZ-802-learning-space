@@ -1,21 +1,105 @@
-.cisco-learning-path { max-width: 1100px; margin-inline: auto; line-height: 1.75; }
-.cisco-learning-toolbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-block: 0 1.2rem; padding: .9rem 1rem; border: 1px solid var(--simulation-line, #29405e); border-radius: 10px; background: var(--simulation-surface, #101d31); }
-.cisco-learning-toolbar p { margin: 0; }
-.cisco-learning-kicker { color: #4dd5ff; font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.cisco-learning-path { --path-line: var(--simulation-line, #303541); --path-panel: var(--simulation-surface, #191d25); --path-muted: #a7b3c6; --path-accent: #57ded1; max-width: 1200px; margin-inline: auto; line-height: 1.6; color: var(--simulation-text, #e7edf5); }
+.cisco-learning-path :is(h2,h3,p) { margin: 0; }
+.cisco-learning-path h2 { font-size: clamp(1.25rem, 2.5vw, 1.9rem); line-height: 1.3; letter-spacing: -.025em; }
+.cisco-learning-path h3 { font-size: 1rem; line-height: 1.4; }
+.cisco-learning-path a { text-decoration: none; }
+.cisco-learning-path .google-subtitle { display: inline; }
+.cisco-learning-kicker { display: flex; align-items: center; gap: .45rem; color: var(--path-accent, #57ded1); font-size: .68rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
 .cisco-learning-text { overflow-wrap: anywhere; }
-.cisco-learning-stage { margin-block: .8rem; padding: .8rem 1rem; border: 1px solid var(--simulation-line, #29405e); border-radius: 10px; background: var(--simulation-surface, #101d31); }
-.cisco-learning-stage summary { cursor: pointer; font-weight: 650; }
-.cisco-learning-stage ol { padding-inline-start: 1.2rem; }
-.cisco-learning-stage li { padding-block: .45rem; }
-.cisco-learning-stage small { display: block; color: #a7b6ca; }
-.cisco-learning-path a, .cisco-lesson a { color: #4dd5ff; }
-.cisco-learning-primary { display: inline-block; padding: .4rem .9rem; border: 1px solid #4dd5ff; border-radius: 7px; }
+.cisco-path-hero { display: flex; align-items: center; justify-content: space-between; gap: 2rem; padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--path-line); border-radius: 16px; background: radial-gradient(ellipse at top right, #2ecbbb18, transparent 65%), var(--path-panel); }
+.cisco-path-hero > div:first-child { display: grid; gap: .85rem; max-width: 720px; min-width: 0; }
+.cisco-path-hero p:not(.cisco-learning-kicker) { color: var(--path-muted); font-size: .9rem; }
+.cisco-learning-primary { display: inline-flex; align-items: center; justify-content: center; gap: .6rem; width: fit-content; min-height: 42px; padding: .55rem 1rem; margin-top: .3rem; border-radius: 9px; background: var(--path-accent, #57ded1); color: #092524; font-size: .85rem; font-weight: 750; }
+.cisco-learning-primary:hover { filter: brightness(1.1); }
+.cisco-progress-ring { flex: 0 0 auto; width: 144px; aspect-ratio: 1; padding: 7px; border-radius: 50%; background: conic-gradient(var(--path-accent) var(--progress), #343b47 0); }
+.cisco-progress-ring > div { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; border-radius: 50%; background: var(--path-panel); }
+.cisco-progress-ring strong { font-size: 2rem; font-weight: 750; }
+.cisco-progress-ring span { font-size: .67rem; color: var(--path-muted); }
+.cisco-path-stats { display: flex; flex-wrap: wrap; gap: .7rem 1.7rem; padding: 1.1rem .2rem; color: var(--path-muted); font-size: .78rem; }
+.cisco-path-stats > span { display: inline-flex; align-items: center; gap: .5rem; }
+.cisco-path-stats svg { color: var(--path-accent); }
+.cisco-path-layout { display: grid; grid-template-columns: 250px minmax(0,1fr); gap: 1.4rem; align-items: start; }
+.cisco-stage-nav { display: grid; gap: .25rem; padding: .5rem; border: 1px solid var(--path-line); border-radius: 12px; background: var(--path-panel); }
+.cisco-stage-nav button { display: flex; align-items: center; gap: .7rem; width: 100%; text-align: left; color: inherit; padding: .7rem; border: 1px solid transparent; background: none; border-radius: 8px; cursor: pointer; }
+.cisco-stage-nav button:hover { background: #ffffff08; }
+.cisco-stage-nav button[aria-current] { background: #57ded110; border-color: #57ded148; }
+.cisco-stage-number { display: grid; place-items: center; flex: 0 0 29px; height: 29px; background: #ffffff08; color: var(--path-accent); border-radius: 7px; font-size: .72rem; }
+.cisco-stage-nav strong { display: block; font-size: .79rem; line-height: 1.35; }
+.cisco-stage-nav small { display: block; font-size: .65rem; color: var(--path-muted); margin-top: .15rem; }
+.cisco-stage-content { min-width: 0; }
+.cisco-stage-content > header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .3rem 0 .9rem; }
+.cisco-stage-content > header h2 { font-size: 1.3rem; margin: .3rem 0; }
+.cisco-stage-content > header p:last-child { color: var(--path-muted); font-size: .82rem; }
+.cisco-stage-count { text-align: right; font-size: 1.3rem; font-weight: 700; white-space: nowrap; }
+.cisco-stage-count small { display: block; font-size: .65rem; color: var(--path-muted); font-weight: 400; }
+.cisco-progress-bar { height: 5px; background: #343b47; border-radius: 9px; overflow: hidden; }
+.cisco-progress-bar > span { display: block; height: 100%; border-radius: inherit; background: var(--path-accent, #57ded1); transition: width .25s ease; }
+.cisco-lesson-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .85rem; margin-top: 1.1rem; }
+.cisco-lesson-card { display: flex; flex-direction: column; gap: .65rem; min-width: 0; padding: 1.1rem; border: 1px solid var(--path-line); border-radius: 12px; background: var(--path-panel); color: inherit; transition: border-color .18s, transform .18s; }
+.cisco-lesson-card:hover { border-color: #57ded176; transform: translateY(-2px); }
+.cisco-lesson-card.is-complete { border-color: #57ded148; }
+.cisco-card-top { display: flex; align-items: center; gap: .5rem; font-size: .62rem; color: var(--path-muted); flex-wrap: wrap; }
+.cisco-card-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 9px; color: var(--path-accent); background: #57ded111; }
+.cisco-card-status { margin-left: auto; padding: .2rem .45rem; border-radius: 5px; background: #ffffff07; }
+.cisco-lesson-card.is-complete .cisco-card-status { color: var(--path-accent); }
+.cisco-lesson-card h3 { min-height: 2.8em; }
+.cisco-lesson-card p { font-size: .72rem; color: var(--path-muted); }
+.cisco-card-meta { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem .8rem; font-size: .68rem; color: var(--path-muted); }
+.cisco-card-meta span { display: inline-flex; align-items: center; gap: .2rem; }
+.cisco-lesson-card .cisco-progress-bar { margin-top: auto; }
+.cisco-card-bottom { display: flex; justify-content: space-between; align-items: center; gap: .4rem; font-size: .65rem; color: var(--path-muted); }
+.cisco-card-bottom strong { display: inline-flex; gap: .25rem; align-items: center; color: var(--path-accent); }
+.cisco-stage-note { margin-top: 1rem; padding: 1rem; border: 1px solid var(--path-line); border-radius: 10px; font-size: .78rem; color: var(--path-muted); }
+.cisco-stage-note strong { color: var(--path-accent); }
+.cisco-stage-note p { margin: .3rem 0 .5rem; }
+.cisco-path-footer { margin-top: 1.2rem; border-top: 1px solid var(--path-line); padding-top: 1rem; font-size: .72rem; color: var(--path-muted); }
+.cisco-path-footer details { margin-top: .6rem; }
+.cisco-path-footer a { color: var(--path-accent); }
+.cisco-back-link { display: inline-flex; align-items: center; gap: .45rem; font-size: .82rem; color: var(--path-muted); margin-bottom: 1rem; }
+.cisco-overview-columns,.cisco-guided-columns { display: grid; grid-template-columns: minmax(0,1.7fr) minmax(230px,1fr); gap: 1.2rem; margin-top: .5rem; align-items: start; }
+.cisco-overview-panel { min-width: 0; background: var(--path-panel); padding: 1.3rem; border-radius: 12px; border: 1px solid var(--path-line); }
+.cisco-overview-panel > p { margin-top: .6rem; font-size: .82rem; color: var(--path-muted); }
+.cisco-overview-panel > .cisco-learning-kicker { margin-top: 1.1rem; font-size: .65rem; }
+.cisco-measurement-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: .82rem; }
+.cisco-measurement-table th { font-size: .68rem; color: var(--path-muted); font-weight: 500; text-align: left; padding: .6rem 0; }
+.cisco-measurement-table td { padding: .8rem 0; border-top: 1px solid var(--path-line); vertical-align: top; }
+.cisco-measurement-table td:first-child { padding-right: .7rem; }
+.cisco-measurement-table td:last-child { width: 72px; }
+.cisco-check-number { display: inline-grid; place-items: center; width: 22px; height: 22px; background: #ffffff08; border-radius: 5px; margin-right: .5rem; font-size: .68rem; }
+.cisco-check-status { display: inline-flex; align-items: center; gap: .25rem; font-size: .67rem; background: #ffffff08; border-radius: 5px; padding: .2rem .4rem; white-space: nowrap; color: var(--path-muted); }
+.cisco-check-status.is-passed { color: var(--path-accent); background: #57ded111; }
+.cisco-overview-panel .cisco-measurement-note { font-size: .7rem; color: var(--path-muted); padding-top: .6rem; }
+.cisco-prerequisite { display: flex; align-items: center; gap: .5rem; font-size: .78rem; color: inherit; padding: .65rem 0; border-bottom: 1px solid var(--path-line); }
+.cisco-prerequisite > span:first-child { color: var(--path-accent); }
+.cisco-prerequisite > svg:last-child { margin-left: auto; flex-shrink: 0; }
+.cisco-skill-tags { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .7rem; }
+.cisco-skill-tags span { font-size: .67rem; padding: .2rem .45rem; border-radius: 5px; background: #ffffff08; color: var(--path-muted); }
+.cisco-guided-exercise .cisco-path-hero { margin-bottom: 1.2rem; }
+.cisco-guided-progress { position: sticky; top: 1rem; }
+.cisco-guided-progress .cisco-progress-bar { margin-top: 1rem; }
+.cisco-guided-progress ol { padding: 0; list-style: none; margin: 1rem 0; }
+.cisco-guided-progress li { display: flex; align-items: flex-start; gap: .6rem; padding: .7rem 0; border-bottom: 1px solid var(--path-line); color: var(--path-muted); font-size: .78rem; }
+.cisco-guided-progress li > span:first-child { flex: 0 0 20px; font-size: .7rem; }
+.cisco-guided-progress li.is-passed { color: var(--path-accent); }
 .cisco-lesson { font-size: .9em; line-height: 1.7; min-width: 0; }
-.cisco-lesson p { margin-block: .6rem; }
-.cisco-lesson details { margin-block: .5rem; }
-.cisco-lesson summary { cursor: pointer; }
-.cisco-lesson pre { max-width: 100%; overflow-x: auto; font-size: .85em; background: #070c13; padding: .5rem; border-radius: 5px; }
-.cisco-lesson label { display: block; margin-block: .7rem; }
-.cisco-lesson select { display: block; width: 100%; min-height: 40px; white-space: normal; background: #101d31; color: #e7eef9; border: 1px solid #29405e; padding: .3rem; }
-.cisco-lesson button { padding: .35rem .6rem; border: 1px solid #29405e; border-radius: 5px; }
-@media (max-width: 600px) { .cisco-learning-stage { padding: .6rem; } .cisco-learning-path { font-size: .95rem; } .cisco-learning-toolbar { align-items: stretch; flex-direction: column; } }
+.cisco-lesson p { margin-block: .7rem; }
+.cisco-lesson details { margin-block: .5rem; padding: .65rem .75rem; border: 1px solid var(--path-line, #303541); border-radius: 7px; }
+.cisco-lesson summary { cursor: pointer; font-weight: 600; }
+.cisco-lesson pre { max-width: 100%; overflow-x: auto; white-space: pre; font-size: .85em; background: #101319; padding: .75rem; border-radius: 7px; }
+.cisco-lesson ol { padding-left: 1.25rem; }
+.cisco-lesson li { margin-block: .6rem; }
+.cisco-lesson button { padding: .45rem .75rem; border: 1px solid var(--path-line, #303541); border-radius: 7px; }
+.cisco-knowledge-check { margin-top: 1.2rem; }
+.cisco-knowledge-check fieldset { min-width: 0; border: 0; margin: 1rem 0; padding: 0; }
+.cisco-knowledge-check legend { font-weight: 600; margin-bottom: .7rem; }
+.cisco-knowledge-check .cisco-answer-choice { display: flex; align-items: flex-start; gap: .6rem; margin: .45rem 0; border: 1px solid var(--path-line, #303541); padding: .7rem; border-radius: 8px; cursor: pointer; font-size: .88em; }
+.cisco-answer-choice:has(input:checked) { border-color: #57ded1; background: #57ded10a; }
+.cisco-answer-choice input { flex: 0 0 auto; margin-top: .3rem; accent-color: #57ded1; }
+.cisco-answer-letter { color: #a7b3c6; font-size: .8em; }
+.cisco-knowledge-check small { display: block; color: #57ded1; }
+.cisco-next-lesson { display: flex; justify-content: space-between; align-items: center; gap: .5rem; margin-top: 1rem; padding: .75rem; border-radius: 7px; border: 1px solid var(--path-line, #303541); color: #57ded1; }
+.cisco-learning-path :is(a,button,input,summary):focus-visible { outline: 2px solid #57ded1; outline-offset: 3px; }
+@media (max-width: 1100px) { .cisco-path-layout { grid-template-columns: 210px minmax(0,1fr); gap: .8rem; } .cisco-lesson-grid { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .cisco-path-layout { grid-template-columns: 1fr; } .cisco-stage-nav { display: flex; overflow-x: auto; gap: .4rem; } .cisco-stage-nav button { flex: 0 0 210px; width: 210px; } .cisco-lesson-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .cisco-overview-columns,.cisco-guided-columns { grid-template-columns: 1fr; } .cisco-guided-progress { position: static; grid-row: 1; } }
+@media (max-width: 500px) { .cisco-path-hero { gap: 1rem; flex-direction: column; align-items: flex-start; } .cisco-progress-ring { width: 106px; padding: 5px; align-self: center; } .cisco-progress-ring strong { font-size: 1.5rem; } .cisco-progress-ring span { font-size: .55rem; } .cisco-lesson-grid { grid-template-columns: 1fr; } .cisco-overview-panel { padding: 1rem; } .cisco-path-stats { gap: .6rem 1rem; font-size: .7rem; } .cisco-stage-content > header h2 { font-size: 1.15rem; } }
+@media (prefers-reduced-motion: reduce) { .cisco-progress-bar > span,.cisco-lesson-card { transition: none; } .cisco-lesson-card:hover { transform: none; } }

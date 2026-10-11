@@ -9,6 +9,7 @@ import { GoogleSubtitleProvider } from "@/app/components/google-translate";
 import { ccnaLabPath } from "@/lib/content/ccna-lab-path";
 import { getCcnaSimulationPack } from "@/lib/content/ccna-simulation-packs";
 import { learningTasks } from "@/lib/content/cisco-learning";
+import { learningTitles } from "@/lib/content/cisco-learning-display";
 import { SimpleNavigation } from "@/app/components/simple-learning";
 import { copy } from "@/lib/course-data";
 import "./dashboard.css";
@@ -51,7 +52,9 @@ export default function CcnaLayout({ children }: { children: ReactNode }) {
     ? ccnaLabPath.find((entry) => entry.id === requestedLab) ?? ccnaLabPath.find((entry) => entry.kind === "hands-on")
     : null;
   const learningTask = pathname === "/ccna/sim" ? learningTasks.find(t => t.id === searchParams.get("task")) : null;
-  const pageTitle = learningTask ? `${learningTask.id} · Learning task` : pathname === "/ccna/learning" ? "Cisco learning path" : simulatorLab
+  const overviewTask = pathname.startsWith("/ccna/learning/") ? learningTasks.find(t => t.id === pathname.split("/").pop()) : null;
+  const usesWorkspace = pathname === "/ccna/sim" && learningTask?.assessment !== "guided-knowledge";
+  const pageTitle = learningTask || overviewTask ? learningTitles[(learningTask ?? overviewTask)!.id] : pathname === "/ccna/learning" ? "Cisco learning path" : simulatorLab
     ? getCcnaSimulationPack(simulatorLab.id)?.title ?? simulatorLab.title
     : pathname.startsWith("/ccna/train") ? "Practice"
     : pathname.startsWith("/ccna/practice")
@@ -100,7 +103,7 @@ export default function CcnaLayout({ children }: { children: ReactNode }) {
   const shell = useMemo<Shell | null>(() => (userId ? { userId, fontScale, language, setFontScale, setLanguage, openAccount: () => setAuthOpen(true) } : null), [userId, fontScale, language]);
   if (loading) return <main className="study-app min-h-screen"><p className="p-8" role="status">Loading your learning account…</p></main>;
   if (!userId || !shell) return <main className="study-app min-h-screen"><div className="auth-required"><AuthPanel onClose={() => undefined} onAuthenticated={setUserId} /></div></main>;
-  return <GoogleSubtitleProvider language={language}><main className="study-app ccna-shell font-scale-content min-h-screen text-[#e8edf5]" data-simulator={pathname === "/ccna/sim" ? "true" : undefined} style={{ "--wincraft-font-scale": fontScale } as CSSProperties}>
+  return <GoogleSubtitleProvider language={language}><main className="study-app ccna-shell font-scale-content min-h-screen text-[#e8edf5]" data-simulator={usesWorkspace ? "true" : undefined} style={{ "--wincraft-font-scale": fontScale } as CSSProperties}>
     <div className="app-shell mx-auto grid min-h-screen max-w-[1600px] grid-cols-1 lg:grid-cols-[250px_minmax(0,1fr)]">
       <aside className="app-sidebar border-b border-white/10 p-3 sm:p-4 lg:border-b-0 lg:border-e">
         <AppBrand subtitle="Cloud, servers & networking" />

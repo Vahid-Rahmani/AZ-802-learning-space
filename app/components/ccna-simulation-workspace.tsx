@@ -125,6 +125,8 @@ export type CcnaSimulationWorkspaceProps = {
   persistKey?: string;
   className?: string;
   onComplete?: (packId: string) => void;
+  /** Reports only evaluated criteria, after this task's saved device state has loaded. */
+  onProgress?: (verifiedIds: string[]) => void;
   lesson?: ReactNode;
   backHref?: string;
   /** Optional language for the authored Cisco learning content. Existing catalog labs stay unchanged. */
@@ -471,7 +473,7 @@ function buildNetworkSnapshot(state: SimulationState, views: Record<string, Term
 }
 
 
-export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplete, onDeviceSelect, lesson, backHref, learningLanguage }: CcnaSimulationWorkspaceProps) {
+export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplete, onProgress, onDeviceSelect, lesson, backHref, learningLanguage }: CcnaSimulationWorkspaceProps) {
   // Reserve room below the last row for the outward cable curves, not a second box.
   const CANVAS_HEIGHT = simulationCanvasHeight(pack.devices) + 160;
   const storageKey = `ccna-simulation:${persistKey ?? pack.id}`;
@@ -582,6 +584,11 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
   const activeView = selectedNodeData && hasConsole(selectedNodeData)
     ? terminalViews[selectedNodeData.id] ?? defaultTerminalView(selectedNodeData)
     : null;
+
+  useEffect(() => {
+    if (!hydrated || hydratedKey.current !== storageKey) return;
+    onProgress?.(requiredStages.filter(stage => completedStageIds.has(stage.id)).map(stage => stage.id));
+  }, [completedStageIds, hydrated, onProgress, requiredStages, storageKey]);
 
   useEffect(() => {
     hydratedKey.current = null;
@@ -980,7 +987,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     void canvas.requestFullscreen?.();
   };
   const localized = (text: string | undefined) => text ? (learningLanguage ? <LearningText text={text} /> : text) : null;
-  const labTitleParts = pack.title.match(/^(\s*[^·]+·\s*)(.*)$/s);
+  const labTitleParts = pack.title.match(/^(\s*[^·]+·\s*)([\s\S]*)$/);
   const labTitle = learningLanguage && labTitleParts
     ? <>{labTitleParts[1]}<LearningText text={labTitleParts[2]} /></>
     : localized(pack.title);

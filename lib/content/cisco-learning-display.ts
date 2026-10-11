@@ -1,0 +1,35 @@
+/** Authored English names keep navigation usable before optional translation loads. */
+export const learningTitles: Record<string, string> = {
+  "001": "Your first switch console", "002": "Name, secure and save your switch",
+  "003": "Connect your first two PCs", "004": "Understand ARP and the MAC table",
+  "005": "Create your first VLANs", "006": "Repair a Finance access port",
+  "007": "Move a user and resize the subnet", "008": "Make your first IPv6 connection",
+  "009": "Add a second switch", "010": "Hand over the network and detect changes",
+  "011": "Manage switches with SVI and SSH", "012": "Add a router and management gateway",
+  "013": "Route between Sales and Finance VLANs", "014": "Connect a branch with static routes",
+  "015": "Default routes and WAN troubleshooting", "016": "STP and redundant-link protection",
+  "017": "Build a safe LACP EtherChannel plan", "018": "Single-area OSPF and neighbor detection",
+  "019": "DHCP, relay and DNS for Finance", "020": "NAT/PAT at the Internet edge",
+  "021": "Least-privilege ACLs for application access", "022": "NTP, Syslog and incident timelines",
+  "023": "Secure wireless and guest isolation", "024": "Device hardening and Layer 2 protection",
+  "025": "AAA and your first JSON change", "026": "CCNA branch-office capstone",
+  "027": "Multi-area OSPF and branch EIGRP", "028": "BGP policy with two ISPs",
+  "029": "Route maps and safe redistribution", "030": "VRF-lite and controlled route leaking",
+  "031": "FHRP, redundancy and convergence", "032": "QoS and multicast at a busy branch",
+  "033": "VPN, GRE/IPsec and MTU", "034": "Multi-branch IPv6 troubleshooting",
+  "035": "RADIUS, TACACS+ and emergency access", "036": "802.1X, ISE and failed authentication",
+  "037": "Segmentation and identity incident response", "038": "ASA/ASAv: routing, NAT and policy",
+  "039": "FTDv/FMCv and the deployment cycle", "040": "ISE operations and certificate changes",
+  "041": "Catalyst 9800-CL: WLANs, tags and AAA", "042": "APIs, YANG and secure management",
+  "043": "Python/Ansible and change assurance", "044": "SD-WAN and SD-Access: underlay to overlay",
+  "045": "CCIE Enterprise Infrastructure capstone", "046": "SCOR: threat models and cryptography",
+  "047": "Security solutions: VPN, IPS and endpoint/cloud", "048": "CCIE Security defensive capstone",
+};
+
+export const stageTitles: Record<string, string> = {
+  S01: "Device & CLI fundamentals", S02: "Connectivity & addressing", S03: "Switching",
+  S04: "Routing fundamentals", S05: "Network services", S06: "Secure management",
+  S07: "CCNA branch capstone", S08: "Advanced Enterprise", S09: "Identity & segmentation",
+  S10: "Security appliances", S11: "Automation & assurance", S12: "CCIE Enterprise capstone",
+  S13: "CCIE Security specialization",
+};

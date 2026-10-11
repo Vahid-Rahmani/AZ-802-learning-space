@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { GOOGLE_TRANSLATE_LANGUAGES, getGoogleTranslateLanguage } from "@/lib/google-languages";
+import { GOOGLE_TRANSLATE_LANGUAGES, getGoogleTranslateLanguage, type GoogleLanguage } from "@/lib/google-languages";
 
 type TranslationContextValue = { language: string };
 const TranslationContext = createContext<TranslationContextValue>({ language: "" });
@@ -17,7 +17,7 @@ async function translateInBrowser(language: string, text: string, sourceLanguage
   // The site stores English original as an empty picker value. The CCNA
   // curriculum is authored in Persian for now, so its English default uses
   // the same public Google endpoint without adding another language picker.
-  const target = language === "en" ? { code: "en" } : getGoogleTranslateLanguage(language);
+  const target: GoogleLanguage | undefined = language === "en" ? { code: "en", label: "English" } : getGoogleTranslateLanguage(language);
   if (!target) return null;
   const chunks: string[] = [];
   let remaining = text;
