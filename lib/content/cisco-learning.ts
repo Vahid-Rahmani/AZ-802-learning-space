@@ -1,5 +1,6 @@
 import taskData from "../../content/cisco-curriculum/tasks-001-010.json" with { type: "json" };
 import curriculum from "../../content/cisco-curriculum/curriculum.json" with { type: "json" };
+import extra from "../../content/cisco-curriculum/tasks-011-015.json" with { type: "json" };
 import { met, unmet, reachesDevice, type LabModel, type LabStepOutcome } from "../ccna-sim/lab.ts";
 import type { SimulationPack, SimulationNode } from "../ccna-sim/topology.ts";
 
@@ -18,8 +19,8 @@ export type LearningTask = {
 };
 
 export const learningStages = curriculum.stages;
-export const learningSources = curriculum.sources;
-export const learningTasks: LearningTask[] = taskData.tasks as LearningTask[];
+export const learningSources = [...curriculum.sources, { id: "ssh", title: "Cisco · Configure SSH", url: "https://www.cisco.com/c/en/us/support/docs/security-vpn/secure-shell-ssh/4145-ssh.html" }];
+export const learningTasks: LearningTask[] = [...taskData.tasks, ...extra.tasks] as LearningTask[];
 const portId = (label: string) => label.toLowerCase().replace(/\//g, "-");
 const save = (l: LabModel, id: string) => l.device(id).startupSaved && l.device(id).startupMatchesRunning;
 const account = (l: LabModel, id: string) => {
@@ -61,6 +62,17 @@ const isolated = (l: LabModel) => !l.ping("pc-a", "192.168.20.20").ok && !l.ping
 const security = (l: LabModel) => ["sw1", "sw2"].every(id => l.device(id).hostname === id.toUpperCase() && restricted(l, id));
 const expandedVlan = (l: LabModel) => membership(l, 10, true) && ["sw1", "sw2"].every(id => l.device(id).vlan(10).name === "SALES");
 const expandedDual = (l: LabModel) => v4(l, "255.255.255.192") && v6(l) && reach(l, true) && save(l, "sw1") && save(l, "sw2");
+const ssh = (l: LabModel, id: string) => {
+  const d = l.device(id); const m = d.management;
+  return d.hostname === id.toUpperCase() && m.domain === "madar.lab" && m.rsaBits >= 2048 && m.sshVersion === 2 && account(l, id)
+    && m.vty.length === 16 && m.vty.every(v => v.loginLocal && v.transport.length === 1 && v.transport[0] === "ssh");
+};
+const svi = (l: LabModel, id: string, ip: string) => {
+  const p = l.device(id).port("Vlan10");
+  return p.adminUp && p.address?.ip === ip && p.address.mask === "255.255.255.192"
+    && l.network.devices.filter(d => d.state.interfaces.some(n => n.address?.ip === ip)).length === 1
+    && reachesDevice(l, "pc-a", id, ip).ok;
+};
 const predicates: Record<string, (lab: LabModel) => boolean> = {
   "002-hostname": l => l.device("sw1").hostname === "SW1", "002-user": l => account(l, "sw1"),
   "002-vty": l => restricted(l, "sw1"), "002-save": l => save(l, "sw1"),
@@ -75,6 +87,9 @@ const predicates: Record<string, (lab: LabModel) => boolean> = {
   "009-vlan": expandedVlan, "009-trunk": trunk, "009-security": security, "009-dual-save": expandedDual,
   "010-state": l => cables(l, true) && expandedVlan(l) && trunk(l) && security(l) && expandedDual(l),
   "010-save": l => save(l, "sw1") && save(l, "sw2"),
+  "011-sw1-svi": l => svi(l, "sw1", "192.168.10.2"), "011-sw2-svi": l => svi(l, "sw2", "192.168.10.3"),
+  "011-sw1-ssh": l => ssh(l, "sw1"), "011-sw2-ssh": l => ssh(l, "sw2"),
+  "011-preserve-save": l => expandedVlan(l) && trunk(l) && cables(l, true) && expandedDual(l),
 };
 export function learningCheck(id: string, lab: LabModel): LabStepOutcome {
   const criterion = learningTasks.flatMap(t => t.passCriteria).find(c => c.id === id);

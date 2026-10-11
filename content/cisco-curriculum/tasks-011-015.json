@@ -1,0 +1,39 @@
+{
+  "topologies": {},
+  "tasks": [
+    {
+      "id": "011", "stageIds": ["S03"], "titleFa": "SVI و اولین مدیریت SSH", "type": "build", "minutes": 15,
+      "scenarioFa": "شبکهٔ فروش شرکت مدار سالم است. مدیر IT می‌خواهد از PC-A هر دو Switch را مدیریت کند، بدون بازکردن Telnet.",
+      "prerequisites": ["010"], "preLessonFa": "IP مدیریت روی SVI است، نه پورت Access. SVI یک Switch را Router نمی‌کند. SSH به هویت، کلید و سیاست VTY نیاز دارد. تمام IPهای این درس در همان /26 هستند؛ Gateway لازم نیست.",
+      "topologyId": "expanded", "initialState": { "afterTask": "010", "descriptionFa": "شبکهٔ پایان 010 سالم است؛ دو Switch هنوز SVI، Domain یا RSA ندارند و ورود VTY بسته است.", "setup": [] },
+      "goalFa": "SW1 را با SVI VLAN 10 برابر 192.168.10.2/26 و SW2 را با .3/26 آماده کن؛ Domain برابر madar.lab، SSHv2، RSA مدل حداقل 2048، حساب netadmin و تمام VTYها SSH-only باشند. هر دو را Save کن.",
+      "steps": [
+        { "deviceId": "sw1", "instructionFa": "روی SW1 ابتدا interface vlan 10 را با .2/26 فعال کن؛ Domain، حساب و کلید مدل را بساز و VTYهای 0–15 را فقط برای SSH با login local آماده کن.", "whyFa": "دسترسی IP و احراز هویت دو شرط جدا هستند." },
+        { "deviceId": "sw2", "instructionFa": "روی SW2 همان سیاست را با .3/26 اعمال کن؛ سپس هر دو Switch را Save کن.", "whyFa": "تنظیم SW1 به‌جای SW2 هدف دستگاه دوم را کامل نمی‌کند." },
+        { "deviceId": "pc-a", "instructionFa": "از PC-A دو IP مدیریت را Ping کن؛ سپس ssh -l netadmin را برای هر دو مقصد امتحان کن. در Prompt رمز فقط رمز آزمایشگاهی را وارد کن و با exit برگرد.", "whyFa": "ورود واقعی کنسول شبیه‌سازی‌شده را از داشتن تنظیمات سرور جدا بررسی کن." }
+      ],
+      "hintsFa": ["ابتدا SVI، سپس تنظیم SSH؛ با پورت Ethernet اشتباه نگیر.", "ip domain-name madar.lab پیش از crypto key generate rsa modulus 2048.", "line vty 0 15 → login local → transport input ssh؛ پایان کار end و copy running-config startup-config."],
+      "verification": [
+        { "deviceId": "sw1", "commands": ["show ip interface brief", "show ip ssh", "show running-config", "show startup-config"], "expectedFa": "SVI .2/26 فعال، SSHv2 و تمام VTYها SSH-only، Save مطابق." },
+        { "deviceId": "sw2", "commands": ["show ip interface brief", "show ip ssh", "show running-config", "show startup-config"], "expectedFa": "همان بررسی مستقل برای .3/26." },
+        { "deviceId": "pc-a", "commands": ["ping 192.168.10.2", "ping 192.168.10.3", "ssh -l netadmin 192.168.10.2"], "expectedFa": "ورود با LabOnly-SSH011، مشاهدهٔ SW1# و exit؛ سپس ورود به .3 و SW2#. رمز اشتباه رد می‌شود. این مشاهده جدا از نمرهٔ تنظیمات است." }
+      ],
+      "faults": [{ "id": "011-key", "descriptionFa": "کلید SW2 حذف شده و خطوط 5–15 دوباره Telnet می‌پذیرند.", "commands": [{ "deviceId": "sw2", "commands": ["enable", "configure terminal", "crypto key zeroize rsa", "line vty 5 15", "transport input telnet", "end"] }], "expectedFailureFa": "ورود SSH رد می‌شود؛ سیاست ناقص و Save قدیمی است.", "repair": [{ "deviceId": "sw2", "commands": ["enable", "configure terminal", "crypto key generate rsa modulus 2048", "line vty 0 15", "login local", "transport input ssh", "end", "copy running-config startup-config"] }] }],
+      "solution": [
+        { "deviceId": "sw1", "commands": ["enable", "configure terminal", "hostname SW1", "interface vlan 10", "ip address 192.168.10.2 255.255.255.192", "no shutdown", "exit", "ip domain-name madar.lab", "username netadmin privilege 15 secret LabOnly-SSH011", "crypto key generate rsa modulus 2048", "ip ssh version 2", "line vty 0 15", "login local", "transport input ssh", "end", "copy running-config startup-config"] },
+        { "deviceId": "sw2", "commands": ["enable", "configure terminal", "hostname SW2", "interface vlan 10", "ip address 192.168.10.3 255.255.255.192", "no shutdown", "exit", "ip domain-name madar.lab", "username netadmin privilege 15 secret LabOnly-SSH011", "crypto key generate rsa modulus 2048", "ip ssh version 2", "line vty 0 15", "login local", "transport input ssh", "end", "copy running-config startup-config"] }
+      ],
+      "explanationFa": "VLAN و Trunk مسیر لایهٔ ۲ را حفظ می‌کنند؛ SVI آدرس مدیریت را می‌دهد. Domain و کلید مدل سرور را آماده می‌کنند؛ login local حساب را بررسی می‌کند و transport input ssh ورود Telnet را کنار می‌گذارد. Save آخر لازم است. SSH این سایت اتصال رمزگذاری‌شدهٔ واقعی نیست.",
+      "assessment": "live-state", "passCriteria": [
+        { "id": "011-sw1-svi", "deviceId": "sw1", "assertionFa": "SVI .2/26 فعال و PC-A به خود SW1 می‌رسد.", "failureFa": "SVI VLAN 10 روی SW1، Mask و مسیر PC-A را بررسی کن." },
+        { "id": "011-sw2-svi", "deviceId": "sw2", "assertionFa": "SVI .3/26 فعال و PC-A به خود SW2 می‌رسد.", "failureFa": "SVI VLAN 10 روی SW2، Mask و مسیر PC-A را بررسی کن." },
+        { "id": "011-sw1-ssh", "deviceId": "sw1", "assertionFa": "SW1 دارای Domain، RSA مدل حداقل 2048، netadmin Secret و SSHv2 است؛ هر 16 VTY فقط SSH و login local.", "failureFa": "هویت، کلید و تمام VTYهای SW1 را اصلاح کن." },
+        { "id": "011-sw2-ssh", "deviceId": "sw2", "assertionFa": "همان سیاست SSH مستقل روی SW2 برقرار است.", "failureFa": "تنظیمات SSH دستگاه SW2 هنوز کامل نیست." },
+        { "id": "011-preserve-save", "deviceId": "sw2", "assertionFa": "شبکهٔ قبلی سالم و Save نهایی هر دو Switch مطابق Running است.", "failureFa": "کابل، VLAN، Trunk، IPv4/IPv6 و Save هر دو Switch را بررسی کن." },
+        { "id": "011-login-evidence", "deviceId": "pc-a", "assertionFa": "ورود آزمایشگاهی به هر دو مقصد و رد رمز اشتباه مشاهده شود؛ جدا از نمرهٔ خودکار تنظیمات." }
+      ],
+      "skills": ["SVI", "SSH", "VTY", "Local authentication", "Save", "Troubleshooting"], "sourceIds": ["ssh", "vlan-trunk"],
+      "simulatorMapping": { "targetDeviceIds": ["sw1", "sw2", "pc-a"], "limitationFa": "فقط مدل SSH/RSA و ورود محلی؛ رمزنگاری واقعی، AAA/ISE یا ارزیابی خودکار شواهد Login ادعا نمی‌شود. رمز واقعی وارد نکن." }
+    }
+  ]
+}
