@@ -17,16 +17,19 @@ const LearningLanguageContext = createContext<LearningLanguageContextValue>({
 });
 
 export function LearningLanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<LearningLanguage>(() => {
-    if (typeof window === "undefined") return "en";
+  const [language, setLanguageState] = useState<LearningLanguage>("en");
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved === "en" || saved === "de" || saved === "fa") return saved;
+      if (saved === "en" || saved === "de" || saved === "fa") setLanguageState(saved);
     } catch {
       // The learning path still works when browser storage is disabled.
     }
-    return "en";
-  });
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const setLanguage = (next: LearningLanguage) => {
     setLanguageState(next);
