@@ -82,7 +82,9 @@ for (const [ip, prompt] of [["192.168.10.2", "SW1#"], ["192.168.10.3", "SW2#"]])
   pc.execute(`ssh -l netadmin ${ip}`); assert.equal(pc.inputHidden, true);
   pc.execute("wrong"); assert.equal(pc.prompt, "PC-A>");
   pc.execute(`ssh -l netadmin ${ip}`); pc.execute("LabOnly-SSH011");
-  assert.equal(pc.prompt, prompt); pc.execute("exit"); assert.equal(pc.prompt, "PC-A>");
+  assert.equal(pc.prompt, prompt);
+  pc.execute("exit"); assert.equal(pc.prompt, prompt.replace("#", ">"));
+  pc.execute("exit"); assert.equal(pc.prompt, "PC-A>");
 }
 const wrong = fixture(learningTasks.find(t => t.id === "012"));
 const r = wrong.sessions.get("r1"); r.execute("enable"); r.execute("configure terminal");
