@@ -516,6 +516,8 @@ html .study-app .ccna-sim-page .ccna-lab-bar { display: flex; }
 .ccna-lab-title .ccna-lab-name { margin: 0; color: var(--simulation-text); font-size: 14px; font-weight: 700; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .ccna-lab-title p { margin: 2px 0 0; color: var(--simulation-muted); font-size: 12px; }
 .ccna-lab-actions { display: flex; gap: 6px; margin-left: auto; flex: none; }
+.ccna-lab-actions .cisco-learning-language-control { min-height: 30px; padding: 0 4px; }
+.ccna-lab-actions .cisco-learning-language-control select { min-height: 30px; padding: 3px 7px; }
 .ccna-lab-actions button, .ccna-lab-actions a { padding: 6px 12px; border: 1px solid var(--simulation-line); border-radius: 7px; background: transparent; color: var(--simulation-muted); font: inherit; font-size: 12px; text-decoration: none; cursor: pointer; }
 .ccna-lab-actions button { color: #df7984; border-color: #633c43; }
 html .study-app .ccna-sim-page .ccna-simulation-panel { border-radius: 0; box-shadow: none; background: #16181d; border: 0; }

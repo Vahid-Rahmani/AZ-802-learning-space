@@ -87,7 +87,6 @@ function CiscoLearningTaskContent({ task }: { task: LearningTask }) {
   const correct = questions.filter((q, i) => answers[i] === q.answerFa).length;
   const next = learningTasks[learningTasks.findIndex(t => t.id === task.id) + 1];
   const lesson = <div className="cisco-lesson" dir={fa ? "rtl" : "ltr"} lang={language}>
-    {pack && <div className="cisco-learning-toolbar cisco-learning-toolbar--compact"><span>{fa ? "زبان محتوای تمرین" : german ? "Sprache der Übung" : "Exercise language"}</span><LearningLanguageControl /></div>}
     <p><LearningText text={task.preLessonFa} /></p>
     <p><strong>{fa ? "هدف:" : german ? "Ziel:" : "Goal:"}</strong> <LearningText text={task.goalFa} /></p>
     <details><summary>{fa ? "وضعیت شروع و پیش‌نیاز" : german ? "Startzustand und Voraussetzungen" : "Starting state and prerequisites"}</summary><p><LearningText text={task.initialState.descriptionFa} /></p><p><LearningText text={task.prerequisites.join("، ") || "ندارد"} /></p></details>

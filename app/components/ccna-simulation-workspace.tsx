@@ -13,7 +13,7 @@ import { simulatorText } from "@/lib/ccna-sim/language";
 import { buildLabModel } from "@/lib/ccna-sim/lab";
 import type { LabNetwork } from "@/lib/ccna-sim/lab-network";
 import type { SimMode } from "@/lib/ccna-sim/tokens";
-import { LearningText, type LearningLanguage } from "./cisco-learning-language";
+import { LearningLanguageControl, LearningText, type LearningLanguage } from "./cisco-learning-language";
 import {
   cloneSimulationState,
   connectSimulationPorts,
@@ -980,6 +980,10 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     void canvas.requestFullscreen?.();
   };
   const localized = (text: string | undefined) => text ? (learningLanguage ? <LearningText text={text} /> : text) : null;
+  const labTitleParts = pack.title.match(/^(\s*[^·]+·\s*)(.*)$/s);
+  const labTitle = learningLanguage && labTitleParts
+    ? <>{labTitleParts[1]}<LearningText text={labTitleParts[2]} /></>
+    : localized(pack.title);
   const panelTabs: Array<{ id: WorkspacePanel; label: string }> = [
     { id: "scenario", label: "Scenario" },
     { id: "topology", label: "Topology" },
@@ -1004,8 +1008,8 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
       <a className="ccna-lab-back" href={backHref ?? (pack.lab ? `/ccna/labs/${pack.lab.labId}` : "/ccna/library")}>← {backHref ? "Learning path" : pack.lab ? "Lab brief" : "Labs"}</a>
       {/* One header for the lab page: the site header already carries this title as its h1, so the bar
           shows the same name as text and keeps the only reset control, with its scope in the label. */}
-      <div className="ccna-lab-title"><p className="ccna-lab-name">{localized(pack.title)}</p><p>{requiredCount ? `${completedRequired}/${requiredCount} steps verified` : "No graded steps authored yet"} · practice model, not a device</p></div>
-      <div className="ccna-lab-actions"><button type="button" className="ccna-lab-reset" onClick={resetLab} title="Resets this lab only: device consoles, cables and step progress. Saved answers, quiz grades and evidence are not touched.">Reset lab · this lab only</button></div>
+      <div className="ccna-lab-title"><p className="ccna-lab-name">{labTitle}</p><p>{requiredCount ? `${completedRequired}/${requiredCount} steps verified` : "No graded steps authored yet"} · practice model, not a device</p></div>
+      <div className="ccna-lab-actions">{learningLanguage && <LearningLanguageControl label="Exercise language" />}<button type="button" className="ccna-lab-reset" onClick={resetLab} title="Resets this lab only: device consoles, cables and step progress. Saved answers, quiz grades and evidence are not touched.">Reset lab · this lab only</button></div>
     </header>
     <nav className="ccna-simulation-tabs" aria-label="Simulation panels" role="tablist">
       {panelTabs.map((tab) => <button key={tab.id} id={`ccna-panel-tab-${tab.id}`} type="button" role="tab" aria-selected={activePanel === tab.id} aria-controls={`ccna-panel-${tab.id}`} tabIndex={activePanel === tab.id ? 0 : -1} onClick={() => { flushSync(() => setActivePanel(tab.id)); if (tab.id === "terminal") terminalInputRef.current?.focus({ preventScroll: true }); }} onKeyDown={(event) => handlePanelTabKey(event, tab.id)}>{tab.label}</button>)}

@@ -44,10 +44,10 @@ export function useLearningLanguage() {
   return useContext(LearningLanguageContext);
 }
 
-export function LearningLanguageControl() {
+export function LearningLanguageControl({ label = "Language" }: { label?: string } = {}) {
   const { language, setLanguage } = useLearningLanguage();
   return <label className="cisco-learning-language-control">
-    <span>Language</span>
+    <span>{label}</span>
     <select aria-label="Learning language" value={language} onChange={(event) => setLanguage(event.target.value as LearningLanguage)}>
       <option value="en">English</option>
       <option value="de">Deutsch</option>
