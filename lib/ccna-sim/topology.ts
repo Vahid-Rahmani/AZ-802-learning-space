@@ -31,6 +31,9 @@ export type SimulationNode = {
   y: number;
   ports: SimulationPort[];
   subtitle?: string;
+  /** Optional authored starting state. Existing lab nodes omit these fields. */
+  initialHostname?: string;
+  initialConfig?: string[][];
   /** Optional visual state supplied by the lab pack. */
   status?: "healthy" | "warning" | "fault";
 };

@@ -5,10 +5,18 @@ import { CcnaSimulationWorkspace } from "@/app/components/ccna-simulation-worksp
 import { ccnaLabPath, ccnaLabPathStats } from "@/lib/content/ccna-lab-path";
 import { getCcnaSimulationPack } from "@/lib/content/ccna-simulation-packs";
 import { simulatorText } from "@/lib/ccna-sim/language";
+import { CiscoLearningTask } from "@/app/components/cisco-learning";
+import { learningTasks } from "@/lib/content/cisco-learning";
 
 /** The simulator route. Each lab has one workspace: topology, device tabs and its console dock. */
 export default function CcnaSimPage() {
-  const requested = useSearchParams().get("lab");
+  const params = useSearchParams();
+  const requested = params.get("lab");
+  const taskId = params.get("task");
+  if (taskId) {
+    const task = learningTasks.find(t => t.id === taskId);
+    return <section className="ccna-sim-page">{task ? <CiscoLearningTask key={task.id} task={task} /> : <p>تمرین پیدا نشد. <a href="/ccna/learning">مسیر آموزشی</a></p>}</section>;
+  }
   const fallback = ccnaLabPath.find((entry) => entry.kind === "hands-on") ?? ccnaLabPath[0];
   const lab = requested ? ccnaLabPath.find((entry) => entry.id === requested) : fallback;
   if (!lab) {

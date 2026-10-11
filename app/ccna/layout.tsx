@@ -8,16 +8,18 @@ import { AppBrand, StudyHeader } from "@/app/components/study-header";
 import { GoogleSubtitleProvider } from "@/app/components/google-translate";
 import { ccnaLabPath } from "@/lib/content/ccna-lab-path";
 import { getCcnaSimulationPack } from "@/lib/content/ccna-simulation-packs";
+import { learningTasks } from "@/lib/content/cisco-learning";
 import { SimpleNavigation } from "@/app/components/simple-learning";
 import { copy } from "@/lib/course-data";
 import "./dashboard.css";
+import "./learning.css";
 
 /** One route per job: the overview, the question bank, the knowledge search, the eight build stages
  * and the leveled library of every lab this site publishes. Each page owns its own heading, so no
  * page has to scroll past another page's content to reach its own. */
 const routes = [
   { key: "home", href: "/ccna", label: "Home", icon: Layers },
-  { key: "learning", href: "/ccna/build", label: "Learning", icon: BookOpen },
+  { key: "learning", href: "/ccna/learning", label: "Learning", icon: BookOpen },
   { key: "practice", href: "/ccna/train", label: "Practice", icon: Network },
   { key: "questions", href: "/ccna/practice", label: "Question bank", icon: BookOpen },
   { key: "labs", href: "/ccna/library", label: "Lab library", icon: Network },
@@ -48,7 +50,8 @@ export default function CcnaLayout({ children }: { children: ReactNode }) {
   const simulatorLab = pathname === "/ccna/sim"
     ? ccnaLabPath.find((entry) => entry.id === requestedLab) ?? ccnaLabPath.find((entry) => entry.kind === "hands-on")
     : null;
-  const pageTitle = simulatorLab
+  const learningTask = pathname === "/ccna/sim" ? learningTasks.find(t => t.id === searchParams.get("task")) : null;
+  const pageTitle = learningTask ? `${learningTask.id} · ${learningTask.titleFa}` : pathname === "/ccna/learning" ? "Cisco · مسیر آموزشی" : simulatorLab
     ? getCcnaSimulationPack(simulatorLab.id)?.title ?? simulatorLab.title
     : pathname.startsWith("/ccna/train") ? "Practice"
     : pathname.startsWith("/ccna/practice")
@@ -101,7 +104,7 @@ export default function CcnaLayout({ children }: { children: ReactNode }) {
     <div className="app-shell mx-auto grid min-h-screen max-w-[1600px] grid-cols-1 lg:grid-cols-[250px_minmax(0,1fr)]">
       <aside className="app-sidebar border-b border-white/10 p-3 sm:p-4 lg:border-b-0 lg:border-e">
         <AppBrand subtitle="Cloud, servers & networking" />
-        <SimpleNavigation items={routes.map(route => ({ ...route, icon: <route.icon size={19} /> }))} active={pathname === "/ccna" ? "home" : pathname.startsWith("/ccna/build") ? "learning" : pathname.startsWith("/ccna/exams") ? "exams" : "practice"} /></aside>
+        <SimpleNavigation items={routes.map(route => ({ ...route, icon: <route.icon size={19} /> }))} active={pathname === "/ccna" ? "home" : pathname.startsWith("/ccna/build") || pathname.startsWith("/ccna/learning") || learningTask ? "learning" : pathname.startsWith("/ccna/exams") ? "exams" : "practice"} /></aside>
       <section className="app-content min-w-0 p-4 sm:p-6 lg:p-8">
         <StudyHeader title={pageTitle} course="CCNA" t={copy.en} fontScale={fontScale} onFontScale={setFontScale} translationLanguage={language} onTranslationLanguage={setLanguage} onAccount={() => setAuthOpen(true)} />
         <ShellContext.Provider value={shell}>{children}</ShellContext.Provider>

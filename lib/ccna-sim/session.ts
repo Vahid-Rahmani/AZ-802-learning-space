@@ -22,16 +22,24 @@ export type SimResult = {
  * device than the one the learner is typing on.
  */
 export function createLabSession(
-  node: { id?: string; label: string; role?: SimDeviceRole; ports: readonly { kind?: string; label: string }[] },
+  node: { id?: string; label: string; role?: SimDeviceRole; ports: readonly { kind?: string; label: string }[]; initialHostname?: string; initialConfig?: readonly (readonly string[])[] },
   hostname?: string,
 ) {
   const ethernet = node.ports
     .filter((port) => port.kind !== "console" && port.kind !== "wireless")
     .map((port) => port.label);
-  const session = new IosSession(hostname || node.label, node.role ?? "switch", ethernet);
+  const session = new IosSession(hostname || node.initialHostname || node.label, node.role ?? "switch", ethernet);
   // The console's own node id travels with the device, so the lab model can tell which device is
   // asking even though it holds copies of the state rather than this object.
   if (node.id) session.state.device.id = node.id;
+  for (const block of node.initialConfig ?? []) {
+    session.state.mode = "user";
+    for (const command of block) {
+      const result = session.execute(command);
+      if (!result.matched) throw new Error(`Invalid baseline on ${node.id}: ${command}: ${result.lines.join(" ")}`);
+    }
+  }
+  session.state.mode = "user";
   return session;
 }
 

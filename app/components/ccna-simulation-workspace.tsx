@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type PointerEvent as ReactPointerEvent, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { flushSync } from "react-dom";
 import { createLabSession, IosSession } from "@/lib/ccna-sim/session";
 import { findInterface, portLinkStatus, type SimCableState, type SimInterfaceKind, type SimStaticRoute } from "@/lib/ccna-sim/device";
@@ -124,6 +124,8 @@ export type CcnaSimulationWorkspaceProps = {
   persistKey?: string;
   className?: string;
   onComplete?: (packId: string) => void;
+  lesson?: ReactNode;
+  backHref?: string;
   /** Integration hook for a future per-device console dock. */
   onDeviceSelect?: (node: SimulationNode) => void;
 };
@@ -466,7 +468,7 @@ function buildNetworkSnapshot(state: SimulationState, views: Record<string, Term
 }
 
 
-export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplete, onDeviceSelect }: CcnaSimulationWorkspaceProps) {
+export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplete, onDeviceSelect, lesson, backHref }: CcnaSimulationWorkspaceProps) {
   // Reserve room below the last row for the outward cable curves, not a second box.
   const CANVAS_HEIGHT = simulationCanvasHeight(pack.devices) + 160;
   const storageKey = `ccna-simulation:${persistKey ?? pack.id}`;
@@ -995,7 +997,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
 
   return <section ref={workspaceRef} className={`ccna-simulation-workspace${className ? ` ${className}` : ""}`} aria-label={`Interactive ${pack.title} lab`}>
     <header className="ccna-lab-bar">
-      <a className="ccna-lab-back" href={pack.lab ? `/ccna/labs/${pack.lab.labId}` : "/ccna/library"}>← {pack.lab ? "Lab brief" : "Labs"}</a>
+      <a className="ccna-lab-back" href={backHref ?? (pack.lab ? `/ccna/labs/${pack.lab.labId}` : "/ccna/library")}>← {backHref ? "Learning path" : pack.lab ? "Lab brief" : "Labs"}</a>
       {/* One header for the lab page: the site header already carries this title as its h1, so the bar
           shows the same name as text and keeps the only reset control, with its scope in the label. */}
       <div className="ccna-lab-title"><p className="ccna-lab-name">{pack.title}</p><p>{requiredCount ? `${completedRequired}/${requiredCount} steps verified` : "No graded steps authored yet"} · practice model, not a device</p></div>
@@ -1008,6 +1010,7 @@ export function CcnaSimulationWorkspace({ pack, persistKey, className, onComplet
     <div className="ccna-simulation-layout" data-active-panel={activePanel}>
       <aside id="ccna-panel-scenario" className="ccna-simulation-panel ccna-simulation-scenario" data-panel="scenario" role="tabpanel" aria-labelledby="ccna-panel-tab-scenario" tabIndex={-1}>
         <div className="ccna-simulation-panel-heading"><span className="ccna-simulation-panel-icon">1</span><h3>Scenario</h3></div>
+        {lesson}
         {pack.scenario.role && <p className="ccna-simulation-role">{pack.scenario.role}</p>}
         <details className="ccna-simulation-detail">
           <summary>Scenario context</summary>
