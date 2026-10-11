@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useCcnaShell } from "@/app/ccna/layout";
 import { learningTasks, learningStages, learningSources, learningPack, knowledgePassed, type LearningTask } from "@/lib/content/cisco-learning";
 import { CcnaSimulationWorkspace } from "./ccna-simulation-workspace";
-import { LearningLanguageControl, LearningLanguageProvider, LearningText, useLearningLanguage } from "./cisco-learning-language";
+import { LearningText } from "./cisco-learning-language";
 
 const href = (id: string) => `/ccna/sim?task=${encodeURIComponent(id)}`;
 type Progress = { completed: string[]; lastTask?: string; answers: Record<string, string[]> };
@@ -36,12 +36,12 @@ function useLearningProgress() {
 }
 
 export function CiscoLearningPath() {
-  return <LearningLanguageProvider><CiscoLearningPathContent /></LearningLanguageProvider>;
+  return <CiscoLearningPathContent />;
 }
 
 function CiscoLearningPathContent() {
   const { progress, ready } = useLearningProgress();
-  const { language } = useLearningLanguage();
+  const { language } = useCcnaShell();
   const next = learningTasks.find(t => !progress.completed.includes(t.id)) ?? learningTasks[0];
   const fa = language === "fa";
   const german = language === "de";
@@ -51,7 +51,6 @@ function CiscoLearningPathContent() {
         <p className="cisco-learning-kicker">{fa ? "مسیر آموزشی سیسکو" : german ? "Cisco-Lernpfad" : "Cisco learning path"}</p>
         <p><LearningText text="شبکهٔ شرکت مدار را از اولین Switch تا طراحی Enterprise بساز. تیک عملی از وضعیت دستگاه است؛ بررسی فهم درس جدا مشخص می‌شود." /></p>
       </div>
-      <LearningLanguageControl />
     </div>
     <p><a className="cisco-learning-primary" href={href(progress.lastTask ?? next.id)}>{fa ? "ادامهٔ مسیر" : german ? "Lernpfad fortsetzen" : "Continue learning"}</a> <span>{ready ? (fa ? `${progress.completed.length}/${learningTasks.length} تمرین تکمیل‌شده در این مرورگر` : german ? `${progress.completed.length}/${learningTasks.length} Übungen in diesem Browser abgeschlossen` : `${progress.completed.length}/${learningTasks.length} exercises completed in this browser`) : (fa ? "در حال خواندن پیشرفت…" : german ? "Fortschritt wird geladen…" : "Loading progress…")}</span></p>
     {learningStages.map(stage => {
@@ -70,12 +69,12 @@ function CiscoLearningPathContent() {
 }
 
 export function CiscoLearningTask({ task }: { task: LearningTask }) {
-  return <LearningLanguageProvider><CiscoLearningTaskContent task={task} /></LearningLanguageProvider>;
+  return <CiscoLearningTaskContent task={task} />;
 }
 
 function CiscoLearningTaskContent({ task }: { task: LearningTask }) {
   const { progress, ready, update, userId } = useLearningProgress();
-  const { language } = useLearningLanguage();
+  const { language } = useCcnaShell();
   const fa = language === "fa";
   const german = language === "de";
   const [pack] = useState(() => task.assessment === "guided-knowledge" ? null : learningPack(task));
@@ -115,9 +114,9 @@ function CiscoLearningTaskContent({ task }: { task: LearningTask }) {
   </div>;
   if (!ready) return <p role="status">در حال خواندن ادامهٔ تمرین…</p>;
   if (!pack) return <section className="cisco-learning-path" dir={fa ? "rtl" : "ltr"} lang={language}>
-    <div className="cisco-learning-toolbar"><a href="/ccna/learning">{fa ? "بازگشت به مسیر" : german ? "Zurück zum Lernpfad" : "Back to learning path"}</a><LearningLanguageControl /></div><p>{task.id} · <LearningText text={task.titleFa} /> · {task.minutes} {fa ? "دقیقه" : german ? "Minuten" : "minutes"}</p>
+    <div className="cisco-learning-toolbar"><a href="/ccna/learning">{fa ? "بازگشت به مسیر" : german ? "Zurück zum Lernpfad" : "Back to learning path"}</a></div><p>{task.id} · <LearningText text={task.titleFa} /> · {task.minutes} {fa ? "دقیقه" : german ? "Minuten" : "minutes"}</p>
     <p><LearningText text={task.scenarioFa} /></p><p role="note">{fa ? "پروندهٔ هدایت‌شده: تیک پاسخ آموزشی، نه اجرای دستگاه. هدف و ارزیابی این درس از تنظیمات عملی شبیه‌ساز جداست." : german ? "Geführte Lektion: Der Haken bestätigt die Wissensantwort, nicht die Gerätekonfiguration." : "Guided lesson: the tick confirms the knowledge answer, not device execution."}</p>
     {lesson}
   </section>;
-  return <CcnaSimulationWorkspace pack={pack} persistKey={`cisco-learning:v1:${userId}:${task.id}`} lesson={lesson} backHref="/ccna/learning" onComplete={complete} learningLanguage={language} />;
+  return <CcnaSimulationWorkspace pack={pack} persistKey={`cisco-learning:v1:${userId}:${task.id}`} lesson={lesson} backHref="/ccna/learning" onComplete={complete} learningLanguage="en" />;
 }

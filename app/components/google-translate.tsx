@@ -14,7 +14,10 @@ const inFlight = new Map<string, Promise<string | null>>();
 // Public Google web translation, requested from the visitor's browser rather
 // than the deployment server. No Cloud credentials or paid API are involved.
 async function translateInBrowser(language: string, text: string, sourceLanguage = "en"): Promise<string | null> {
-  const target = getGoogleTranslateLanguage(language);
+  // The site stores English original as an empty picker value. The CCNA
+  // curriculum is authored in Persian for now, so its English default uses
+  // the same public Google endpoint without adding another language picker.
+  const target = language === "en" ? { code: "en" } : getGoogleTranslateLanguage(language);
   if (!target) return null;
   const chunks: string[] = [];
   let remaining = text;

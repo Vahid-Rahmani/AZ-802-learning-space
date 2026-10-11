@@ -1,70 +1,23 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCcnaShell } from "@/app/ccna/layout";
+import { useEffect, useState } from "react";
 import { requestGoogleTranslation } from "@/app/components/google-translate";
 
-export type LearningLanguage = "en" | "de" | "fa";
-
-type LearningLanguageContextValue = {
-  language: LearningLanguage;
-  setLanguage: (language: LearningLanguage) => void;
-};
-
-const STORAGE_KEY = "cisco-learning-language";
-const LearningLanguageContext = createContext<LearningLanguageContextValue>({
-  language: "en",
-  setLanguage: () => undefined,
-});
-
-export function LearningLanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<LearningLanguage>("en");
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved === "en" || saved === "de" || saved === "fa") setLanguageState(saved);
-    } catch {
-      // The learning path still works when browser storage is disabled.
-    }
-    }, 0);
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  const setLanguage = (next: LearningLanguage) => {
-    setLanguageState(next);
-    try { localStorage.setItem(STORAGE_KEY, next); } catch { /* Keep the current session usable. */ }
-  };
-
-  const value = useMemo(() => ({ language, setLanguage }), [language]);
-  return <LearningLanguageContext.Provider value={value}>{children}</LearningLanguageContext.Provider>;
-}
-
-export function useLearningLanguage() {
-  return useContext(LearningLanguageContext);
-}
-
-export function LearningLanguageControl({ label = "Language" }: { label?: string } = {}) {
-  const { language, setLanguage } = useLearningLanguage();
-  return <label className="cisco-learning-language-control">
-    <span>{label}</span>
-    <select aria-label="Learning language" value={language} onChange={(event) => setLanguage(event.target.value as LearningLanguage)}>
-      <option value="en">English</option>
-      <option value="de">Deutsch</option>
-      <option value="fa">فارسی (Persian)</option>
-    </select>
-  </label>;
-}
+/** A learning task is marked as authored content so the workspace can
+ * translate it; the target language always comes from the shared site header. */
+export type LearningLanguage = "en";
 
 const translationCache = new Map<string, string | null>();
 
 /**
- * Renders a Persian curriculum string in the selected learning language.
- * English is the default; German uses the same browser-only Google web
- * translation path and Persian keeps the authored text unchanged.
+ * Renders a Persian curriculum string through the same browser-only Google
+ * Translate endpoint used by the site header. The shared header picker is the
+ * only language control; no exercise-specific language state is kept here.
  */
 export function LearningText({ text, className = "" }: { text?: string; className?: string }) {
-  const { language } = useLearningLanguage();
+  const { language: selectedLanguage } = useCcnaShell();
+  const language = selectedLanguage || "en";
   const safeText = text ?? "";
   const cacheKey = `${language}\u0000${safeText}`;
   const [state, setState] = useState<{ key: string; value?: string | null }>({ key: "" });
