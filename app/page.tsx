@@ -36,6 +36,18 @@ type StoredQuizState = {
   answersByQuestion: Record<string, number>;
   quizFinished: boolean;
 };
+type ProgressCounter = { correct: number; total: number };
+
+function mergeProgressCounters(current: Record<string, ProgressCounter>, incoming: Record<string, ProgressCounter>) {
+  const next: Record<string, ProgressCounter> = { ...current };
+  for (const key of new Set([...Object.keys(current), ...Object.keys(incoming)])) {
+    const local = current[key] ?? { correct: 0, total: 0 };
+    const server = incoming[key] ?? { correct: 0, total: 0 };
+    const total = Math.max(local.total, server.total);
+    next[key] = { total, correct: Math.min(total, Math.max(local.correct, server.correct)) };
+  }
+  return next;
+}
 
 function shuffledQuestion(question: QuizQuestion, shuffleSeed = question.id): QuizQuestionState {
   const indexes = optionOrder(question as QuizQuestion & { stageId?: string; primaryDomain?: string }, shuffleSeed);
@@ -221,18 +233,22 @@ export default function Home() {
       try {
         const [progressResponse, labsResponse, attemptsResponse] = await Promise.all([fetch("/api/progress"), fetch("/api/lab-submissions"), fetch("/api/attempts")]);
         if (cancelled) return;
-        if (progressResponse.ok) { const data = await progressResponse.json() as { progress?: Array<{ completionPercent?: number; lessonId?: string }> }; const current = data.progress?.find((item) => item.lessonId === selectedLessonId) ?? data.progress?.at(-1); if (typeof current?.completionPercent === "number") setTotalProgress(current.completionPercent); if (current?.lessonId) setSelectedLessonId(current.lessonId); }
+        if (progressResponse.ok) { const data = await progressResponse.json() as { progress?: Array<{ completionPercent?: number; lessonId?: string }> }; const current = data.progress?.find((item) => item.lessonId === selectedLessonId) ?? data.progress?.at(-1); if (typeof current?.completionPercent === "number") setTotalProgress((local) => Math.max(local, current.completionPercent ?? 0)); if (current?.lessonId) setSelectedLessonId(current.lessonId); }
 if (labsResponse.ok) { const data = await labsResponse.json() as { submissions?: Array<{ labId?: string; evidenceText?: string; completedAt?: string | number | null }> }; const latest = data.submissions?.filter((item) => item.labId === "harden-two-server-domain").at(-1); if (latest?.evidenceText) setLabEvidence(latest.evidenceText); if (latest?.completedAt) setCompletedLab(true); }
         if (attemptsResponse.ok) {
           const data = await attemptsResponse.json() as { attempts?: Array<{ questionId?: string; isCorrect?: boolean }> };
           const attempts = data.attempts ?? [];
-          setAnswerStats({ correct: attempts.filter((item) => item.isCorrect).length, total: attempts.length });
+          const serverAnswerStats = { correct: attempts.filter((item) => item.isCorrect).length, total: attempts.length };
+          setAnswerStats((local) => { const total = Math.max(local.total, serverAnswerStats.total); return { total, correct: Math.min(total, Math.max(local.correct, serverAnswerStats.correct)) }; });
           const bySkill: Record<string, { correct: number; total: number }> = {};
           const byDomain: Record<string, { correct: number; total: number }> = {};
           for (const attempt of attempts) { const item = questions.find((question) => question.id === attempt.questionId); if (!item) continue; bySkill[item.skillId] ??= { correct: 0, total: 0 }; bySkill[item.skillId].total += 1; if (attempt.isCorrect) bySkill[item.skillId].correct += 1; byDomain[item.domain] ??= { correct: 0, total: 0 }; byDomain[item.domain].total += 1; if (attempt.isCorrect) byDomain[item.domain].correct += 1; }
-          setSkillStats(bySkill);
-          setDomainStats(byDomain);
-          setSkillProgress(Object.fromEntries(Object.entries(bySkill).map(([skillId, stat]) => [skillId, Math.round((stat.correct / stat.total) * 100)])));
+          setSkillStats((local) => {
+            const merged = mergeProgressCounters(local, bySkill);
+            setSkillProgress(Object.fromEntries(Object.entries(merged).map(([skillId, stat]) => [skillId, stat.total ? Math.round((stat.correct / stat.total) * 100) : 0])));
+            return merged;
+          });
+          setDomainStats((local) => mergeProgressCounters(local, byDomain));
         }
         const cardsResponse = await fetch("/api/flashcards");
         if (cardsResponse.ok) { const data = await cardsResponse.json() as { flashcards?: Array<{ questionId?: string; box?: number }> }; const card = data.flashcards?.find((item) => item.questionId && (questions.some((question) => question.id === item.questionId) || item.questionId === "ipsec-connection-rule")) ?? data.flashcards?.at(-1); const normalizedQuestionId = card?.questionId === "ipsec-connection-rule" ? "az802-q-216" : card?.questionId; if (normalizedQuestionId && questions.some((question) => question.id === normalizedQuestionId)) setCardQuestionId(normalizedQuestionId); if (card?.box) { setCardBox(card.box); setCardKnown(card.box > 1); } }
