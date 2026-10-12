@@ -3,6 +3,6 @@ import "./german.css";
 
 export const metadata: Metadata = {
   title: "German for IT · Klybit",
-  description: "German B1-oriented writing, grammar and IT vocabulary with character feedback and spaced recall practice.",
+  description: "60 German IT lessons from B1 patterns to a B2-oriented bridge: professional emails, grammar, character feedback and spaced recall practice.",
 };
 export default function GermanLayout({ children }: { children: React.ReactNode }) { return children; }

@@ -75,3 +75,28 @@ test("validated drafts resume and malformed saved state is rejected", () => {
   assert.equal(recordGermanAttempt(state, "missing", { mode: "recall", correct: true }), state);
 });
 console.log(`${checks} German learning engine test groups passed.`);
+test("curriculum expansion retains old evidence and initializes added items unsolved", () => {
+  const oldIds = Array.from({ length: 30 }, (_, i) => `lesson${String(i + 1).padStart(3, "0")}`);
+  const expandedIds = Array.from({ length: 60 }, (_, i) => `lesson${String(i + 1).padStart(3, "0")}`);
+  const old = recordGermanAttempt(createGermanProgress(oldIds), oldIds[2], { mode: "recall", correct: true, now });
+  const restored = parseGermanProgress(old, expandedIds);
+  assert.deepEqual(restored.lessons.lesson003, old.lessons.lesson003);
+  assert.equal(Object.keys(restored.lessons).length, 60);
+  assert.equal(getGermanSummary(restored, expandedIds, now).independentRecallLessons, 1);
+  for (const id of expandedIds.slice(30)) {
+    assert.equal(restored.lessons[id].independentRecallCount, 0);
+    assert.equal(restored.lessons[id].dueAt, null);
+  }
+});
+test("long free-writing drafts resume intact without making alignment input unbounded", () => {
+  const text = "Wir dokumentieren die Ergebnisse sorgfältig. ".repeat(70);
+  const written = updateGermanDraft(createGermanProgress(ids), ids[0], "writing", text);
+  assert.equal(written.lessons[ids[0]].draft, text);
+  assert.deepEqual(parseGermanProgress(written, ids), written);
+  const bounded = updateGermanDraft(written, ids[0], "copy", text);
+  assert.equal(bounded.lessons[ids[0]].draft.length, 1000);
+  const maxWriting = updateGermanDraft(written, ids[0], "writing", "x".repeat(5000));
+  assert.equal(maxWriting.lessons[ids[0]].draft.length, 4000);
+  assert.ok(parseGermanProgress(maxWriting, ids));
+});
+console.log(`${checks} total German learning engine test groups passed.`);

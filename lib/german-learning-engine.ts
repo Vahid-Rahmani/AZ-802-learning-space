@@ -6,11 +6,12 @@ type AlignedCharacter = GermanCharacter & { typedIndex: number | null };
 
 export const LEITNER_INTERVAL_DAYS = [1, 3, 7, 14, 30] as const;
 export const MAX_GERMAN_INPUT = 1000;
+export const MAX_GERMAN_WRITING_INPUT = 4000;
 const DAY = 86_400_000;
 const MODES: GermanMode[] = ["copy", "dictation", "recall", "writing"];
 
-export function normalizeGermanText(text: string): string {
-  return text.normalize("NFC").slice(0, MAX_GERMAN_INPUT);
+export function normalizeGermanText(text: string, limit = MAX_GERMAN_INPUT): string {
+  return text.normalize("NFC").slice(0, limit);
 }
 
 /** Align to the best expected prefix: one missing/extra letter does not spoil its suffix. */
@@ -30,7 +31,9 @@ function alignCharacters(expected: string, typed: string): AlignedCharacter[] {
       let cost = distance[cell - width - 1] + Number(!equal);
       let count = matches[cell - width - 1] + Number(equal);
       let move = 1;
-      for (const [neighbor, candidateMove] of [[cell - width, 2], [cell - 1, 3]]) {
+      // Avoid allocating tiny arrays in every cell as practice grows to paragraphs.
+      for (let candidateMove = 2; candidateMove <= 3; candidateMove++) {
+        const neighbor = candidateMove === 2 ? cell - width : cell - 1;
         const candidateCost = distance[neighbor] + 1;
         if (candidateCost < cost || (candidateCost === cost && matches[neighbor] > count)) {
           cost = candidateCost; count = matches[neighbor]; move = candidateMove;
@@ -116,7 +119,7 @@ export function parseGermanProgress(value: unknown, lessonIds: readonly string[]
   for (const id of Object.keys(progress.lessons)) {
     if (!Object.hasOwn(value.lessons, id)) continue;
     const lesson = value.lessons[id];
-    if (!object(lesson) || typeof lesson.draft !== "string" || lesson.draft.length > MAX_GERMAN_INPUT
+    if (!object(lesson) || typeof lesson.draft !== "string" || lesson.draft.length > (lesson.mode === "writing" ? MAX_GERMAN_WRITING_INPUT : MAX_GERMAN_INPUT)
       || !MODES.includes(lesson.mode as GermanMode) || !Number.isInteger(lesson.box) || Number(lesson.box) < 1 || Number(lesson.box) > 5
       || !timestamp(lesson.dueAt) || !timestamp(lesson.lastAttemptAt)
       || !(lesson.lastPromotedDay === null || (typeof lesson.lastPromotedDay === "string" && /^\d{4}-\d{2}-\d{2}$/.test(lesson.lastPromotedDay)))
@@ -129,7 +132,7 @@ export function parseGermanProgress(value: unknown, lessonIds: readonly string[]
       counters[mode] = { attempted: entry.attempted, correct: entry.correct };
     }
     if (lesson.independentRecallCount > counters.recall.correct || lesson.writingReviews > counters.writing.attempted) return null;
-    progress.lessons[id] = { draft: normalizeGermanText(lesson.draft), mode: lesson.mode as GermanMode,
+    progress.lessons[id] = { draft: normalizeGermanText(lesson.draft, lesson.mode === "writing" ? MAX_GERMAN_WRITING_INPUT : MAX_GERMAN_INPUT), mode: lesson.mode as GermanMode,
       box: Number(lesson.box), dueAt: lesson.dueAt, lastPromotedDay: lesson.lastPromotedDay as string | null,
       counters, independentRecallCount: lesson.independentRecallCount, writingReviews: lesson.writingReviews, lastAttemptAt: lesson.lastAttemptAt };
   }
@@ -138,7 +141,7 @@ export function parseGermanProgress(value: unknown, lessonIds: readonly string[]
 
 export function updateGermanDraft(progress: GermanProgress, id: string, mode: GermanMode, draft: string): GermanProgress {
   if (!Object.hasOwn(progress.lessons, id) || !MODES.includes(mode)) return progress;
-  return { ...progress, lessons: { ...progress.lessons, [id]: { ...progress.lessons[id], mode, draft: normalizeGermanText(draft) } } };
+  return { ...progress, lessons: { ...progress.lessons, [id]: { ...progress.lessons[id], mode, draft: normalizeGermanText(draft, mode === "writing" ? MAX_GERMAN_WRITING_INPUT : MAX_GERMAN_INPUT) } } };
 }
 
 export function recordGermanAttempt(progress: GermanProgress, id: string,

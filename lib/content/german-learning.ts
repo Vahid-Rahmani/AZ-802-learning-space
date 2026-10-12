@@ -1,9 +1,12 @@
+import { advancedGermanLessons, advancedGermanUnits } from "./german-learning-advanced";
+
 /** Original workplace-language practice, not a certification or exam-coverage claim. */
 export interface GermanUnit {
   id: string;
   title: string;
   grammar: string;
   description: string;
+  level?: "B1+" | "B2 bridge";
 }
 
 export interface GermanLesson {
@@ -21,6 +24,7 @@ export interface GermanLesson {
   variants: string[];
   writingPrompt: string;
   writingChecklist: string[];
+  level?: "B1+" | "B2 bridge";
 }
 
 export const germanUnits: GermanUnit[] = [
@@ -30,6 +34,7 @@ export const germanUnits: GermanUnit[] = [
   { id: "unit04", title: "Installation and updates", grammar: "Perfekt · bevor · nachdem · damit", description: "Report completed changes and explain the order and purpose of maintenance." },
   { id: "unit05", title: "Access and permissions", grammar: "modal verbs · cases · nicht dürfen", description: "Describe authorization, obligations, and responsible access to shared resources." },
   { id: "unit06", title: "Backups and incidents", grammar: "sequencing · passive voice · deshalb", description: "Report incidents, recovery actions, and preventative follow-up measures." },
+  ...advancedGermanUnits,
 ];
 
 export const germanLessons: GermanLesson[] = [
@@ -513,4 +518,5 @@ export const germanLessons: GermanLesson[] = [
     writingPrompt: "Write a four-sentence German incident closure: the problem, the recovery action, a verified user outcome, and a follow-up measure to reduce recurrence.",
     writingChecklist: ["Summarize the original problem", "Report a completed recovery action", "State a verified user outcome", "Include one follow-up measure"],
   },
+  ...advancedGermanLessons,
 ];
