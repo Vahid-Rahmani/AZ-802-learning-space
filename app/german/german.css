@@ -1,0 +1,100 @@
+.german-app { color: var(--cp-text); background: var(--cp-surface); min-height: 100dvh; }
+.german-app .german-shell { display: grid; grid-template-columns: 210px minmax(0,1fr); max-width: 1750px; margin: auto; min-height: 100dvh; }
+.german-app .app-sidebar { padding: 24px 14px; border-right: 1px solid var(--cp-line); }
+.german-content { padding: 18px 26px; min-width: 0; }
+.german-sidebar-note { margin-top: 30px; padding: 14px; border: 1px solid var(--cp-line); border-radius: 12px; color: var(--cp-muted); font-size: 12px; line-height: 1.8; }
+.german-sidebar-note strong { color: var(--cp-accent); }
+.german-workspace { font-size: calc(14px * var(--wincraft-font-scale,1)); }
+.german-intro { display: flex; justify-content: space-between; gap: 24px; align-items: center; border: 1px solid var(--cp-line); border-radius: 14px; padding: 22px; background: linear-gradient(125deg,var(--cp-selected),var(--cp-alt)); }
+.german-eyebrow { font-size: 10px; letter-spacing: .07em; color: var(--cp-accent); font-weight: 700; }
+.german-intro h2 { font-size: 25px; margin: 7px 0; letter-spacing: -.02em; }
+.german-intro p:last-child { color: var(--cp-muted); max-width: 70ch; line-height: 1.7; }
+.german-progress { flex: 0 0 140px; display: grid; gap: 7px; text-align: right; font-size: 11px; color: var(--cp-muted); }
+.german-progress strong { font-size: 29px; color: var(--cp-accent); }
+.german-progress progress { width: 100%; height: 6px; accent-color: var(--cp-accent); }
+.german-metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 10px; margin: 14px 0; }
+.german-metrics > div { background: var(--cp-alt); border: 1px solid var(--cp-line); padding: 13px 16px; border-radius: 10px; display: grid; gap: 5px; }
+.german-metrics span { color: var(--cp-muted); font-size: 12px; }
+.german-metrics strong { font-size: 22px; }
+.german-metrics small { font-size: 10px; display: block; color: var(--cp-muted); font-weight: 400; }
+.german-toolbar { display: flex; gap: 8px; align-items: center; margin: 12px 0; font-size: 11px; color: var(--cp-muted); flex-wrap: wrap; }
+.german-toolbar > span { margin-right: auto; }
+.german-app button { cursor: pointer; }
+.german-workspace button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid var(--cp-line); border-radius: 8px; padding: 8px 12px; color: var(--cp-text); background: var(--cp-alt); font-family: inherit; }
+.german-workspace button:disabled { opacity: .5; cursor: default; }
+.german-workspace button:hover:not(:disabled) { border-color: var(--cp-accent); }
+.german-layout { display: grid; grid-template-columns: 230px minmax(0,1fr) 220px; gap: 14px; align-items: start; }
+.german-layout > * { min-width: 0; border: 1px solid var(--cp-line); border-radius: 12px; background: var(--cp-alt); }
+.german-path { padding: 12px; }
+.german-path-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.german-path h3,.german-reference h3 { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 650; }
+.german-path-heading button { font-size: 10px; padding: 5px; }
+.german-path details { border-top: 1px solid var(--cp-line); padding: 10px 0; }
+.german-path summary { cursor: pointer; font-weight: 600; font-size: 12px; }
+.german-path summary small { float: right; color: var(--cp-muted); }
+.german-path details > p { color: var(--cp-muted); font-size: 11px; margin: 8px 0; line-height: 1.6; }
+.german-path details button { width: 100%; padding: 8px 7px; margin: 3px 0; justify-content: flex-start; text-align: left; font-size: 11px; min-height: 44px; }
+.german-path details button > span:nth-child(2) { flex: 1; }
+.german-path button[aria-current="step"] { background: var(--cp-selected); border-color: var(--cp-accent); }
+.german-lesson-index { font-size: 10px; color: var(--cp-accent); flex: 0 0 22px; }
+.german-empty { color: var(--cp-muted); font-size: 12px; line-height: 1.7; }
+.german-practice { overflow: hidden; }
+.german-lesson-heading { display: flex; justify-content: space-between; gap: 12px; padding: 20px; }
+.german-lesson-heading h3 { font-size: 20px; font-weight: 650; margin: 4px 0; }
+.german-lesson-heading p:last-child { color: var(--cp-muted); font-size: 12px; line-height: 1.6; }
+.german-box { flex-shrink: 0; border: 1px solid var(--cp-line); padding: 6px 9px; border-radius: 20px; align-self: start; font-size: 11px; }
+.german-mode-tabs { display: flex; padding: 0 12px; border-block: 1px solid var(--cp-line); }
+.german-mode-tabs button { flex: 1; border: 0; border-radius: 0; font-size: 12px; background: transparent; border-bottom: 2px solid transparent; padding: 10px 5px; }
+.german-mode-tabs button[aria-selected="true"] { color: var(--cp-accent); border-bottom-color: var(--cp-accent); background: var(--cp-selected); }
+#german-exercise { padding: 20px; }
+.german-mode-help { color: var(--cp-muted); font-size: 12px; line-height: 1.7; }
+.german-scenario { padding: 12px 0; line-height: 1.7; font-size: 13px; }
+.german-model { background: var(--cp-surface); border: 1px solid var(--cp-line); border-radius: 10px; padding: 18px; font-size: 20px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: 18px; }
+.german-char-correct { color: #55df9c; }
+.german-char-incorrect { color: #ff8c9e; text-decoration: underline wavy; text-decoration-thickness: 1px; }
+.german-char-pending { color: #9eacbc; }
+.german-char-neutral { color: var(--cp-text); }
+html[data-theme="fluent"] .german-char-correct { color: #087a42; }
+html[data-theme="fluent"] .german-char-incorrect { color: #b71938; }
+html[data-theme="fluent"] .german-char-pending { color: #64748b; }
+.german-cue { border-left: 3px solid var(--cp-accent); border-radius: 7px; background: var(--cp-selected); padding: 12px; margin-bottom: 18px; line-height: 1.7; }
+.german-cue strong { font-size: 12px; }
+.german-cue p { margin-top: 5px; font-size: 13px; }
+.german-audio { display: grid; gap: 8px; margin: 14px 0; font-size: 11px; color: var(--cp-muted); }
+.german-audio button { justify-self: start; }
+.german-practice form > label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; }
+.german-input-shell { position: relative; background: var(--cp-surface); border: 1px solid var(--cp-line); border-radius: 10px; overflow: hidden; }
+.german-input-shell:focus-within { border-color: var(--cp-accent); box-shadow: 0 0 0 2px color-mix(in srgb,var(--cp-accent) 15%,transparent); }
+.german-input-shell textarea,.german-typed-overlay { width: 100%; height: 146px; padding: 14px; font-family: ui-monospace,SFMono-Regular,Consolas,monospace; font-size: 16px; line-height: 1.8; letter-spacing: 0; white-space: pre-wrap; overflow-wrap: break-word; word-break: normal; tab-size: 4; border: 0; box-sizing: border-box; }
+.german-input-shell textarea { display: block; position: relative; resize: none; color: transparent; caret-color: var(--cp-text); background: transparent; outline: none; -webkit-text-fill-color: transparent; }
+.german-input-shell textarea::selection { background: color-mix(in srgb,var(--cp-accent) 30%,transparent); }
+.german-typed-overlay { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.german-free-writing textarea { color: var(--cp-text); -webkit-text-fill-color: var(--cp-text); height: 210px; }
+html .study-app.german-app .german-input-shell textarea { background: transparent; color: transparent; }
+html .study-app.german-app .german-free-writing textarea { color: var(--cp-text); }
+.german-special-keys { display: flex; gap: 6px; margin-top: 10px; }
+.german-special-keys button { min-width: 34px; min-height: 36px; padding: 5px 8px; }
+.german-input-help { font-size: 10px; color: var(--cp-muted); line-height: 1.7; margin: 8px 0 14px; }
+.german-practice-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.german-practice-actions button { font-size: 12px; }
+.german-workspace .german-primary { background: var(--cp-accent); color: var(--cp-surface); font-weight: 700; border-color: transparent; }
+.german-feedback { border: 1px solid var(--cp-line); background: var(--cp-selected); padding: 12px; border-radius: 9px; font-size: 12px; line-height: 1.8; margin-top: 14px; }
+.german-revealed { margin-top: 12px; line-height: 1.8; padding: 12px; background: var(--cp-surface); border-radius: 8px; }
+.german-explanation { margin-top: 20px; border-top: 1px solid var(--cp-line); padding-top: 12px; font-size: 12px; }
+.german-explanation summary,.german-reference summary { cursor: pointer; color: var(--cp-accent); }
+.german-explanation p { margin-top: 10px; }
+.german-writing-checklist { margin: 12px 0; padding: 12px; border: 1px solid var(--cp-line); border-radius: 8px; }
+.german-writing-checklist legend { font-size: 11px; color: var(--cp-muted); }
+.german-writing-checklist label { display: flex; align-items: start; gap: 8px; margin: 8px 0; font-size: 12px; line-height: 1.6; }
+.german-writing-checklist input { flex: 0 0 17px; width: 17px; height: 17px; accent-color: var(--cp-accent); }
+.german-reference { padding: 16px; font-size: 12px; }
+.german-reference > div { padding: 14px 0; border-bottom: 1px solid var(--cp-line); }
+.german-reference strong { color: var(--cp-accent); font-size: 15px; }
+.german-reference p { margin-top: 7px; line-height: 1.8; }
+.german-reference p[lang="de"] { color: var(--cp-muted); }
+.german-review-note h4 { font-weight: 650; }
+.german-review-note p { color: var(--cp-muted); font-size: 11px; }
+.german-reference details { margin-top: 14px; font-size: 11px; line-height: 1.8; }
+@media (max-width: 1450px) { .german-layout { grid-template-columns: 210px minmax(0,1fr); } .german-reference { grid-column: 2; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 20px; } .german-reference h3 { grid-column: 1/-1; } .german-reference details { grid-column: 1/-1; } }
+@media (max-width: 1023px) { .german-app .german-shell { display: block; } .german-content { padding: 12px; } }
+@media (max-width: 700px) { .german-intro { display: block; padding: 16px; } .german-intro h2 { font-size: 20px; } .german-progress { display: flex; align-items: center; text-align: left; margin-top: 14px; gap: 10px; font-size: 10px; } .german-progress strong { font-size: 23px; } .german-progress progress { width: 70px; flex-shrink: 0; } .german-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } .german-metrics > div { padding: 10px; } .german-layout { grid-template-columns: minmax(0,1fr); } .german-practice { grid-row: 1; } .german-path { grid-row: 2; } .german-reference { grid-column: 1; } .german-lesson-heading { padding: 14px; } .german-lesson-heading h3 { font-size: 18px; } #german-exercise { padding: 14px; } .german-model { font-size: 18px; padding: 14px; } .german-mode-tabs { padding: 0 4px; } .german-mode-tabs button { font-size: 11px; } .german-toolbar { font-size: 10px; } .german-toolbar > span { width: 100%; } .german-toolbar button { font-size: 10px; } .german-practice-actions button { flex: 1 1 auto; } }
