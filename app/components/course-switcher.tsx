@@ -1,9 +1,9 @@
 "use client";
 
 import { useId, useState } from "react";
-import { ChevronDown, Cloud, Container, Network, Server } from "lucide-react";
+import { ChevronDown, Cloud, Container, Network, Server, Terminal } from "lucide-react";
 
-export function CourseSwitcher({ active }: { active: "az802" | "az900" | "docker" | "ccna" }) {
+export function CourseSwitcher({ active }: { active: "az802" | "az900" | "docker" | "ccna" | "linux" }) {
   const [open, setOpen] = useState(false);
   const menuId = useId();
   const courses = [
@@ -11,6 +11,7 @@ export function CourseSwitcher({ active }: { active: "az802" | "az900" | "docker
     { id:"az900" as const, href:"/az-900", code:"AZ-900", title:"Azure Fundamentals", icon:<Cloud size={17} /> },
     { id:"docker" as const, href:"/docker", code:"Docker", title:"Containers & Compose", icon:<Container size={17} /> },
     { id:"ccna" as const, href:"/ccna", code:"CCNA", title:"Networking & Cisco labs", icon:<Network size={17} /> },
+    { id:"linux" as const, href:"/linux", code:"Linux", title:"RHEL-style terminal & labs", icon:<Terminal size={17} /> },
   ];
   const current = courses.find((course) => course.id === active) ?? courses[0];
   return <div className="course-switcher">

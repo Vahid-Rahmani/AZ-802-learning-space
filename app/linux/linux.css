@@ -1,0 +1,93 @@
+.linux-app { --linux-accent: #62ddba; --linux-muted: #9caec1; --linux-line: #303b45; --linux-panel: #19232c; min-height: 100dvh; color: #e4edf5; background: #10171e; }
+.linux-app-shell { display: grid; grid-template-columns: 230px minmax(0,1fr); max-width: 1700px; margin: auto; min-height: 100dvh; }
+.linux-app .app-sidebar { padding: 24px 16px; border-right: 1px solid var(--linux-line); }
+.linux-app-content { padding: 20px 28px; min-width: 0; }
+.linux-sidebar-note { display: grid; gap: 9px; margin-top: 36px; padding: 16px; color: var(--linux-muted); border: 1px solid var(--linux-line); border-radius: 12px; font-size: 12px; line-height: 1.7; }
+.linux-sidebar-note svg { color: var(--linux-accent); }
+.linux-sidebar-note p { margin: 0; }
+.linux-workspace { max-width: 1320px; margin-inline: auto; }
+.linux-workspace :is(h2,h3,p) { margin: 0; }
+.linux-welcome { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 24px 26px; background: radial-gradient(ellipse at right top,#62ddba13,transparent 70%),var(--linux-panel); border: 1px solid var(--linux-line); border-radius: 14px; }
+.linux-eyebrow { display: flex; gap: 7px; align-items: center; font-size: 10px; letter-spacing: .08em; font-weight: 700; color: var(--linux-accent); }
+.linux-welcome h2 { font-size: clamp(20px,2.4vw,30px); letter-spacing: -.025em; margin: 9px 0; line-height: 1.3; }
+.linux-welcome p:last-child { color: var(--linux-muted); font-size: 13px; line-height: 1.7; }
+.linux-overall { display: grid; text-align: right; gap: 4px; min-width: 125px; }
+.linux-overall strong { font-size: 28px; color: var(--linux-accent); }
+.linux-overall span { font-size: 11px; color: var(--linux-muted); }
+.linux-overall progress { width: 125px; height: 5px; accent-color: var(--linux-accent); }
+.linux-workspace-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin: 14px 0; color: var(--linux-muted); font-size: 11px; }
+.linux-workspace-bar button { display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border: 1px solid var(--linux-line); border-radius: 7px; background: transparent; color: inherit; cursor: pointer; }
+.linux-save-status { display: flex; align-items: center; gap: 7px; }
+.linux-status-dot { display: inline-block; width: 6px; height: 6px; background: var(--linux-accent); border-radius: 50%; flex-shrink: 0; }
+.linux-lab-layout { display: grid; grid-template-columns: 285px minmax(0,1fr); gap: 16px; align-items: start; }
+.linux-lessons { display: flex; flex-direction: column; min-width: 0; background: var(--linux-panel); border: 1px solid var(--linux-line); border-radius: 12px; overflow: hidden; }
+.linux-lessons > h3 { display: flex; align-items: center; gap: 8px; padding: 15px; font-size: 13px; border-bottom: 1px solid var(--linux-line); }
+.linux-lesson-list { order: 2; display: grid; gap: 3px; padding: 8px; border-top: 1px solid var(--linux-line); }
+.linux-lesson-list button { display: flex; align-items: center; gap: 10px; padding: 10px 9px; text-align: left; border-radius: 7px; border: 1px solid transparent; background: none; color: inherit; cursor: pointer; }
+.linux-lesson-list button[aria-current] { border-color: #62ddba45; background: #62ddba0b; }
+.linux-lesson-list button:hover { background: #ffffff06; }
+.linux-lesson-list button > span:first-child { display: grid; place-items: center; width: 26px; height: 26px; flex: 0 0 26px; border-radius: 6px; background: #ffffff09; color: var(--linux-muted); font-size: 11px; }
+.linux-lesson-list strong { display: block; font-size: 12px; font-weight: 600; line-height: 1.4; }
+.linux-lesson-list small { display: block; font-size: 10px; color: var(--linux-muted); margin-top: 3px; }
+.linux-lesson-list button > svg { margin-left: auto; color: var(--linux-muted); flex-shrink: 0; }
+.linux-task { order: 1; padding: 16px; }
+.linux-task h3 { font-size: 16px; margin-top: 7px; }
+.linux-task > p:not(.linux-eyebrow),.linux-task details p { color: var(--linux-muted); font-size: 12px; line-height: 1.7; margin: 9px 0; }
+.linux-checks { list-style: none; margin: 14px 0; padding: 0; }
+.linux-checks li { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; line-height: 1.6; padding: 8px 0; border-bottom: 1px solid #303b4566; }
+.linux-checks li > span:first-child { flex: 0 0 17px; margin-top: 2px; }
+.linux-check-empty { display: block; width: 15px; height: 15px; border: 1px solid #65798b; border-radius: 50%; }
+.linux-app .is-passed { color: var(--linux-accent); }
+.linux-task details { margin-top: 8px; border: 1px solid var(--linux-line); border-radius: 7px; padding: 9px; }
+.linux-task summary,.linux-reference summary { cursor: pointer; font-size: 12px; font-weight: 600; }
+.linux-task summary svg,.linux-reference summary svg { display: inline; vertical-align: -3px; margin-right: 5px; color: var(--linux-accent); }
+.linux-task pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #10171e; padding: 9px; border-radius: 5px; font-size: 11px; }
+.linux-task .linux-next { display: flex; gap: 7px; align-items: center; justify-content: center; width: 100%; margin-top: 12px; padding: 9px; border-radius: 7px; border: 0; background: var(--linux-accent); color: #11261f; font-size: 12px; font-weight: 700; cursor: pointer; }
+.linux-machine { min-width: 0; }
+.linux-mobile-goal { display: none; }
+.linux-machine-tabs { display: flex; gap: 3px; align-items: center; padding: 6px; border: 1px solid var(--linux-line); border-bottom: 0; background: var(--linux-panel); border-radius: 11px 11px 0 0; }
+.linux-machine-tabs button { display: inline-flex; gap: 6px; align-items: center; min-height: 36px; padding: 8px 12px; font-size: 12px; color: var(--linux-muted); border: 0; border-radius: 7px; background: transparent; cursor: pointer; }
+.linux-machine-tabs button[aria-selected=true] { background: #62ddba12; color: var(--linux-accent); }
+.linux-machine-tabs > span { display: flex; gap: 6px; align-items: center; margin-left: auto; margin-right: 6px; color: var(--linux-muted); font-size: 10px; }
+.linux-terminal-panel { overflow: hidden; border: 1px solid var(--linux-line); border-radius: 0 0 11px 11px; background: #0b1117; }
+.linux-terminal-heading { display: flex; align-items: center; gap: 12px; padding: 13px 16px; color: #8295a8; font: 11px ui-monospace,Consolas,monospace; border-bottom: 1px solid #26323d; }
+.linux-terminal-heading > span:last-child { margin-left: auto; font-size: 9px; letter-spacing: .09em; }
+.linux-window-dots { display: flex; gap: 5px; }
+.linux-window-dots i { width: 7px; height: 7px; border-radius: 50%; background: #e48179; }
+.linux-window-dots i:nth-child(2) { background: #dbb46c; }
+.linux-window-dots i:nth-child(3) { background: #62bd91; }
+.linux-terminal-screen { height: clamp(360px,56dvh,570px); overflow: auto; overscroll-behavior: contain; padding: 18px; cursor: text; font: 13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace; color: #d7e1ed; scrollbar-gutter: stable; }
+.linux-terminal-entry { margin-bottom: 6px; overflow-wrap: anywhere; }
+.linux-terminal-entry pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; }
+.linux-prompt { color: #80dcab; }
+.linux-error { color: #f2a090; }
+.linux-command-line { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 4px; min-width: 0; }
+.linux-command-line label { white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; font-size: inherit; }
+.linux-command-line input { flex: 1 1 120px; min-width: 0; width: 100%; background: transparent; color: #eaf3ff; border: 0; border-radius: 0; outline: none; padding: 0; min-height: 28px; font: inherit; caret-color: #80dcab; }
+.linux-command-line button { display: inline-grid; place-items: center; height: 28px; width: 28px; background: #1b3029; border: 1px solid #345e4d; border-radius: 5px; color: #80dcab; cursor: pointer; }
+.linux-terminal-footer { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; border-top: 1px solid #26323d; padding: 10px 15px; color: #8295a8; font: 10px ui-monospace,Consolas,monospace; overflow-wrap: anywhere; }
+.linux-machine-status { display: flex; gap: 15px; flex-wrap: wrap; padding: 13px 1px; color: var(--linux-muted); font-size: 11px; }
+.linux-machine-status span { display: inline-flex; align-items: center; gap: 6px; }
+.linux-machine-status svg { color: var(--linux-accent); }
+.linux-reference { border: 1px solid var(--linux-line); border-radius: 10px; padding: 13px 15px; font-size: 12px; color: var(--linux-muted); line-height: 1.7; }
+.linux-reference p { margin: 12px 0; }
+.linux-reference code { white-space: normal; overflow-wrap: anywhere; }
+.linux-reference a { display: block; color: var(--linux-accent); margin: 6px 0; }
+.linux-inspector { height: 484px; overflow: auto; padding: 20px; border: 1px solid var(--linux-line); border-radius: 0 0 11px 11px; background: var(--linux-panel); }
+.linux-inspector h3 { display: flex; gap: 8px; align-items: center; font-size: 16px; }
+.linux-inspector > p { font-size: 12px; color: var(--linux-muted); margin: 10px 0 18px; }
+.linux-inspector ul { list-style: none; padding: 0; }
+.linux-inspector li { padding: 12px 0; border-bottom: 1px solid var(--linux-line); }
+.linux-inspector li > div { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.linux-inspector code { overflow-wrap: anywhere; min-width: 0; }
+.linux-inspector small { margin-left: auto; color: var(--linux-muted); }
+.linux-inspector pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; background: #10171e; padding: 9px; border-radius: 6px; }
+.linux-service-table { overflow-x: auto; }
+.linux-service-table table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; }
+.linux-service-table th,.linux-service-table td { padding: 12px 7px; border-bottom: 1px solid var(--linux-line); white-space: nowrap; }
+.linux-app :is(button,a,input,summary):focus-visible { outline: 2px solid var(--linux-accent); outline-offset: 3px; }
+@media (max-width: 1250px) { .linux-lab-layout { grid-template-columns: 245px minmax(0,1fr); gap: 12px; } .linux-app-content { padding: 18px; } }
+@media (max-width: 1023px) { .linux-app-shell { display: block; } .linux-app .app-sidebar { padding: 18px; } }
+@media (max-width: 700px) { .linux-app-content { padding: 12px; } .linux-welcome { padding: 18px; gap: 14px; } .linux-overall { min-width: 80px; } .linux-overall progress { width: 80px; } .linux-welcome h2 { font-size: 20px; } .linux-welcome p:last-child { font-size: 12px; } .linux-lab-layout { grid-template-columns: 1fr; } .linux-machine { grid-row: 1; } .linux-terminal-screen { height: clamp(240px,48dvh,420px); padding: 12px; font-size: 13px; } .linux-command-line input { font-size: 16px; min-height: 36px; } .linux-command-line button { width: 36px; height: 36px; } .linux-terminal-heading { padding: 10px; gap: 8px; font-size: 10px; } .linux-machine-tabs { gap: 0; } .linux-machine-tabs button { padding: 8px; font-size: 11px; } .linux-machine-tabs > span { font-size: 9px; } .linux-lesson-list { grid-template-columns: repeat(2,minmax(0,1fr)); } .linux-inspector { height: 350px; padding: 14px; } .linux-terminal-footer { font-size: 9px; } }
+@media (max-width: 420px) { .linux-welcome { display: block; } .linux-overall { display: flex; align-items: center; gap: 10px; margin-top: 14px; text-align: left; } .linux-overall strong { font-size: 22px; } .linux-machine-tabs > span { display: none; } .linux-machine-status { gap: 8px 12px; font-size: 10px; } }
+@media (max-width: 700px) { .linux-mobile-goal { display: block; margin-bottom: 12px; padding: 12px; border: 1px solid var(--linux-line); border-radius: 9px; font-size: 12px; } .linux-mobile-goal p { color: var(--linux-muted); margin: 5px 0; } .linux-mobile-goal a { color: var(--linux-accent); font-size: 11px; } }
