@@ -12,6 +12,7 @@ export type VirtualServer = {
   folders: string[]; shares: { name: string; path: string; access: string }[];
   permissions: string[]; firewallRules: string[]; services: Record<string, string>;
   backups: number; events: string[]; completed: string[];
+  gpos: string[]; gpoLinks: Record<string, string[]>; smb1Enabled: boolean;
 };
 export type PowerShellStep = { id: string; title: string; command: string; explanation: string; result: string; docs: string };
 export type PowerShellUnit = { id: string; name: string; goal: string; steps: PowerShellStep[] };
@@ -27,6 +28,11 @@ const docs = {
   smb: "https://learn.microsoft.com/en-us/powershell/module/smbshare/new-smbshare",
   firewall: "https://learn.microsoft.com/en-us/powershell/module/netsecurity/new-netfirewallrule",
   backup: "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/wbadmin-start-backup",
+  ntlm: "https://learn.microsoft.com/en-us/windows-server/security/kerberos/passwords-technical-overview",
+  groupPolicy: "https://learn.microsoft.com/en-us/powershell/module/grouppolicy/new-gpo",
+  smbHardening: "https://learn.microsoft.com/en-us/windows-server/storage/file-server/troubleshoot/detect-enable-and-disable-smbv1-v2-v3",
+  securityLogs: "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/appendix-l--events-to-monitor",
+  patches: "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-hotfix",
 };
 const step = (id: string, title: string, command: string, explanation: string, result: string, doc: string): PowerShellStep =>
   ({ id, title, command, explanation, result, docs: doc });
@@ -87,6 +93,29 @@ export const powerShellUnits: PowerShellUnit[] = [
     step("backupfeature","Install backup feature","Install-WindowsFeature -Name Windows-Server-Backup","Windows Server Backup is installed. Backup jobs, target capacity and restores must be tested separately.","Backup feature is installed.",docs.features),
     step("backup","Run a virtual backup","wbadmin start backup -backupTarget:E: -include:D: -quiet","wbadmin can create backups in real Windows Server. This simulation records a fictional success only.","One simulated backup version is saved.",docs.backup),
     step("versions","Check backup history","wbadmin get versions","Lists available backup versions. A successful backup alone does not guarantee recovery.","Backup history appears.",docs.backup)
+  ] },
+  { id: "authentication", name: "10 · Domain authentication & GPO", goal: "Understand NTLM challenge-response versus Kerberos and manage Group Policy safely; no secrets or hashes are transmitted by this simulator.", steps: [
+    step("adpasswordpolicy","Inspect domain password policy","Get-ADDefaultDomainPasswordPolicy","Check password length, lockout and complexity configuration. An NTLM challenge-response is not a raw password or raw NT hash; Kerberos uses a different ticket-based protocol.","Read the virtual domain policy.",docs.ntlm),
+    step("adcontroller","Discover the domain controller","Get-ADDomainController -Discover","Find a domain controller. Kerberos ticket exchange and NTLM challenge-response are different authentication paths, so the screenshot is only a teaching analogy.","Find TW-DC01.",docs.ntlm),
+    step("netlogon","Check Netlogon","Get-Service -Name Netlogon","Netlogon manages secure-channel operations; its status alone does not show whether the CVE-2020-1472 fix is installed.","Netlogon is running.",docs.securityLogs),
+    step("listgpo","Review Group Policy Objects","Get-GPO -All","List Group Policy Objects in the domain, including default policies. Group Policy centrally configures domain-joined machines.","List available GPOs.",docs.groupPolicy),
+    step("creategpo","Create a security baseline GPO","New-GPO -Name Baseline-Server","Create a GPO object; it has no effect until linked to a site, domain or OU and configured.","Baseline-Server is created.",docs.groupPolicy),
+    step("linkgpo","Link GPO to department OU","New-GPLink -Name Baseline-Server -Target OU=Staff,DC=techwork,DC=local","Linking the policy to an OU creates a scope of application. The simulation does not process real registry settings.","Link the baseline to Staff OU.",docs.groupPolicy),
+    step("gporesult","Inspect inherited GPOs","Get-GPInheritance -Target OU=Staff,DC=techwork,DC=local","Check linked GPOs for an OU. This training result is not a client-side gpresult or proof of applied settings.","View the training GPO link.",docs.groupPolicy),
+    step("securityevents","Review security sign-in events","Get-WinEvent -LogName Security -MaxEvents 5","Windows Security logs can show events such as 4624 and 4625; these example entries are simulated, not evidence of an actual sign-in.","Inspect sample security events.",docs.securityLogs)
+  ] },
+  { id: "smbdefense", name: "11 · SMB & WannaCry defense", goal: "Audit SMB configuration, exposed file services and protection indicators without executing exploits.", steps: [
+    step("smbconfig","Audit SMB protocol configuration","Get-SmbServerConfiguration","SMB1 is an old protocol linked to legacy exposure. SMB1 is not installed by default on Windows Server 2019 and later. Microsoft issued MS17-010 in March 2017 for vulnerable products.","Review SMB1, SMB2 and signing flags.",docs.smbHardening),
+    step("optionalfeature","Check SMB1 Windows feature","Get-WindowsOptionalFeature -Online -FeatureName SMB1Protocol","Review whether the optional SMB1 feature exists or is disabled. On a real host verify both server and client configuration.","SMB1 is disabled in the Windows Server 2025 training baseline.",docs.smbHardening),
+    step("port445","Inspect SMB TCP listener","Get-NetTCPConnection -LocalPort 445","SMB commonly listens on TCP 445. An open port does not by itself prove the system is vulnerable to WannaCry.","View the simulated local port state.",docs.smbHardening),
+    step("smbsessions","Inspect file share sessions","Get-SmbSession","Review active SMB sessions. The browser simulation has no real remote clients or network packets.","No remote SMB sessions in this isolated browser lab.",docs.smbHardening),
+    step("smblockdown","Reinforce disabled SMB1","Set-SmbServerConfiguration -EnableSMB1Protocol $false -Confirm:$false","Disables SMB1 server protocol in Windows. Here it is already disabled and the simulator only reinforces its virtual setting.","SMB1 server protocol stays disabled.",docs.smbHardening),
+    step("defenderthreats","Review Defender detections","Get-MpThreatDetection","Review historical Microsoft Defender detections. No detection is not proof of no compromise; also verify protection, patches and backups.","Read the simulated detection inventory.",docs.securityLogs)
+  ] },
+  { id: "zerologon", name: "12 · Netlogon & patch verification", goal: "Learn ZeroLogon defensive checks, security patch review and safe incident triage; never attempt credential bypass.", steps: [
+    step("replicationaudit","Check AD replication health","Get-ADReplicationFailure -Target TW-DC01","Check replication failures. A single-DC lab cannot demonstrate actual replication and a clean result does NOT validate a ZeroLogon fix.","Inspect virtual AD replication status.",docs.securityLogs),
+    step("hotfixes","Inspect installed update inventory","Get-HotFix","Get-HotFix is one inventory source for installed updates; verify the actual OS build and Microsoft's current CVE advisories. Synthetic data cannot prove patch compliance.","Review clearly marked training-only patch information.",docs.patches),
+    step("netlogonlogs","Inspect system events","Get-WinEvent -LogName System -MaxEvents 20","Monitor Windows Netlogon event IDs 5827/5828 when available. These can signal denied vulnerable secure-channel connections; absence does not prove safety.","Read the simulated system event log.",docs.securityLogs)
   ] }
 ];
 export const allPowerShellSteps = powerShellUnits.flatMap(unit => unit.steps);
@@ -98,13 +127,17 @@ export const supportedPowerShellCommands = [
   "Add-ADGroupMember","Get-ADGroupMember","Get-DnsServerZone","Add-DnsServerResourceRecordA","Resolve-DnsName",
   "Add-DhcpServerInDC","Add-DhcpServerv4Scope","Get-DhcpServerv4Scope","New-Item","Get-ChildItem",
   "New-SmbShare","Get-SmbShare","icacls","Get-NetFirewallProfile","New-NetFirewallRule","Get-NetFirewallRule",
-  "Get-MpComputerStatus","Get-WinEvent","wbadmin","Clear-Host"
+  "Get-MpComputerStatus","Get-MpThreatDetection","Get-WinEvent","wbadmin","Clear-Host",
+  "Get-ADDefaultDomainPasswordPolicy","Get-ADDomainController","Get-GPO","New-GPO","New-GPLink","Get-GPInheritance",
+  "Get-SmbServerConfiguration","Get-WindowsOptionalFeature","Get-NetTCPConnection","Get-SmbSession","Set-SmbServerConfiguration",
+  "Get-ADReplicationFailure","Get-HotFix"
 ];
 export const createVirtualServer = (): VirtualServer => ({
   hostname:"WIN-SERVER",pendingHostname:null,ipv4:"192.168.10.50",gateway:"192.168.10.1",dns:"192.168.10.1",
   features:[],domain:null,ous:[],groups:[],users:[],memberships:{},records:{},scope:null,authorizedDhcp:false,
   folders:[],shares:[],permissions:[],firewallRules:[],services:{WinRM:"Running"},
-  backups:0,events:["Windows Server 2025 training machine started."],completed:[]
+  backups:0,events:["Windows Server 2025 training machine started."],completed:[],
+  gpos:["Default Domain Policy","Default Domain Controllers Policy"],gpoLinks:{},smb1Enabled:false
 });
 export type Execution = { state: VirtualServer; output: string; error?: string };
 const tokenize = (input: string): string[] => (input.match(/"[^"]*"|'[^']*'|\S+/g) ?? []).map(item => item.replace(/^["']|["']$/g, ""));
@@ -146,7 +179,7 @@ export function executePowerShell(current: VirtualServer, raw: string): Executio
     case "test-netconnection": return ok("ComputerName     : "+(tokens[1]||state.ipv4)+"\nRemoteAddress    : "+state.ipv4+"\nPingSucceeded    : True (virtual lab only)");
     case "get-windowsfeature": {const name=get(tokens,"Name");const list=name?[name]:["AD-Domain-Services","DNS","DHCP","Web-Server","Windows-Server-Backup"];return ok("Display Name                       Name                    Install State\n"+list.map(x=>x.padEnd(33)+x.padEnd(24)+(has(state,x)?"Installed":"Available")).join("\n"));}
     case "install-windowsfeature": {const name=get(tokens,"Name");if(!["ad-domain-services","dhcp","web-server","windows-server-backup"].includes(name.toLowerCase()))return fail("This lab supports AD-Domain-Services, DHCP, Web-Server and Windows-Server-Backup.");if(!has(state,name)) state.features.push(name);if(name.toLowerCase()==="web-server") state.services.W3SVC="Stopped";return ok("Success : True\nRestart Needed : No\nFeature Result : "+name,"Role installed: "+name);}
-    case "install-addsforest": {const domain=get(tokens,"DomainName");if(!has(state,"AD-Domain-Services"))return fail("Prerequisite not met: Install AD-Domain-Services first.");if(state.dns!==state.ipv4)return fail("DNS client must target the domain controller IP in this isolated lab.");if(!/^[a-z0-9-]+\.[a-z0-9.-]+$/i.test(domain))return fail("Use -DomainName with a valid DNS name.");state.domain=domain.toLowerCase();state.records["tw-dc01."+state.domain]=state.ipv4;if(!has(state,"DNS"))state.features.push("DNS");return ok("ADDSDeployment: Success (simulated)\nForest : "+state.domain+"\nDNS    : Integrated\nNOTE: No real credential/restart has been performed.","New AD forest: "+domain);}
+    case "install-addsforest": {const domain=get(tokens,"DomainName");if(!has(state,"AD-Domain-Services"))return fail("Prerequisite not met: Install AD-Domain-Services first.");if(state.dns!==state.ipv4)return fail("DNS client must target the domain controller IP in this isolated lab.");if(!/^[a-z0-9-]+\.[a-z0-9.-]+$/i.test(domain))return fail("Use -DomainName with a valid DNS name.");state.domain=domain.toLowerCase();state.records["tw-dc01."+state.domain]=state.ipv4;if(!has(state,"DNS"))state.features.push("DNS");state.services.Netlogon="Running";return ok("ADDSDeployment: Success (simulated)\nForest : "+state.domain+"\nDNS    : Integrated\nNOTE: No real credential/restart has been performed.","New AD forest: "+domain);}
     case "get-addomain": return domainError?fail(domainError):ok("DNSRoot       : "+state.domain+"\nNetBIOSName   : "+state.domain!.split(".")[0].toUpperCase()+"\nDomainMode    : Windows2016Domain (simulated)");
     case "new-adorganizationalunit": {if(domainError)return fail(domainError);const name=get(tokens,"Name");if(!name)return fail("Missing -Name.");if(!state.ous.includes(name))state.ous.push(name);return ok("OU="+name+",DC="+state.domain!.split(".").join(",DC="),"OU created: "+name);}
     case "get-adorganizationalunit": return domainError?fail(domainError):ok(textRows(state.ous.map(ou=>"OU="+ou+",DC="+state.domain!.split(".").join(",DC="))));
@@ -170,8 +203,56 @@ export function executePowerShell(current: VirtualServer, raw: string): Executio
     case "get-netfirewallprofile": return ok("Name    Enabled  DefaultInboundAction\nDomain  True     Block\nPrivate True     Block\nPublic  True     Block");
     case "new-netfirewallrule": {const name=get(tokens,"DisplayName");if(!name||get(tokens,"LocalPort")!=="8080"||get(tokens,"Profile").toLowerCase()!=="domain"||get(tokens,"Action").toLowerCase()!=="allow")return fail("Training task expects a Domain-profile TCP 8080 Allow rule.");if(!state.firewallRules.includes(name))state.firewallRules.push(name);return ok("DisplayName : "+name+"\nEnabled : True\nProfile : Domain\nAction : Allow","Firewall rule created.");}
     case "get-netfirewallrule": {const name=get(tokens,"DisplayName");const rules=name?state.firewallRules.filter(r=>r===name):state.firewallRules;return rules.length?ok(textRows(rules.map(r=>"DisplayName : "+r+"\nEnabled : True"))):fail("No matching firewall rule found.");}
+    case "get-addefaultdomainpasswordpolicy": return domainError?fail(domainError):ok("Domain : "+state.domain+"\nComplexityEnabled : True\nMinPasswordLength : 12 (training policy)\nLockoutThreshold : 5 (training policy)\nNOTE: These are simulated, not production security settings.");
+    case "get-addomaincontroller": return domainError?fail(domainError):ok("HostName : "+state.hostname.toLowerCase()+"."+state.domain+"\nSite : Default-First-Site-Name\nIsGlobalCatalog : True\nNOTE: This lab has only one simulated DC.");
+    case "get-gpo": return domainError?fail(domainError):ok(textRows(state.gpos.map(name=>"DisplayName : "+name+"\nGpoStatus : AllSettingsEnabled (simulated)")));
+    case "new-gpo": {
+      if(domainError)return fail(domainError);const name=get(tokens,"Name");
+      if(!name)return fail("Specify -Name.");if(state.gpos.includes(name))return fail("GPO already exists: "+name);
+      state.gpos.push(name);return ok("DisplayName : "+name+"\nDomainName : "+state.domain+"\nLinks : 0","GPO created: "+name);
+    }
+    case "new-gplink": {
+      if(domainError)return fail(domainError);const name=get(tokens,"Name"),target=get(tokens,"Target");
+      if(!state.gpos.includes(name))return fail("GPO not found; create it first.");
+      if(!state.ous.some(ou=>target.toLowerCase().startsWith("ou="+ou.toLowerCase()+",")))return fail("Create the destination OU first.");
+      state.gpoLinks[target]=Array.from(new Set([...(state.gpoLinks[target]||[]),name]));
+      return ok("Target : "+target+"\nDisplayName : "+name+"\nLinkEnabled : Yes","GPO link created: "+name);
+    }
+    case "get-gpinheritance": {
+      if(domainError)return fail(domainError);const target=get(tokens,"Target");
+      if(!target)return fail("Specify -Target.");
+      return ok("Target : "+target+"\nGpoLinks : "+textRows(state.gpoLinks[target]||[])+"\nNOTE: No client-side policy processing is simulated.");
+    }
+    case "get-smbserverconfiguration": return ok("EnableSMB1Protocol : "+state.smb1Enabled+"\nEnableSMB2Protocol : True\nEnableSecuritySignature : True\nRequireSecuritySignature : True\nTRAINING baseline — verify production separately.");
+    case "get-windowsoptionalfeature": {
+      if(get(tokens,"FeatureName").toLowerCase()!=="smb1protocol"||!tokens.some(t=>t.toLowerCase()==="-online"))return fail("Use -Online -FeatureName SMB1Protocol.");
+      return ok("FeatureName : SMB1Protocol\nState : "+(state.smb1Enabled?"Enabled":"Disabled")+"\nNOTE: Virtual feature state only.");
+    }
+    case "get-nettcpconnection": {
+      if(get(tokens,"LocalPort")!=="445")return fail("This lab supports -LocalPort 445.");
+      return ok(state.shares.length?"LocalAddress : 0.0.0.0\nLocalPort : 445\nState : Listen (virtual SMB service)":"No TCP 445 listener recorded in virtual training state.");
+    }
+    case "get-smbsession": return ok("No SMB sessions: this browser simulation has no real remote clients.");
+    case "set-smbserverconfiguration": {
+      const value=get(tokens,"EnableSMB1Protocol");
+      if(value.toLowerCase()!=="$false")return fail("Training-only safeguard: only disabling SMB1 (-EnableSMB1Protocol $false) is supported.");
+      state.smb1Enabled=false;return ok("EnableSMB1Protocol : False\nNOTE: Simulated SMB1 server configuration updated.","SMB1 disabled in training state.");
+    }
+    case "get-mpthreatdetection": return ok("No detections in this fictitious training dataset; this is NOT proof the host is safe.");
+    case "get-adreplicationfailure": {
+      if(domainError)return fail(domainError);if(get(tokens,"Target").toLowerCase()!==state.hostname.toLowerCase())return fail("Target must match the training domain controller hostname.");
+      return ok("0 failures in this single-domain-controller lab. NOT a ZeroLogon compliance check.");
+    }
+    case "get-hotfix": return ok("Source : SIMULATED TRAINING BASELINE\nPatch compliance cannot be established in this browser lab.\nIn production: inspect OS build and published security updates for MS17-010 and CVE-2020-1472.");
     case "get-mpcomputerstatus": return ok("AMServiceEnabled        : True\nAntivirusEnabled        : True\nRealTimeProtectionEnabled: True\nNOTE: simulated values; this does not inspect your device.");
-    case "get-winevent": return ok(textRows(state.events.slice(0,Math.max(1,Math.min(20,Number(get(tokens,"MaxEvents")||5)))).map((event,i)=>"Information  Id "+(1000+i)+"  "+event)));
+    case "get-winevent": {
+      const name=get(tokens,"LogName"),count=Math.max(1,Math.min(20,Number(get(tokens,"MaxEvents")||5)));
+      if(name.toLowerCase()==="security")return ok(["SIMULATED SECURITY EVENT LOG — no real credentials were processed.",
+        "Information Id 4624   Example: lab user successfully authenticated (demonstration only)",
+        "Warning     Id 4625   Example: invalid logon credentials (demonstration only)"].slice(0,count+1).join("\n"));
+      if(name.toLowerCase()!=="system")return fail("Training logs support -LogName System or Security.");
+      return ok(textRows(state.events.slice(0,count).map((event,i)=>"Information  Id "+(1000+i)+"  "+event))+"\nNo Netlogon 5827/5828 events are present in this fictional log.");
+    }
     case "wbadmin": {
       const action=(tokens[1]||"").toLowerCase();
       if(action==="start"&&(tokens[2]||"").toLowerCase()==="backup"){if(!has(state,"Windows-Server-Backup"))return fail("Install Windows-Server-Backup before creating a backup.");if(!tokens.some(t=>t.toLowerCase().startsWith("-backuptarget:"))||!tokens.some(t=>t.toLowerCase().startsWith("-include:")))return fail("Specify -backupTarget and -include.");state.backups+=1;return ok("Backup completed successfully (SIMULATED). Version: "+state.backups,"Virtual backup #"+state.backups+" recorded.");}
