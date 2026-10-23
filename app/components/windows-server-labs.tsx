@@ -19,7 +19,7 @@ export function WindowsServerLabs({ userId, legacy }: { userId: string | null; l
       <span aria-hidden="true" style={{fontSize:"27px"}}>⌨</span>
       <span style={{display:"grid",gap:"4px",flex:1}}>
         <strong>Windows Server PowerShell — Interactive Simulator</strong>
-        <small style={{color:"#a8d3e0"}}>39 guided commands · AD DS · DNS · DHCP · SMB · Firewall · Backup · Safe virtual terminal</small>
+        <small style={{color:"#a8d3e0"}}>56 guided commands · AD DS · DNS · DHCP · SMB · Firewall · Backup · Safe virtual terminal</small>
       </span>
       <span aria-hidden="true">↗</span>
     </a>

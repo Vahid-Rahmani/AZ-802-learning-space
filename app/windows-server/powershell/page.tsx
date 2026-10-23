@@ -46,13 +46,40 @@ const translations: Record<string, string> = {
   events:"Event Log سیستم را برای عیب‌یابی سرویس‌ها و خطاها بررسی کن.",
   backupfeature:"قابلیت Windows Server Backup را نصب کن.",
   backup:"یک Backup آموزشی ثبت کن؛ این خروجی فایل پشتیبان واقعی و قابل Restore تولید نمی‌کند.",
-  versions:"تاریخچه Backupها را ببین و در محیط واقعی آزمایش Restore را نیز انجام بده."
+  versions:"تاریخچه Backupها را ببین و در محیط واقعی آزمایش Restore را نیز انجام بده.",
+  adpasswordpolicy:"سیاست رمز عبور دامنه را بررسی کن. در NTLM پاسخ چالش محاسبه می‌شود؛ رمز عبور یا هش خام مستقیماً ارسال نمی‌شود. Kerberos مکانیزم Ticket دارد.",
+  adcontroller:"Domain Controller را پیدا کن و تفاوت نقش DC در Kerberos و NTLM را یاد بگیر.",
+  netlogon:"سرویس Netlogon را بررسی کن. روشن بودن آن به‌تنهایی اثبات نمی‌کند Zerologon وصله شده است.",
+  listgpo:"همه Group Policy Objectهای موجود در دامنه را بخوان.",
+  creategpo:"یک GPO جدید به‌عنوان Security Baseline بساز؛ هنوز روی هیچ کامپیوتری اعمال نشده است.",
+  linkgpo:"Baseline را به OU کارکنان لینک کن. لینک با اعمال واقعی Policy روی کلاینت فرق دارد.",
+  gporesult:"لینک‌ها و وراثت GPO را روی OU بررسی کن.",
+  securityevents:"لاگ امنیتی Windows را برای رویدادهای ورود موفق و ناموفق بخوان؛ داده‌های نمایش‌داده‌شده تمرینی هستند.",
+  smbconfig:"وضعیت SMBv1، SMBv2 و SMB Signing را بخوان؛ آسیب‌پذیری‌های تاریخی SMB در حملات WannaCry اهمیت داشته‌اند.",
+  optionalfeature:"بررسی کن SMB1Protocol روی Windows Server جدید غیرفعال است.",
+  port445:"وجود TCP 445 را بررسی کن؛ باز بودن این پورت به‌تنهایی به معنی آسیب‌پذیری نیست.",
+  smbsessions:"نشست‌های SMB را بررسی کن؛ در شبیه‌ساز مرورگر هیچ کلاینت واقعی وصل نیست.",
+  smblockdown:"SMBv1 را در تنظیمات مجازی غیرفعال نگه دار. این فرمان روی سرور واقعی اجرا نمی‌شود.",
+  defenderthreats:"فهرست تشخیص‌های Windows Defender را بررسی کن. خالی بودن فهرست تضمین امنیت نیست.",
+  replicationaudit:"سلامت Replication را بررسی کن. نبود خطا به‌هیچ‌وجه نشان‌دهنده بسته شدن آسیب‌پذیری Zerologon نیست.",
+  hotfixes:"فهرست به‌روزرسانی‌ها را بخوان؛ این خروجی فقط آموزشی است و برای تأیید واقعی MS17-010 و CVE-2020-1472 کافی نیست.",
+  netlogonlogs:"در لاگ System دنبال رویدادهای Netlogon مانند 5827 یا 5828 باش. نبود رویداد اثبات امن بودن سیستم نیست."
 };
 const safeRestore = (): VirtualServer => {
   if (typeof window === "undefined") return createVirtualServer();
   try {
     const saved = JSON.parse(window.localStorage.getItem(STORAGE) || "null") as VirtualServer | null;
-    if (saved && typeof saved.hostname === "string" && Array.isArray(saved.completed) && Array.isArray(saved.features) && Array.isArray(saved.users)) return saved;
+    if (saved && typeof saved.hostname === "string" && Array.isArray(saved.completed) && Array.isArray(saved.features) && Array.isArray(saved.users)) {
+      // Forward-compatible hydration: keep existing learner progress across new modules.
+      const defaults = createVirtualServer();
+      return {
+        ...defaults, ...saved,
+        gpos: Array.isArray(saved.gpos) ? saved.gpos : defaults.gpos,
+        gpoLinks: saved.gpoLinks && typeof saved.gpoLinks === "object" ? saved.gpoLinks : defaults.gpoLinks,
+        smb1Enabled: typeof saved.smb1Enabled === "boolean" ? saved.smb1Enabled : false,
+        services: { ...defaults.services, ...saved.services }
+      };
+    }
   } catch { /* Corrupted progress should not break the lab. */ }
   return createVirtualServer();
 };
