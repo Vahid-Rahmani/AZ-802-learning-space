@@ -88,13 +88,17 @@ try {
   localStorage.setItem(`wincraft-progress:${identity}`, JSON.stringify({ translationVersion: 2, translationLanguage: "", totalProgress: 47, selectedLessonId: lessons[0].id, answerStats: { correct: 8, total: 10 }, domainStats: { [trainingStages[0].domain]: { correct: 8, total: 10 } } }));
   requests.length = 0;
   await mount(Home);
+  assert.equal(container.querySelectorAll(".portal-course-card").length, portalCourses.length, "session hydration should retain the landing catalogue");
+  await click(button("My dashboard"));
   assert.equal(container.querySelector('.portal-next-lesson progress').value, 47, "existing progress was not restored");
   assert.equal(container.querySelectorAll("h1").length, 1);
   assert.ok(container.querySelector(".app-sidebar .simple-navigation"), "existing menus were removed");
   const writes = requests.filter(request => request.url === "/api/progress" && request.method === "PUT");
   assert.ok(writes.length); assert.ok(writes.every(request => JSON.parse(request.body).completionPercent === 47), "empty initial state overwrote saved progress");
   await click(button("Continue learning")); assert.equal(container.querySelector(".klybit-portal"), null); assert.match(container.querySelector("h1").textContent, /Learning/);
-  await click(button("Home")); assert.ok(container.querySelector(".portal-progress"));
+  await click(button("Home"));
+  assert.equal(container.querySelectorAll(".portal-course-card").length, portalCourses.length);
+  await click(button("My dashboard")); assert.ok(container.querySelector(".portal-progress"));
   await click(button("Question practice")); assert.ok(container.querySelector(".quiz-workspace"), "practice CTA not connected to the real quiz");
   assert.equal(JSON.parse(localStorage.getItem(`wincraft-progress:${identity}`)).totalProgress, 47);
   await unmount();

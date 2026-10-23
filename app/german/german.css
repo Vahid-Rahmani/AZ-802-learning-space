@@ -5,6 +5,16 @@
 .german-sidebar-note { margin-top: 30px; padding: 14px; border: 1px solid var(--cp-line); border-radius: 12px; color: var(--cp-muted); font-size: 12px; line-height: 1.8; }
 .german-sidebar-note strong { color: var(--cp-accent); }
 .german-workspace { font-size: calc(14px * var(--wincraft-font-scale,1)); }
+.german-game-entry { display: flex; align-items: center; gap: 16px; margin: 14px 0; padding: 18px 20px; border: 1px solid var(--cp-line); border-radius: 12px; background: var(--cp-surface); color: var(--cp-text); text-decoration: none; }
+.german-game-entry:hover { border-color: var(--cp-accent); }
+.german-game-entry:focus-visible { outline: 2px solid var(--cp-accent); outline-offset: 3px; }
+.german-game-entry > span:nth-child(2) { display: grid; gap: 5px; min-width: 0; }
+.german-game-entry small { font-size: 9px; letter-spacing: .06em; color: var(--cp-accent); }
+.german-game-entry strong { font-size: 16px; }
+.german-game-entry > span:nth-child(2) > span { font-size: 12px; color: var(--cp-muted); line-height: 1.6; }
+.german-game-entry > svg { margin-left: auto; flex-shrink: 0; color: var(--cp-accent); }
+.german-game-mark { display: grid; place-items: center; position: relative; width: 48px; height: 48px; flex: 0 0 48px; border-radius: 13px; background: #142b4f; color: #fff; font-size: 29px; font-weight: 750; }
+.german-game-mark span { position: absolute; top: 1px; right: 5px; font-size: 16px; color: #8db5ff; }
 .german-intro { display: flex; justify-content: space-between; gap: 24px; align-items: center; border: 1px solid var(--cp-line); border-radius: 14px; padding: 22px; background: linear-gradient(125deg,var(--cp-selected),var(--cp-alt)); }
 .german-eyebrow { font-size: 10px; letter-spacing: .07em; color: var(--cp-accent); font-weight: 700; }
 .german-intro h2 { font-size: 25px; margin: 7px 0; letter-spacing: -.02em; }

@@ -1,0 +1,323 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Original reviewed design graph plus two-case release record; unreleased proposals are not implemented capability",
+  "release": {
+    "route": "/german/satztat",
+    "implemented_cases": 2,
+    "planned_campaign_cases": 24,
+    "review": "APPROVED FOR THE TWO-CASE PLAYABLE RELEASE",
+    "engine": "lib/satztat-engine.ts",
+    "workspace": "app/components/satztat-workspace.tsx",
+    "visual_browser_qa": "not_available"
+  },
+  "source_file": "content/satztat-network-plan.md",
+  "usage": {
+    "host_model_tokens": "not_available",
+    "external_indexing_api_calls": 0
+  },
+  "nodes": [
+    {
+      "id": "satztat_plan",
+      "label": "SatzTat network learning plan",
+      "type": "plan",
+      "implementation_status": "documented",
+      "source_file": "content/satztat-network-plan.md",
+      "source_location": "section 1"
+    },
+    {
+      "id": "satztat_route",
+      "label": "SatzTat companion route /german/satztat",
+      "type": "planned_feature",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md",
+      "source_location": "section 8"
+    },
+    {
+      "id": "satztat_dns_pilot",
+      "label": "SatzTat DNS incident pilot",
+      "type": "planned_feature",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md",
+      "source_location": "section 4"
+    },
+    {
+      "id": "satztat_technical_state",
+      "label": "SatzTat authored network state and evidence",
+      "type": "planned_feature",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md",
+      "source_location": "section 4"
+    },
+    {
+      "id": "satztat_language",
+      "label": "SatzTat bounded language assessment",
+      "type": "planned_feature",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md",
+      "source_location": "section 5"
+    },
+    {
+      "id": "satztat_progress",
+      "label": "SatzTat separate progress and assistance provenance",
+      "type": "planned_feature",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md",
+      "source_location": "section 8"
+    },
+    {
+      "id": "satztat_transfer",
+      "label": "SatzTat unseen transfer and delayed review",
+      "type": "planned_feature",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md",
+      "source_location": "sections 5 and 8"
+    },
+    {
+      "id": "satztat_campaign",
+      "label": "SatzTat 24 network missions",
+      "type": "planned_content",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md",
+      "source_location": "section 6"
+    },
+    {
+      "id": "satztat_visuals",
+      "label": "SatzTat responsive SVG scene and evidence tray",
+      "type": "planned_feature",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md",
+      "source_location": "section 7"
+    },
+    {
+      "id": "satztat_media",
+      "label": "SatzTat optional evidence media with provenance",
+      "type": "planned_content",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md",
+      "source_location": "section 7"
+    },
+    {
+      "id": "satztat_acceptance",
+      "label": "SatzTat pilot acceptance gates",
+      "type": "plan",
+      "implementation_status": "documented_not_tested",
+      "source_file": "content/satztat-network-plan.md",
+      "source_location": "section 9"
+    },
+    {
+      "id": "satztat_agent_review",
+      "label": "SatzTat independent plan review",
+      "type": "review",
+      "implementation_status": "completed_plan_review_only",
+      "source_file": "content/satztat-network-plan.md",
+      "source_location": "section 10"
+    },
+    {
+      "id": "satztat_ref_german_page",
+      "label": "SatzTat verified reference: GermanPage",
+      "type": "source_reference",
+      "implementation_status": "existing_reference",
+      "references_existing_id": "app_german_page_germanpage",
+      "referenced_file": "app/german/page.tsx",
+      "source_file": "content/satztat-network-plan.md",
+      "source_location": "section 3"
+    },
+    {
+      "id": "satztat_ref_german_workspace",
+      "label": "SatzTat protected existing GermanWorkspace",
+      "type": "source_reference",
+      "implementation_status": "existing_reference",
+      "references_existing_id": "app_german_page_germanworkspace",
+      "referenced_file": "app/german/page.tsx",
+      "source_file": "content/satztat-network-plan.md",
+      "source_location": "section 3"
+    },
+    {
+      "id": "satztat_ref_normalize",
+      "label": "SatzTat normalization reuse candidate",
+      "type": "source_reference",
+      "implementation_status": "existing_reference",
+      "references_existing_id": "lib_german_learning_engine_normalizegermantext",
+      "referenced_file": "lib/german-learning-engine.ts",
+      "source_file": "content/satztat-network-plan.md",
+      "source_location": "section 3"
+    },
+    {
+      "id": "satztat_ref_feedback",
+      "label": "SatzTat post-submission feedback reuse candidate",
+      "type": "source_reference",
+      "implementation_status": "existing_reference",
+      "references_existing_id": "lib_german_learning_engine_comparetypedcharacters",
+      "referenced_file": "lib/german-learning-engine.ts",
+      "source_file": "content/satztat-network-plan.md",
+      "source_location": "section 3"
+    },
+    {
+      "id": "satztat_ref_header",
+      "label": "SatzTat shared StudyHeader reuse candidate",
+      "type": "source_reference",
+      "implementation_status": "existing_reference",
+      "references_existing_id": "app_components_study_header_studyheader",
+      "referenced_file": "app/components/study-header.tsx",
+      "source_file": "content/satztat-network-plan.md",
+      "source_location": "section 3"
+    },
+    {
+      "id": "satztat_ref_recall",
+      "label": "SatzTat protected lesson recall state",
+      "type": "source_reference",
+      "implementation_status": "existing_reference",
+      "references_existing_id": "lib_german_learning_engine_recordgermanattempt",
+      "referenced_file": "lib/german-learning-engine.ts",
+      "source_file": "content/satztat-network-plan.md",
+      "source_location": "section 3"
+    }
+  ],
+  "edges": [
+    {
+      "source": "satztat_plan",
+      "target": "satztat_route",
+      "relation": "proposes",
+      "confidence": "EXTRACTED",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md"
+    },
+    {
+      "source": "satztat_route",
+      "target": "satztat_ref_german_page",
+      "relation": "proposes_reusing_auth_shell_pattern",
+      "confidence": "EXTRACTED",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md"
+    },
+    {
+      "source": "satztat_route",
+      "target": "satztat_ref_header",
+      "relation": "proposes_reusing",
+      "confidence": "EXTRACTED",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md"
+    },
+    {
+      "source": "satztat_plan",
+      "target": "satztat_dns_pilot",
+      "relation": "proposes_first_vertical_slice",
+      "confidence": "EXTRACTED",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md"
+    },
+    {
+      "source": "satztat_dns_pilot",
+      "target": "satztat_technical_state",
+      "relation": "requires_separate_technical_checks",
+      "confidence": "EXTRACTED",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md"
+    },
+    {
+      "source": "satztat_dns_pilot",
+      "target": "satztat_language",
+      "relation": "requires_separate_language_checks",
+      "confidence": "EXTRACTED",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md"
+    },
+    {
+      "source": "satztat_language",
+      "target": "satztat_ref_normalize",
+      "relation": "proposes_reusing",
+      "confidence": "EXTRACTED",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md"
+    },
+    {
+      "source": "satztat_language",
+      "target": "satztat_ref_feedback",
+      "relation": "permits_only_assisted_or_post_submit_use",
+      "confidence": "EXTRACTED",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md"
+    },
+    {
+      "source": "satztat_dns_pilot",
+      "target": "satztat_progress",
+      "relation": "requires_separate_save_namespace",
+      "confidence": "EXTRACTED",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md"
+    },
+    {
+      "source": "satztat_progress",
+      "target": "satztat_ref_recall",
+      "relation": "must_not_overwrite_or_relabel",
+      "confidence": "EXTRACTED",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md"
+    },
+    {
+      "source": "satztat_progress",
+      "target": "satztat_ref_german_workspace",
+      "relation": "must_preserve_existing_lessons",
+      "confidence": "EXTRACTED",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md"
+    },
+    {
+      "source": "satztat_progress",
+      "target": "satztat_transfer",
+      "relation": "records_distinct_evidence_and_due_dates",
+      "confidence": "EXTRACTED",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md"
+    },
+    {
+      "source": "satztat_dns_pilot",
+      "target": "satztat_visuals",
+      "relation": "proposes_inspectable_scene",
+      "confidence": "EXTRACTED",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md"
+    },
+    {
+      "source": "satztat_visuals",
+      "target": "satztat_media",
+      "relation": "optionally_augmented_after_pilot",
+      "confidence": "EXTRACTED",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md"
+    },
+    {
+      "source": "satztat_campaign",
+      "target": "satztat_acceptance",
+      "relation": "expansion_blocked_until_pilot_passes",
+      "confidence": "EXTRACTED",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md"
+    },
+    {
+      "source": "satztat_dns_pilot",
+      "target": "satztat_acceptance",
+      "relation": "must_satisfy",
+      "confidence": "EXTRACTED",
+      "implementation_status": "proposed",
+      "source_file": "content/satztat-network-plan.md"
+    },
+    {
+      "source": "satztat_plan",
+      "target": "satztat_campaign",
+      "relation": "documents_24_case_outline",
+      "confidence": "EXTRACTED",
+      "implementation_status": "documented",
+      "source_file": "content/satztat-network-plan.md"
+    },
+    {
+      "source": "satztat_agent_review",
+      "target": "satztat_plan",
+      "relation": "reviews_concept_with_required_revisions",
+      "confidence": "EXTRACTED",
+      "implementation_status": "completed_plan_review_only",
+      "source_file": "content/satztat-network-plan.md"
+    }
+  ],
+  "hyperedges": []
+}

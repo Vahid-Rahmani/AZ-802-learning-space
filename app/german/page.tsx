@@ -44,6 +44,7 @@ export default function GermanPage() {
     <div className="app-shell german-shell">
       <aside className="app-sidebar"><AppBrand subtitle="Learn. Practice. Progress." /><SimpleNavigation active="german" items={[
         { key: "german", label: "German for IT", href: "/german", icon: <Languages size={18} /> },
+        { key: "satztat", label: "SatzTat · Network missions", href: "/german/satztat", icon: <ChevronRight size={18} /> },
         { key: "home", label: "Windows Server", href: "/", icon: <BookOpen size={18} /> },
         { key: "linux", label: "Linux practice", href: "/linux", icon: <ChevronRight size={18} /> },
       ]} /><div className="german-sidebar-note"><strong>B1 → B2 bridge · IT context</strong><p><GoogleSubtitle text="Remember a pattern. Use it in a new situation. Return when your review is due." /></p><p>{germanLessons.length} lessons · {germanUnits.length} units</p></div></aside>
@@ -176,6 +177,7 @@ export function GermanWorkspace({ userId }: { userId: string }) {
   const mistakes = typedCharacters.filter(character => character.status === "incorrect").length;
   if (!ready) return <p role="status">Loading your saved German practice…</p>;
   return <div className="german-workspace">
+    <a className="german-game-entry" href="/german/satztat"><span className="german-game-mark" aria-hidden="true">S<span>↗</span></span><span><small>NEW · INTERACTIVE NETWORK CASES</small><strong>SatzTat · Detect. Repair. Explain.</strong><span>Investigate a network incident, then write the German handover.</span></span><ArrowRight size={20} aria-hidden="true" /></a>
     <section className="german-intro"><div><p className="german-eyebrow">GERMAN FOR IT · B1 → B2 BRIDGE</p><h2><GoogleSubtitle text="From a sentence to a professional IT handover." /></h2><p><GoogleSubtitle text="Start with useful patterns. Progress to multi-sentence tickets, change reports and complete emails, with spaced recall and guided writing self-review." /></p></div><div className="german-progress"><strong>{reviewed}/{germanLessons.length}</strong><span>lessons recalled independently</span><progress value={reviewed} max={germanLessons.length} aria-label="Lessons recalled independently" /></div></section>
     <div className="german-metrics"><div><span>Practice</span><strong>{summary.practicedLessons}<small>/{germanLessons.length} lessons</small></strong></div><div><span>Independent recall</span><strong>{summary.independentRecallPasses}<small>successful attempts</small></strong></div><div><span>Writing</span><strong>{summary.writingReviews}<small>self-reviews</small></strong></div><div><span>Due today</span><strong>{due.length}<small>+ {summary.newLessons} new</small></strong></div></div>
     <div className="german-toolbar"><span role="status">{saveStatus}</span><button type="button" onClick={() => { setListView("due"); if (due[0]) selectLesson(due[0].id); }}>Review due ({due.length})</button><button type="button" onClick={reset}><RotateCcw size={14} />Reset German practice</button></div>
