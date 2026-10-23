@@ -31,9 +31,10 @@ export type PortalProgress = {
   onReview: () => void;
 };
 
-export function LearningPortal({ questionCount, onSignIn, onWindowsServer, onPractice, progress }: {
+export function LearningPortal({ questionCount, onSignIn, onDashboard, onWindowsServer, onPractice, progress }: {
   questionCount: number;
   onSignIn?: () => void;
+  onDashboard?: () => void;
   onWindowsServer: () => void;
   onPractice?: () => void;
   progress?: PortalProgress;
@@ -50,7 +51,7 @@ export function LearningPortal({ questionCount, onSignIn, onWindowsServer, onPra
     {!progress && <header className="portal-navigation">
       <a href="/" aria-label="Klybit home" className="portal-brand-link"><AppBrand subtitle="Learn. Practice. Progress." /></a>
       <nav aria-label="Explore Klybit"><a href={`#${catalogId}`}>Learning paths</a><a href={`#${howId}`}>How it works</a></nav>
-      <button type="button" className="portal-nav-signin" onClick={onSignIn}>Sign in <ArrowRight size={16} aria-hidden="true" /></button>
+      <button type="button" className="portal-nav-signin" onClick={onDashboard ?? onSignIn}>{onDashboard ? "My dashboard" : "Sign in"} <ArrowRight size={16} aria-hidden="true" /></button>
     </header>}
 
     <section className="portal-hero" aria-labelledby="portal-title">
@@ -62,6 +63,7 @@ export function LearningPortal({ questionCount, onSignIn, onWindowsServer, onPra
         <div className="portal-hero-actions">
           <button type="button" className="portal-button portal-button--primary" onClick={progress?.onPractice ?? onPractice ?? onWindowsServer}><GoogleSubtitle text={progress ? "Practise Windows Server" : "Start practising"} /><ArrowRight size={18} aria-hidden="true" /></button>
           <a className="portal-button portal-button--outline" href={`#${catalogId}`}><GoogleSubtitle text="Browse learning paths" /></a>
+          <a className="portal-button portal-button--outline" href="/windows-server/powershell"><Terminal size={17} aria-hidden="true" /><GoogleSubtitle text="PowerShell simulator" /></a>
         </div>
         <ul className="portal-hero-points"><li><Check size={15} aria-hidden="true" /><GoogleSubtitle text={`${portalCourses.length} learning paths`} /></li><li><Check size={15} aria-hidden="true" /><GoogleSubtitle text="Detailed explanations" /></li><li><Check size={15} aria-hidden="true" /><GoogleSubtitle text="Learn at your own pace" /></li></ul>
       </div>
