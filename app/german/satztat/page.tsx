@@ -34,6 +34,7 @@ export default function SatztatPage() {
     <div className="app-shell german-shell">
       <aside className="app-sidebar"><AppBrand subtitle="Learn. Practice. Progress." /><SimpleNavigation active="satztat" items={[
         { key: "satztat", label: "SatzTat missions", href: "/german/satztat", icon: <Network size={18} /> },
+        { key: "grammar", label: "SatzTat · پرونده‌های گرامر", href: "/german/grammar-cases", icon: <BookOpen size={18} /> },
         { key: "german", label: "German lessons", href: "/german", icon: <BookOpen size={18} /> },
         { key: "home", label: "All learning paths", href: "/", icon: <ArrowLeft size={18} /> },
       ]} /><div className="german-sidebar-note"><strong>One incident. Two skills.</strong><p>Repair the network. Explain the outcome in German.</p><p>2 playable cases · a focused pilot, not the entire planned campaign.</p></div></aside>
