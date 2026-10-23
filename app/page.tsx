@@ -18,7 +18,7 @@ import { MobileNavigation } from "@/app/components/mobile-navigation";
 import { WindowsServerLabs } from "@/app/components/windows-server-labs";
 
 type Language = "fa" | "en" | "de";
-type View = "practice" | "home" | "lesson" | "graph" | "search" | "bank" | "exams" | "quiz" | "practical" | "labs" | "cards";
+type View = "practice" | "home" | "dashboard" | "lesson" | "graph" | "search" | "bank" | "exams" | "quiz" | "practical" | "labs" | "cards";
 type ExamModeChoice = ExamMode;
 type QuizMode = ExamMode | "practice" | "exam";
 const TRANSLATION_VERSION = 2;
@@ -166,7 +166,8 @@ export default function Home() {
       }
       const sameSession = Boolean(serverSessionId && saved.sessionId && serverSessionId === saved.sessionId);
       const restoredIndex = sameSession ? saved.questionIndex : (serverIndex ?? saved.questionIndex);
-      setQuizMode(saved.mode); setExamSessionId(serverSessionId ?? saved.sessionId ?? null); setExamExpiresAt(serverExpiresAt ?? saved.expiresAt ?? null); setQuizStarted(true); setSelectedSkillId(saved.selectedSkillId ?? null); setSelectedDomain(saved.selectedDomain ?? null); setQuizQuestions(restoredQuestions); setAnswersByQuestion(restoredAnswers); setQuestionIndex(Math.max(0, Math.min(restoredIndex, restoredQuestions.length - 1))); setQuizAnswered(Object.keys(restoredAnswers).length); setQuizCorrect(restoredQuestions.reduce((count, item) => count + (restoredAnswers[item.id] === item.correct ? 1 : 0), 0)); setQuizFinished(Boolean(saved.quizFinished)); setViewState("quiz");
+      setQuizMode(saved.mode); setExamSessionId(serverSessionId ?? saved.sessionId ?? null); setExamExpiresAt(serverExpiresAt ?? saved.expiresAt ?? null); setQuizStarted(true); setSelectedSkillId(saved.selectedSkillId ?? null); setSelectedDomain(saved.selectedDomain ?? null); setQuizQuestions(restoredQuestions); setAnswersByQuestion(restoredAnswers); setQuestionIndex(Math.max(0, Math.min(restoredIndex, restoredQuestions.length - 1))); setQuizAnswered(Object.keys(restoredAnswers).length); setQuizCorrect(restoredQuestions.reduce((count, item) => count + (restoredAnswers[item.id] === item.correct ? 1 : 0), 0)); setQuizFinished(Boolean(saved.quizFinished)); // Restore saved quiz state without navigating away from the landing page.
+      // Resuming an exam is an explicit user choice, not a side effect of signing in.
       return true;
     };
     void (async () => {
@@ -364,6 +365,7 @@ if (labsResponse.ok) { const data = await labsResponse.json() as { submissions?:
       setAuthOpen(false);
       setUserId(null);
       setLoadedUserId(null);
+      setViewState("home");
       return true;
     } catch {
       return false;
@@ -381,6 +383,7 @@ if (labsResponse.ok) { const data = await labsResponse.json() as { submissions?:
 
   const navigation: Array<{ key: View; icon: ReactNode; label: string }> = [
     { key: "home", icon: <LayoutDashboard size={20} />, label: "Home" },
+    { key: "dashboard", icon: <BookOpen size={20} />, label: "Dashboard" },
     { key: "lesson", icon: <BookOpen size={20} />, label: "Learning" },
     { key: "practice", icon: <FlaskConical size={20} />, label: "Practice" },
     { key: "bank", icon: <Library size={20} />, label: "Question bank" },
@@ -397,14 +400,30 @@ if (labsResponse.ok) { const data = await labsResponse.json() as { submissions?:
   // A running quiz belongs to the Exams section, so that entry must stay marked
   // as the current section instead of leaving the navigation with no active item.
   const sectionView: View = ["bank", "labs", "cards", "search"].includes(view) || (view === "quiz" && quizMode === "practice") ? "practice" : view === "graph" ? "lesson" : view === "quiz" || view === "practical" ? "exams" : view;
-  const primaryNavigation = navigation.filter(item => ["home", "lesson", "bank", "labs", "exams", "cards"].includes(item.key));
+  const primaryNavigation = navigation.filter(item => ["home", "dashboard", "lesson", "bank", "labs", "exams", "cards"].includes(item.key));
   const startTimedExam = (mode: ExamModeChoice) => {
     (window as Window & { __wincraftExamMode?: ExamMode }).__wincraftExamMode = mode;
     startQuiz({ mode: "exam" });
   };
-  if (!userId) return <GoogleSubtitleProvider language={translationLanguage}><main dir="ltr"><LearningPortal questionCount={questions.length} onSignIn={() => setAuthOpen(true)} onWindowsServer={() => { setViewState("lesson"); setAuthOpen(true); }} onPractice={() => { setViewState("bank"); setAuthOpen(true); }} /></main>{authOpen && <div className="study-app" onKeyDown={event => { if (event.key === "Escape") closeAccount(); }}><AuthPanel onClose={closeAccount} onAuthenticated={(id) => { setUserId(id); setAuthOpen(false); }} /></div>}</GoogleSubtitleProvider>;
+  // Session hydration must not replace the marketing landing page.
+  if (!userId || view === "home") return <GoogleSubtitleProvider language={translationLanguage}>
+    <main dir="ltr">
+      <LearningPortal
+        questionCount={questions.length}
+        onSignIn={() => setAuthOpen(true)}
+        onDashboard={userId ? () => setViewState("dashboard") : undefined}
+        onWindowsServer={() => { setViewState("lesson"); if (!userId) setAuthOpen(true); }}
+        onPractice={() => { if (userId) openPractice(); else { setViewState("bank"); setAuthOpen(true); } }}
+      />
+    </main>
+    {authOpen && <div className="study-app" onKeyDown={event => { if (event.key === "Escape") closeAccount(); }}>
+      {userId
+        ? <AccountPanel onClose={closeAccount} onSignOut={signOut} />
+        : <AuthPanel onClose={closeAccount} onAuthenticated={(id) => { setUserId(id); setAuthOpen(false); }} />}
+    </div>}
+  </GoogleSubtitleProvider>;
   return <GoogleSubtitleProvider language={translationLanguage}><main dir="ltr" className="study-app font-scale-content min-h-screen bg-[#0b1018] text-[#e8edf5] selection:bg-cyan-300 selection:text-[#071016]" style={{ "--wincraft-font-scale": fontScale } as CSSProperties}><div className="app-shell mx-auto grid min-h-screen max-w-[1600px] grid-cols-1 lg:grid-cols-[250px_minmax(0,1fr)]"><aside className="app-sidebar border-b border-white/10 bg-[#0d1420] p-3 sm:p-4 lg:border-b-0 lg:border-e"><AppBrand subtitle="Azure & Windows Server learning" /><SimpleNavigation items={primaryNavigation} active={primaryNavigation.some(item => item.key === view) ? view : sectionView} onNavigate={key => navigate(key as View)} /></aside><section className="study-content min-w-0 px-3 pb-24 pt-3 sm:p-7 lg:p-9"><StudyHeader title={view === "home" ? "Learning dashboard" : viewLabel(view)} course="AZ-802" t={t} fontScale={fontScale} onFontScale={setFontScale} translationLanguage={translationLanguage} onTranslationLanguage={setTranslationLanguage} onAccount={() => setAuthOpen(true)} />{quizStarted && !quizFinished && quizMode === "practice" && loadedUserId === userId && <PracticeResume question={questionIndex + 1} total={quizQuestions.length} answered={Object.keys(answersByQuestion).length} active={view === "quiz"} onResume={() => resumeQuiz()} onPause={() => setViewState("practice")} />}
-      {view === "home" && <LearningPortal questionCount={questions.length} onWindowsServer={() => setView("lesson")} progress={{
+      {view === "dashboard" && <LearningPortal questionCount={questions.length} onWindowsServer={() => setView("lesson")} progress={{
         learning: totalProgress,
         answered: answerStats.total,
         correct: answerStats.correct,
