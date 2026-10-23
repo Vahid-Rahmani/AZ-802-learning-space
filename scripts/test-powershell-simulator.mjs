@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { allPowerShellSteps, createVirtualServer, executePowerShell, powerShellUnits } from "../lib/powershell-simulator.ts";
 
 let state = createVirtualServer();
-assert.equal(powerShellUnits.length, 9);
-assert.ok(allPowerShellSteps.length >= 35);
+assert.equal(powerShellUnits.length, 12);
+assert.equal(allPowerShellSteps.length, 56);
 let result = executePowerShell(state,"Get-ADDomain");
 assert.ok(result.error?.includes("ActiveDirectoryServerDownException"), "AD should require a domain");
 assert.equal(result.state, state, "Rejected commands must not mutate state");
@@ -38,6 +38,17 @@ assert.ok(state.permissions.some(p=>p.includes("GG_Buchhaltung")));
 assert.ok(state.firewallRules.includes("Intranet-8080"));
 assert.equal(state.services.W3SVC, "Running");
 assert.equal(state.backups, 1);
+assert.ok(state.gpos.includes("Baseline-Server"), "Policy created");
+assert.deepEqual(state.gpoLinks["OU=Staff,DC=techwork,DC=local"], ["Baseline-Server"], "GPO linked");
+assert.equal(state.services.Netlogon, "Running");
+assert.equal(state.smb1Enabled, false, "SMB1 must remain off");
+assert.ok(state.completed.includes("hotfixes"));
+assert.ok(executePowerShell(state,"Get-SmbServerConfiguration").output.includes("EnableSMB1Protocol : false"));
+const rejectedSmb1 = executePowerShell(state, "Set-SmbServerConfiguration -EnableSMB1Protocol $true");
+assert.ok(rejectedSmb1.error, "Enabling legacy SMB1 is not part of this safe lab");
+assert.equal(rejectedSmb1.state, state);
+const misuseGpo = executePowerShell(state, "New-GPLink -Name MissingGPO -Target OU=Staff,DC=techwork,DC=local");
+assert.ok(misuseGpo.error);
 
 const replay = executePowerShell(state, "Get-ADUser -Identity s.wagner");
 assert.ok(replay.output.includes("Sara Wagner"));
