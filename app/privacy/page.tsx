@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function PrivacyPage() {
   return (
-    <main style={{ maxWidth: 760, margin: "0 auto", padding: "48px 24px", lineHeight: 1.7 }}>
+    <main className="klybit-legal">
       <p><Link href="/">← Back to Klybit</Link></p>
       <h1>Klybit Privacy Policy</h1>
       <p>Last updated: September 29, 2026</p>

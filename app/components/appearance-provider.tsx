@@ -4,16 +4,16 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 
 type Theme = "fluent" | "classic";
 const STORAGE_KEY = "certpath-theme";
-const AppearanceContext = createContext<{ theme: Theme; setTheme: (theme: Theme) => void }>({ theme: "classic", setTheme: () => undefined });
+const AppearanceContext = createContext<{ theme: Theme; setTheme: (theme: Theme) => void }>({ theme: "fluent", setTheme: () => undefined });
 
 export function AppearanceProvider({ children }: { children: ReactNode }) {
-  const [theme, setCurrentTheme] = useState<Theme>("classic");
+  const [theme, setCurrentTheme] = useState<Theme>("fluent");
 
   useEffect(() => {
     const sync = () => {
       let stored: string | null = document.documentElement.dataset.theme ?? null;
-      try { stored = localStorage.getItem(STORAGE_KEY) ?? stored; } catch { /* Use the current theme when storage is disabled. */ }
-      const next = stored === "fluent" ? "fluent" : "classic";
+      try { stored = localStorage.getItem(STORAGE_KEY); } catch { /* Use the current theme when storage is disabled. */ }
+      const next = stored === "classic" ? "classic" : "fluent";
       document.documentElement.dataset.theme = next;
       setCurrentTheme(next);
     };
@@ -37,8 +37,8 @@ export function ThemeControl() {
   return <label className="theme-control">
     <span>Theme</span>
     <select aria-label="Theme" value={theme} onChange={(event) => setTheme(event.target.value === "classic" ? "classic" : "fluent")}>
-      <option value="fluent">Fluent · New</option>
-      <option value="classic">Classic · Dark</option>
+      <option value="fluent">Klybit · Light</option>
+      <option value="classic">Klybit · Dark</option>
     </select>
   </label>;
 }

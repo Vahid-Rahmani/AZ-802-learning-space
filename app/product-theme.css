@@ -1,0 +1,235 @@
+/* Shared product skin, not a landing-page-only theme. Keep course layout,
+   simulator geometry, typing overlays and semantic feedback in their owners. */
+:root {
+  --product-page: #f4f6fa;
+  --product-surface: #ffffff;
+  --product-alt: #f0f4fa;
+  --product-text: #16243b;
+  --product-muted: #56667d;
+  --product-line: #dce3ee;
+  --product-accent: #2563eb;
+  --product-selected: #eaf1ff;
+  --product-hero: #101e38;
+  --product-hero-muted: #c2cfe3;
+  --product-shadow: 0 4px 18px rgb(20 37 65 / 5%);
+  --cp-surface: var(--product-surface);
+  --cp-alt: var(--product-alt);
+  --cp-text: var(--product-text);
+  --cp-muted: var(--product-muted);
+  --cp-line: var(--product-line);
+  --cp-accent: var(--product-accent);
+  --cp-selected: var(--product-selected);
+  --cp-shadow: var(--product-shadow);
+}
+html[data-theme="classic"] {
+  color-scheme: dark;
+  --product-page: #0f1726;
+  --product-surface: #172236;
+  --product-alt: #1d2b42;
+  --product-text: #edf2fb;
+  --product-muted: #b2c0d5;
+  --product-line: #33435c;
+  --product-accent: #8db5ff;
+  --product-selected: #243d63;
+  --product-hero: #101e38;
+  --product-shadow: 0 4px 18px rgb(0 0 0 / 12%);
+}
+html[data-theme="fluent"] { color-scheme: light; }
+html[data-theme] {
+  --cp-surface: var(--product-surface);
+  --cp-alt: var(--product-alt);
+  --cp-text: var(--product-text);
+  --cp-muted: var(--product-muted);
+  --cp-line: var(--product-line);
+  --cp-accent: var(--product-accent);
+  --cp-selected: var(--product-selected);
+  --cp-shadow: var(--product-shadow);
+}
+html[data-theme] body { background: var(--product-page); color: var(--product-text); }
+html[data-theme] .study-app {
+  --cp-surface: var(--product-surface);
+  --cp-alt: var(--product-alt);
+  --cp-text: var(--product-text);
+  --cp-muted: var(--product-muted);
+  --cp-line: var(--product-line);
+  --cp-accent: var(--product-accent);
+  --cp-selected: var(--product-selected);
+  --cp-shadow: var(--product-shadow);
+  --switchlab-bg: var(--product-page);
+  --switchlab-panel: var(--product-surface);
+  --switchlab-surface: var(--product-surface);
+  --switchlab-surface-raised: var(--product-alt);
+  --switchlab-surface-soft: var(--product-alt);
+  --switchlab-line: var(--product-line);
+  --switchlab-text: var(--product-text);
+  --switchlab-muted: var(--product-muted);
+  --switchlab-cyan: var(--product-accent);
+  --switchlab-cyan-soft: var(--product-accent);
+  background: var(--product-page);
+  color: var(--product-text);
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Shared shell: AZ-802, AZ-900, Docker, Cisco, Linux, German and CI/CD. */
+html[data-theme] .study-app .app-sidebar {
+  background: var(--cp-surface);
+  color: var(--cp-text);
+  border-color: var(--cp-line);
+  box-shadow: none;
+}
+html[data-theme] .study-app .certpath-header {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-line);
+  border-radius: 12px;
+  box-shadow: var(--cp-shadow);
+  padding: 10px 14px;
+}
+html[data-theme] .study-app .certpath-header h1 { color: var(--cp-text); font-weight: 700; letter-spacing: -.025em; }
+html[data-theme] .study-app :is(.header-eyebrow, .simple-eyebrow, .app-brand-kicker) { color: var(--cp-accent); }
+html[data-theme] .study-app :is(.sidebar-toggle-button, .course-switcher-toggle, .reading-settings-toggle, .account-button) {
+  background: var(--cp-surface);
+  color: var(--cp-text);
+  border-color: var(--cp-line);
+  border-radius: 8px;
+}
+html[data-theme] .study-app :is(.study-controls, .course-switcher-menu) {
+  background: var(--cp-surface);
+  color: var(--cp-text);
+  border: 1px solid var(--cp-line);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgb(15 30 56 / 14%);
+}
+html[data-theme] .study-app .simple-navigation > :is(a, button) { color: var(--cp-muted); border-radius: 8px; }
+html[data-theme] .study-app .simple-navigation > [aria-current="page"] {
+  background: var(--cp-selected);
+  color: var(--cp-accent);
+  border-color: var(--cp-line);
+}
+html[data-theme] .study-app .simple-navigation > :is(a, button):hover { background: var(--cp-alt); color: var(--cp-text); }
+html[data-theme] .study-app :is(.theme-control, .theme-control select, .simple-course-select select) { color: var(--cp-text); }
+html[data-theme] .study-app :is(.theme-control select, .simple-course-select select) { background: var(--cp-alt); border-color: var(--cp-line); }
+
+/* Lesson, question, progress and lab containers retain their content and grids. */
+html[data-theme] .study-app :is(.learning-start, .simple-practice, .simple-details, .practice-resume,
+  .reading-panel, .question-explanation-card, .server-labs-workspace,
+  .ccna-dashboard-workspace-card, .ccna-dashboard-domain-card, .ccna-dashboard-lab-callout,
+  .ccna-exam-domain-panel, .ccna-exam-mode-card, .ccna-exam-question-card,
+  .cisco-lesson-card, .cisco-overview-panel, .cisco-stage-nav, .cisco-stage-note,
+  .linux-lessons, .linux-reference, .german-path, .german-practice, .german-reference) {
+  background: var(--cp-surface);
+  color: var(--cp-text);
+  border-color: var(--cp-line);
+  border-radius: 12px;
+  box-shadow: var(--cp-shadow);
+}
+html[data-theme] .study-app .study-content :is(.rounded-2xl, .rounded-3xl) { border-radius: 12px; }
+html[data-theme] .study-app :is(.dashboard-summary article, .dashboard-shortcuts > a,
+  .dashboard-shortcuts > button, .simple-choice-grid > a, .simple-choice-grid > button) {
+  background: var(--cp-alt);
+  border-color: var(--cp-line);
+  border-radius: 10px;
+  color: var(--cp-text);
+}
+html[data-theme] .study-app :is(.simple-primary, .ccna-dashboard-primary, .ccna-exam-primary-action, .cisco-learning-primary, .linux-next) {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  border-radius: 8px;
+}
+html[data-theme] .study-app :is(.simple-primary, .ccna-dashboard-primary, .ccna-exam-primary-action, .cisco-learning-primary, .linux-next):hover { background: #1d4ed8; }
+html[data-theme] .study-app :is(.simple-back, .dashboard-shortcuts span, .ccna-dashboard-inline-link) { color: var(--cp-accent); }
+html[data-theme] .study-app :is(.simple-details > summary, .dashboard-summary span, .ccna-dashboard-muted, .ccna-dashboard-section-note) { color: var(--cp-muted); }
+html[data-theme] .study-app .learning-start { padding: 0; overflow: hidden; }
+html[data-theme] .study-app .learning-start-heading { padding: clamp(20px, 3vw, 30px); }
+html[data-theme] .study-app .learning-start-body { padding: clamp(18px, 2.5vw, 26px); }
+html[data-theme] .study-app .learning-next { margin-top: 0; padding-top: 0; border-top: 0; }
+html[data-theme] .study-app :is(.simple-details, .simple-tools > button, .simple-tools > a, .dashboard-course-progress, .dashboard-course-progress button) { border-color: var(--cp-line); }
+
+/* A recognizable navy course introduction, with white work surfaces below it. */
+html[data-theme] .study-app :is(.learning-start-heading, .ccna-dashboard-hero, .cisco-path-hero, .linux-welcome, .german-intro, .cicd-hero) {
+  --cp-text: #ffffff;
+  --cp-muted: var(--product-hero-muted);
+  --cp-accent: #9fc1ff;
+  background: linear-gradient(115deg, var(--product-hero), #183664);
+  color: #ffffff;
+  border-color: #263e63;
+}
+html[data-theme] .study-app :is(.learning-start-heading, .ccna-dashboard-hero, .cisco-path-hero, .linux-welcome, .german-intro, .cicd-hero) :is(h1, h2, h3) { color: #ffffff; }
+html[data-theme] .study-app :is(.learning-start-heading, .ccna-dashboard-hero, .cisco-path-hero, .linux-welcome, .german-intro) p { color: var(--product-hero-muted); }
+html[data-theme] .study-app :is(.learning-start-heading .simple-eyebrow, .ccna-dashboard-eyebrow, .cisco-path-hero .cisco-learning-kicker, .linux-welcome .linux-eyebrow, .german-intro .german-eyebrow) { color: #9fc1ff; }
+html[data-theme] .study-app .ccna-dashboard-progress { background: #ffffff0d; color: #ffffff; border-color: #ffffff26; }
+html[data-theme] .study-app .ccna-dashboard-hero .ccna-dashboard-secondary { background: #ffffff0d; color: #ffffff; border-color: #ffffff40; }
+html[data-theme] .study-app :is(.ccna-dashboard-hero, .cisco-path-hero) { border-radius: 12px; box-shadow: none; }
+
+/* Map legacy course palettes into the shared tokens, including route CSS. */
+html[data-theme] .study-app .cisco-learning-path {
+  --path-line: var(--cp-line);
+  --path-panel: var(--cp-surface);
+  --path-muted: var(--cp-muted);
+  --path-accent: var(--cp-accent);
+  color: var(--cp-text);
+}
+html[data-theme] .study-app .cisco-path-hero { --path-panel: #122541; --path-muted: #c2cfe3; --path-accent: #9fc1ff; }
+html[data-theme] .study-app :is(.cisco-stage-nav button[aria-current], .cisco-card-icon, .cisco-stage-number, .linux-lesson-list button[aria-current], .linux-machine-tabs button[aria-selected="true"]) {
+  background: var(--cp-selected);
+  color: var(--cp-accent);
+  border-color: var(--cp-line);
+}
+html[data-theme] .study-app .cisco-progress-bar { background: var(--cp-line); }
+html[data-theme] .study-app.linux-app {
+  --linux-accent: var(--cp-accent);
+  --linux-muted: var(--cp-muted);
+  --linux-line: var(--cp-line);
+  --linux-panel: var(--cp-surface);
+}
+html[data-theme] .study-app .linux-welcome { --linux-muted: #c2cfe3; --linux-accent: #9fc1ff; }
+html[data-theme] .study-app :is(.linux-task pre, .linux-inspector pre) { background: var(--cp-alt); color: var(--cp-text); }
+html[data-theme] .study-app :is(.linux-checks li, .linux-sidebar-note, .german-sidebar-note) { border-color: var(--cp-line); }
+html[data-theme] .study-app .german-metrics > div { background: var(--cp-surface); border-color: var(--cp-line); }
+
+/* Simulator chrome follows the site; terminal and canvas remain purpose-built.
+   Do not change input metrics, SVG geometry, heights or scrolling here. */
+html[data-theme] .study-app .ccna-simulation-workspace {
+  --simulation-bg: var(--product-page);
+  --simulation-surface: var(--cp-surface);
+  --simulation-surface-raised: var(--cp-alt);
+  --simulation-line: var(--cp-line);
+  --simulation-text: var(--cp-text);
+  --simulation-muted: var(--cp-muted);
+  --simulation-accent: var(--cp-accent);
+}
+html[data-theme] .study-app :is(.ccna-simulation-panel, .ccna-simulation-header) {
+  background: var(--cp-surface);
+  color: var(--cp-text);
+  border-color: var(--cp-line);
+  box-shadow: none;
+}
+html[data-theme] .study-app .ccna-sim-page :is(.ccna-lab-bar, .ccna-simulation-panel, .ccna-simulation-device-tabs) {
+  background: var(--cp-surface);
+  color: var(--cp-text);
+  border-color: var(--cp-line);
+}
+html[data-theme] .study-app .ccna-sim-page :is(.ccna-simulation-stage, .ccna-simulation-checklist button, .ccna-simulation-current-stage, .ccna-simulation-interface-table thead th) {
+  background: var(--cp-alt);
+  border-color: var(--cp-line);
+}
+html[data-theme] .study-app .ccna-simulation-guide { background: var(--cp-surface); }
+html[data-theme] .study-app .ccna-simulation-stage.is-current { border-color: var(--cp-accent); }
+html[data-theme] .study-app .ccna-lab-brand { color: var(--cp-text); }
+html[data-theme="fluent"] .study-app .ccna-simulation-workspace { --simulation-success: #087b5d; --simulation-danger: #b42343; }
+html[data-theme] .study-app :is(.ccna-simulation-terminal-screen, .linux-terminal-screen, .cicd-terminal-screen) {
+  background: #0b1220;
+  color: #e2eaf6;
+  color-scheme: dark;
+}
+html[data-theme] .study-app .ccna-simulation-terminal-screen { --simulation-text: #e2eaf6; --simulation-muted: #b1c1d6; --simulation-accent: #93c5fd; }
+html[data-theme] .study-app .ccna-simulation-terminal-screen :is(input, textarea) { background: transparent; color: #e2eaf6; caret-color: #93c5fd; }
+
+.klybit-legal { max-width: 800px; margin: 40px auto; padding: clamp(24px, 5vw, 48px); border: 1px solid var(--cp-line); border-radius: 16px; background: var(--cp-surface); color: var(--cp-text); line-height: 1.8; box-shadow: var(--cp-shadow); }
+.klybit-legal h1 { margin: 28px 0 20px; font-size: clamp(26px, 4vw, 38px); font-weight: 750; letter-spacing: -.03em; line-height: 1.2; }
+.klybit-legal p { margin-block: 16px; }
+.klybit-legal a { color: var(--cp-accent); text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 640px) {
+  html[data-theme] .study-app .certpath-header { padding-block: 8px; padding-right: 10px; border-radius: 10px; }
+  .klybit-legal { margin: 16px; }
+}

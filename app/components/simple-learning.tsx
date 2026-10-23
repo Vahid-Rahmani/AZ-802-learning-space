@@ -20,9 +20,12 @@ export function SimpleNavigation({ items, active, onNavigate }: { items: SimpleN
 
 export function LearningStart({ title, lesson, onStart, href, progress, children, metrics = [], actions = [], onNavigate }: { title: string; lesson: string; onStart?: () => void; href?: string; progress?: string; children?: ReactNode; metrics?: { label: string; value: string; percent?: number }[]; actions?: SimpleNavItem[]; onNavigate?: (key: string) => void }) {
   return <section className="learning-start" aria-label="Your next step">
+    <header className="learning-start-heading">
     <p className="simple-eyebrow"><GoogleSubtitle text="Learning dashboard" /></p>
     <h2><GoogleSubtitle text={title} /></h2>
     <p><GoogleSubtitle text="Read a short lesson, practise it, then check what you learned." /></p>
+    </header>
+    <div className="learning-start-body">
     <div className="learning-next"><span><GoogleSubtitle text={lesson} /></span>{href
       ? <a className="simple-primary" href={href} onClick={event => { event.preventDefault(); window.location.href = href; }}><GoogleSubtitle text="Start / continue learning" /> →</a>
       : <button className="simple-primary" type="button" onClick={onStart}><GoogleSubtitle text="Start / continue learning" /> →</button>}</div>
@@ -30,6 +33,7 @@ export function LearningStart({ title, lesson, onStart, href, progress, children
     {metrics.length > 0 && <div className="dashboard-summary">{metrics.map(metric => <article key={metric.label}><span>{metric.label}</span><strong>{metric.value}</strong>{metric.percent !== undefined && <progress max={100} value={metric.percent} aria-label={metric.label} />}</article>)}</div>}
     <div className="dashboard-shortcuts">{actions.map(action => action.href ? <a key={action.key} href={action.href}><strong>{action.label}</strong><span>Open →</span></a> : <button key={action.key} type="button" onClick={() => onNavigate?.(action.key)}><strong>{action.label}</strong><span>Open →</span></button>)}</div>
     {children}
+    </div>
   </section>;
 }
 
