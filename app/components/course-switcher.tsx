@@ -1,9 +1,9 @@
 "use client";
 
 import { useId, useState } from "react";
-import { ChevronDown, Cloud, Container, Languages, Network, Server, Terminal } from "lucide-react";
+import { ChevronDown, Cloud, Container, Languages, Network, Server, Terminal, Workflow } from "lucide-react";
 
-export function CourseSwitcher({ active }: { active: "az802" | "az900" | "docker" | "ccna" | "linux" | "german" }) {
+export function CourseSwitcher({ active }: { active: "az802" | "az900" | "docker" | "ccna" | "linux" | "german" | "cicd" }) {
   const [open, setOpen] = useState(false);
   const menuId = useId();
   const courses = [
@@ -13,6 +13,7 @@ export function CourseSwitcher({ active }: { active: "az802" | "az900" | "docker
     { id:"ccna" as const, href:"/ccna", code:"CCNA", title:"Networking & Cisco labs", icon:<Network size={17} /> },
     { id:"linux" as const, href:"/linux", code:"Linux", title:"RHEL-style terminal & labs", icon:<Terminal size={17} /> },
     { id:"german" as const, href:"/german", code:"Deutsch", title:"German for IT · B1 practice", icon:<Languages size={17} /> },
+    { id:"cicd" as const, href:"/cicd", code:"CI/CD", title:"Project-based pipeline simulation", icon:<Workflow size={17} /> },
   ];
   const current = courses.find((course) => course.id === active) ?? courses[0];
   return <div className="course-switcher">

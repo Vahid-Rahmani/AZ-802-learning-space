@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { ArrowRight, BookOpen, Check, ChevronRight, Cloud, Container, GraduationCap, Languages, Network, Search, Server, ShieldCheck, Terminal } from "lucide-react";
+import { ArrowRight, BookOpen, Check, ChevronRight, Cloud, Container, GraduationCap, Languages, Network, Search, Server, ShieldCheck, Terminal, Workflow } from "lucide-react";
 import { AppBrand } from "./study-header";
 import { GoogleSubtitle } from "./google-translate";
 
@@ -14,6 +14,7 @@ export const portalCourses = [
   { id: "linux", code: "Linux", title: "Linux administration", category: "Hands-on", level: "Foundations", detail: "Practise files, permissions and services in the browser-based Linux simulator.", topics: ["RHEL-style terminal", "Guided tasks", "Device-state checks"], href: "/linux", icon: Terminal },
   { id: "docker", code: "Docker", title: "Containers & Compose", category: "Hands-on", level: "Foundations", detail: "Work through practical container, image, networking and Compose exercises.", topics: ["Container basics", "Compose labs", "Guided setup"], href: "/docker", icon: Container },
   { id: "german", code: "Deutsch", title: "German for IT", category: "Language", level: "B1 to B2 bridge", detail: "Improve your German through IT scenarios, typing, listening and spaced review.", topics: ["Typing practice", "IT vocabulary", "Leitner review"], href: "/german", icon: Languages },
+  { id: "cicd", code: "CI/CD", title: "Build, test & deploy", category: "Hands-on", level: "Project-based", detail: "Take one project from its first commit to a checked, approved release and safe rollback.", topics: ["Guided missions", "Pipeline simulation", "Release & recovery"], href: "/cicd", icon: Workflow },
 ] as const;
 const categories = ["All paths", "Microsoft", "Cisco", "Hands-on", "Language"] as const;
 type Category = typeof categories[number];

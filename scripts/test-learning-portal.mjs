@@ -31,10 +31,10 @@ try {
   let signedIn = 0, opened = 0, practised = 0;
   await mount(LearningPortal, { questionCount: questions.length, onSignIn: () => signedIn++, onWindowsServer: () => opened++, onPractice: () => practised++ });
   assert.equal(container.querySelectorAll("h1").length, 1);
-  assert.equal(container.querySelectorAll(".portal-course-card").length, 6);
+  assert.equal(container.querySelectorAll(".portal-course-card").length, portalCourses.length);
   assert.ok(container.textContent.includes(`${questions.length.toLocaleString("en-US")} practice questions`));
-  assert.equal(container.querySelectorAll(".portal-course-card h3").length, 6);
-  assert.equal(new Set(portalCourses.map(course => course.id)).size, 6);
+  assert.equal(container.querySelectorAll(".portal-course-card h3").length, portalCourses.length);
+  assert.equal(new Set(portalCourses.map(course => course.id)).size, portalCourses.length);
   for (const course of portalCourses) {
     assert.ok(existsSync(path.resolve(`app${course.href === "/" ? "" : course.href}/page.tsx`)), `missing route ${course.href}`);
     const action = container.querySelector(`[data-course="${course.id}"] .portal-card-footer :is(a,button)`);
@@ -49,8 +49,8 @@ try {
   await type("aZ-900"); assert.equal(container.querySelectorAll(".portal-course-card").length, 1);
   assert.equal(container.querySelector(".portal-course-card").dataset.course, "az900");
   await type("not a real course"); assert.equal(container.querySelectorAll(".portal-course-card").length, 0); assert.ok(container.querySelector(".portal-empty"));
-  await click(button("Show all paths")); assert.equal(container.querySelectorAll(".portal-course-card").length, 6); assert.equal(container.querySelector("input").value, "");
-  await click(button("Hands-on")); assert.equal(container.querySelectorAll(".portal-course-card").length, 2);
+  await click(button("Show all paths")); assert.equal(container.querySelectorAll(".portal-course-card").length, portalCourses.length); assert.equal(container.querySelector("input").value, "");
+  await click(button("Hands-on")); assert.equal(container.querySelectorAll(".portal-course-card").length, portalCourses.filter(course => course.category === "Hands-on").length);
   await unmount();
 
   const calls = [];
@@ -68,7 +68,7 @@ try {
   const requests = [];
   globalThis.fetch = async (url, options = {}) => { requests.push({ url, ...options }); return { ok: true, status: 200, json: async () => url === "/api/auth/me" ? { user: identity ? { id: identity } : null } : {} }; };
   await mount(Home);
-  assert.equal(container.querySelectorAll(".portal-course-card").length, 6, "anonymous visitor hit an auth wall");
+  assert.equal(container.querySelectorAll(".portal-course-card").length, portalCourses.length, "anonymous visitor hit an auth wall");
   assert.equal(container.querySelector('[role="dialog"]'), null);
   await click(button("Sign in")); assert.ok(container.querySelector('[role="dialog"] form'));
   await click(container.querySelector('button[aria-label="Close"]')); assert.equal(container.querySelector('[role="dialog"]'), null);
@@ -102,7 +102,7 @@ try {
   const css = readFileSync("app/learning-portal.css", "utf8");
   assert.match(css, /max-width: 700px/); assert.match(css, /grid-template-columns: minmax\(0,1fr\)/);
   assert.match(css, /prefers-reduced-motion/); assert.doesNotMatch(css, /!important/);
-  console.log("PASS: public catalogue, six existing routes, real question count, search/filter/reset, dashboard actions, auth close/Escape/OAuth/recovery, preserved progress and real practice navigation. Responsive CSS contract checked; this is not a rendered-browser layout test.");
+  console.log(`PASS: public catalogue, ${portalCourses.length} existing routes, real question count, search/filter/reset, dashboard actions, auth close/Escape/OAuth/recovery, preserved progress and real practice navigation. Responsive CSS contract checked; this is not a rendered-browser layout test.`);
 } finally {
   rmSync(scratch, { recursive: true, force: true });
 }
