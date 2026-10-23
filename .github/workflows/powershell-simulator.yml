@@ -1,0 +1,28 @@
+name: PowerShell simulator checks
+on:
+  pull_request:
+    paths:
+      - "app/windows-server/powershell/**"
+      - "lib/powershell-simulator.ts"
+      - "scripts/test-powershell-simulator.mjs"
+      - "package.json"
+      - ".github/workflows/powershell-simulator.yml"
+  push:
+    branches: [main]
+    paths:
+      - "app/windows-server/powershell/**"
+      - "lib/powershell-simulator.ts"
+      - "scripts/test-powershell-simulator.mjs"
+      - "package.json"
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run test:powershell-sim
+      - run: npx tsc --noEmit

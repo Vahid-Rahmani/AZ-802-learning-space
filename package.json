@@ -35,7 +35,8 @@
     "test:ccna-sim-labs": "node scripts/test-ccna-sim-labs.mjs",
     "test:ccna-management": "node --experimental-strip-types scripts/test-ccna-management.mjs",
     "test:ccna-routing": "node --experimental-strip-types scripts/test-ccna-routing.mjs",
-    "audit:ccna-readiness": "node scripts/audit-ccna-lab-readiness.mjs"
+    "audit:ccna-readiness": "node scripts/audit-ccna-lab-readiness.mjs",
+    "test:powershell-sim": "node --experimental-strip-types scripts/test-powershell-simulator.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

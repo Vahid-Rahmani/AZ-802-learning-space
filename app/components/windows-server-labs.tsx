@@ -14,7 +14,17 @@ type SavedLab = { state: ServerLabState; grade: Grade; evidenceUrl?: string | nu
 const Copy = ({ text }: { text: string }) => <GoogleSubtitle text={text} />;
 
 export function WindowsServerLabs({ userId, legacy }: { userId: string | null; legacy: ReactNode }) {
-  return <LearningLabPath userId={userId} labs={serverLabs} kicker="Windows Server · independent lab path" title="Build it. Test it. Explain it." intro="Turn the supplied server assignments into your own working domain, users, permissions and security tests. Azure labs are unchanged." legacy={legacy} />;
+  return <div>
+    <a href="/windows-server/powershell" style={{display:"flex",alignItems:"center",gap:"14px",padding:"20px",marginBottom:"20px",borderRadius:"14px",border:"1px solid #207e99",background:"linear-gradient(110deg,#0d3045,#11283a)",textDecoration:"none",color:"#e7fbff"}}>
+      <span aria-hidden="true" style={{fontSize:"27px"}}>⌨</span>
+      <span style={{display:"grid",gap:"4px",flex:1}}>
+        <strong>Windows Server PowerShell — Interactive Simulator</strong>
+        <small style={{color:"#a8d3e0"}}>39 guided commands · AD DS · DNS · DHCP · SMB · Firewall · Backup · Safe virtual terminal</small>
+      </span>
+      <span aria-hidden="true">↗</span>
+    </a>
+    <LearningLabPath userId={userId} labs={serverLabs} kicker="Windows Server · independent lab path" title="Build it. Test it. Explain it." intro="Turn the supplied server assignments into your own working domain, users, permissions and security tests. Azure labs are unchanged." legacy={legacy} />
+  </div>;
 }
 
 export function LearningLabPath({ userId, labs, kicker, title, intro, legacy, resumeLatest = false, initialLabId, onPracticeLab, initialTab }: { userId: string | null; labs: ServerLab[]; kicker: string; title: string; intro: string; legacy?: ReactNode; resumeLatest?: boolean; initialLabId?: string; initialTab?: "build" | "test" | "quiz"; onPracticeLab?: (lab: ServerLab) => void }) {
