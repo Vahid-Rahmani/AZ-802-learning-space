@@ -69,9 +69,9 @@ export const powerShellUnits: PowerShellUnit[] = [
     step("dhcpverify","Inspect the scope","Get-DhcpServerv4Scope","Lists configured DHCP IPv4 scopes for validation and troubleshooting.","The LAN scope is visible.",docs.dhcp)
   ] },
   { id: "storage", name: "07 · Folders, SMB and NTFS", goal: "Provision a departmental file share and understand share versus NTFS permissions.", steps: [
-    step("folder","Create a department folder","New-Item -Path D:\Freigaben\Buchhaltung -ItemType Directory","New-Item creates a directory. A share also requires NTFS access, not merely SMB permissions.","Department folder is created.",docs.smb),
-    step("share","Share the folder","New-SmbShare -Name Buchhaltung -Path D:\Freigaben\Buchhaltung -ChangeAccess GG_Buchhaltung","New-SmbShare creates a network share. Effective access is constrained by both share and NTFS permissions.","SMB share is created.",docs.smb),
-    step("acl","Set NTFS permissions","icacls D:\Freigaben\Buchhaltung /grant 'TECHWORK\GG_Buchhaltung:(OI)(CI)M'","icacls grants Modify inherited by files (OI) and child directories (CI). Apply least-privilege rights.","NTFS Modify permission is granted.",docs.smb),
+    step("folder","Create a department folder","New-Item -Path D:\\Freigaben\\Buchhaltung -ItemType Directory","New-Item creates a directory. A share also requires NTFS access, not merely SMB permissions.","Department folder is created.",docs.smb),
+    step("share","Share the folder","New-SmbShare -Name Buchhaltung -Path D:\\Freigaben\\Buchhaltung -ChangeAccess GG_Buchhaltung","New-SmbShare creates a network share. Effective access is constrained by both share and NTFS permissions.","SMB share is created.",docs.smb),
+    step("acl","Set NTFS permissions","icacls D:\\Freigaben\\Buchhaltung /grant 'TECHWORK\\GG_Buchhaltung:(OI)(CI)M'","icacls grants Modify inherited by files (OI) and child directories (CI). Apply least-privilege rights.","NTFS Modify permission is granted.",docs.smb),
     step("shares","Verify the share","Get-SmbShare","Get-SmbShare lists SMB shares and their backing paths.","Buchhaltung is listed.",docs.smb)
   ] },
   { id: "security", name: "08 · Firewall and security checks", goal: "Audit firewall, add one scoped lab rule and inspect malware protection.", steps: [
