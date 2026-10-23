@@ -1,0 +1,166 @@
+/* Reference-inspired catalogue. Scoped so terminal, grading and existing course
+   workspaces retain their own layout and the learner's saved appearance. */
+.klybit-portal {
+  --portal-bg: #f8fafc;
+  --portal-surface: #fff;
+  --portal-text: #172338;
+  --portal-muted: #52627a;
+  --portal-line: #dfe5ee;
+  --portal-blue: #2563eb;
+  --portal-soft: #eff6ff;
+  color-scheme: light;
+  color: var(--portal-text);
+  background: var(--portal-bg);
+  font-family: "Segoe UI", Inter, ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.6;
+  min-height: 100dvh;
+}
+.klybit-portal :is(h1,h2,h3,p,ul,dl,dd) { margin: 0; }
+.klybit-portal :is(a,button,input) { font: inherit; }
+.klybit-portal :is(button,a) { -webkit-tap-highlight-color: transparent; }
+.klybit-portal a { text-decoration: none; }
+.klybit-portal button { cursor: pointer; }
+.klybit-portal :is(button,a,input,summary):focus-visible { outline: 3px solid #2563eb; outline-offset: 4px; }
+.klybit-portal :is(section,article,div) { min-width: 0; }
+.klybit-portal :is(h1,h2,h3) { line-height: 1.2; text-wrap: balance; }
+.klybit-portal .portal-navigation { display: flex; align-items: center; justify-content: space-between; gap: 24px; max-width: 1280px; min-height: 80px; margin: auto; padding: 12px 36px; background: #fff; }
+.klybit-portal .portal-brand-link { color: #172338; }
+.klybit-portal .app-brand { padding: 0; gap: 10px; }
+.klybit-portal .brand-mark { display: grid; place-items: center; width: 42px; height: 42px; color: #fff; background: #2563eb; border-radius: 11px; box-shadow: none; }
+.klybit-portal .brand-name { color: #172338; font-size: 23px; font-weight: 750; line-height: 1.2; }
+.klybit-portal .brand-subtitle { color: #64748b; font-size: 11px; }
+.klybit-portal .portal-navigation nav { display: flex; align-items: center; gap: 28px; margin-left: auto; font-size: 14px; font-weight: 600; color: #52627a; }
+.klybit-portal .portal-navigation nav a:hover { color: #2563eb; }
+.klybit-portal .portal-nav-signin { display: inline-flex; align-items: center; gap: 9px; min-height: 42px; padding: 8px 17px; border: 1px solid #dfe5ee; border-radius: 8px; color: #172338; background: #fff; font-size: 14px; font-weight: 650; }
+.klybit-portal .portal-hero { position: relative; padding: 68px 24px 54px; background: #0f172a; color: #fff; overflow: hidden; text-align: center; }
+.klybit-portal .portal-hero::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, #2563eb25, transparent 65%), radial-gradient(#ffffff0c 1px, transparent 1px); background-size: auto, 28px 28px; pointer-events: none; }
+.klybit-portal .portal-hero-inner { position: relative; max-width: 880px; margin: auto; }
+.klybit-portal .portal-pill { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 7px 14px; margin-bottom: 22px; border: 1px solid #3b82f650; background: #2563eb24; color: #bfdbfe; border-radius: 999px; font-size: 13px; }
+.klybit-portal .portal-hero :is(h1,h2) { color: #fff; font-size: clamp(32px,4.4vw,56px); font-weight: 750; letter-spacing: -.04em; line-height: 1.13; }
+.klybit-portal .portal-hero :is(h1,h2) > span { color: #60a5fa; }
+.klybit-portal .portal-hero-description { max-width: 650px; margin: 23px auto 0; color: #c2cddd; font-size: 17px; line-height: 1.8; }
+.klybit-portal .portal-hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 29px; }
+.klybit-portal .portal-button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 12px 23px; border: 1px solid transparent; border-radius: 9px; font-size: 15px; font-weight: 650; transition: background .15s ease, border-color .15s ease; }
+.klybit-portal .portal-button--primary { color: #fff; background: #2563eb; border-color: #2563eb; }
+.klybit-portal .portal-button--primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+.klybit-portal .portal-button--outline { color: #fff; background: #ffffff0b; border-color: #ffffff40; }
+.klybit-portal .portal-button--outline:hover { background: #ffffff15; }
+.klybit-portal .portal-hero-points { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 28px; padding: 0; margin-top: 29px; color: #aebdd0; font-size: 12px; }
+.klybit-portal .portal-hero-points li { display: flex; align-items: center; gap: 7px; }
+.klybit-portal .portal-hero-points svg { color: #34d399; }
+.klybit-portal .portal-catalog { max-width: 1240px; margin: auto; padding: 58px 36px 64px; scroll-margin-top: 20px; }
+.klybit-portal .portal-section-heading { text-align: center; }
+.klybit-portal .portal-eyebrow { font-size: 11px; font-weight: 750; text-transform: uppercase; letter-spacing: .12em; color: var(--portal-blue); margin-bottom: 10px; }
+.klybit-portal .portal-section-heading h2 { font-size: clamp(25px,3vw,34px); font-weight: 750; letter-spacing: -.025em; }
+.klybit-portal .portal-section-heading > p:last-child { max-width: 650px; margin: 13px auto 0; color: var(--portal-muted); font-size: 15px; }
+.klybit-portal .portal-catalog-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px; margin-top: 32px; }
+.klybit-portal .portal-filters { display: flex; flex-wrap: wrap; gap: 5px; }
+.klybit-portal .portal-filters button { padding: 8px 12px; min-height: 40px; border: 1px solid transparent; border-radius: 7px; background: transparent; color: var(--portal-muted); font-size: 13px; font-weight: 600; }
+.klybit-portal .portal-filters button[aria-pressed="true"] { border-color: #93b7f2; background: var(--portal-soft); color: var(--portal-blue); }
+.klybit-portal .portal-search { display: flex; align-items: center; gap: 9px; flex: 0 1 260px; min-width: 0; padding: 9px 12px; border: 1px solid var(--portal-line); border-radius: 8px; background: var(--portal-surface); color: var(--portal-muted); }
+.klybit-portal .portal-search input { min-width: 0; width: 100%; padding: 0; border: 0; background: transparent; color: var(--portal-text); font-size: 14px; outline-offset: 8px; }
+.klybit-portal .portal-result-count { margin: 16px 0 12px; color: var(--portal-muted); font-size: 12px; }
+.klybit-portal .portal-course-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; }
+html .klybit-portal article.portal-course-card { display: flex; flex-direction: column; padding: 24px; border: 1px solid var(--portal-line); border-radius: 12px; background: var(--portal-surface); color: var(--portal-text); box-shadow: 0 3px 10px #13254104; backdrop-filter: none; transition: border-color .15s ease, box-shadow .15s ease; }
+html .klybit-portal article.portal-course-card:hover { border-color: #8cb4f7; box-shadow: 0 8px 24px #2563eb0c; }
+.klybit-portal .portal-card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.klybit-portal .portal-course-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 10px; background: var(--portal-soft); color: var(--portal-blue); }
+.klybit-portal .portal-course-icon--cisco { color: #087c76; background: #dff6ef; }
+.klybit-portal .portal-course-icon--hands-on { color: #7044b0; background: #f0eafa; }
+.klybit-portal .portal-course-icon--language { color: #9a5910; background: #fff3d9; }
+.klybit-portal .portal-level { font-size: 11px; font-weight: 600; color: var(--portal-muted); padding: 4px 9px; border: 1px solid var(--portal-line); border-radius: 5px; text-align: right; }
+.klybit-portal .portal-course-code { margin-top: 20px; color: var(--portal-blue); font-size: 12px; font-weight: 750; letter-spacing: .045em; }
+.klybit-portal .portal-course-card h3 { margin-top: 4px; font-size: 21px; font-weight: 700; letter-spacing: -.015em; }
+.klybit-portal .portal-course-detail { margin-top: 12px; color: var(--portal-muted); font-size: 14px; line-height: 1.75; }
+.klybit-portal .portal-course-card ul { display: grid; gap: 6px; list-style: none; padding: 0; margin: 18px 0 24px; color: var(--portal-muted); font-size: 12px; }
+.klybit-portal .portal-course-card li { display: flex; align-items: center; gap: 7px; }
+.klybit-portal .portal-course-card li svg { flex: none; color: #169474; }
+.klybit-portal .portal-card-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-top: 1px solid var(--portal-line); padding-top: 17px; margin-top: auto; }
+.klybit-portal .portal-card-footer > span { font-size: 11px; color: var(--portal-muted); }
+.klybit-portal .portal-card-footer :is(a,button) { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 7px 10px; border: 1px solid #b6cffb; border-radius: 7px; background: var(--portal-soft); color: var(--portal-blue); font-size: 12px; font-weight: 700; }
+.klybit-portal .portal-card-footer :is(a,button):hover { border-color: var(--portal-blue); }
+.klybit-portal .portal-how { padding: 56px 36px; background: var(--portal-surface); border-block: 1px solid var(--portal-line); scroll-margin-top: 20px; }
+.klybit-portal .portal-how-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 36px; max-width: 1100px; margin: 38px auto 0; }
+.klybit-portal .portal-how-grid > div > svg { color: var(--portal-blue); margin-bottom: 17px; }
+.klybit-portal .portal-how h3 { font-size: 17px; font-weight: 700; }
+.klybit-portal .portal-how-grid p { margin-top: 12px; font-size: 14px; color: var(--portal-muted); line-height: 1.85; }
+.klybit-portal .portal-bottom-cta { padding: 54px 24px; text-align: center; background: #edf4ff; }
+.klybit-portal .portal-bottom-cta h2 { font-size: clamp(23px,3vw,32px); font-weight: 700; }
+.klybit-portal .portal-bottom-cta p { margin: 13px 0 23px; color: #52627a; }
+.klybit-portal .portal-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; padding: 25px 36px; max-width: 1240px; margin: auto; color: var(--portal-muted); font-size: 12px; }
+.klybit-portal .portal-footer nav { display: flex; gap: 22px; }
+.klybit-portal .portal-footer p { width: 100%; font-size: 11px; }
+.klybit-portal .portal-empty { display: grid; justify-items: center; gap: 12px; padding: 40px 16px; text-align: center; color: var(--portal-muted); }
+.klybit-portal .portal-empty h3 { color: var(--portal-text); font-weight: 700; }
+.klybit-portal .portal-text-link { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; background: none; border: none; color: var(--portal-blue); font-size: 13px; font-weight: 650; }
+.klybit-portal .portal-sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; clip-path: inset(50%); overflow: hidden; white-space: nowrap; }
+/* Signed-in dashboard uses the same hierarchy while retaining theme and data. */
+.klybit-portal--dashboard { min-height: 0; border-radius: 12px; margin-top: 14px; overflow: hidden; }
+.klybit-portal--dashboard .portal-hero { padding: 36px 24px 30px; }
+.klybit-portal--dashboard .portal-hero :is(h1,h2) { font-size: clamp(28px,3.1vw,40px); }
+.klybit-portal--dashboard .portal-hero-description { max-width: 570px; font-size: 14px; margin-top: 16px; }
+.klybit-portal--dashboard .portal-pill { margin-bottom: 16px; font-size: 11px; }
+.klybit-portal--dashboard .portal-hero-points { margin-top: 20px; }
+.klybit-portal--dashboard .portal-catalog { padding: 36px 24px; }
+.klybit-portal--dashboard .portal-course-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+.klybit-portal--dashboard .portal-section-heading h2 { font-size: 27px; }
+.klybit-portal .portal-progress { margin: 24px 24px 0; padding: 24px; border: 1px solid var(--portal-line); border-radius: 10px; background: var(--portal-surface); }
+.klybit-portal .portal-progress-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.klybit-portal .portal-progress-heading h2 { font-size: 21px; font-weight: 700; }
+.klybit-portal .portal-progress-grid { display: grid; grid-template-columns: minmax(0,1.4fr) minmax(0,1fr); gap: 28px; margin-top: 25px; }
+.klybit-portal .portal-next-lesson { display: flex; gap: 14px; }
+.klybit-portal .portal-next-lesson > svg { color: var(--portal-blue); flex: none; margin-top: 3px; }
+.klybit-portal .portal-next-lesson > div { flex: 1; }
+.klybit-portal .portal-next-lesson span { display: block; font-size: 12px; color: var(--portal-muted); }
+.klybit-portal .portal-next-lesson strong { display: block; margin-top: 5px; font-size: 15px; }
+.klybit-portal progress { display: block; width: 100%; height: 6px; border: 0; border-radius: 6px; overflow: hidden; background: var(--portal-line); accent-color: var(--portal-blue); }
+.klybit-portal progress::-webkit-progress-bar { background: var(--portal-line); }
+.klybit-portal progress::-webkit-progress-value { background: var(--portal-blue); }
+.klybit-portal progress::-moz-progress-bar { background: var(--portal-blue); }
+.klybit-portal .portal-next-lesson progress { margin-top: 15px; }
+.klybit-portal .portal-next-lesson p { color: var(--portal-muted); font-size: 11px; margin-top: 5px; }
+.klybit-portal .portal-statistics { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; border-left: 1px solid var(--portal-line); padding-left: 25px; }
+.klybit-portal .portal-statistics dt { color: var(--portal-muted); font-size: 11px; }
+.klybit-portal .portal-statistics dd { font-size: 27px; font-weight: 750; margin-top: 8px; }
+.klybit-portal .portal-workspace-actions { display: flex; flex-wrap: wrap; gap: 12px; border-top: 1px solid var(--portal-line); padding-top: 17px; margin-top: 24px; }
+.klybit-portal .portal-workspace-actions button { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex: 1 1 160px; padding: 10px 12px; min-height: 44px; border: 1px solid var(--portal-line); border-radius: 7px; background: var(--portal-bg); color: var(--portal-text); font-size: 12px; }
+.klybit-portal .portal-workspace-actions button svg { flex: none; color: var(--portal-blue); }
+.klybit-portal .portal-stage-details { border-top: 1px solid var(--portal-line); padding-top: 15px; margin-top: 20px; }
+.klybit-portal .portal-stage-details summary { cursor: pointer; color: var(--portal-muted); font-size: 13px; }
+.klybit-portal .portal-stage-details > div { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px 24px; margin-top: 17px; }
+.klybit-portal .portal-stage-details button { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 10px; padding: 10px 0; color: var(--portal-text); background: none; border: none; text-align: left; font-size: 12px; }
+.klybit-portal .portal-stage-details progress { grid-column: 1/-1; }
+.klybit-portal .portal-stage-details > p { font-size: 11px; color: var(--portal-muted); margin-top: 12px; }
+html[data-theme="classic"] .klybit-portal--dashboard { color-scheme: dark; --portal-bg: #111827; --portal-surface: #192334; --portal-text: #edf2fa; --portal-muted: #aab9cf; --portal-line: #304059; --portal-blue: #79afff; --portal-soft: #1e3454; }
+@media (max-width: 1100px) { .klybit-portal .portal-course-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 700px) {
+  .klybit-portal .portal-navigation { gap: 10px; padding: 12px 18px; min-height: 70px; flex-wrap: wrap; }
+  .klybit-portal .portal-navigation nav { order: 3; justify-content: center; margin: 0; width: 100%; gap: 28px; padding-top: 5px; font-size: 12px; }
+  .klybit-portal .portal-nav-signin { margin-left: auto; }
+  .klybit-portal .portal-hero { padding: 44px 20px 35px; }
+  .klybit-portal .portal-pill { font-size: 11px; padding: 6px 10px; }
+  .klybit-portal .portal-hero-description { font-size: 15px; }
+  .klybit-portal .portal-hero-points { gap: 9px 18px; font-size: 11px; }
+  .klybit-portal .portal-catalog { padding: 36px 18px; }
+  .klybit-portal .portal-catalog-tools { gap: 12px; }
+  .klybit-portal .portal-search { flex: 1 1 100%; min-height: 44px; }
+  .klybit-portal .portal-search input { font-size: 16px; }
+  .klybit-portal .portal-filters { gap: 3px; }
+  .klybit-portal .portal-filters button { min-height: 44px; padding: 8px 10px; font-size: 12px; }
+  .klybit-portal .portal-course-grid, .klybit-portal--dashboard .portal-course-grid { grid-template-columns: minmax(0,1fr); }
+  html .klybit-portal article.portal-course-card { padding: 21px; }
+  .klybit-portal .portal-card-footer :is(a,button) { min-height: 44px; }
+  .klybit-portal .portal-how { padding: 36px 22px; }
+  .klybit-portal .portal-how-grid { grid-template-columns: minmax(0,1fr); gap: 28px; }
+  .klybit-portal .portal-how-grid > div { border-bottom: 1px solid var(--portal-line); padding-bottom: 24px; }
+  .klybit-portal .portal-footer { padding: 24px 20px; }
+  .klybit-portal .portal-progress { margin: 18px 12px 0; padding: 18px; }
+  .klybit-portal .portal-progress-heading { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .klybit-portal .portal-progress-heading h2 { font-size: 20px; }
+  .klybit-portal .portal-progress-grid { grid-template-columns: minmax(0,1fr); gap: 20px; }
+  .klybit-portal .portal-statistics { border-left: 0; border-top: 1px solid var(--portal-line); padding: 16px 0 0; }
+  .klybit-portal .portal-stage-details > div { grid-template-columns: minmax(0,1fr); }
+  .klybit-portal--dashboard .portal-catalog { padding-inline: 12px; }
+}
+@media (max-width: 390px) { .klybit-portal .portal-hero-actions { flex-direction: column; } .klybit-portal .portal-hero :is(h1,h2) { font-size: 30px; } }
+@media (prefers-reduced-motion: reduce) { .klybit-portal * { transition: none; } }

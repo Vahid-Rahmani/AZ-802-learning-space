@@ -11,6 +11,7 @@ import "./switchlab-theme.css";
 import "./simple-learning.css";
 import "./mobile-layout.css";
 import "./ad-visual-guide.css";
+import "./learning-portal.css";
 import { AppearanceProvider } from "@/app/components/appearance-provider";
 export const metadata: Metadata = { title: "Klybit · Learn. Practice. Progress.", description: "Klybit learning paths for Windows Server AZ-802, Azure Fundamentals AZ-900, Docker, Cisco CCNA and Linux. Lessons, practice questions, hands-on labs, and spaced review.", icons: { icon: "/favicon.svg" } };
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
