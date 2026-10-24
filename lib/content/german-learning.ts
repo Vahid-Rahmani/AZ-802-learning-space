@@ -1,4 +1,5 @@
 import { advancedGermanLessons, advancedGermanUnits } from "./german-learning-advanced";
+import { b1GrammarLessons, b1GrammarUnits } from "./german-b1-grammar";
 
 /** Original workplace-language practice, not a certification or exam-coverage claim. */
 export interface GermanUnit {
@@ -28,6 +29,7 @@ export interface GermanLesson {
 }
 
 export const germanUnits: GermanUnit[] = [
+  ...b1GrammarUnits,
   { id: "unit01", title: "Login and passwords", grammar: "weil · separable verbs · dass", description: "Describe account problems, explain reasons, and request a safe password reset." },
   { id: "unit02", title: "Helpdesk and polite requests", grammar: "Konjunktiv II · indirect questions · zu", description: "Ask for assistance politely and write clear, useful support messages." },
   { id: "unit03", title: "Networking and connections", grammar: "wenn · prepositions · relative clauses", description: "Explain connectivity, conditions, device locations, and network symptoms." },
@@ -38,6 +40,7 @@ export const germanUnits: GermanUnit[] = [
 ];
 
 export const germanLessons: GermanLesson[] = [
+  ...b1GrammarLessons,
   {
     id: "lesson001", unitId: "unit01", title: "Explain a failed login", grammar: "weil + verb at the end",
     explanationFa: "با weil دلیل را می‌گوییم. در جملهٔ پیرو، فعل صرف‌شده به آخر می‌رود: mein Passwort abgelaufen ist. در جملهٔ اصلی با können، مصدر anmelden در انتها می‌آید.",

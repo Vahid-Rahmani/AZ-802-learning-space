@@ -1,0 +1,80 @@
+import type { GermanLesson, GermanUnit } from "./german-learning";
+
+export const b1GrammarUnits: GermanUnit[] = [
+  ["01", "Präpositionen mit Dativ", "mit · nach · aus · bei · von · zu · seit · gegenüber", "حروف اضافه‌ای که همیشه داتیو می‌گیرند."],
+  ["02", "Präpositionen mit Akkusativ", "durch · für · gegen · ohne · um · bis · entlang", "حروف اضافه‌ای که همیشه آکوزاتیو می‌گیرند."],
+  ["03", "Wechselpräpositionen", "in · an · auf · unter · über · vor · hinter · neben · zwischen", "Wo با داتیو و Wohin با آکوزاتیو."],
+  ["04", "Dativ und Akkusativ", "mir/mich · dem/den · ضمایر و آرتیکل‌ها", "تشخیص گیرنده و مفعول مستقیم."],
+  ["05", "Nebensätze", "weil · dass · wenn · obwohl · als · bevor · nachdem · während", "جملهٔ فرعی و فعل در پایان."],
+  ["06", "Modalverben", "können · müssen · dürfen · sollen · wollen · mögen · möchten", "توانایی، اجبار، اجازه و درخواست مؤدبانه."],
+  ["07", "Verben mit Präpositionen", "warten auf · denken an · sich interessieren für", "ترکیب‌های ثابت فعل و حرف اضافه."],
+  ["08", "Zeiten", "Präsens · Perfekt · Präteritum · Plusquamperfekt · Futur I", "انتخاب زمان مناسب برای حال، گذشته و آینده."],
+  ["09", "Relativsätze", "der · die · das · dessen · deren · dem · den", "ضمیر موصولی بر اساس جنس و نقش."],
+  ["10", "Adjektive und Deklination", "حروف تعریف · پایان صفت · مقایسه", "صرف صفت و مقایسهٔ درست."],
+  ["11", "Passiv und Konjunktiv II", "wird gemacht · würde · hätte · wäre · könnte", "مجهول، ادب و موقعیت فرضی."],
+  ["12", "Schreiben und Prüfung B1", "ایمیل · نظر · درخواست · شکایت · متن پیوسته", "تبدیل گرامر به نوشتن واقعی B1."],
+].map(([number, title, grammar, description]) => ({
+  id: `unit${Number(number) + 12}`,
+  level: "B1+",
+  title: `${number} · ${title}`,
+  grammar,
+  description,
+}));
+
+const words = (...items: Array<[string, string, string]>) =>
+  items.map(([term, meaningFa, example]) => ({ term, meaningFa, example }));
+
+const lesson = (
+  id: number,
+  unitId: number,
+  title: string,
+  grammar: string,
+  model: string,
+  translationFa: string,
+  explanationFa: string,
+  writingPrompt: string,
+  vocabulary: Array<[string, string, string]>,
+  variants: string[] = [],
+): GermanLesson => ({
+  id: `lesson${String(id).padStart(3, "0")}`,
+  unitId: `unit${unitId + 12}`,
+  level: "B1+",
+  title,
+  grammar,
+  scenario: "Use the target structure in a realistic B1 situation.",
+  model,
+  translationFa,
+  explanationFa,
+  vocabulary: words(...vocabulary),
+  recallPrompt: "Repeat the model sentence, then make one new sentence with the same structure.",
+  variants,
+  writingPrompt,
+  writingChecklist: ["ساختار هدف را استفاده کن.", "جایگاه فعل و پایان صفت را بررسی کن.", "حروف بزرگ اسم‌ها و نشانه‌گذاری را چک کن."],
+});
+
+export const b1GrammarLessons: GermanLesson[] = [
+  lesson(61, 1, "Dativ در رفت‌وآمد", "mit + Dativ · zu + Dativ", "Ich fahre mit dem Bus zum Deutschkurs.", "من با اتوبوس به کلاس آلمانی می‌روم.", "mit و zu همیشه داتیو می‌گیرند: mit dem Bus، zum Deutschkurs.", "با mit و zu دربارهٔ رفتن به کلاس یا محل کار بنویس.", [["der Bus", "اتوبوس", "Der Bus kommt um acht Uhr."], ["der Kurs", "کلاس", "Der Kurs beginnt heute."]], ["Ich fahre mit dem Zug zur Arbeit."]),
+  lesson(62, 1, "seit، bei و gegenüber", "seit · bei · gegenüber + Dativ", "Seit einem Jahr arbeite ich bei einer Firma gegenüber dem Bahnhof.", "یک سال است در شرکتی روبه‌روی ایستگاه کار می‌کنم.", "seit مدت تا اکنون، bei محل یا سازمان و gegenüber روبه‌رو را نشان می‌دهد؛ همگی با داتیو می‌آیند.", "محل زندگی یا کار خود را با seit، bei یا gegenüber توصیف کن.", [["seit", "از ... تاکنون", "Seit Montag lerne ich."], ["die Firma", "شرکت", "Die Firma ist modern."]], ["Das Café liegt gegenüber dem Museum."]),
+  lesson(63, 2, "für و gegen", "für + Akkusativ · gegen + Akkusativ", "Das Geschenk ist für meinen Bruder, und der Termin ist gegen zehn Uhr.", "هدیه برای برادرم است و قرار حدود ساعت ده است.", "für و gegen همیشه آکوزاتیو می‌گیرند: für meinen Bruder، gegen zehn Uhr.", "یک جمله دربارهٔ هدیه یا زمان یک قرار بنویس.", [["das Geschenk", "هدیه", "Das Geschenk ist schön."], ["der Termin", "قرار", "Ich habe morgen einen Termin."]], ["Wir treffen uns gegen fünf Uhr."]),
+  lesson(64, 2, "ohne، durch و entlang", "ohne · durch · entlang + Akkusativ", "Wir gehen ohne den Regenschirm durch den Park und die Straße entlang.", "بدون چتر از پارک عبور می‌کنیم و در امتداد خیابان می‌رویم.", "ohne و durch قبل از اسم می‌آیند؛ entlang اغلب بعد از اسم می‌آید و این ساختارها آکوزاتیو می‌خواهند.", "یک مسیر کوتاه را با ohne، durch و entlang توصیف کن.", [["der Regenschirm", "چتر", "Ich nehme den Regenschirm mit."], ["der Park", "پارک", "Der Park ist ruhig."]], ["Wir laufen den Fluss entlang."]),
+  lesson(65, 3, "Wo? موقعیت با داتیو", "Wechselpräpositionen + Dativ", "Das Buch liegt auf dem Tisch neben der Lampe.", "کتاب روی میز و کنار چراغ قرار دارد.", "برای Wo? و موقعیت ثابت، حرف اضافهٔ دوحالته داتیو می‌گیرد: auf dem Tisch، neben der Lampe.", "محل دو وسیله را با Wo? و داتیو توصیف کن.", [["liegen", "قرار داشتن", "Das Buch liegt auf dem Tisch."], ["neben", "کنار", "Die Tasche liegt neben dem Stuhl."]], ["Der Schlüssel liegt unter dem Buch."]),
+  lesson(66, 3, "Wohin? مقصد با آکوزاتیو", "Wechselpräpositionen + Akkusativ", "Ich stelle die Lampe auf den Tisch und den Stuhl in das Zimmer.", "چراغ را روی میز و صندلی را داخل اتاق می‌گذارم.", "برای Wohin? و حرکت به مقصد، آکوزاتیو می‌آید: auf den Tisch، in das Zimmer.", "دو وسیله را به مقصدهای مختلف منتقل کن.", [["stellen", "عمودی گذاشتن", "Ich stelle die Flasche auf den Tisch."], ["das Zimmer", "اتاق", "Das Zimmer ist hell."]], ["Ich lege das Handy neben das Bett."]),
+  lesson(67, 4, "گیرنده و مفعول مستقیم", "Dativ + Akkusativ", "Ich gebe meinem Kollegen den wichtigen Bericht.", "گزارش مهم را به همکارم می‌دهم.", "گیرنده داتیو است: meinem Kollegen؛ شیء مستقیم آکوزاتیو است: den Bericht.", "یک جمله با jemandem etwas geben بنویس.", [["geben", "دادن", "Ich gebe dir das Buch."], ["der Bericht", "گزارش", "Der Bericht ist fertig."]], ["Wir zeigen dem Lehrer die Lösung."]),
+  lesson(68, 4, "mir یا mich؟", "helfen + Dativ · anrufen + Akkusativ", "Kannst du mir helfen? Ruf mich bitte später an.", "می‌توانی به من کمک کنی؟ لطفاً بعداً با من تماس بگیر.", "helfen با داتیو و anrufen با آکوزاتیو می‌آید؛ نقش فعل را حفظ کن: mir helfen، mich anrufen.", "دو جمله با mir و mich بنویس.", [["helfen", "کمک کردن", "Kannst du mir helfen?"], ["anrufen", "تماس گرفتن", "Ich rufe dich an."]], ["Sie besucht mich am Wochenende."]),
+  lesson(69, 5, "weil و dass", "Nebensatz · فعل در پایان", "Ich lerne Deutsch, weil ich die B1-Prüfung bestehen möchte.", "آلمانی می‌خوانم، چون می‌خواهم در آزمون B1 قبول شوم.", "در جملهٔ فرعی با weil و dass، فعل صرف‌شده به پایان می‌رود: weil ich ... möchte.", "یک جمله با weil یا dass دربارهٔ هدف یادگیری بنویس.", [["bestehen", "قبول شدن", "Ich möchte die Prüfung bestehen."], ["wichtig", "مهم", "Die Prüfung ist wichtig."]], ["Ich weiß, dass die Prüfung wichtig ist."]),
+  lesson(70, 5, "obwohl، bevor و nachdem", "فعل در پایان جملهٔ فرعی", "Obwohl es regnet, lerne ich, bevor ich zur Prüfung gehe.", "با اینکه باران می‌بارد، قبل از رفتن به آزمون درس می‌خوانم.", "obwohl تضاد و bevor یا nachdem ترتیب زمانی می‌سازند؛ فعل در جملهٔ فرعی آخر می‌آید.", "یک جملهٔ ترکیبی با obwohl، bevor یا nachdem بساز.", [["obwohl", "با اینکه", "Obwohl ich müde bin, lerne ich."], ["bevor", "قبل از اینکه", "Bevor ich schlafe, lese ich."]], ["Wenn ich Zeit habe, wiederhole ich die Regeln."]),
+  lesson(71, 6, "توانایی، اجبار و اجازه", "können · müssen · dürfen", "Ich kann heute lernen, aber ich muss auch arbeiten. Darf ich später gehen?", "امروز می‌توانم درس بخوانم، اما باید کار کنم. اجازه دارم بعداً بروم؟", "فعل مُدال صرف می‌شود و مصدر فعل اصلی به پایان می‌رود: Ich muss arbeiten.", "سه جمله دربارهٔ برنامهٔ امروز با können، müssen و dürfen بنویس.", [["können", "توانستن", "Ich kann dir helfen."], ["müssen", "باید", "Wir müssen arbeiten."], ["dürfen", "اجازه داشتن", "Darf ich eintreten?"]], ["Wir dürfen hier nicht parken."]),
+  lesson(72, 6, "خواستن و درخواست مؤدبانه", "wollen · sollen · mögen · möchten", "Ich möchte einen Tee, und wir wollen am Wochenende wandern.", "یک چای می‌خواهم و آخر هفته می‌خواهیم کوه‌پیمایی کنیم.", "möchten درخواست مؤدبانه و wollen قصد را بیان می‌کند؛ sollen توصیه و mögen علاقه است.", "یک درخواست با möchten و یک برنامه با wollen بنویس.", [["möchten", "خواستن مؤدبانه", "Ich möchte einen Kaffee."], ["wollen", "قصد داشتن", "Wir wollen morgen starten."]], ["Ich mag deutsche Musik."]),
+  lesson(73, 7, "warten auf و denken an", "فعل + حرف اضافه + Akkusativ", "Ich warte auf den Zug und denke an den Termin.", "منتظر قطار هستم و به قرار فکر می‌کنم.", "ترکیب‌ها را به صورت واحد حفظ کن: warten auf و denken an؛ هر دو اینجا آکوزاتیو می‌گیرند.", "دو جمله با warten auf و denken an بنویس.", [["warten auf", "منتظر بودن", "Wir warten auf den Bus."], ["denken an", "فکر کردن به", "Ich denke an meine Familie."]], ["Sie wartet auf ihre Freundin."]),
+  lesson(74, 7, "sich interessieren für", "sich interessieren für + Akkusativ", "Ich interessiere mich für deutsche Geschichte und neue Technologien.", "به تاریخ آلمان و فناوری‌های جدید علاقه‌مندم.", "ضمیر بازتابی با شخص هماهنگ می‌شود: ich interessiere mich؛ für آکوزاتیو می‌گیرد.", "دربارهٔ دو موضوع مورد علاقهٔ خود بنویس.", [["sich interessieren für", "علاقه‌مند بودن", "Sie interessiert sich für Kunst."], ["die Geschichte", "تاریخ", "Geschichte ist spannend."]], ["Wofür interessierst du dich?"]),
+  lesson(75, 8, "Präsens و Perfekt", "حال و گذشتهٔ گفتاری", "Ich lerne jeden Tag Deutsch. Gestern habe ich die Regeln wiederholt.", "هر روز آلمانی می‌خوانم. دیروز قواعد را مرور کردم.", "Präsens برای عادت و Perfekt با haben/sein + Partizip II برای گذشتهٔ گفتاری است.", "یک جمله در Präsens و یک جمله در Perfekt بنویس.", [["jeden Tag", "هر روز", "Ich übe jeden Tag."], ["wiederholen", "مرور کردن", "Ich wiederhole die Wörter."]], ["Wir haben gestern einen Film gesehen."]),
+  lesson(76, 8, "Präteritum، Plusquamperfekt و Futur I", "روایت گذشته و آینده", "Bevor ich kam, hatte ich schon gelernt. Morgen werde ich weiterüben.", "قبل از آمدنم درس خوانده بودم. فردا تمرین را ادامه خواهم داد.", "Plusquamperfekt رخدادِ پیش‌تر را نشان می‌دهد: hatte gelernt؛ Futur I با werden + مصدر ساخته می‌شود.", "یک روایت کوتاه با hatte و werde بنویس.", [["schon", "قبلاً", "Ich hatte schon gegessen."], ["weiterüben", "ادامهٔ تمرین", "Morgen werde ich weiterüben."]], ["Nächste Woche werde ich eine Prüfung schreiben."]),
+  lesson(77, 9, "ضمیر موصولی در Nominativ", "der · die · das", "Das ist die Frau, die neben mir wohnt.", "این همان زنی است که کنار من زندگی می‌کند.", "ضمیر موصولی جنس و شمار اسم قبلی را می‌گیرد و فعل جملهٔ موصولی در پایان می‌آید.", "یک شخص یا شیء را با ضمیر موصولی در نقش فاعل توصیف کن.", [["die Frau", "زن", "Die Frau arbeitet hier."], ["wohnen", "زندگی کردن", "Ich wohne in Berlin."]], ["Das ist der Mann, der Deutsch unterrichtet."]),
+  lesson(78, 9, "ضمیر موصولی در Akkusativ و Dativ", "den · die · das · dem · der", "Der Film, den wir sehen, ist spannend. Die Frau, der ich geholfen habe, ist meine Nachbarin.", "فیلمی که می‌بینیم هیجان‌انگیز است؛ زنی که به او کمک کرده‌ام همسایهٔ من است.", "حالت ضمیر موصولی را نقش آن در جملهٔ داخلی تعیین می‌کند: den برای مفعول مذکر و der برای داتیو مؤنث.", "دو جمله را با ضمیر موصولی در آکوزاتیو یا داتیو ترکیب کن.", [["spannend", "هیجان‌انگیز", "Der Film ist spannend."], ["helfen", "کمک کردن", "Ich helfe der Frau."]], ["Das ist der Kurs, den ich besuche."]),
+  lesson(79, 10, "صفت بعد از آرتیکل نامعین", "eine neue Wohnung · einem kleinen Balkon", "Ich suche eine neue Wohnung mit einem kleinen Balkon.", "دنبال یک آپارتمان جدید با یک بالکن کوچک می‌گردم.", "بعد از آرتیکل نامعین، پایان صفت بخشی از جنس و حالت را نشان می‌دهد: eine neue، einem kleinen.", "یک مکان را با دست‌کم دو صفت توصیف کن.", [["neu", "جدید", "Die Wohnung ist neu."], ["klein", "کوچک", "Der Balkon ist klein."]], ["Wir wohnen in einem hellen Zimmer."]),
+  lesson(80, 10, "مقایسه و برترین", "größer als · so ... wie · am besten", "Schreiben ist schwieriger als Lesen, aber Sprechen ist am wichtigsten.", "نوشتن از خواندن سخت‌تر است، اما صحبت کردن مهم‌ترین است.", "برای مقایسه -er + als و برای برترین am + -sten می‌آید؛ gut بی‌قاعده است: besser، am besten.", "دو مهارت را مقایسه کن و مهم‌ترین را انتخاب کن.", [["schwierig", "سخت", "Die Aufgabe ist schwierig."], ["wichtig", "مهم", "Das ist wichtig."], ["am besten", "بهترین", "So lerne ich am besten."]], ["Deutsch ist leichter als Mathematik."]),
+  lesson(81, 11, "Passiv در زمان حال", "werden + Partizip II", "Die E-Mail wird heute beantwortet und der Antrag wird geprüft.", "ایمیل امروز پاسخ داده می‌شود و درخواست بررسی می‌شود.", "در Passiv تمرکز روی عمل است: werden صرف می‌شود و Partizip II به پایان می‌رود.", "دو کار اداری را با مجهول زمان حال بنویس.", [["beantworten", "پاسخ دادن", "Ich beantworte die E-Mail."], ["prüfen", "بررسی کردن", "Wir prüfen den Antrag."]], ["Die Daten werden gespeichert."]),
+  lesson(82, 11, "Konjunktiv II برای فرض و ادب", "würde · hätte · wäre · könnte", "Wenn ich mehr Zeit hätte, würde ich jeden Tag schreiben.", "اگر وقت بیشتری داشتم، هر روز می‌نوشتم.", "Konjunktiv II برای حالت فرضی و درخواست مؤدبانه است: hätte، wäre، könnte و würde + مصدر.", "یک آرزو یا درخواست مؤدبانه با Konjunktiv II بنویس.", [["die Zeit", "وقت", "Ich habe wenig Zeit."], ["könnte", "می‌توانستم", "Könnte ich bitte zahlen?"]], ["Könnten Sie mir bitte helfen?"]),
+  lesson(83, 12, "ایمیل B1: درخواست روشن", "Anrede · دلیل · درخواست · پایان", "Sehr geehrte Damen und Herren, ich schreibe Ihnen, weil ich eine Frage zum B1-Kurs habe.", "خانم‌ها و آقایان محترم، دربارهٔ دورهٔ B1 یک سؤال دارم.", "ایمیل رسمی با خطاب محترمانه شروع می‌شود؛ دلیل را با weil و درخواست را روشن بنویس.", "یک ایمیل رسمی کوتاه با سلام، دلیل، درخواست و پایان بنویس.", [["die Frage", "سؤال", "Ich habe eine Frage."], ["der Kurs", "دوره", "Der Kurs beginnt im Mai."]], ["Könnten Sie mir bitte den Prüfungstermin mitteilen?"]),
+  lesson(84, 12, "نظر شخصی و شکایت", "Meiner Meinung nach · deshalb · trotzdem", "Meiner Meinung nach ist tägliches Schreiben wichtig, deshalb wünsche ich mir mehr Schreibübungen.", "به نظر من نوشتن روزانه مهم است، بنابراین تمرین نوشتاری بیشتری می‌خواهم.", "برای نظر از Meiner Meinung nach و برای نتیجه از deshalb استفاده کن؛ مشکل و درخواست را مؤدبانه بنویس.", "یک متن پیوستهٔ کوتاه با نظر، دلیل، مشکل یا پیشنهاد و نتیجه بنویس.", [["Meiner Meinung nach", "به نظر من", "Meiner Meinung nach ist das wichtig."], ["deshalb", "بنابراین", "Deshalb schreibe ich Ihnen."]], ["Trotzdem bin ich mit dem Kurs zufrieden."]),
+];
