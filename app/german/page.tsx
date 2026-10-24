@@ -44,6 +44,7 @@ export default function GermanPage() {
     <div className="app-shell german-shell">
       <aside className="app-sidebar"><AppBrand subtitle="Learn. Practice. Progress." /><SimpleNavigation active="german" items={[
         { key: "german", label: "German for IT", href: "/german", icon: <Languages size={18} /> },
+        { key: "german-b1", label: "B1 Grammatik · 12 Themen", href: "/german#b1-grammar", icon: <BookOpen size={18} /> },
         { key: "grammar-cases", label: "SatzTat · پرونده‌های گرامر", href: "/german/grammar-cases", icon: <ChevronRight size={18} /> },
         { key: "satztat", label: "SatzTat · Network missions", href: "/german/satztat", icon: <ChevronRight size={18} /> },
         { key: "home", label: "Windows Server", href: "/", icon: <BookOpen size={18} /> },
@@ -184,7 +185,7 @@ export function GermanWorkspace({ userId }: { userId: string }) {
     <div className="german-metrics"><div><span>Practice</span><strong>{summary.practicedLessons}<small>/{germanLessons.length} lessons</small></strong></div><div><span>Independent recall</span><strong>{summary.independentRecallPasses}<small>successful attempts</small></strong></div><div><span>Writing</span><strong>{summary.writingReviews}<small>self-reviews</small></strong></div><div><span>Due today</span><strong>{due.length}<small>+ {summary.newLessons} new</small></strong></div></div>
     <div className="german-toolbar"><span role="status">{saveStatus}</span><button type="button" onClick={() => { setListView("due"); if (due[0]) selectLesson(due[0].id); }}>Review due ({due.length})</button><button type="button" onClick={reset}><RotateCcw size={14} />Reset German practice</button></div>
     <div className="german-layout">
-      <aside className="german-path" aria-label="German learning path"><div className="german-path-heading"><h3><BookOpen size={16} />Your path</h3><button type="button" onClick={() => setListView("all")}>All {germanLessons.length}</button></div>
+      <aside id="b1-grammar" className="german-path" aria-label="German learning path"><div className="german-path-heading"><h3><BookOpen size={16} />Your path</h3><button type="button" onClick={() => setListView("all")}>All {germanLessons.length}</button></div>
         {listView === "due" && !due.length && <p className="german-empty">No reviews due. Choose All {germanLessons.length} to practise something new. New lessons are not overdue.</p>}
         {germanUnits.map(unit => { const lessons = (listView === "due" ? due : germanLessons).filter(item => item.unitId === unit.id); if (!lessons.length) return null; return <details key={unit.id} open={unit.id === lesson.unitId || listView === "due"}><summary><span>{unit.title}</span><small>{lessons.filter(item => progress.lessons[item.id].independentRecallCount > 0).length}/{lessons.length}</small></summary><p>{unit.description}</p>{lessons.map(item => <button type="button" key={item.id} aria-current={item.id === lesson.id ? "step" : undefined} onClick={() => selectLesson(item.id)}><span className="german-lesson-index">{progress.lessons[item.id].independentRecallCount > 0 ? <Check size={14} /> : item.id.slice(-3)}</span><span>{item.title}</span><ChevronRight size={13} /></button>)}</details>; })}
       </aside>
