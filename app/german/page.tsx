@@ -7,10 +7,10 @@ import { SimpleNavigation } from "@/app/components/simple-learning";
 import { AccountPanel, AuthPanel } from "@/app/components/learning-views";
 import { GoogleSubtitle, GoogleSubtitleProvider } from "@/app/components/google-translate";
 import { copy } from "@/lib/course-data";
+import { b1GrammarLessons, b1GrammarUnits } from "@/lib/content/german-b1-grammar";
 import { germanLessons, germanUnits } from "@/lib/content/german-learning";
 import { compareCharacters, compareTypedCharacters, createGermanProgress, getGermanSummary, MAX_GERMAN_INPUT, MAX_GERMAN_WRITING_INPUT, parseGermanProgress, recordGermanAttempt, updateGermanDraft, type GermanMode, type GermanProgress } from "@/lib/german-learning-engine";
 
-const lessonIds = germanLessons.map(lesson => lesson.id);
 const modes: { id: GermanMode; title: string; description: string }[] = [
   { id: "copy", title: "1 · Model", description: "Read the sentence, notice its grammar, then type it. This is practice, not an independent recall test." },
   { id: "dictation", title: "2 · Listen", description: "Listen and type what you hear. Audio uses an available German browser voice, not a recording of a native speaker." },
@@ -44,7 +44,7 @@ export default function GermanPage() {
     <div className="app-shell german-shell">
       <aside className="app-sidebar"><AppBrand subtitle="Learn. Practice. Progress." /><SimpleNavigation active="german" items={[
         { key: "german", label: "German for IT", href: "/german", icon: <Languages size={18} /> },
-        { key: "german-b1", label: "B1 Grammatik · 12 Themen", href: "/german#b1-grammar", icon: <BookOpen size={18} /> },
+        { key: "german-b1", label: "B1 Grammatik · 12 Themen", href: "/german/b1-grammar", icon: <BookOpen size={18} /> },
         { key: "grammar-cases", label: "SatzTat · پرونده‌های گرامر", href: "/german/grammar-cases", icon: <ChevronRight size={18} /> },
         { key: "satztat", label: "SatzTat · Network missions", href: "/german/satztat", icon: <ChevronRight size={18} /> },
         { key: "home", label: "Windows Server", href: "/", icon: <BookOpen size={18} /> },
@@ -55,10 +55,13 @@ export default function GermanPage() {
   </main></GoogleSubtitleProvider>;
 }
 
-export function GermanWorkspace({ userId }: { userId: string }) {
-  const storageKey = `klybit-german:v1:${userId}`;
-  const [progress, setProgress] = useState<GermanProgress>(() => createGermanProgress(lessonIds));
-  const [lessonId, setLessonId] = useState(lessonIds[0]);
+export function GermanWorkspace({ userId, variant = "it" }: { userId: string; variant?: "it" | "b1" }) {
+  const courseLessons = variant === "b1" ? b1GrammarLessons : germanLessons;
+  const courseUnits = variant === "b1" ? b1GrammarUnits : germanUnits;
+  const courseLessonIds = courseLessons.map(item => item.id);
+  const storageKey = `klybit-german:${variant}:v1:${userId}`;
+  const [progress, setProgress] = useState<GermanProgress>(() => createGermanProgress(courseLessonIds));
+  const [lessonId, setLessonId] = useState(courseLessonIds[0]);
   const [ready, setReady] = useState(false);
   const [saveStatus, setSaveStatus] = useState("Loading progress…");
   const [feedback, setFeedback] = useState("");
@@ -73,25 +76,25 @@ export function GermanWorkspace({ userId }: { userId: string }) {
   const [clock, setClock] = useState(Date.now);
   const textarea = useRef<HTMLTextAreaElement>(null);
   const composing = useRef(false);
-  const lesson = germanLessons.find(item => item.id === lessonId) ?? germanLessons[0];
+  const lesson = courseLessons.find(item => item.id === lessonId) ?? courseLessons[0];
   const current = progress.lessons[lesson.id];
   const mode = current.mode;
   const draft = current.draft;
   const answers = mode === "recall" ? [lesson.model, ...lesson.variants] : [lesson.model];
   const comparisonTarget = answers.find(answer => normalized(answer) === normalized(draft)) ?? lesson.model;
-  const summary = getGermanSummary(progress, lessonIds, clock);
+  const summary = getGermanSummary(progress, courseLessonIds, clock);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       try {
         const raw = localStorage.getItem(storageKey);
         const saved = raw && raw.length < 1000000 ? JSON.parse(raw) : null;
-        const restored = parseGermanProgress(saved?.progress, lessonIds);
+        const restored = parseGermanProgress(saved?.progress, courseLessonIds);
         if (restored) {
           setProgress(restored);
-          if (lessonIds.includes(saved.lessonId)) setLessonId(saved.lessonId);
+          if (courseLessonIds.includes(saved.lessonId)) setLessonId(saved.lessonId);
           if (Array.isArray(saved.assistedIds)) {
-            const ids = saved.assistedIds.filter((id: unknown): id is string => typeof id === "string" && lessonIds.includes(id));
+            const ids = saved.assistedIds.filter((id: unknown): id is string => typeof id === "string" && courseLessonIds.includes(id));
             setAssistedIds(ids); setHintUsed(ids.includes(saved.lessonId));
           }
           setSaveStatus("Saved practice resumed · this browser");
@@ -169,25 +172,24 @@ export function GermanWorkspace({ userId }: { userId: string }) {
   };
   const reset = () => {
     if (!window.confirm("Reset only your German practice in this browser? Review boxes and drafts will be cleared.")) return;
-    setProgress(createGermanProgress(lessonIds)); setAssistedIds([]); selectLesson(lessonIds[0]); setHintUsed(false); setSaveStatus("German practice reset");
+    setProgress(createGermanProgress(courseLessonIds)); setAssistedIds([]); selectLesson(courseLessonIds[0]); setHintUsed(false); setSaveStatus("German practice reset");
   };
-  const due = germanLessons.filter(item => { const state = progress.lessons[item.id]; return state.dueAt !== null && state.dueAt <= clock; });
+  const due = courseLessons.filter(item => { const state = progress.lessons[item.id]; return state.dueAt !== null && state.dueAt <= clock; });
   const reviewed = summary.independentRecallLessons;
-  const activeUnit = germanUnits.find(unit => unit.id === lesson.unitId)!;
-  const nextLesson = germanLessons[germanLessons.findIndex(item => item.id === lesson.id) + 1];
+  const activeUnit = courseUnits.find(unit => unit.id === lesson.unitId)!;
+  const nextLesson = courseLessons[courseLessons.findIndex(item => item.id === lesson.id) + 1];
   const typedCharacters = mode === "recall" && !checked ? Array.from(draft).map(character => ({ character, status: "neutral" })) : mode !== "writing" ? compareTypedCharacters(comparisonTarget, draft) : [];
   const mistakes = typedCharacters.filter(character => character.status === "incorrect").length;
   if (!ready) return <p role="status">Loading your saved German practice…</p>;
   return <div className="german-workspace">
-    <a className="german-game-entry" href="/german/grammar-cases" lang="fa" dir="rtl"><span className="german-game-mark" aria-hidden="true">S<span>✦</span></span><span><small>بازی جمله‌سازی · ۲۴ مأموریت در چهار فصل</small><strong>SatzTat · پرونده‌های گرامر</strong><span>موقعیت را بخوان، جمله بساز، اصلاح کن و مهارتت را در موقعیت تازه امتحان کن.</span></span><ArrowRight size={20} aria-hidden="true" /></a>
-    <a className="german-game-entry" href="/german/satztat"><span className="german-game-mark" aria-hidden="true">S<span>↗</span></span><span><small>INTERACTIVE NETWORK CASES · SEPARATE GAME</small><strong>SatzTat · Detect. Repair. Explain.</strong><span>Investigate a network incident, then write the German handover.</span></span><ArrowRight size={20} aria-hidden="true" /></a>
-    <section className="german-intro"><div><p className="german-eyebrow">GERMAN FOR IT · B1 → B2 BRIDGE</p><h2><GoogleSubtitle text="From a sentence to a professional IT handover." /></h2><p><GoogleSubtitle text="Start with useful patterns. Progress to multi-sentence tickets, change reports and complete emails, with spaced recall and guided writing self-review." /></p></div><div className="german-progress"><strong>{reviewed}/{germanLessons.length}</strong><span>lessons recalled independently</span><progress value={reviewed} max={germanLessons.length} aria-label="Lessons recalled independently" /></div></section>
-    <div className="german-metrics"><div><span>Practice</span><strong>{summary.practicedLessons}<small>/{germanLessons.length} lessons</small></strong></div><div><span>Independent recall</span><strong>{summary.independentRecallPasses}<small>successful attempts</small></strong></div><div><span>Writing</span><strong>{summary.writingReviews}<small>self-reviews</small></strong></div><div><span>Due today</span><strong>{due.length}<small>+ {summary.newLessons} new</small></strong></div></div>
+    {variant === "it" && <><a className="german-game-entry" href="/german/grammar-cases" lang="fa" dir="rtl"><span className="german-game-mark" aria-hidden="true">S<span>✦</span></span><span><small>بازی جمله‌سازی · ۲۴ مأموریت در چهار فصل</small><strong>SatzTat · پرونده‌های گرامر</strong><span>موقعیت را بخوان، جمله بساز، اصلاح کن و مهارتت را در موقعیت تازه امتحان کن.</span></span><ArrowRight size={20} aria-hidden="true" /></a><a className="german-game-entry" href="/german/satztat"><span className="german-game-mark" aria-hidden="true">S<span>↗</span></span><span><small>INTERACTIVE NETWORK CASES · SEPARATE GAME</small><strong>SatzTat · Detect. Repair. Explain.</strong><span>Investigate a network incident, then write the German handover.</span></span><ArrowRight size={20} aria-hidden="true" /></a></>}
+    <section className="german-intro"><div><p className="german-eyebrow">{variant === "b1" ? "B1 GRAMMATIK · 12 THEMEN" : "GERMAN FOR IT · B1 → B2 BRIDGE"}</p><h2><GoogleSubtitle text={variant === "b1" ? "German B1 grammar, step by step." : "From a sentence to a professional IT handover."} /></h2><p><GoogleSubtitle text={variant === "b1" ? "Learn each grammar topic with examples, dictation, recall and writing." : "Start with useful patterns. Progress to multi-sentence tickets, change reports and complete emails, with spaced recall and guided writing self-review."} /></p></div><div className="german-progress"><strong>{reviewed}/{courseLessons.length}</strong><span>lessons recalled independently</span><progress value={reviewed} max={courseLessons.length} aria-label="Lessons recalled independently" /></div></section>
+    <div className="german-metrics"><div><span>Practice</span><strong>{summary.practicedLessons}<small>/{courseLessons.length} lessons</small></strong></div><div><span>Independent recall</span><strong>{summary.independentRecallPasses}<small>successful attempts</small></strong></div><div><span>Writing</span><strong>{summary.writingReviews}<small>self-reviews</small></strong></div><div><span>Due today</span><strong>{due.length}<small>+ {summary.newLessons} new</small></strong></div></div>
     <div className="german-toolbar"><span role="status">{saveStatus}</span><button type="button" onClick={() => { setListView("due"); if (due[0]) selectLesson(due[0].id); }}>Review due ({due.length})</button><button type="button" onClick={reset}><RotateCcw size={14} />Reset German practice</button></div>
     <div className="german-layout">
-      <aside id="b1-grammar" className="german-path" aria-label="German learning path"><div className="german-path-heading"><h3><BookOpen size={16} />Your path</h3><button type="button" onClick={() => setListView("all")}>All {germanLessons.length}</button></div>
-        {listView === "due" && !due.length && <p className="german-empty">No reviews due. Choose All {germanLessons.length} to practise something new. New lessons are not overdue.</p>}
-        {germanUnits.map(unit => { const lessons = (listView === "due" ? due : germanLessons).filter(item => item.unitId === unit.id); if (!lessons.length) return null; return <details key={unit.id} open={unit.id === lesson.unitId || listView === "due"}><summary><span>{unit.title}</span><small>{lessons.filter(item => progress.lessons[item.id].independentRecallCount > 0).length}/{lessons.length}</small></summary><p>{unit.description}</p>{lessons.map(item => <button type="button" key={item.id} aria-current={item.id === lesson.id ? "step" : undefined} onClick={() => selectLesson(item.id)}><span className="german-lesson-index">{progress.lessons[item.id].independentRecallCount > 0 ? <Check size={14} /> : item.id.slice(-3)}</span><span>{item.title}</span><ChevronRight size={13} /></button>)}</details>; })}
+      <aside className="german-path" aria-label="German learning path"><div className="german-path-heading"><h3><BookOpen size={16} />Your path</h3><button type="button" onClick={() => setListView("all")}>All {courseLessons.length}</button></div>
+        {listView === "due" && !due.length && <p className="german-empty">No reviews due. Choose All {courseLessons.length} to practise something new. New lessons are not overdue.</p>}
+        {courseUnits.map(unit => { const lessons = (listView === "due" ? due : courseLessons).filter(item => item.unitId === unit.id); if (!lessons.length) return null; return <details key={unit.id} open={unit.id === lesson.unitId || listView === "due"}><summary><span>{unit.title}</span><small>{lessons.filter(item => progress.lessons[item.id].independentRecallCount > 0).length}/{lessons.length}</small></summary><p>{unit.description}</p>{lessons.map(item => <button type="button" key={item.id} aria-current={item.id === lesson.id ? "step" : undefined} onClick={() => selectLesson(item.id)}><span className="german-lesson-index">{progress.lessons[item.id].independentRecallCount > 0 ? <Check size={14} /> : item.id.slice(-3)}</span><span>{item.title}</span><ChevronRight size={13} /></button>)}</details>; })}
       </aside>
       <section className="german-practice" aria-label="German lesson"><div className="german-lesson-heading"><div><p className="german-eyebrow">{lesson.level ?? "B1"} · {activeUnit.title} · {lesson.id.slice(-3)}</p><h3>{lesson.title}</h3><p>{lesson.grammar}</p></div><span className="german-box">Box {current.box}/5</span></div>
         <div className="german-mode-tabs" role="tablist" aria-label="Exercise mode">{modes.map(item => <button type="button" key={item.id} role="tab" id={`german-tab-${item.id}`} aria-selected={mode === item.id} aria-controls="german-exercise" onClick={() => switchMode(item.id)}>{item.title}</button>)}</div>
