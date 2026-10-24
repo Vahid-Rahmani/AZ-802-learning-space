@@ -80,6 +80,8 @@ export const b1GrammarLessons: GermanLesson[] = [
   lesson(84, 12, "نظر شخصی و شکایت", "Meiner Meinung nach · deshalb · trotzdem", "Meiner Meinung nach ist tägliches Schreiben wichtig, deshalb wünsche ich mir mehr Schreibübungen.", "به نظر من نوشتن روزانه مهم است، بنابراین تمرین نوشتاری بیشتری می‌خواهم.", "برای نظر از Meiner Meinung nach و برای نتیجه از deshalb استفاده کن؛ مشکل و درخواست را مؤدبانه بنویس.", "یک متن پیوستهٔ کوتاه با نظر، دلیل، مشکل یا پیشنهاد و نتیجه بنویس.", [["Meiner Meinung nach", "به نظر من", "Meiner Meinung nach ist das wichtig."], ["deshalb", "بنابراین", "Deshalb schreibe ich Ihnen."]], ["Trotzdem bin ich mit dem Kurs zufrieden."]),
 ];
 
+export type B1QuestionFormat = "choice" | "fill" | "fix" | "order";
+
 export interface B1GrammarQuestion {
   id: string;
   unitId: string;
@@ -88,41 +90,165 @@ export interface B1GrammarQuestion {
   options: string[];
   correctIndex: number;
   explanationFa: string;
+  format: B1QuestionFormat;
+  level: 1 | 2 | 3;
+  /** 0 or 1: which of the two lessons in a topic shows this question. */
+  lessonSlot: 0 | 1;
+  /** The expected answer; for choice/fix/order it is also options[correctIndex]. */
+  answer: string;
 }
 
-const coreB1GrammarQuestions: B1GrammarQuestion[] = [
-  { id: "q-b1-01", unitId: "unit13", prompt: "Ich fahre ___ Bus zur Arbeit.", translationFa: "من با اتوبوس به محل کار می‌روم.", options: ["mit dem", "mit den", "mit der", "mit die"], correctIndex: 0, explanationFa: "پاسخ درست: A) mit dem. حرف اضافهٔ mit همیشه داتیو می‌گیرد و Bus مذکر است." },
-  { id: "q-b1-02", unitId: "unit14", prompt: "Das Geschenk ist ___ meinen Bruder.", translationFa: "این هدیه برای برادر من است.", options: ["für dem", "für den", "für der", "für die"], correctIndex: 1, explanationFa: "پاسخ درست: B) für den. حرف اضافهٔ für همیشه آکوزاتیو می‌گیرد؛ der Bruder در آکوزاتیو می‌شود den Bruder." },
-  { id: "q-b1-03", unitId: "unit15", prompt: "Ich stelle die Lampe ___ Tisch.", translationFa: "من چراغ را روی میز قرار می‌دهم. منظور، گذاشتن چراغ روی میز است.", options: ["auf dem", "auf den", "auf der", "auf die"], correctIndex: 1, explanationFa: "پاسخ درست: B) auf den. فعل stellen حرکت به مقصد را نشان می‌دهد (Wohin?)؛ پس آکوزاتیو لازم است: auf den Tisch." },
-  { id: "q-b1-04", unitId: "unit16", prompt: "Ich gebe ___ Kollegen den Bericht.", translationFa: "من گزارش را به همکارم می‌دهم.", options: ["meinen", "meinem", "meiner", "mein"], correctIndex: 1, explanationFa: "پاسخ درست: B) meinem. شخص دریافت‌کننده در نقش داتیو است: meinem Kollegen؛ گزارش مفعول مستقیم و آکوزاتیو است." },
-  { id: "q-b1-05", unitId: "unit17", prompt: "Ich lerne, weil ich die Prüfung bestehen ___.", translationFa: "درس می‌خوانم، چون می‌خواهم در آزمون قبول شوم.", options: ["muss", "möchte", "möchtest", "möchten"], correctIndex: 1, explanationFa: "پاسخ درست: B) möchte. در جملهٔ فرعی با weil فعل صرف‌شده در پایان می‌آید: weil ich ... bestehen möchte." },
-  { id: "q-b1-06", unitId: "unit18", prompt: "Du ___ heute früher gehen.", translationFa: "تو امروز اجازه داری زودتر بروی.", options: ["darfst", "dürfen", "darf", "dürft"], correctIndex: 0, explanationFa: "پاسخ درست: A) darfst. فاعل du با dürfen به شکل darfst صرف می‌شود و مصدر gehen در پایان می‌آید." },
-  { id: "q-b1-07", unitId: "unit19", prompt: "Ich warte ___ den Bus.", translationFa: "من منتظر اتوبوس هستم.", options: ["an", "auf", "für", "mit"], correctIndex: 1, explanationFa: "پاسخ درست: B) auf. ترکیب ثابت warten auf است و بعد از آن مفعول آکوزاتیو می‌آید." },
-  { id: "q-b1-08", unitId: "unit20", prompt: "Gestern ___ ich die Regel wiederholt.", translationFa: "دیروز آن قاعده را مرور کردم.", options: ["habe", "bin", "werde", "hatte"], correctIndex: 0, explanationFa: "پاسخ درست: A) habe. برای Perfekt این فعل از haben + Partizip II استفاده می‌کند: habe wiederholt." },
-  { id: "q-b1-09", unitId: "unit21", prompt: "Das ist die Frau, ___ neben mir wohnt.", translationFa: "این همان زنی است که کنار من زندگی می‌کند.", options: ["den", "die", "der", "das"], correctIndex: 1, explanationFa: "پاسخ درست: B) die. اسم Frau مؤنث است و ضمیر موصولی در جملهٔ داخلی نقش فاعل دارد: die wohnt." },
-  { id: "q-b1-10", unitId: "unit22", prompt: "Ich suche eine ___ Wohnung.", translationFa: "من دنبال یک آپارتمان جدید می‌گردم.", options: ["neue", "neuen", "neuem", "neuer"], correctIndex: 0, explanationFa: "پاسخ درست: A) neue. بعد از eine برای اسم مؤنث در آکوزاتیو، صفت پایان -e می‌گیرد: eine neue Wohnung." },
-  { id: "q-b1-11", unitId: "unit23", prompt: "Die E-Mail ___ heute beantwortet.", translationFa: "ایمیل امروز پاسخ داده می‌شود.", options: ["wird", "würde", "hätte", "wäre"], correctIndex: 0, explanationFa: "پاسخ درست: A) wird. این جمله Passiv در زمان حال است: wird + Partizip II، یعنی beantwortet." },
-  { id: "q-b1-12", unitId: "unit24", prompt: "___ Meinung nach ist Schreiben wichtig.", translationFa: "به نظر من نوشتن مهم است.", options: ["Meiner", "Meine", "Meinem", "Meinen"], correctIndex: 0, explanationFa: "پاسخ درست: A) Meiner. عبارت ثابت در داتیو چنین است: Meiner Meinung nach." },
-];
-
-const drillB1GrammarQuestions: B1GrammarQuestion[] = [];
-const seenPrompts = new Set(coreB1GrammarQuestions.map((question) => question.prompt));
-for (const topic of germanB1DrillModules) {
-  for (const drill of topic.drills) {
-    // A few drills restate the core question for that unit; keep one copy so
-    // cycling through the bank never shows the same sentence twice in a row.
-    if (seenPrompts.has(drill.prompt)) continue;
-    seenPrompts.add(drill.prompt);
-    drillB1GrammarQuestions.push({
-      id: `q-b1-drill-${drill.id}`,
-      unitId: `unit${topic.number + 12}`,
-      prompt: drill.prompt,
-      translationFa: drill.translation,
-      options: drill.options,
-      correctIndex: drill.correct,
-      explanationFa: `پاسخ درست: ${String.fromCharCode(65 + drill.correct)}) ${drill.options[drill.correct]}. ${drill.why}`,
-    });
+function stableHash(value: string): number {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index++) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
   }
+  return hash >>> 0;
 }
 
-export const b1GrammarQuestions: B1GrammarQuestion[] = [...coreB1GrammarQuestions, ...drillB1GrammarQuestions];
+/** Move the correct option to a deterministic position so answers do not all sit at A. */
+function arrangeOptions(options: string[], correctText: string, key: string) {
+  const wrong = [...new Set(options)].filter(option => option !== correctText).slice(0, 3);
+  const position = stableHash(key) % 4;
+  const arranged = [...wrong];
+  arranged.splice(position, 0, correctText);
+  return { options: arranged, correctIndex: position };
+}
+
+/** Fill every blank of a multiple-blank prompt with the parts of one answer. */
+function fillPrompt(prompt: string, fill: string): string {
+  const parts = fill.split(" / ");
+  let index = 0;
+  return prompt.replace(/___/g, () => parts[Math.min(index++, parts.length - 1)] ?? "");
+}
+
+/** Scramble whole words while keeping each word intact, so the learner builds the sentence. */
+function scrambleSentence(sentence: string, key: string): string {
+  const chunks = sentence.split(" ");
+  if (chunks.length < 3) return sentence;
+  const scrambled = chunks
+    .map((word, index) => ({ word, index, rank: stableHash(`${key}:${index}:${word}`) }))
+    .sort((left, right) => left.rank - right.rank || left.index - right.index)
+    .map(item => item.word);
+  if (scrambled.join(" ") === sentence) scrambled.push(scrambled.shift() as string);
+  return scrambled.join(" · ");
+}
+
+function drillLevel(drill: { level?: 1 | 2 | 3 }, index: number, total: number): 1 | 2 | 3 {
+  if (drill.level) return drill.level;
+  return index < Math.ceil(total / 3) ? 1 : index < Math.ceil((total * 2) / 3) ? 2 : 3;
+}
+
+function questionKey(topicId: string, drillId: string): string {
+  return `${topicId}-${drillId}`;
+}
+
+const articleSwaps: Record<string, string[]> = {
+  der: ["den", "dem", "die"], die: ["der", "den", "das"], das: ["dem", "den", "die"],
+  den: ["der", "dem", "die"], dem: ["den", "der", "das"], des: ["dem", "der", "den"],
+  ein: ["einen", "einem", "einer"], eine: ["einer", "einen", "einem"],
+  einen: ["einem", "einer", "ein"], einem: ["einen", "einer", "ein"], einer: ["eine", "einen", "einem"],
+  dein: ["deinen", "deinem", "deiner"], deine: ["deiner", "deinen", "deinem"],
+  deinen: ["deinem", "deiner", "dein"], deinem: ["deinen", "deiner", "dein"], deiner: ["deine", "deinen", "deinem"],
+  mein: ["meinen", "meinem", "meiner"], meine: ["meiner", "meinen", "meinem"],
+  meinen: ["meinem", "meiner", "mein"], meinem: ["meinen", "meiner", "mein"], meiner: ["meine", "meinen", "meinem"],
+  ihr: ["ihren", "ihrem", "ihrer"], ihre: ["ihrer", "ihren", "ihrem"],
+  ihren: ["ihrem", "ihrer", "ihr"], ihrem: ["ihren", "ihrer", "ihr"], ihrer: ["ihre", "ihren", "ihrem"],
+  unser: ["unseren", "unserem", "unserer"], unsere: ["unserer", "unseren", "unserem"],
+  euer: ["euren", "eurem", "eurer"], eure: ["eurer", "euren", "eurem"],
+};
+
+/**
+ * Build a sentence that is unambiguously wrong: change the case of a present
+ * article, or duplicate a word when the sentence has no article. The original
+ * wrong-option sentences are not reused because an alternative preposition or
+ * conjunction can still be grammatical in a different reading.
+ */
+function corruptSentence(sentence: string, key: string, variant: number): string {
+  const words = sentence.split(" ");
+  for (let index = 0; index < words.length; index++) {
+    const punctuation = words[index].match(/[.,!?;:]$/)?.[0] ?? "";
+    const clean = words[index].slice(0, words[index].length - punctuation.length);
+    const swaps = articleSwaps[clean.toLocaleLowerCase("de-DE")];
+    if (!swaps) continue;
+    const replacement = swaps[(stableHash(`${key}:${index}`) + variant) % swaps.length];
+    if (replacement === clean) continue;
+    words[index] = `${replacement}${punctuation}`;
+    return words.join(" ");
+  }
+  const candidates = words
+    .map((word, index) => ({ word, index }))
+    .filter(({ word }) => /^[A-Za-zÄÖÜäöüß]{3,}$/.test(word));
+  if (!candidates.length) return sentence;
+  const copies: string[] = [];
+  for (const candidate of candidates) {
+    const duplicated = [...words];
+    duplicated.splice(candidate.index, 0, duplicated[candidate.index]);
+    copies.push(duplicated.join(" "));
+  }
+  // Short sentences may offer only two usable words; duplicate every word as a
+  // third, still unambiguous error.
+  copies.push(words.flatMap(word => [word, word]).join(" "));
+  const pick = copies[(stableHash(key) + variant) % copies.length];
+  return pick;
+}
+
+function buildSecondaryQuestion(topic: typeof germanB1DrillModules[number], drill: typeof topic.drills[number], level: 1 | 2 | 3, index: number, lessonSlot: 0 | 1): B1GrammarQuestion {
+  const unitId = `unit${topic.number + 12}`;
+  const answer = drill.options[drill.correct];
+  const key = questionKey(topic.id, drill.id);
+  const format = (["fill", "fix", "order"] as const)[index % 3];
+  const sentence = fillPrompt(drill.prompt, answer);
+
+  if (format === "fill") {
+    return { id: `q-${topic.id}-m-${drill.id}`, unitId, prompt: drill.prompt, translationFa: drill.translation,
+      options: [], correctIndex: -1, explanationFa: drill.why, format, level, lessonSlot, answer };
+  }
+
+  if (format === "fix") {
+    const wrong = new Set<string>();
+    for (let attempt = 0; wrong.size < 3 && attempt < 12; attempt++) {
+      const candidate = corruptSentence(sentence, key, attempt);
+      if (candidate !== sentence) wrong.add(candidate);
+    }
+    const prompt = corruptSentence(sentence, key, 20);
+    const arranged = arrangeOptions([sentence, ...wrong], sentence, `fix-${key}`);
+    return { id: `q-${topic.id}-m-${drill.id}`, unitId, prompt, translationFa: drill.translation,
+      options: arranged.options, correctIndex: arranged.correctIndex, explanationFa: drill.why, format, level, lessonSlot, answer: sentence };
+  }
+
+  return { id: `q-${topic.id}-m-${drill.id}`, unitId, prompt: scrambleSentence(sentence, key), translationFa: drill.translation,
+    options: [], correctIndex: -1, explanationFa: drill.why, format: "order", level, lessonSlot, answer: sentence };
+}
+
+function buildTopicQuestions(topic: typeof germanB1DrillModules[number]): B1GrammarQuestion[] {
+  const unitId = `unit${topic.number + 12}`;
+  const ordered = topic.drills.map((drill, index) => ({ drill, index, level: drillLevel(drill, index, topic.drills.length) }))
+    .sort((left, right) => left.level - right.level || left.index - right.index);
+
+  const slots = new Map(ordered.map((item, index) => [item.drill.id, index % 2 as 0 | 1]));
+  const choiceFor = ({ drill, level }: typeof ordered[number]): B1GrammarQuestion => {
+    const answer = drill.options[drill.correct];
+    const arranged = arrangeOptions(drill.options, answer, `choice-${questionKey(topic.id, drill.id)}`);
+    return { id: `q-${topic.id}-c-${drill.id}`, unitId, prompt: drill.prompt, translationFa: drill.translation,
+      options: arranged.options, correctIndex: arranged.correctIndex, explanationFa: drill.why,
+      format: "choice" as const, level, lessonSlot: slots.get(drill.id) as 0 | 1, answer };
+  };
+  const secondaryFor = new Map(ordered.map((item, index) => {
+    const lessonSlot = (index + 1) % 2 as 0 | 1;
+    return [item.drill.id, buildSecondaryQuestion(topic, item.drill, item.level, index, lessonSlot)];
+  }));
+
+  // Interleave recognition and production inside each difficulty band, taking the
+  // production tasks from a different drill so consecutive questions never repeat.
+  return [1, 2, 3].flatMap(level => {
+    const group = ordered.filter(item => item.level === level);
+    const choices = group.map(choiceFor);
+    const productions = group.map(item => secondaryFor.get(item.drill.id) as B1GrammarQuestion);
+    const offset = Math.ceil(group.length / 2);
+    return group.flatMap((_, index) => [choices[index], productions[(index + offset) % group.length]]);
+  });
+}
+
+export const b1GrammarQuestions: B1GrammarQuestion[] = germanB1DrillModules.flatMap(buildTopicQuestions);

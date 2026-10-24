@@ -1,0 +1,78 @@
+import type { GermanB1Drill } from "./german-b1-drills";
+
+/**
+ * Extended B1 drill bank, part A: topics 1–4.
+ *
+ * Kept separate from the original 96 drills so the first bank stays easy to
+ * compare, while the validator still checks every key and unit mapping.
+ */
+export const germanB1ExtraA: Record<string, GermanB1Drill[]> = {
+  dativ: [
+    { id: "d9", prompt: "Wir kommen ___ Spanien.", translation: "ما از اسپانیا می‌آییم.", options: ["aus", "von", "bei", "seit"], correct: 0, why: "aus برای کشور یا شهر مبدأ است: aus Spanien." },
+    { id: "d10", prompt: "Sie wohnt ___ ihrer Tante.", translation: "او پیش خاله‌اش زندگی می‌کند.", options: ["bei", "zu", "mit", "nach"], correct: 0, why: "bei یعنی پیش کسی زندگی کردن؛ zu برای رفتن به سمت اوست." },
+    { id: "d11", prompt: "Ich fahre ___ Bahnhof.", translation: "من به ایستگاه می‌روم.", options: ["zum", "zur", "beim", "vom"], correct: 0, why: "der Bahnhof مذکر است؛ zu + dem = zum." },
+    { id: "d12", prompt: "Er geht ___ Apotheke.", translation: "او به داروخانه می‌رود.", options: ["zur", "zum", "beim", "aus der"], correct: 0, why: "die Apotheke مؤنث است؛ zu + der = zur." },
+    { id: "d13", prompt: "Wir kommen gerade ___ Lehrer.", translation: "ما همین حالا از پیش معلم می‌آییم.", options: ["vom", "zum", "beim", "aus dem"], correct: 0, why: "von + dem = vom؛ برگشتن از پیش کسی با von است." },
+    { id: "d14", prompt: "___ wem gehst du ins Kino?", translation: "با چه کسی به سینما می‌روی؟", options: ["Mit", "Von", "Bei", "Nach"], correct: 0, why: "برای پرسش «با چه کسی» از mit wem استفاده می‌شود." },
+    { id: "d15", prompt: "Seit ___ Jahr wohne ich hier.", translation: "از یک سال پیش اینجا زندگی می‌کنم.", options: ["einem", "einen", "ein", "einer"], correct: 0, why: "seit داتیو می‌خواهد؛ das Jahr ← einem Jahr." },
+    { id: "d16", prompt: "Nach ___ Arbeit gehe ich einkaufen.", translation: "بعد از کار خرید می‌کنم.", options: ["der", "die", "den", "dem"], correct: 0, why: "die Arbeit در داتیو به der Arbeit تبدیل می‌شود." },
+    { id: "d17", prompt: "___ deinem Bruder hast du das Geschenk bekommen?", translation: "هدیه را از برادرت گرفتی؟", options: ["Von", "Bei", "Zu", "Nach"], correct: 0, why: "von + داتیو نشان می‌دهد چیزی را از کسی گرفته‌ای." },
+    { id: "d18", prompt: "Das Geschäft liegt dem Kino ___.", translation: "فروشگاه روبه‌روی سینماست.", options: ["gegenüber", "entlang", "gegen", "vorbei"], correct: 0, why: "gegenüber می‌تواند بعد از اسم هم بیاید: dem Kino gegenüber." },
+    { id: "d19", prompt: "Ich fahre ___ meinen Eltern.", translation: "من به پیش پدر و مادرم می‌روم.", options: ["zu", "bei", "nach", "aus"], correct: 0, why: "برای رفتن به پیش افراد از zu + داتیو استفاده می‌کنیم." },
+    { id: "d20", prompt: "Wir sprechen ___ unseren Nachbarn.", translation: "ما با همسایه‌هایمان صحبت می‌کنیم.", options: ["mit", "zu", "bei", "von"], correct: 0, why: "sprechen mit + داتیو یعنی با کسی صحبت کردن." },
+    { id: "d21", prompt: "Er hat das von ___ gehört.", translation: "او این را از من شنیده است.", options: ["mir", "mich", "ich", "meiner"], correct: 0, why: "بعد از von ضمیر داتیو می‌آید: von mir." },
+    { id: "d22", prompt: "Kommst du ___ mir?", translation: "با من می‌آیی؟", options: ["mit", "zu", "bei", "nach"], correct: 0, why: "mit + داتیو یعنی همراه کسی؛ mit mir." },
+    { id: "d23", prompt: "___ wem wohnst du?", translation: "پیش چه کسی زندگی می‌کنی؟", options: ["Bei", "Mit", "Zu", "Von"], correct: 0, why: "برای پرسیدن «پیش چه کسی» از bei wem استفاده می‌شود." },
+  ],
+  akkusativ: [
+    { id: "a9", prompt: "Ich kaufe das Geschenk ___ meine Mutter.", translation: "من هدیه را برای مادرم می‌خرم.", options: ["für", "mit", "von", "bei"], correct: 0, why: "für همیشه آکوزاتیو می‌گیرد: für meine Mutter." },
+    { id: "a10", prompt: "Wir fahren ___ die Stadt.", translation: "ما از میان شهر می‌گذریم.", options: ["durch", "für", "gegen", "ohne"], correct: 0, why: "durch + آکوزاتیو یعنی از میان یا از داخل چیزی." },
+    { id: "a11", prompt: "Er kommt ___ seinen Regenschirm.", translation: "او بدون چترش می‌آید.", options: ["ohne", "mit", "für", "gegen"], correct: 0, why: "ohne همیشه آکوزاتیو می‌خواهد: ohne seinen Regenschirm." },
+    { id: "a12", prompt: "Wir laufen ___ den Park.", translation: "ما از میان پارک می‌دویم.", options: ["durch", "um", "gegen", "bis"], correct: 0, why: "durch + آکوزاتیو مسیر عبور از داخل را نشان می‌دهد." },
+    { id: "a13", prompt: "Ich habe nichts ___ dich.", translation: "من هیچ مخالفتی با تو ندارم.", options: ["gegen", "für", "ohne", "um"], correct: 0, why: "nichts gegen jemanden یعنی هیچ مشکلی با کسی نداشتن." },
+    { id: "a14", prompt: "Das ist ___ dich.", translation: "این برای توست.", options: ["für", "gegen", "ohne", "durch"], correct: 0, why: "برای بیان «برای کسی» از für + آکوزاتیو استفاده می‌کنیم." },
+    { id: "a15", prompt: "Sie kommt ___ ihre Schwester.", translation: "او بدون خواهرش می‌آید.", options: ["ohne", "mit", "für", "gegen"], correct: 0, why: "ohne آکوزاتیو می‌گیرد؛ die Schwester ← ihre Schwester." },
+    { id: "a16", prompt: "Wir sitzen ___ das Feuer.", translation: "ما دور آتش می‌نشینیم.", options: ["um", "durch", "ohne", "bis"], correct: 0, why: "um + آکوزاتیو یعنی دورِ چیزی." },
+    { id: "a17", prompt: "Ich gehe ___ die Ecke.", translation: "من دورِ پیچ می‌روم.", options: ["um", "durch", "gegen", "für"], correct: 0, why: "عبارت ثابت um die Ecke یعنی دورِ پیچ." },
+    { id: "a18", prompt: "Er kämpft ___ die Freiheit.", translation: "او برای آزادی می‌جنگد.", options: ["für", "gegen", "ohne", "um"], correct: 0, why: "kämpfen für + آکوزاتیو یعنی برای چیزی جنگیدن." },
+    { id: "a19", prompt: "Wir gehen den Fluss ___.", translation: "ما کنار رودخانه قدم می‌زنیم.", options: ["entlang", "gegenüber", "entgegen", "wegen"], correct: 0, why: "entlang بعد از اسم، آکوزاتیو می‌گیرد: den Fluss entlang." },
+    { id: "a20", prompt: "___ wen kämpfst du?", translation: "با چه کسی می‌جنگی؟", options: ["Gegen", "Für", "Ohne", "Um"], correct: 0, why: "برای پرسش «علیه چه کسی» از gegen wen استفاده می‌شود." },
+    { id: "a21", prompt: "Ich bin ___ deine Hilfe sehr dankbar.", translation: "من برای کمک تو بسیار سپاسگزارم.", options: ["für", "über", "auf", "von"], correct: 0, why: "ترکیب ثابت dankbar für + آکوزاتیو است." },
+    { id: "a22", prompt: "Wir fahren ___ den Tunnel.", translation: "ما از تونل عبور می‌کنیم.", options: ["durch", "über", "unter", "neben"], correct: 0, why: "عبور از داخل تونل با durch + آکوزاتیو بیان می‌شود." },
+    { id: "a23", prompt: "Ich bleibe ___ morgen.", translation: "من تا فردا می‌مانم.", options: ["bis", "für", "um", "gegen"], correct: 0, why: "bis برای پایان یک بازه است و اینجا بدون حرف تعریف می‌آید." },
+  ],
+  wechsel: [
+    { id: "w10", prompt: "Ich lege das Buch ___ Tisch.", translation: "من کتاب را روی میز می‌گذارم.", options: ["auf den", "auf dem", "auf der", "auf die"], correct: 0, why: "legen حرکت به مقصد را نشان می‌دهد؛ auf + آکوزاتیو: auf den Tisch." },
+    { id: "w11", prompt: "Das Buch liegt ___ Tisch.", translation: "کتاب روی میز قرار دارد.", options: ["auf dem", "auf den", "auf der", "auf die"], correct: 0, why: "liegen موقعیت را نشان می‌دهد؛ auf + داتیو: auf dem Tisch." },
+    { id: "w12", prompt: "Wir hängen das Poster ___ Wand.", translation: "ما پوستر را به دیوار می‌آویزیم.", options: ["an die", "an der", "an dem", "an den"], correct: 0, why: "hängen + مقصد با an + آکوزاتیو می‌آید: an die Wand." },
+    { id: "w13", prompt: "Das Poster hängt ___ Wand.", translation: "پوستر روی دیوار آویزان است.", options: ["an der", "an die", "an den", "an dem"], correct: 0, why: "موقعیت با an + داتیو بیان می‌شود؛ die Wand ← an der Wand." },
+    { id: "w14", prompt: "Die Kinder spielen ___ Garten.", translation: "بچه‌ها در باغ بازی می‌کنند.", options: ["im", "in den", "in der", "in die"], correct: 0, why: "in + dem = im؛ اینجا موقعیت در باغ است." },
+    { id: "w15", prompt: "Die Kinder gehen ___ Garten.", translation: "بچه‌ها به باغ می‌روند.", options: ["in den", "im", "in der", "in die"], correct: 0, why: "gehen جهت حرکت است؛ in + den Garten." },
+    { id: "w16", prompt: "Er setzt sich ___ Stuhl.", translation: "او روی صندلی می‌نشیند.", options: ["auf den", "auf dem", "auf der", "auf die"], correct: 0, why: "sich setzen حرکت است؛ auf + آکوزاتیو: auf den Stuhl." },
+    { id: "w17", prompt: "Er sitzt ___ Stuhl.", translation: "او روی صندلی نشسته است.", options: ["auf dem", "auf den", "auf der", "auf die"], correct: 0, why: "sitzen موقعیت است؛ auf + داتیو: auf dem Stuhl." },
+    { id: "w18", prompt: "Die Katze springt ___ Sofa.", translation: "گربه روی مبل می‌پرد.", options: ["auf das", "auf dem", "auf der", "auf den"], correct: 0, why: "springen جهت حرکت است؛ auf + آکوزاتیو: auf das Sofa." },
+    { id: "w19", prompt: "Die Milch steht ___ Kühlschrank.", translation: "شیر در یخچال است.", options: ["im", "in den", "in der", "in die"], correct: 0, why: "موقعیت داخل یخچال: in + dem = im Kühlschrank." },
+    { id: "w20", prompt: "Ich stelle die Milch ___ Kühlschrank.", translation: "من شیر را در یخچال می‌گذارم.", options: ["in den", "im", "in der", "in die"], correct: 0, why: "stellen حرکت به داخل را نشان می‌دهد؛ in + آکوزاتیو." },
+    { id: "w21", prompt: "Die Vögel fliegen ___ See.", translation: "پرنده‌ها از فراز دریاچه پرواز می‌کنند.", options: ["über den", "über dem", "auf den", "unter dem"], correct: 0, why: "fliegen مسیر حرکت است؛ über + آکوزاتیو: über den See." },
+    { id: "w22", prompt: "Die Brücke führt ___ Fluss.", translation: "پل روی رودخانه کشیده شده است.", options: ["über den", "über dem", "an den", "unter dem"], correct: 0, why: "führen über + آکوزاتیو وسعت و امتداد را نشان می‌دهد." },
+    { id: "w23", prompt: "Wir setzen uns ___ Baum.", translation: "ما زیر درخت می‌نشینیم.", options: ["unter den", "unter dem", "unter der", "unter die"], correct: 0, why: "sich setzen جهت حرکت است؛ unter + آکوزاتیو: unter den Baum." },
+    { id: "w24", prompt: "Das Auto steht ___ Haus.", translation: "ماشین جلوی خانه است.", options: ["vor dem", "vor den", "vor der", "vor das"], correct: 0, why: "stehen موقعیت است؛ vor + داتیو؛ das Haus ← vor dem Haus." },
+  ],
+  "dativ-akkusativ": [
+    { id: "c10", prompt: "Ich danke ___ für die Hilfe.", translation: "من از تو برای کمک تشکر می‌کنم.", options: ["dir", "dich", "du", "deiner"], correct: 0, why: "danken فعل داتیو است؛ ضمیر داتیو du ← dir." },
+    { id: "c11", prompt: "Das Fahrrad gehört ___.", translation: "دوچرخه مال من است.", options: ["mir", "mich", "ich", "meiner"], correct: 0, why: "gehören داتیو می‌خواهد؛ mich ← mir." },
+    { id: "c12", prompt: "Die Jacke passt ___ gut.", translation: "این کاپشن به من خوب می‌آید.", options: ["mir", "mich", "ich", "meiner"], correct: 0, why: "passen با داتیو می‌آید: passt mir." },
+    { id: "c13", prompt: "Der Film hat ___ gut gefallen.", translation: "فیلم به من خوش آمد.", options: ["mir", "mich", "ich", "meiner"], correct: 0, why: "gefallen فعل داتیو است: hat mir gefallen." },
+    { id: "c14", prompt: "Kannst du ___ bitte zuhören?", translation: "می‌توانی لطفاً به من گوش کنی؟", options: ["mir", "mich", "ich", "meiner"], correct: 0, why: "zuhören داتیو می‌خواهد: mir zuhören." },
+    { id: "c15", prompt: "Wir gratulieren ___ zum Geburtstag.", translation: "ما تولدت را تبریک می‌گوییم.", options: ["dir", "dich", "du", "deiner"], correct: 0, why: "gratulieren داتیو می‌گیرد: gratulieren dir." },
+    { id: "c16", prompt: "Er folgt ___ auf dem Weg.", translation: "او در مسیر دنبال او می‌رود.", options: ["ihr", "sie", "ihnen", "ihre"], correct: 0, why: "folgen داتیو است؛ ضمیر داتیو sie ← ihr." },
+    { id: "c17", prompt: "Ich vertraue ___.", translation: "من به او اعتماد دارم.", options: ["ihm", "ihn", "er", "sein"], correct: 0, why: "vertrauen داتیو می‌خواهد؛ er ← ihm." },
+    { id: "c18", prompt: "Das Buch gehört ___ Kindern.", translation: "کتاب مال بچه‌هاست.", options: ["den", "die", "der", "dem"], correct: 0, why: "جمع داتیو با -n می‌آید: den Kindern." },
+    { id: "c19", prompt: "Ich helfe ___ Mutter.", translation: "من به مادرم کمک می‌کنم.", options: ["meiner", "meine", "mein", "meinen"], correct: 0, why: "helfen داتیو است؛ die Mutter ← meiner Mutter." },
+    { id: "c20", prompt: "Wir antworten ___ Lehrer.", translation: "ما به معلم پاسخ می‌دهیم.", options: ["dem", "den", "der", "die"], correct: 0, why: "antworten داتیو می‌خواهد؛ der Lehrer ← dem Lehrer." },
+    { id: "c21", prompt: "Sie kauft ___ ein Geschenk.", translation: "او برای او (مرد) هدیه می‌خرد.", options: ["ihm", "ihn", "er", "sein"], correct: 0, why: "دریافت‌کنندهٔ هدیه داتیو است: ihm." },
+    { id: "c22", prompt: "Ich sehe ___ jeden Tag.", translation: "من هر روز او (مرد) را می‌بینم.", options: ["ihn", "ihm", "er", "sein"], correct: 0, why: "sehen مفعول آکوزاتیو می‌گیرد؛ er ← ihn." },
+    { id: "c23", prompt: "Das Geschenk ist für ___.", translation: "هدیه برای من است.", options: ["mich", "mir", "ich", "meiner"], correct: 0, why: "für همیشه آکوزاتیو می‌گیرد: für mich." },
+    { id: "c24", prompt: "Er hat ___ eingeladen.", translation: "او ما را دعوت کرده است.", options: ["uns", "wir", "unser", "mir"], correct: 0, why: "einladen مفعول آکوزاتیو می‌گیرد؛ wir ← uns." },
+  ],
+};

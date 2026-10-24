@@ -76,9 +76,27 @@ html[data-theme="fluent"] .german-char-pending { color: #64748b; }
 .german-grammar-quiz > p:not(.german-eyebrow):not(.german-quiz-prompt) { line-height: 1.8; font-size: 13px; }
 .german-quiz-prompt { direction: ltr; text-align: left; background: var(--cp-surface); border: 1px solid var(--cp-line); border-radius: 8px; padding: 12px; font-size: 18px; font-family: ui-monospace,SFMono-Regular,Consolas,monospace; }
 .german-grammar-options { display: grid; gap: 8px; margin-top: 12px; }
-.german-grammar-options button { justify-content: flex-start; gap: 10px; direction: ltr; text-align: left; }
+.german-grammar-options button { justify-content: flex-start; gap: 10px; direction: ltr; text-align: left; min-height: 44px; line-height: 1.45; }
+.german-grammar-options button span:last-child { overflow-wrap: anywhere; }
 .german-grammar-options button[aria-pressed="true"] { border-color: var(--cp-accent); background: var(--cp-selected); }
 .german-quiz-wrong { border-color: #d66; }
+.german-fill-form { display: grid; gap: 8px; margin-top: 12px; }
+.german-fill-form label { font-size: 12px; font-weight: 600; }
+.german-fill-form input { width: 100%; box-sizing: border-box; min-height: 46px; padding: 11px 12px; border: 1px solid var(--cp-line); border-radius: 8px; background: var(--cp-surface); color: var(--cp-text); font-family: ui-monospace,SFMono-Regular,Consolas,monospace; font-size: 16px; }
+.german-fill-form input:focus-visible { outline: 2px solid var(--cp-accent); outline-offset: 1px; }
+.german-fill-form button { justify-self: start; min-height: 42px; font-size: 12px; }
+.german-correct-answer { margin-top: 8px !important; }
+.german-quiz-hint { margin-top: 8px; font-size: 10px; color: var(--cp-muted); }
+.german-test-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.german-test-actions button { font-size: 12px; }
+.german-test-note { margin-top: 8px; font-size: 10px; color: var(--cp-muted); line-height: 1.7; }
+.german-test-result h3 { font-size: 20px; margin: 6px 0; }
+.german-test-wrong { margin: 12px 0; border: 1px solid var(--cp-line); border-radius: 9px; padding: 10px 12px; }
+.german-test-wrong summary { cursor: pointer; font-weight: 650; }
+.german-test-wrong > div { border-top: 1px solid var(--cp-line); padding: 10px 0; }
+.german-test-wrong > div:first-of-type { border-top: 0; }
+.german-test-wrong p { margin: 5px 0; line-height: 1.7; }
+.german-mistake-review { border-color: var(--cp-accent); }
 .german-audio { display: grid; gap: 8px; margin: 14px 0; font-size: 11px; color: var(--cp-muted); }
 .german-audio button { justify-self: start; }
 .german-practice form > label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; }
@@ -119,4 +137,4 @@ html .study-app.german-app .german-free-writing textarea { color: var(--cp-text)
 .german-reference details { margin-top: 14px; font-size: 11px; line-height: 1.8; }
 @media (max-width: 1450px) { .german-layout { grid-template-columns: 210px minmax(0,1fr); } .german-reference { grid-column: 2; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 20px; } .german-reference h3 { grid-column: 1/-1; } .german-reference details { grid-column: 1/-1; } }
 @media (max-width: 1023px) { .german-app .german-shell { display: block; } .german-content { padding: 12px; } }
-@media (max-width: 700px) { .german-intro { display: block; padding: 16px; } .german-intro h2 { font-size: 20px; } .german-progress { display: flex; align-items: center; text-align: left; margin-top: 14px; gap: 10px; font-size: 10px; } .german-progress strong { font-size: 23px; } .german-progress progress { width: 70px; flex-shrink: 0; } .german-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } .german-metrics > div { padding: 10px; } .german-layout { grid-template-columns: minmax(0,1fr); } .german-practice { grid-row: 1; } .german-path { grid-row: 2; } .german-reference { grid-column: 1; } .german-lesson-heading { padding: 14px; } .german-lesson-heading h3 { font-size: 18px; } #german-exercise { padding: 14px; } .german-model { font-size: 18px; padding: 14px; } .german-mode-tabs { padding: 0 4px; } .german-mode-tabs button { font-size: 11px; } .german-toolbar { font-size: 10px; } .german-toolbar > span { width: 100%; } .german-toolbar button { font-size: 10px; } .german-practice-actions button { flex: 1 1 auto; } }
+@media (max-width: 700px) { .german-grammar-quiz { padding: 12px; margin: 10px 0; } .german-grammar-quiz h3 { font-size: 14px; line-height: 1.6; } .german-quiz-prompt { font-size: 16px; padding: 10px; } .german-grammar-options { gap: 7px; } .german-grammar-options button { min-height: 48px; padding: 10px 12px; font-size: 14px; } .german-test-actions { display: grid; grid-template-columns: 1fr; } .german-test-actions button { min-height: 44px; width: 100%; } .german-fill-form button { justify-self: stretch; min-height: 46px; } .german-test-wrong { padding: 8px 10px; } .german-intro { display: block; padding: 16px; } .german-intro h2 { font-size: 20px; } .german-progress { display: flex; align-items: center; text-align: left; margin-top: 14px; gap: 10px; font-size: 10px; } .german-progress strong { font-size: 23px; } .german-progress progress { width: 70px; flex-shrink: 0; } .german-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } .german-metrics > div { padding: 10px; } .german-layout { grid-template-columns: minmax(0,1fr); } .german-practice { grid-row: 1; } .german-path { grid-row: 2; } .german-reference { grid-column: 1; } .german-lesson-heading { padding: 14px; } .german-lesson-heading h3 { font-size: 18px; } #german-exercise { padding: 14px; } .german-model { font-size: 18px; padding: 14px; } .german-mode-tabs { padding: 0 4px; } .german-mode-tabs button { font-size: 11px; } .german-toolbar { font-size: 10px; } .german-toolbar > span { width: 100%; } .german-toolbar button { font-size: 10px; } .german-practice-actions button { flex: 1 1 auto; } }

@@ -8,6 +8,17 @@
  * Answer keys are validated offline by scripts/validate-german-b1-drills.mjs.
  */
 
+import { germanB1ExtraA } from "./german-b1-drills-extra-a.ts";
+import { germanB1ExtraB } from "./german-b1-drills-extra-b.ts";
+import { germanB1ExtraC } from "./german-b1-drills-extra-c.ts";
+import { germanB1ExtraD1 } from "./german-b1-drills-extra-d1.ts";
+import { germanB1ExtraD2 } from "./german-b1-drills-extra-d2.ts";
+import { germanB1ExtraE1 } from "./german-b1-drills-extra-e1.ts";
+import { germanB1ExtraE2 } from "./german-b1-drills-extra-e2.ts";
+import { germanB1ExtraF1 } from "./german-b1-drills-extra-f1.ts";
+import { germanB1ExtraF2 } from "./german-b1-drills-extra-f2.ts";
+import { germanB1ExtraG } from "./german-b1-drills-extra-g.ts";
+
 export type GermanB1Drill = {
   id: string;
   prompt: string;
@@ -15,6 +26,8 @@ export type GermanB1Drill = {
   options: string[];
   correct: number;
   why: string;
+  /** 1 = recognition, 2 = controlled production, 3 = transfer. */
+  level?: 1 | 2 | 3;
 };
 
 export type GermanB1DrillModule = {
@@ -831,13 +844,13 @@ export const germanB1DrillModules: GermanB1DrillModule[] = [
     "drills": [
       {
         "id": "t1",
-        "prompt": "Gestern ___ ich lange ___.",
+        "prompt": "Gestern ___ ich lange gelernt.",
         "translation": "دیروز مدت زیادی درس خواندم.",
         "options": [
-          "habe / gelernt",
-          "bin / gelernt",
-          "habe / lernen",
-          "werde / gelernt"
+          "habe",
+          "bin",
+          "hatte",
+          "werde"
         ],
         "correct": 0,
         "why": "Perfekt اینجا با haben + Partizip II ساخته می‌شود: habe gelernt."
@@ -1154,16 +1167,16 @@ export const germanB1DrillModules: GermanB1DrillModule[] = [
     "drills": [
       {
         "id": "p1",
-        "prompt": "Wenn ich mehr Zeit ___, ___ ich jeden Tag lernen.",
+        "prompt": "Wenn ich mehr Zeit hätte, ___ ich jeden Tag lernen.",
         "translation": "اگر وقت بیشتری داشتم، هر روز درس می‌خواندم.",
         "options": [
-          "habe / werde",
-          "hätte / würde",
-          "hatte / werde",
-          "wäre / habe"
+          "würde",
+          "werde",
+          "wäre",
+          "hätte"
         ],
-        "correct": 1,
-        "why": "شرط غیرواقعی در زمان حال با hätte و würde ساخته می‌شود."
+        "correct": 0,
+        "why": "شرط غیرواقعی در زمان حال با hätte در جملهٔ اول و würde + مصدر در جملهٔ دوم ساخته می‌شود."
       },
       {
         "id": "p2",
@@ -1371,5 +1384,25 @@ export const germanB1DrillModules: GermanB1DrillModule[] = [
     ]
   }
 ];
+
+// The extended banks are merged into the same modules so every consumer sees
+// one ordered course: original drills first, then the added review questions.
+// A prompt repeated by a later bank is dropped instead of shown twice; extra G
+// supplies the unique replacements so every topic still has fifty sentences.
+const seenPrompts = new Set<string>();
+for (const topic of germanB1DrillModules) {
+  topic.drills.push(
+    ...(germanB1ExtraA[topic.id] ?? []), ...(germanB1ExtraB[topic.id] ?? []), ...(germanB1ExtraC[topic.id] ?? []),
+    ...(germanB1ExtraD1[topic.id] ?? []), ...(germanB1ExtraD2[topic.id] ?? []),
+    ...(germanB1ExtraE1[topic.id] ?? []), ...(germanB1ExtraE2[topic.id] ?? []),
+    ...(germanB1ExtraF1[topic.id] ?? []), ...(germanB1ExtraF2[topic.id] ?? []),
+    ...(germanB1ExtraG[topic.id] ?? []),
+  );
+  topic.drills = topic.drills.filter(drill => {
+    if (seenPrompts.has(drill.prompt)) return false;
+    seenPrompts.add(drill.prompt);
+    return true;
+  });
+}
 
 export const germanB1DrillTotal = germanB1DrillModules.reduce((total, module) => total + module.drills.length, 0);

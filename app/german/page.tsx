@@ -19,23 +19,204 @@ const modes: { id: GermanMode; title: string; description: string }[] = [
 ];
 const normalized = (text: string) => text.normalize("NFC");
 
-function B1GrammarQuiz({ questions }: { questions: B1GrammarQuestion[] }) {
+const TEST_SIZE = 12;
+const PASS_MARK = 80;
+
+function shuffled<T>(items: readonly T[]): T[] {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+const normalizeAnswer = (text: string) => text.normalize("NFC").trim().replace(/\s+/g, " ").replace(/[.,!?;:]/g, "").toLocaleLowerCase("de-DE");
+
+const formatLabels: Record<string, string> = {
+  choice: "چندگزینه‌ای",
+  fill: "جای خالی",
+  fix: "اصلاح اشتباه",
+  order: "جمله‌سازی",
+};
+
+const formatInstructions: Record<string, string> = {
+  choice: "جواب صحیح را انتخاب کن.",
+  fill: "پاسخ درست را در جای خالی بنویس.",
+  fix: "این جمله اشتباه است؛ جملهٔ درست را انتخاب کن.",
+  order: "کلمه‌های به‌هم‌ریخته را به جملهٔ درست تبدیل کن.",
+};
+
+function B1GrammarQuiz({ questions, unitId, topicTotal, userId, onMistake, onCorrect }: {
+  questions: B1GrammarQuestion[];
+  unitId: string;
+  topicTotal?: number;
+  userId: string;
+  onMistake: (id: string) => void;
+  onCorrect: (id: string) => void;
+}) {
   const [index, setIndex] = useState(0);
   const [choice, setChoice] = useState<number | null>(null);
+  const [typed, setTyped] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [mode, setMode] = useState<"practice" | "test">("practice");
+  const [testQuestions, setTestQuestions] = useState<B1GrammarQuestion[]>([]);
+  const [testIndex, setTestIndex] = useState(0);
+  const [testChoice, setTestChoice] = useState<number | null>(null);
+  const [testTyped, setTestTyped] = useState("");
+  const [testAnswers, setTestAnswers] = useState<boolean[]>([]);
+  const [testDone, setTestDone] = useState(false);
+  const [best, setBest] = useState<number | null>(null);
+  const bestKey = `klybit-german-b1-test:v1:${userId}:${unitId}`;
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const stored = Number(window.localStorage.getItem(bestKey));
+      if (Number.isFinite(stored) && stored >= 0 && stored <= 100) setBest(stored);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [bestKey]);
+
   if (!questions.length) return null;
   const question = questions[index] ?? questions[0];
-  const answered = choice !== null;
-  const correct = choice === question.correctIndex;
-  const next = () => { setIndex(value => (value + 1) % questions.length); setChoice(null); };
+  const isTyped = question.format === "fill" || question.format === "order";
+  const answered = isTyped ? submitted : choice !== null;
+  const correct = answered && (isTyped ? normalizeAnswer(typed) === normalizeAnswer(question.answer) : choice === question.correctIndex);
+  const choose = (option: number) => {
+    if (isTyped || submitted) return;
+    setChoice(option);
+    if (option === question.correctIndex) onCorrect(question.id);
+    else onMistake(question.id);
+  };
+  const submitFill = (event: { preventDefault: () => void }) => {
+    event.preventDefault();
+    if (!isTyped || !typed.trim() || submitted) return;
+    setSubmitted(true);
+    if (normalizeAnswer(typed) === normalizeAnswer(question.answer)) onCorrect(question.id);
+    else onMistake(question.id);
+  };
+  const next = () => { setIndex(value => (value + 1) % questions.length); setChoice(null); setTyped(""); setSubmitted(false); };
+
+  const startTest = () => {
+    setTestQuestions(shuffled(questions).slice(0, Math.min(TEST_SIZE, questions.length)));
+    setTestIndex(0); setTestChoice(null); setTestTyped(""); setTestAnswers([]); setTestDone(false); setMode("test");
+  };
+  const recordTestAnswer = () => {
+    const current = testQuestions[testIndex];
+    if (!current) return;
+    const currentIsTyped = current.format === "fill" || current.format === "order";
+    if (currentIsTyped ? !testTyped.trim() : testChoice === null) return;
+    const isCorrect = currentIsTyped ? normalizeAnswer(testTyped) === normalizeAnswer(current.answer) : testChoice === current.correctIndex;
+    const answers = [...testAnswers, isCorrect];
+    setTestAnswers(answers);
+    if (testIndex + 1 < testQuestions.length) {
+      setTestIndex(testIndex + 1); setTestChoice(null); setTestTyped(""); return;
+    }
+    const right = answers.filter(Boolean).length;
+    const score = Math.round((right / testQuestions.length) * 100);
+    testQuestions.forEach((item, i) => { if (answers[i]) onCorrect(item.id); else onMistake(item.id); });
+    setTestDone(true);
+    if (best === null || score > best) {
+      setBest(score);
+      try { window.localStorage.setItem(bestKey, String(score)); } catch { /* the test still works without a saved best score */ }
+    }
+  };
+
+  if (mode === "test") {
+    const right = testAnswers.filter(Boolean).length;
+    const score = testQuestions.length ? Math.round((right / testQuestions.length) * 100) : 0;
+    const wrong = testQuestions.filter((_, i) => !testAnswers[i]);
+    const current = testQuestions[testIndex];
+    return <section className="german-grammar-quiz german-grammar-test" lang="fa" dir="rtl" aria-labelledby="b1-grammar-test-title">
+      <p className="german-eyebrow">بخش ۳ · آزمون درس · حد قبولی {PASS_MARK}٪ {best === null ? "" : `· بهترین نتیجه: ${best}٪`}</p>
+      {testDone ? <div className="german-test-result" role="status">
+        <h3 id="b1-grammar-test-title">{score}٪ — {score >= PASS_MARK ? "قبول" : "نیاز به تمرین بیشتر"}</h3>
+        <p>{right} از {testQuestions.length} پاسخ درست بود. {score >= PASS_MARK ? "این مبحث را می‌توانی جلو ببری." : `برای قبولی به ${PASS_MARK}٪ نیاز داری؛ اشتباه‌ها را بخوان و دوباره امتحان کن.`}</p>
+        {wrong.length > 0 && <details open className="german-test-wrong"><summary>اشتباه‌ها ({wrong.length})</summary>{wrong.map(item => <div key={item.id}><p className="notranslate" lang="de" dir="ltr" translate="no">{item.prompt}</p><p>{item.translationFa}</p><p><strong>پاسخ درست:</strong> <span className="notranslate" lang="de" dir="ltr" translate="no">{item.answer}</span></p><p>{item.explanationFa}</p></div>)}</details>}
+        <div className="german-test-actions"><button type="button" className="german-primary" onClick={startTest}>تلاش دوباره با سؤال‌های تازه</button><button type="button" onClick={() => setMode("practice")}>بازگشت به تمرین</button></div>
+      </div> : <>
+        <h3 id="b1-grammar-test-title">سؤال {testIndex + 1} از {testQuestions.length} — {current ? formatInstructions[current.format] : "پاسخ را انتخاب کن."}</h3>
+        <p className="german-quiz-prompt notranslate" lang="de" dir="ltr" translate="no">{current?.prompt}</p>
+        <p>{current?.translationFa}</p>
+        {current?.format === "fill" || current?.format === "order" ? <form className="german-fill-form" onSubmit={event => { event.preventDefault(); recordTestAnswer(); }}>
+          <label htmlFor="b1-test-fill">پاسخ خود را به آلمانی بنویس</label>
+          <input id="b1-test-fill" className="notranslate" lang="de" dir="ltr" translate="no" value={testTyped} onChange={event => setTestTyped(event.target.value)} autoComplete="off" autoCapitalize="none" spellCheck={false} />
+          <button type="submit" className="german-primary" disabled={!testTyped.trim()}>{testIndex + 1 === testQuestions.length ? "پایان و دیدن نتیجه" : "ثبت پاسخ"}</button>
+        </form> : <>
+          <div className="german-grammar-options" role="group" aria-label="German grammar choices">
+            {current?.options.map((option, i) => <button type="button" key={option} aria-pressed={testChoice === i} onClick={() => setTestChoice(i)}><span>{String.fromCharCode(65 + i)})</span><span className="notranslate" lang="de" dir="ltr" translate="no">{option}</span></button>)}
+          </div>
+          <div className="german-test-actions"><button type="button" className="german-primary" disabled={testChoice === null} onClick={recordTestAnswer}>{testIndex + 1 === testQuestions.length ? "پایان و دیدن نتیجه" : "سؤال بعدی"} <ChevronRight size={14} /></button><button type="button" onClick={() => setMode("practice")}>انصراف</button></div>
+        </>}
+        <p className="german-test-note">در آزمون بازخورد هر سؤال تا پایان نمایش داده نمی‌شود.</p>
+      </>}
+    </section>;
+  }
+
   return <section className="german-grammar-quiz" lang="fa" dir="rtl" aria-labelledby="b1-grammar-quiz-title">
-    <p className="german-eyebrow">بخش ۲ · تست چندگزینه‌ای · {questions.length} سؤال</p>
-    <h3 id="b1-grammar-quiz-title">تمرین {index + 1} از {questions.length} — جواب صحیح را انتخاب کن.</h3>
+    <p className="german-eyebrow">بخش ۲ · {formatLabels[question.format]} · {questions.length} سؤال{topicTotal && topicTotal !== questions.length ? ` از ${topicTotal} سؤال این مبحث` : ""}</p>
+    <h3 id="b1-grammar-quiz-title">تمرین {index + 1} از {questions.length} — {formatInstructions[question.format]}</h3>
     <p className="german-quiz-prompt notranslate" lang="de" dir="ltr" translate="no">{question.prompt}</p>
     <p>{question.translationFa}</p>
-    <div className="german-grammar-options" role="group" aria-label="German grammar choices">
-      {question.options.map((option, index) => <button type="button" key={option} aria-pressed={choice === index} onClick={() => setChoice(index)}><span>{String.fromCharCode(65 + index)})</span><span className="notranslate" lang="de" dir="ltr" translate="no">{option}</span></button>)}
-    </div>
-    {answered && <div className={`german-feedback${correct ? "" : " german-quiz-wrong"}`} role="status"><p><strong>{correct ? "درست!" : "بررسی جواب:"}</strong> {question.explanationFa}</p><button type="button" className="german-grammar-next" onClick={next}>سؤال بعدی <ChevronRight size={14} /></button></div>}
+    {isTyped ? <form className="german-fill-form" onSubmit={submitFill}>
+      <label htmlFor="b1-fill-answer">پاسخ خود را به آلمانی بنویس</label>
+      <input id="b1-fill-answer" className="notranslate" lang="de" dir="ltr" translate="no" value={typed} onChange={event => setTyped(event.target.value)} disabled={submitted} autoComplete="off" autoCapitalize="none" spellCheck={false} />
+      <button type="submit" className="german-primary" disabled={!typed.trim() || submitted}>ثبت پاسخ</button>
+    </form> : <div className="german-grammar-options" role="group" aria-label="German grammar choices">
+      {question.options.map((option, optionIndex) => <button type="button" key={option} aria-pressed={choice === optionIndex} onClick={() => choose(optionIndex)}><span>{String.fromCharCode(65 + optionIndex)})</span><span className="notranslate" lang="de" dir="ltr" translate="no">{option}</span></button>)}
+    </div>}
+    {answered && <div className={`german-feedback${correct ? "" : " german-quiz-wrong"}`} role="status">
+      <p><strong>{correct ? "درست!" : "بررسی جواب:"}</strong> {question.explanationFa}</p>
+      {!correct && <p className="german-correct-answer">پاسخ درست: <span className="notranslate" lang="de" dir="ltr" translate="no">{question.answer}</span></p>}
+      <button type="button" className="german-grammar-next" onClick={next}>سؤال بعدی <ChevronRight size={14} /></button>
+    </div>}
+    {!answered && !isTyped && <p className="german-quiz-hint">پس از انتخاب گزینه، پاسخ درست و توضیح نمایش داده می‌شود.</p>}
+    <div className="german-test-actions"><button type="button" onClick={startTest}>آزمون این درس · {Math.min(TEST_SIZE, questions.length)} سؤال{best === null ? "" : ` · بهترین ${best}٪`}</button></div>
+  </section>;
+}
+
+function B1MistakeReview({ questions, onResult, onClose }: {
+  questions: B1GrammarQuestion[];
+  onResult: (id: string, correct: boolean) => void;
+  onClose: () => void;
+}) {
+  const [queue] = useState(questions);
+  const [position, setPosition] = useState(0);
+  const [choice, setChoice] = useState<number | null>(null);
+  const [typed, setTyped] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [fixed, setFixed] = useState(0);
+  const question = queue[position];
+  if (!question) return null;
+  const isTyped = question.format === "fill" || question.format === "order";
+  const answered = isTyped ? submitted : choice !== null;
+  const correct = answered && (isTyped ? normalizeAnswer(typed) === normalizeAnswer(question.answer) : choice === question.correctIndex);
+  const next = () => {
+    if (!answered) return;
+    onResult(question.id, correct);
+    if (correct) setFixed(value => value + 1);
+    setChoice(null); setTyped(""); setSubmitted(false);
+    if (position + 1 >= queue.length) { onClose(); return; }
+    setPosition(position + 1);
+  };
+  return <section className="german-grammar-quiz german-mistake-review" lang="fa" dir="rtl" aria-labelledby="b1-mistake-title">
+    <p className="german-eyebrow">مرور اشتباه‌ها · {position + 1} از {queue.length} · {fixed} اصلاح‌شده</p>
+    <h3 id="b1-mistake-title">این سؤال را قبلاً اشتباه زده‌ای. دوباره امتحان کن.</h3>
+    <p className="german-quiz-prompt notranslate" lang="de" dir="ltr" translate="no">{question.prompt}</p>
+    <p>{question.translationFa}</p>
+    {isTyped ? <form className="german-fill-form" onSubmit={event => { event.preventDefault(); if (typed.trim()) setSubmitted(true); }}>
+      <label htmlFor="b1-review-fill">پاسخ خود را به آلمانی بنویس</label>
+      <input id="b1-review-fill" className="notranslate" lang="de" dir="ltr" translate="no" value={typed} onChange={event => setTyped(event.target.value)} disabled={submitted} autoComplete="off" autoCapitalize="none" spellCheck={false} />
+      <button type="submit" className="german-primary" disabled={!typed.trim() || submitted}>ثبت پاسخ</button>
+    </form> : <div className="german-grammar-options" role="group" aria-label="German grammar choices">
+      {question.options.map((option, optionIndex) => <button type="button" key={option} aria-pressed={choice === optionIndex} onClick={() => setChoice(optionIndex)}><span>{String.fromCharCode(65 + optionIndex)})</span><span className="notranslate" lang="de" dir="ltr" translate="no">{option}</span></button>)}
+    </div>}
+    {answered && <div className={`german-feedback${correct ? "" : " german-quiz-wrong"}`} role="status">
+      <p><strong>{correct ? "درست! این سؤال از صف حذف شد." : "هنوز نه:"}</strong> {question.explanationFa}</p>
+      {!correct && <p className="german-correct-answer">پاسخ درست: <span className="notranslate" lang="de" dir="ltr" translate="no">{question.answer}</span></p>}
+      <button type="button" className="german-grammar-next" onClick={next}>{position + 1 >= queue.length ? "پایان مرور" : "سؤال بعدی"} <ChevronRight size={14} /></button>
+    </div>}
+    <div className="german-test-actions"><button type="button" onClick={onClose}>بستن مرور</button></div>
   </section>;
 }
 
@@ -79,7 +260,9 @@ export function GermanWorkspace({ userId, variant = "it" }: { userId: string; va
   const courseLessons = variant === "b1" ? b1GrammarLessons : germanLessons;
   const courseUnits = variant === "b1" ? b1GrammarUnits : germanUnits;
   const courseLessonIds = courseLessons.map(item => item.id);
-  const storageKey = `klybit-german:${variant}:v1:${userId}`;
+  // Keep the original key for German for IT so existing progress still loads;
+  // the standalone B1 route gets its own namespace.
+  const storageKey = variant === "b1" ? `klybit-german:b1:v1:${userId}` : `klybit-german:v1:${userId}`;
   const [progress, setProgress] = useState<GermanProgress>(() => createGermanProgress(courseLessonIds));
   const [lessonId, setLessonId] = useState(courseLessonIds[0]);
   const [ready, setReady] = useState(false);
@@ -91,6 +274,8 @@ export function GermanWorkspace({ userId, variant = "it" }: { userId: string; va
   const [reveal, setReveal] = useState(false);
   const [writingChecks, setWritingChecks] = useState<number[]>([]);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [quizMistakes, setQuizMistakes] = useState<string[]>([]);
+  const [reviewOpen, setReviewOpen] = useState(false);
   const [audioStatus, setAudioStatus] = useState("");
   const [listView, setListView] = useState<"all" | "due">("all");
   const [clock, setClock] = useState(Date.now);
@@ -117,6 +302,9 @@ export function GermanWorkspace({ userId, variant = "it" }: { userId: string; va
             const ids = saved.assistedIds.filter((id: unknown): id is string => typeof id === "string" && courseLessonIds.includes(id));
             setAssistedIds(ids); setHintUsed(ids.includes(saved.lessonId));
           }
+          if (variant === "b1" && Array.isArray(saved.mistakes)) {
+            setQuizMistakes(saved.mistakes.filter((id: unknown): id is string => typeof id === "string" && b1GrammarQuestions.some(item => item.id === id)));
+          }
           setSaveStatus("Saved practice resumed · this browser");
         } else setSaveStatus(raw ? "Invalid saved data · started fresh" : "Progress saves in this browser");
       } catch { setSaveStatus("Practice ready · saved data unavailable"); }
@@ -126,9 +314,9 @@ export function GermanWorkspace({ userId, variant = "it" }: { userId: string; va
   }, [storageKey]);
   useEffect(() => {
     if (!ready) return;
-    try { localStorage.setItem(storageKey, JSON.stringify({ progress, lessonId, assistedIds })); }
+    try { localStorage.setItem(storageKey, JSON.stringify({ progress, lessonId, assistedIds, ...(variant === "b1" ? { mistakes: quizMistakes } : {}) })); }
     catch { const timer = window.setTimeout(() => setSaveStatus("Unable to save · practice still works"), 0); return () => window.clearTimeout(timer); }
-  }, [progress, lessonId, assistedIds, ready, storageKey]);
+  }, [progress, lessonId, assistedIds, quizMistakes, ready, storageKey, variant]);
   useEffect(() => {
     if (!("speechSynthesis" in window)) return;
     const update = () => setVoices(window.speechSynthesis.getVoices().filter(voice => /^de(?:-|_)/i.test(voice.lang)));
@@ -169,7 +357,7 @@ export function GermanWorkspace({ userId, variant = "it" }: { userId: string; va
     setProgress(previous => recordGermanAttempt(previous, lesson.id, { mode, correct, hintUsed, now: Date.now() }));
     setChecked(true);
     if (mode === "recall") markAssisted();
-    setClock(Date.now());
+    window.setTimeout(() => setClock(Date.now()), 0);
     if (correct) setFeedback(mode === "recall" && !hintUsed ? "Correct independent recall. Your review schedule is updated; repeat answers today do not advance another box." : "Correct practice. Use Recall without a hint on a later attempt to advance your review box.");
     else setFeedback("Not yet. Check spelling, capitals, umlauts, punctuation and verb position. You can correct your answer and try again.");
   };
@@ -190,24 +378,35 @@ export function GermanWorkspace({ userId, variant = "it" }: { userId: string; va
     updateDraft(draft.slice(0, start) + letter + draft.slice(end));
     window.requestAnimationFrame(() => { field?.focus(); field?.setSelectionRange(start + letter.length, start + letter.length); });
   };
+  const markMistake = (id: string) => setQuizMistakes(previous => previous.includes(id) ? previous : [...previous, id]);
+  const clearMistake = (id: string) => {
+    setQuizMistakes(previous => previous.filter(item => item !== id));
+    if (quizMistakes.length === 1 && quizMistakes[0] === id) setReviewOpen(false);
+  };
+  const reviewMistake = (id: string, correct: boolean) => correct ? clearMistake(id) : markMistake(id);
   const reset = () => {
-    if (!window.confirm("Reset only your German practice in this browser? Review boxes and drafts will be cleared.")) return;
-    setProgress(createGermanProgress(courseLessonIds)); setAssistedIds([]); selectLesson(courseLessonIds[0]); setHintUsed(false); setSaveStatus("German practice reset");
+    if (!window.confirm("Reset only your German practice in this browser? Review boxes, drafts and quiz mistakes will be cleared.")) return;
+    setProgress(createGermanProgress(courseLessonIds)); setAssistedIds([]); setQuizMistakes([]); setReviewOpen(false); selectLesson(courseLessonIds[0]); setHintUsed(false); setSaveStatus("German practice reset");
   };
   const due = courseLessons.filter(item => { const state = progress.lessons[item.id]; return state.dueAt !== null && state.dueAt <= clock; });
   const reviewed = summary.independentRecallLessons;
   const activeUnit = courseUnits.find(unit => unit.id === lesson.unitId)!;
-  const quizQuestions = b1GrammarQuestions.filter(item => item.unitId === lesson.unitId);
+  const unitQuizQuestions = b1GrammarQuestions.filter(item => item.unitId === lesson.unitId);
+  const unitLessons = courseLessons.filter(item => item.unitId === lesson.unitId);
+  const lessonPosition = Math.max(0, unitLessons.findIndex(item => item.id === lesson.id));
+  const slotQuestions = unitQuizQuestions.filter(item => item.lessonSlot === lessonPosition);
+  const perLesson = Math.ceil(unitQuizQuestions.length / Math.max(1, unitLessons.length));
+  const quizQuestions = slotQuestions.length ? slotQuestions : unitQuizQuestions.slice(lessonPosition * perLesson, (lessonPosition + 1) * perLesson);
   const nextLesson = courseLessons[courseLessons.findIndex(item => item.id === lesson.id) + 1];
   const typedCharacters = mode === "recall" && !checked ? Array.from(draft).map(character => ({ character, status: "neutral" })) : mode !== "writing" ? compareTypedCharacters(comparisonTarget, draft) : [];
   const mistakes = typedCharacters.filter(character => character.status === "incorrect").length;
   if (!ready) return <p role="status">Loading your saved German practice…</p>;
   return <div className="german-workspace">
     {variant === "it" && <><a className="german-game-entry" href="/german/grammar-cases" lang="fa" dir="rtl"><span className="german-game-mark" aria-hidden="true">S<span>✦</span></span><span><small>بازی جمله‌سازی · ۲۴ مأموریت در چهار فصل</small><strong>SatzTat · پرونده‌های گرامر</strong><span>موقعیت را بخوان، جمله بساز، اصلاح کن و مهارتت را در موقعیت تازه امتحان کن.</span></span><ArrowRight size={20} aria-hidden="true" /></a><a className="german-game-entry" href="/german/satztat"><span className="german-game-mark" aria-hidden="true">S<span>↗</span></span><span><small>INTERACTIVE NETWORK CASES · SEPARATE GAME</small><strong>SatzTat · Detect. Repair. Explain.</strong><span>Investigate a network incident, then write the German handover.</span></span><ArrowRight size={20} aria-hidden="true" /></a></>}
-    <section className="german-intro"><div><p className="german-eyebrow">{variant === "b1" ? "B1 GRAMMATIK · 12 THEMEN" : "GERMAN FOR IT · B1 → B2 BRIDGE"}</p><h2><GoogleSubtitle text={variant === "b1" ? "German B1 grammar, step by step." : "From a sentence to a professional IT handover."} /></h2><p><GoogleSubtitle text={variant === "b1" ? "Learn each grammar topic with examples, dictation, recall and writing." : "Start with useful patterns. Progress to multi-sentence tickets, change reports and complete emails, with spaced recall and guided writing self-review."} /></p></div><div className="german-progress"><strong>{reviewed}/{courseLessons.length}</strong><span>lessons recalled independently</span><progress value={reviewed} max={courseLessons.length} aria-label="Lessons recalled independently" /></div></section>
-    {variant === "b1" && <><section className="german-cue german-b1-teaching" lang="fa" dir="rtl"><strong>بخش ۱ · آموزش فارسی</strong><p>{lesson.translationFa}</p><p>{lesson.explanationFa}</p></section><B1GrammarQuiz key={lesson.id} questions={quizQuestions} /></>}
+    {variant !== "b1" && <section className="german-intro"><div><p className="german-eyebrow">GERMAN FOR IT · B1 → B2 BRIDGE</p><h2><GoogleSubtitle text="From a sentence to a professional IT handover." /></h2><p><GoogleSubtitle text="Start with useful patterns. Progress to multi-sentence tickets, change reports and complete emails, with spaced recall and guided writing self-review." /></p></div><div className="german-progress"><strong>{reviewed}/{courseLessons.length}</strong><span>lessons recalled independently</span><progress value={reviewed} max={courseLessons.length} aria-label="Lessons recalled independently" /></div></section>}
+    {variant === "b1" && <><section className="german-cue german-b1-teaching" lang="fa" dir="rtl"><strong>بخش ۱ · آموزش فارسی</strong><p>{lesson.translationFa}</p><p>{lesson.explanationFa}</p></section><B1GrammarQuiz key={lesson.id} questions={quizQuestions} unitId={`${lesson.unitId}:${lesson.id}`} topicTotal={unitQuizQuestions.length} userId={userId} onMistake={markMistake} onCorrect={clearMistake} />{reviewOpen && <B1MistakeReview questions={b1GrammarQuestions.filter(item => quizMistakes.includes(item.id))} onResult={reviewMistake} onClose={() => setReviewOpen(false)} />}</>}
     <div className="german-metrics"><div><span>Practice</span><strong>{summary.practicedLessons}<small>/{courseLessons.length} lessons</small></strong></div><div><span>Independent recall</span><strong>{summary.independentRecallPasses}<small>successful attempts</small></strong></div><div><span>Writing</span><strong>{summary.writingReviews}<small>self-reviews</small></strong></div><div><span>Due today</span><strong>{due.length}<small>+ {summary.newLessons} new</small></strong></div></div>
-    <div className="german-toolbar"><span role="status">{saveStatus}</span><button type="button" onClick={() => { setListView("due"); if (due[0]) selectLesson(due[0].id); }}>Review due ({due.length})</button><button type="button" onClick={reset}><RotateCcw size={14} />Reset German practice</button></div>
+    <div className="german-toolbar"><span role="status">{saveStatus}</span>{variant === "b1" && <button type="button" disabled={!quizMistakes.length} onClick={() => setReviewOpen(true)}>مرور اشتباهات ({quizMistakes.length})</button>}<button type="button" onClick={() => { setListView("due"); if (due[0]) selectLesson(due[0].id); }}>Review due ({due.length})</button><button type="button" onClick={reset}><RotateCcw size={14} />Reset German practice</button></div>
     <div className="german-layout">
       <aside className="german-path" aria-label="German learning path"><div className="german-path-heading"><h3><BookOpen size={16} />Your path</h3><button type="button" onClick={() => setListView("all")}>All {courseLessons.length}</button></div>
         {listView === "due" && !due.length && <p className="german-empty">No reviews due. Choose All {courseLessons.length} to practise something new. New lessons are not overdue.</p>}

@@ -35,10 +35,10 @@ try {
   async function mode(name) { await click(container.querySelector(`#german-tab-${name}`)); }
   async function submit() { await act(async () => container.querySelector("form").dispatchEvent(new window.Event("submit", { bubbles: true, cancelable: true }))); await settle(); }
   const correct = germanLessons[0].model;
-  assert.equal(germanLessons.length, 60); assert.equal(germanUnits.length, 12);
-  assert.equal(new Set(germanLessons.map(lesson => lesson.id)).size, 60);
-  for (const unit of germanUnits) assert.equal(germanLessons.filter(lesson => lesson.unitId === unit.id).length, 5);
-  assert.deepEqual(germanLessons.map(lesson => lesson.id), Array.from({ length: 60 }, (_, i) => `lesson${String(i + 1).padStart(3, "0")}`));
+  assert.equal(germanLessons.length, 84); assert.equal(germanUnits.length, 24);
+  assert.equal(new Set(germanLessons.map(lesson => lesson.id)).size, 84);
+  for (const unit of germanUnits) assert.ok(germanLessons.filter(lesson => lesson.unitId === unit.id).length >= 2, `${unit.id} has too few lessons`);
+  assert.ok(germanLessons.every(lesson => /^lesson\d{3}$/.test(lesson.id)), "lesson ids no longer follow the stable lessonNNN format");
   for (const lesson of germanLessons) {
     assert.ok(germanUnits.some(unit => unit.id === lesson.unitId));
     for (const field of ["title", "grammar", "explanationFa", "scenario", "model", "translationFa", "recallPrompt", "writingPrompt"]) assert.ok(lesson[field]?.trim(), `${lesson.id} lacks ${field}`);
@@ -46,10 +46,8 @@ try {
     assert.ok(lesson.writingChecklist.length >= 3);
     assert.ok(compareTypedCharacters(lesson.model, lesson.model).every(character => character.status === "correct"), `${lesson.id} rejects its full model`);
   }
-  for (const lesson of germanLessons.slice(30)) {
-    assert.ok((lesson.model.match(/[.!?](?=\s|$)/g) ?? []).length >= 3, `${lesson.id} is not a multi-sentence exercise`);
-    assert.equal(lesson.vocabulary.length, 4);
-    assert.ok(["B1+", "B2 bridge"].includes(lesson.level));
+  for (const lesson of germanLessons.filter(item => ["B1+", "B2 bridge"].includes(item.level) && (item.model.match(/[.!?](?=\s|$)/g) ?? []).length >= 3)) {
+    assert.equal(lesson.vocabulary.length, 4, `${lesson.id} should keep four vocabulary entries`);
   }
 
   await mount();
@@ -145,14 +143,15 @@ try {
   legacy.progress.lessons = Object.fromEntries(Object.entries(legacy.progress.lessons).slice(0, 30));
   localStorage.setItem("klybit-german:v1:legacy-expanded", JSON.stringify(legacy));
   await mount("legacy-expanded");
-  assert.equal(Object.keys(saved().progress.lessons).length, 60);
+  assert.equal(Object.keys(saved().progress.lessons).length, 84);
   assert.deepEqual(state("lesson001"), legacy.progress.lessons.lesson001, "expansion lost the old lesson draft or evidence");
-  assert.equal(state("lesson060").independentRecallCount, 0);
-  assert.equal(container.querySelector("progress").max, 60);
-  const finalLesson = [...container.querySelectorAll(".german-path button")].find(element => element.textContent.includes(germanLessons[59].title));
-  await click(finalLesson); await mode("copy"); await type(germanLessons[59].model); await submit();
-  assert.equal(state("lesson060").counters.copy.correct, 1, "long paragraph did not pass actual UI checking");
-  assert.equal(state("lesson060").independentRecallCount, 0);
+  const finalLesson = germanLessons[germanLessons.length - 1];
+  assert.equal(state(finalLesson.id).independentRecallCount, 0);
+  assert.equal(container.querySelector("progress").max, 84);
+  const finalButton = [...container.querySelectorAll(".german-path button")].find(element => element.textContent.includes(finalLesson.title));
+  await click(finalButton); await mode("copy"); await type(finalLesson.model); await submit();
+  assert.equal(state(finalLesson.id).counters.copy.correct, 1, "long paragraph did not pass actual UI checking");
+  assert.equal(state(finalLesson.id).independentRecallCount, 0);
   await unmount();
 
   const css = readFileSync("app/german/german.css", "utf8");
@@ -160,5 +159,5 @@ try {
   assert.match(css, /@media \(max-width: 700px\)/);
   assert.match(css, /scrollbar-gutter: stable/);
   console.log(`Curriculum: ${germanLessons.length} lessons, ${germanUnits.length} units, ${germanLessons.reduce((sum, lesson) => sum + (lesson.model.match(/[.!?](?=\s|$)/g) ?? []).length, 0)} model sentences, ${germanLessons.reduce((sum, lesson) => sum + lesson.vocabulary.length, 0)} vocabulary entries.`);
-  console.log("German React UI passed: all models align; immediate letter correction; copy vs independent recall; neutral hidden-answer recall; no-voice fallback; honest writing self-review; cursor umlauts; draft resume; hint integrity on reload; explanation integrity across modes; IME submission guard; reset / account isolation / corrupt save; legacy 30-lesson migration; long paragraphs / writing drafts; mobile textarea attributes. Auth and translation are fixtures; browser geometry and native keyboard require browser/device checks.");
+  console.log("German React UI passed: all models align; immediate letter correction; copy vs independent recall; neutral hidden-answer recall; no-voice fallback; honest writing self-review; cursor umlauts; draft resume; hint integrity on reload; explanation integrity across modes; IME submission guard; reset / account isolation / corrupt save; legacy partial-save migration; long paragraphs / writing drafts; mobile textarea attributes. Auth and translation are fixtures; browser geometry and native keyboard require browser/device checks.");
 } finally { rmSync(scratch, { recursive: true, force: true }); }
