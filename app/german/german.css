@@ -70,6 +70,15 @@ html[data-theme="fluent"] .german-char-pending { color: #64748b; }
 .german-cue { border-left: 3px solid var(--cp-accent); border-radius: 7px; background: var(--cp-selected); padding: 12px; margin-bottom: 18px; line-height: 1.7; }
 .german-cue strong { font-size: 12px; }
 .german-cue p { margin-top: 5px; font-size: 13px; }
+.german-b1-teaching { border-left: 0; border-right: 3px solid var(--cp-accent); }
+.german-grammar-quiz { margin: 14px 0; padding: 16px; border: 1px solid var(--cp-line); border-radius: 12px; background: var(--cp-alt); }
+.german-grammar-quiz h3 { margin: 6px 0 10px; font-size: 16px; }
+.german-grammar-quiz > p:not(.german-eyebrow):not(.german-quiz-prompt) { line-height: 1.8; font-size: 13px; }
+.german-quiz-prompt { direction: ltr; text-align: left; background: var(--cp-surface); border: 1px solid var(--cp-line); border-radius: 8px; padding: 12px; font-size: 18px; font-family: ui-monospace,SFMono-Regular,Consolas,monospace; }
+.german-grammar-options { display: grid; gap: 8px; margin-top: 12px; }
+.german-grammar-options button { justify-content: flex-start; gap: 10px; direction: ltr; text-align: left; }
+.german-grammar-options button[aria-pressed="true"] { border-color: var(--cp-accent); background: var(--cp-selected); }
+.german-quiz-wrong { border-color: #d66; }
 .german-audio { display: grid; gap: 8px; margin: 14px 0; font-size: 11px; color: var(--cp-muted); }
 .german-audio button { justify-self: start; }
 .german-practice form > label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; }

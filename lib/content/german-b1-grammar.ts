@@ -78,3 +78,28 @@ export const b1GrammarLessons: GermanLesson[] = [
   lesson(83, 12, "ایمیل B1: درخواست روشن", "Anrede · دلیل · درخواست · پایان", "Sehr geehrte Damen und Herren, ich schreibe Ihnen, weil ich eine Frage zum B1-Kurs habe.", "خانم‌ها و آقایان محترم، دربارهٔ دورهٔ B1 یک سؤال دارم.", "ایمیل رسمی با خطاب محترمانه شروع می‌شود؛ دلیل را با weil و درخواست را روشن بنویس.", "یک ایمیل رسمی کوتاه با سلام، دلیل، درخواست و پایان بنویس.", [["die Frage", "سؤال", "Ich habe eine Frage."], ["der Kurs", "دوره", "Der Kurs beginnt im Mai."]], ["Könnten Sie mir bitte den Prüfungstermin mitteilen?"]),
   lesson(84, 12, "نظر شخصی و شکایت", "Meiner Meinung nach · deshalb · trotzdem", "Meiner Meinung nach ist tägliches Schreiben wichtig, deshalb wünsche ich mir mehr Schreibübungen.", "به نظر من نوشتن روزانه مهم است، بنابراین تمرین نوشتاری بیشتری می‌خواهم.", "برای نظر از Meiner Meinung nach و برای نتیجه از deshalb استفاده کن؛ مشکل و درخواست را مؤدبانه بنویس.", "یک متن پیوستهٔ کوتاه با نظر، دلیل، مشکل یا پیشنهاد و نتیجه بنویس.", [["Meiner Meinung nach", "به نظر من", "Meiner Meinung nach ist das wichtig."], ["deshalb", "بنابراین", "Deshalb schreibe ich Ihnen."]], ["Trotzdem bin ich mit dem Kurs zufrieden."]),
 ];
+
+export interface B1GrammarQuestion {
+  id: string;
+  unitId: string;
+  prompt: string;
+  translationFa: string;
+  options: string[];
+  correctIndex: number;
+  explanationFa: string;
+}
+
+export const b1GrammarQuestions: B1GrammarQuestion[] = [
+  { id: "q-b1-01", unitId: "unit13", prompt: "Ich fahre ___ Bus zur Arbeit.", translationFa: "من با اتوبوس به محل کار می‌روم.", options: ["mit dem", "mit den", "mit der", "mit die"], correctIndex: 0, explanationFa: "پاسخ درست: A) mit dem. حرف اضافهٔ mit همیشه داتیو می‌گیرد و Bus مذکر است." },
+  { id: "q-b1-02", unitId: "unit14", prompt: "Das Geschenk ist ___ meinen Bruder.", translationFa: "این هدیه برای برادر من است.", options: ["für dem", "für den", "für der", "für die"], correctIndex: 1, explanationFa: "پاسخ درست: B) für den. حرف اضافهٔ für همیشه آکوزاتیو می‌گیرد؛ der Bruder در آکوزاتیو می‌شود den Bruder." },
+  { id: "q-b1-03", unitId: "unit15", prompt: "Ich stelle die Lampe ___ Tisch.", translationFa: "من چراغ را روی میز قرار می‌دهم. منظور، گذاشتن چراغ روی میز است.", options: ["auf dem", "auf den", "auf der", "auf die"], correctIndex: 1, explanationFa: "پاسخ درست: B) auf den. فعل stellen حرکت به مقصد را نشان می‌دهد (Wohin?)؛ پس آکوزاتیو لازم است: auf den Tisch." },
+  { id: "q-b1-04", unitId: "unit16", prompt: "Ich gebe ___ Kollegen den Bericht.", translationFa: "من گزارش را به همکارم می‌دهم.", options: ["meinen", "meinem", "meiner", "mein"], correctIndex: 1, explanationFa: "پاسخ درست: B) meinem. شخص دریافت‌کننده در نقش داتیو است: meinem Kollegen؛ گزارش مفعول مستقیم و آکوزاتیو است." },
+  { id: "q-b1-05", unitId: "unit17", prompt: "Ich lerne, weil ich die Prüfung bestehen ___.", translationFa: "درس می‌خوانم، چون می‌خواهم در آزمون قبول شوم.", options: ["muss", "möchte", "möchtest", "möchten"], correctIndex: 1, explanationFa: "پاسخ درست: B) möchte. در جملهٔ فرعی با weil فعل صرف‌شده در پایان می‌آید: weil ich ... bestehen möchte." },
+  { id: "q-b1-06", unitId: "unit18", prompt: "Du ___ heute früher gehen.", translationFa: "تو امروز اجازه داری زودتر بروی.", options: ["darfst", "dürfen", "darf", "dürft"], correctIndex: 0, explanationFa: "پاسخ درست: A) darfst. فاعل du با dürfen به شکل darfst صرف می‌شود و مصدر gehen در پایان می‌آید." },
+  { id: "q-b1-07", unitId: "unit19", prompt: "Ich warte ___ den Bus.", translationFa: "من منتظر اتوبوس هستم.", options: ["an", "auf", "für", "mit"], correctIndex: 1, explanationFa: "پاسخ درست: B) auf. ترکیب ثابت warten auf است و بعد از آن مفعول آکوزاتیو می‌آید." },
+  { id: "q-b1-08", unitId: "unit20", prompt: "Gestern ___ ich die Regel wiederholt.", translationFa: "دیروز آن قاعده را مرور کردم.", options: ["habe", "bin", "werde", "hatte"], correctIndex: 0, explanationFa: "پاسخ درست: A) habe. برای Perfekt این فعل از haben + Partizip II استفاده می‌کند: habe wiederholt." },
+  { id: "q-b1-09", unitId: "unit21", prompt: "Das ist die Frau, ___ neben mir wohnt.", translationFa: "این همان زنی است که کنار من زندگی می‌کند.", options: ["den", "die", "der", "das"], correctIndex: 1, explanationFa: "پاسخ درست: B) die. اسم Frau مؤنث است و ضمیر موصولی در جملهٔ داخلی نقش فاعل دارد: die wohnt." },
+  { id: "q-b1-10", unitId: "unit22", prompt: "Ich suche eine ___ Wohnung.", translationFa: "من دنبال یک آپارتمان جدید می‌گردم.", options: ["neue", "neuen", "neuem", "neuer"], correctIndex: 0, explanationFa: "پاسخ درست: A) neue. بعد از eine برای اسم مؤنث در آکوزاتیو، صفت پایان -e می‌گیرد: eine neue Wohnung." },
+  { id: "q-b1-11", unitId: "unit23", prompt: "Die E-Mail ___ heute beantwortet.", translationFa: "ایمیل امروز پاسخ داده می‌شود.", options: ["wird", "würde", "hätte", "wäre"], correctIndex: 0, explanationFa: "پاسخ درست: A) wird. این جمله Passiv در زمان حال است: wird + Partizip II، یعنی beantwortet." },
+  { id: "q-b1-12", unitId: "unit24", prompt: "___ Meinung nach ist Schreiben wichtig.", translationFa: "به نظر من نوشتن مهم است.", options: ["Meiner", "Meine", "Meinem", "Meinen"], correctIndex: 0, explanationFa: "پاسخ درست: A) Meiner. عبارت ثابت در داتیو چنین است: Meiner Meinung nach." },
+];
