@@ -98,6 +98,9 @@ html .study-app.german-app .german-free-writing textarea { color: var(--cp-text)
 .german-practice-actions button { font-size: 12px; }
 .german-workspace .german-primary { background: var(--cp-accent); color: var(--cp-surface); font-weight: 700; border-color: transparent; }
 .german-feedback { border: 1px solid var(--cp-line); background: var(--cp-selected); padding: 12px; border-radius: 9px; font-size: 12px; line-height: 1.8; margin-top: 14px; }
+.german-feedback p { margin: 0; }
+.german-grammar-next { margin-top: 10px; }
+.german-grammar-next svg { transform: rotate(180deg); }
 .german-revealed { margin-top: 12px; line-height: 1.8; padding: 12px; background: var(--cp-surface); border-radius: 8px; }
 .german-explanation { margin-top: 20px; border-top: 1px solid var(--cp-line); padding-top: 12px; font-size: 12px; }
 .german-explanation summary,.german-reference summary { cursor: pointer; color: var(--cp-accent); }

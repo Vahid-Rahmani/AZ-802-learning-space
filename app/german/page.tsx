@@ -19,20 +19,23 @@ const modes: { id: GermanMode; title: string; description: string }[] = [
 ];
 const normalized = (text: string) => text.normalize("NFC");
 
-function B1GrammarQuiz({ question }: { question: B1GrammarQuestion }) {
+function B1GrammarQuiz({ questions }: { questions: B1GrammarQuestion[] }) {
+  const [index, setIndex] = useState(0);
   const [choice, setChoice] = useState<number | null>(null);
-  useEffect(() => setChoice(null), [question.id]);
+  if (!questions.length) return null;
+  const question = questions[index] ?? questions[0];
   const answered = choice !== null;
   const correct = choice === question.correctIndex;
+  const next = () => { setIndex(value => (value + 1) % questions.length); setChoice(null); };
   return <section className="german-grammar-quiz" lang="fa" dir="rtl" aria-labelledby="b1-grammar-quiz-title">
-    <p className="german-eyebrow">بخش ۲ · تست چندگزینه‌ای</p>
-    <h3 id="b1-grammar-quiz-title">تمرین ۱ — جواب صحیح را انتخاب کن.</h3>
+    <p className="german-eyebrow">بخش ۲ · تست چندگزینه‌ای · {questions.length} سؤال</p>
+    <h3 id="b1-grammar-quiz-title">تمرین {index + 1} از {questions.length} — جواب صحیح را انتخاب کن.</h3>
     <p className="german-quiz-prompt notranslate" lang="de" dir="ltr" translate="no">{question.prompt}</p>
     <p>{question.translationFa}</p>
     <div className="german-grammar-options" role="group" aria-label="German grammar choices">
       {question.options.map((option, index) => <button type="button" key={option} aria-pressed={choice === index} onClick={() => setChoice(index)}><span>{String.fromCharCode(65 + index)})</span><span className="notranslate" lang="de" dir="ltr" translate="no">{option}</span></button>)}
     </div>
-    {answered && <p className={`german-feedback${correct ? "" : " german-quiz-wrong"}`} role="status"><strong>{correct ? "درست!" : "بررسی جواب:"}</strong> {question.explanationFa}</p>}
+    {answered && <div className={`german-feedback${correct ? "" : " german-quiz-wrong"}`} role="status"><p><strong>{correct ? "درست!" : "بررسی جواب:"}</strong> {question.explanationFa}</p><button type="button" className="german-grammar-next" onClick={next}>سؤال بعدی <ChevronRight size={14} /></button></div>}
   </section>;
 }
 
@@ -194,7 +197,7 @@ export function GermanWorkspace({ userId, variant = "it" }: { userId: string; va
   const due = courseLessons.filter(item => { const state = progress.lessons[item.id]; return state.dueAt !== null && state.dueAt <= clock; });
   const reviewed = summary.independentRecallLessons;
   const activeUnit = courseUnits.find(unit => unit.id === lesson.unitId)!;
-  const quizQuestion = b1GrammarQuestions.find(item => item.unitId === lesson.unitId) ?? b1GrammarQuestions[0];
+  const quizQuestions = b1GrammarQuestions.filter(item => item.unitId === lesson.unitId);
   const nextLesson = courseLessons[courseLessons.findIndex(item => item.id === lesson.id) + 1];
   const typedCharacters = mode === "recall" && !checked ? Array.from(draft).map(character => ({ character, status: "neutral" })) : mode !== "writing" ? compareTypedCharacters(comparisonTarget, draft) : [];
   const mistakes = typedCharacters.filter(character => character.status === "incorrect").length;
@@ -202,7 +205,7 @@ export function GermanWorkspace({ userId, variant = "it" }: { userId: string; va
   return <div className="german-workspace">
     {variant === "it" && <><a className="german-game-entry" href="/german/grammar-cases" lang="fa" dir="rtl"><span className="german-game-mark" aria-hidden="true">S<span>✦</span></span><span><small>بازی جمله‌سازی · ۲۴ مأموریت در چهار فصل</small><strong>SatzTat · پرونده‌های گرامر</strong><span>موقعیت را بخوان، جمله بساز، اصلاح کن و مهارتت را در موقعیت تازه امتحان کن.</span></span><ArrowRight size={20} aria-hidden="true" /></a><a className="german-game-entry" href="/german/satztat"><span className="german-game-mark" aria-hidden="true">S<span>↗</span></span><span><small>INTERACTIVE NETWORK CASES · SEPARATE GAME</small><strong>SatzTat · Detect. Repair. Explain.</strong><span>Investigate a network incident, then write the German handover.</span></span><ArrowRight size={20} aria-hidden="true" /></a></>}
     <section className="german-intro"><div><p className="german-eyebrow">{variant === "b1" ? "B1 GRAMMATIK · 12 THEMEN" : "GERMAN FOR IT · B1 → B2 BRIDGE"}</p><h2><GoogleSubtitle text={variant === "b1" ? "German B1 grammar, step by step." : "From a sentence to a professional IT handover."} /></h2><p><GoogleSubtitle text={variant === "b1" ? "Learn each grammar topic with examples, dictation, recall and writing." : "Start with useful patterns. Progress to multi-sentence tickets, change reports and complete emails, with spaced recall and guided writing self-review."} /></p></div><div className="german-progress"><strong>{reviewed}/{courseLessons.length}</strong><span>lessons recalled independently</span><progress value={reviewed} max={courseLessons.length} aria-label="Lessons recalled independently" /></div></section>
-    {variant === "b1" && <><section className="german-cue german-b1-teaching" lang="fa" dir="rtl"><strong>بخش ۱ · آموزش فارسی</strong><p>{lesson.translationFa}</p><p>{lesson.explanationFa}</p></section><B1GrammarQuiz question={quizQuestion} /></>}
+    {variant === "b1" && <><section className="german-cue german-b1-teaching" lang="fa" dir="rtl"><strong>بخش ۱ · آموزش فارسی</strong><p>{lesson.translationFa}</p><p>{lesson.explanationFa}</p></section><B1GrammarQuiz key={lesson.id} questions={quizQuestions} /></>}
     <div className="german-metrics"><div><span>Practice</span><strong>{summary.practicedLessons}<small>/{courseLessons.length} lessons</small></strong></div><div><span>Independent recall</span><strong>{summary.independentRecallPasses}<small>successful attempts</small></strong></div><div><span>Writing</span><strong>{summary.writingReviews}<small>self-reviews</small></strong></div><div><span>Due today</span><strong>{due.length}<small>+ {summary.newLessons} new</small></strong></div></div>
     <div className="german-toolbar"><span role="status">{saveStatus}</span><button type="button" onClick={() => { setListView("due"); if (due[0]) selectLesson(due[0].id); }}>Review due ({due.length})</button><button type="button" onClick={reset}><RotateCcw size={14} />Reset German practice</button></div>
     <div className="german-layout">

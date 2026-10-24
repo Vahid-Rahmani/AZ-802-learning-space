@@ -1,4 +1,5 @@
 import type { GermanLesson, GermanUnit } from "./german-learning";
+import { germanB1DrillModules } from "./german-b1-drills";
 
 export const b1GrammarUnits: GermanUnit[] = [
   ["01", "Präpositionen mit Dativ", "mit · nach · aus · bei · von · zu · seit · gegenüber", "حروف اضافه‌ای که همیشه داتیو می‌گیرند."],
@@ -89,7 +90,7 @@ export interface B1GrammarQuestion {
   explanationFa: string;
 }
 
-export const b1GrammarQuestions: B1GrammarQuestion[] = [
+const coreB1GrammarQuestions: B1GrammarQuestion[] = [
   { id: "q-b1-01", unitId: "unit13", prompt: "Ich fahre ___ Bus zur Arbeit.", translationFa: "من با اتوبوس به محل کار می‌روم.", options: ["mit dem", "mit den", "mit der", "mit die"], correctIndex: 0, explanationFa: "پاسخ درست: A) mit dem. حرف اضافهٔ mit همیشه داتیو می‌گیرد و Bus مذکر است." },
   { id: "q-b1-02", unitId: "unit14", prompt: "Das Geschenk ist ___ meinen Bruder.", translationFa: "این هدیه برای برادر من است.", options: ["für dem", "für den", "für der", "für die"], correctIndex: 1, explanationFa: "پاسخ درست: B) für den. حرف اضافهٔ für همیشه آکوزاتیو می‌گیرد؛ der Bruder در آکوزاتیو می‌شود den Bruder." },
   { id: "q-b1-03", unitId: "unit15", prompt: "Ich stelle die Lampe ___ Tisch.", translationFa: "من چراغ را روی میز قرار می‌دهم. منظور، گذاشتن چراغ روی میز است.", options: ["auf dem", "auf den", "auf der", "auf die"], correctIndex: 1, explanationFa: "پاسخ درست: B) auf den. فعل stellen حرکت به مقصد را نشان می‌دهد (Wohin?)؛ پس آکوزاتیو لازم است: auf den Tisch." },
@@ -103,3 +104,25 @@ export const b1GrammarQuestions: B1GrammarQuestion[] = [
   { id: "q-b1-11", unitId: "unit23", prompt: "Die E-Mail ___ heute beantwortet.", translationFa: "ایمیل امروز پاسخ داده می‌شود.", options: ["wird", "würde", "hätte", "wäre"], correctIndex: 0, explanationFa: "پاسخ درست: A) wird. این جمله Passiv در زمان حال است: wird + Partizip II، یعنی beantwortet." },
   { id: "q-b1-12", unitId: "unit24", prompt: "___ Meinung nach ist Schreiben wichtig.", translationFa: "به نظر من نوشتن مهم است.", options: ["Meiner", "Meine", "Meinem", "Meinen"], correctIndex: 0, explanationFa: "پاسخ درست: A) Meiner. عبارت ثابت در داتیو چنین است: Meiner Meinung nach." },
 ];
+
+const drillB1GrammarQuestions: B1GrammarQuestion[] = [];
+const seenPrompts = new Set(coreB1GrammarQuestions.map((question) => question.prompt));
+for (const topic of germanB1DrillModules) {
+  for (const drill of topic.drills) {
+    // A few drills restate the core question for that unit; keep one copy so
+    // cycling through the bank never shows the same sentence twice in a row.
+    if (seenPrompts.has(drill.prompt)) continue;
+    seenPrompts.add(drill.prompt);
+    drillB1GrammarQuestions.push({
+      id: `q-b1-drill-${drill.id}`,
+      unitId: `unit${topic.number + 12}`,
+      prompt: drill.prompt,
+      translationFa: drill.translation,
+      options: drill.options,
+      correctIndex: drill.correct,
+      explanationFa: `پاسخ درست: ${String.fromCharCode(65 + drill.correct)}) ${drill.options[drill.correct]}. ${drill.why}`,
+    });
+  }
+}
+
+export const b1GrammarQuestions: B1GrammarQuestion[] = [...coreB1GrammarQuestions, ...drillB1GrammarQuestions];
