@@ -1,5 +1,5 @@
 import type { GermanLesson, GermanUnit } from "./german-learning";
-import { germanB1DrillModules } from "./german-b1-drills";
+import { germanB1DrillModules } from "./german-b1-drills.ts";
 
 export const b1GrammarUnits: GermanUnit[] = [
   ["01", "Präpositionen mit Dativ", "mit · nach · aus · bei · von · zu · seit · gegenüber", "حروف اضافه‌ای که همیشه داتیو می‌گیرند."],

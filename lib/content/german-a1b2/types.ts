@@ -1,32 +1,45 @@
 export type GrammarLevel = "A1" | "A2" | "B1" | "B2";
 export type GrammarDifficulty = 1 | 2 | 3;
+export type GrammarQuestionFormat = "choice" | "fill" | "order";
 
 /**
- * One reviewed multiple-choice item.
- *
- * The explanation is deliberately structured: the interface can show the rule,
- * the sentence analysis, the word order, the case/form information, the error
- * analysis and two fresh examples without inventing any of them at render time.
+ * The authored explanations for the first 100 questions are deliberately
+ * detailed. Imported B1 questions use the shorter `shortExplanation` instead;
+ * the full grammar lesson lives once in the module, not in every prompt.
  */
+export type GrammarExplanation = {
+  rule: string;
+  reason: string;
+  analysis: string;
+  wordOrder: string;
+  forms: string;
+  error: string;
+  examples: [string, string];
+  translationFa: string;
+};
+
+export type GrammarShortExplanation = {
+  /** One question-specific German sentence. */
+  de: string;
+  /** Persian support, not a second full grammar essay. */
+  fa: string;
+};
+
 export type GrammarQuestion = {
   id: string;
   level: GrammarLevel;
   difficulty: GrammarDifficulty;
   prompt: string;
   translationFa: string;
-  options: [string, string, string, string];
-  correctIndex: 0 | 1 | 2 | 3;
+  options: string[];
+  correctIndex: number;
   answer: string;
-  explanation: {
-    rule: string;
-    reason: string;
-    analysis: string;
-    wordOrder: string;
-    forms: string;
-    error: string;
-    examples: [string, string];
-    translationFa: string;
-  };
+  /** Defaults to choice. */
+  format?: GrammarQuestionFormat;
+  /** Present on the original 100 authored questions. */
+  explanation?: GrammarExplanation;
+  /** Present on imported/reviewed questions. */
+  shortExplanation?: GrammarShortExplanation;
 };
 
 export type GrammarModuleStatus = "ready" | "planned";
@@ -43,53 +56,158 @@ export type GrammarModule = {
   skills: string[];
 };
 
-export type GrammarCourseState = {
-  version: 1;
-  moduleId: string;
+export type GrammarLessonSection = {
+  titleDe: string;
+  titleFa: string;
+  bodyDe: string;
+  bodyFa: string;
+  examples: string[];
+  examplesFa?: string[];
+};
+
+export type GrammarLesson = {
+  introDe: string;
+  introFa: string;
+  sections: GrammarLessonSection[];
+};
+
+export type GrammarModuleProgress = {
   currentIndex: number;
-  answers: Record<string, number>;
+  answers: Record<string, number | string>;
   difficult: string[];
   writing: Record<string, string>;
   dictation: Record<string, string>;
+};
+
+export type GrammarCourseState = {
+  version: 2;
+  activeModuleId: string;
+  modules: Record<string, GrammarModuleProgress>;
   updatedAt: number;
 };
 
-export function emptyCourseState(moduleId: string, now = Date.now()): GrammarCourseState {
-  return { version: 1, moduleId, currentIndex: 0, answers: {}, difficult: [], writing: {}, dictation: {}, updatedAt: now };
+export type GrammarModuleSpec = {
+  id: string;
+  questionIds: readonly string[];
+};
+
+export function emptyModuleProgress(): GrammarModuleProgress {
+  return { currentIndex: 0, answers: {}, difficult: [], writing: {}, dictation: {} };
+}
+
+export function createCourseState(specs: readonly GrammarModuleSpec[], activeModuleId = specs[0]?.id ?? "infinitiv-zu", now = Date.now()): GrammarCourseState {
+  const modules: Record<string, GrammarModuleProgress> = {};
+  for (const spec of specs) modules[spec.id] = emptyModuleProgress();
+  return { version: 2, activeModuleId, modules, updatedAt: now };
+}
+
+/** Used by focused tests and by old callers that only need one module. */
+export function emptyCourseState(moduleId = "infinitiv-zu", now = Date.now()): GrammarCourseState {
+  return createCourseState([{ id: moduleId, questionIds: [] }], moduleId, now);
 }
 
 export function isGrammarLevel(value: unknown): value is GrammarLevel {
   return value === "A1" || value === "A2" || value === "B1" || value === "B2";
 }
 
-const isRecord = (value: unknown): value is Record<string, unknown> => !!value && typeof value === "object" && !Array.isArray(value);
+export function normalizeGrammarAnswer(value: string): string {
+  return value.normalize("NFC").trim().replace(/\s+/g, " ").toLocaleLowerCase("de-DE");
+}
 
-/** Accept only a well-formed, known-module state; never invent answers. */
-export function parseCourseState(value: unknown, moduleId: string, questionIds: readonly string[]): GrammarCourseState | null {
-  if (!isRecord(value) || value.version !== 1 || value.moduleId !== moduleId) return null;
-  if (!Number.isInteger(value.currentIndex) || (value.currentIndex as number) < 0 || (value.currentIndex as number) >= questionIds.length) return null;
-  if (!Number.isSafeInteger(value.updatedAt) || (value.updatedAt as number) < 0) return null;
-  const ids = new Set(questionIds);
-  if (!isRecord(value.answers)) return null;
-  const answers: Record<string, number> = {};
-  for (const [id, answer] of Object.entries(value.answers)) {
-    if (!ids.has(id) || !Number.isInteger(answer) || (answer as number) < 0 || (answer as number) > 3) return null;
-    answers[id] = answer as number;
+export function isGrammarAnswerCorrect(question: GrammarQuestion, answer: number | string | undefined): boolean {
+  if (answer === undefined) return false;
+  const format = question.format ?? "choice";
+  if (format === "fill" || format === "order") {
+    return typeof answer === "string" && normalizeGrammarAnswer(answer) === normalizeGrammarAnswer(question.answer);
   }
+  return typeof answer === "number" && answer === question.correctIndex;
+}
+
+const isRecord = (value: unknown): value is Record<string, unknown> => !!value && typeof value === "object" && !Array.isArray(value);
+const isSafeKey = (key: string) => key !== "__proto__" && key !== "constructor" && key !== "prototype";
+
+function parseDrafts(value: unknown): Record<string, string> | null {
+  if (value === undefined) return {};
+  if (!isRecord(value) || Object.keys(value).length > 100) return null;
+  const result: Record<string, string> = {};
+  for (const [id, text] of Object.entries(value)) {
+    if (!isSafeKey(id) || typeof text !== "string" || text.length > 4000) return null;
+    result[id] = text;
+  }
+  return result;
+}
+
+function parseAnswers(value: unknown, ids: Set<string>): Record<string, number | string> | null {
+  if (!isRecord(value)) return null;
+  const result: Record<string, number | string> = {};
+  for (const [id, answer] of Object.entries(value)) {
+    if (!ids.has(id) || !isSafeKey(id)) return null;
+    if (typeof answer === "number") {
+      if (!Number.isInteger(answer) || answer < 0 || answer > 3) return null;
+      result[id] = answer;
+    } else if (typeof answer === "string") {
+      if (!answer.trim() || answer.length > 4000) return null;
+      result[id] = answer;
+    } else {
+      return null;
+    }
+  }
+  return result;
+}
+
+function parseModuleProgress(value: unknown, spec: GrammarModuleSpec): GrammarModuleProgress | null {
+  if (!isRecord(value)) return null;
+  const ids = new Set(spec.questionIds);
+  const answers = parseAnswers(value.answers, ids);
+  const writing = parseDrafts(value.writing);
+  const dictation = parseDrafts(value.dictation);
+  if (!answers || !writing || !dictation) return null;
   if (!Array.isArray(value.difficult)) return null;
   const difficult = Array.from(new Set(value.difficult.filter((id): id is string => typeof id === "string" && ids.has(id))));
-  const reading = (candidate: unknown): Record<string, string> | null => {
-    if (candidate === undefined) return {};
-    if (!isRecord(candidate) || Object.keys(candidate).length > 100) return null;
-    const result: Record<string, string> = {};
-    for (const [id, text] of Object.entries(candidate)) {
-      if (typeof text !== "string" || text.length > 4000) return null;
-      result[id] = text;
-    }
-    return result;
-  };
-  const writing = reading(value.writing);
-  const dictation = reading(value.dictation);
-  if (!writing || !dictation) return null;
-  return { version: 1, moduleId, currentIndex: value.currentIndex as number, answers, difficult, writing, dictation, updatedAt: value.updatedAt as number };
+  const max = Math.max(0, spec.questionIds.length - 1);
+  if (!Number.isInteger(value.currentIndex) || (value.currentIndex as number) < 0 || (value.currentIndex as number) > max) return null;
+  return { currentIndex: value.currentIndex as number, answers, difficult, writing, dictation };
+}
+
+function migrateV1(value: Record<string, unknown>, specs: readonly GrammarModuleSpec[]): GrammarCourseState | null {
+  if (value.version !== 1 || value.moduleId !== "infinitiv-zu") return null;
+  const spec = specs.find((item) => item.id === "infinitiv-zu");
+  if (!spec) return null;
+  const ids = new Set(spec.questionIds);
+  const answers = parseAnswers(value.answers, ids);
+  const writing = parseDrafts(value.writing);
+  const dictation = parseDrafts(value.dictation);
+  if (!answers || !writing || !dictation) return null;
+  if (!Array.isArray(value.difficult)) return null;
+  const difficult = Array.from(new Set(value.difficult.filter((id): id is string => typeof id === "string" && ids.has(id))));
+  const max = Math.max(0, spec.questionIds.length - 1);
+  if (!Number.isInteger(value.currentIndex) || (value.currentIndex as number) < 0 || (value.currentIndex as number) > max) return null;
+  if (!Number.isSafeInteger(value.updatedAt) || (value.updatedAt as number) < 0) return null;
+  const state = createCourseState(specs, "infinitiv-zu", value.updatedAt as number);
+  state.modules["infinitiv-zu"] = { currentIndex: value.currentIndex as number, answers, difficult, writing, dictation };
+  return state;
+}
+
+/**
+ * Accept only well-formed state for known modules and known question IDs.
+ * A v1 row from the former single-module course is migrated into module 09
+ * so existing answers, drafts and difficult markers survive the merge.
+ */
+export function parseCourseState(value: unknown, specs: readonly GrammarModuleSpec[]): GrammarCourseState | null {
+  if (!isRecord(value) || !Number.isSafeInteger(value.updatedAt) || (value.updatedAt as number) < 0) return null;
+  if (value.version === 1) return migrateV1(value, specs);
+  if (value.version !== 2) return null;
+  if (typeof value.activeModuleId !== "string" || !specs.some((spec) => spec.id === value.activeModuleId)) return null;
+  if (!isRecord(value.modules)) return null;
+  for (const key of Object.keys(value.modules)) {
+    if (!specs.some((spec) => spec.id === key)) return null;
+  }
+  const state = createCourseState(specs, value.activeModuleId as string, value.updatedAt as number);
+  for (const spec of specs) {
+    if (!Object.hasOwn(value.modules, spec.id)) continue;
+    const progress = parseModuleProgress(value.modules[spec.id], spec);
+    if (!progress) return null;
+    state.modules[spec.id] = progress;
+  }
+  return state;
 }

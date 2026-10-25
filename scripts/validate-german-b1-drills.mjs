@@ -19,7 +19,7 @@ import { germanB1DrillModules } from "../lib/content/german-b1-drills.ts";
  * memory and point its one runtime import at the drill module instead. */
 const grammarFile = fileURLToPath(new URL("../lib/content/german-b1-grammar.ts", import.meta.url));
 const drillFile = pathToFileURL(fileURLToPath(new URL("../lib/content/german-b1-drills.ts", import.meta.url))).href;
-const grammarSource = readFileSync(grammarFile, "utf8").replace("from \"./german-b1-drills\"", `from ${JSON.stringify(drillFile)}`);
+const grammarSource = readFileSync(grammarFile, "utf8").replace(/from "\.\/german-b1-drills(?:\.ts)?"/, `from ${JSON.stringify(drillFile)}`);
 const grammarModule = `data:text/javascript;base64,${Buffer.from(ts.transpileModule(grammarSource, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText).toString("base64")}`;
 const { b1GrammarQuestions, b1GrammarUnits } = await import(grammarModule);
 

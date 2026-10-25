@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "B1 Grammatik · Klybit",
-  description: "12 B1-Grammatikthemen mit Erklärungen, Übungen und Prüfungstraining.",
+  title: "Grammatik A1–B2 · Klybit",
+  description: "Die B1-Grammatikthemen sind Teil der einheitlichen Grammatik A1–B2.",
 };
 
 export default function B1GrammarLayout({ children }: { children: React.ReactNode }) {

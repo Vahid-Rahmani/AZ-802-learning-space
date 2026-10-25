@@ -2,13 +2,12 @@ import { NextResponse } from "next/server";
 import { sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { currentUser, signInRequired } from "@/lib/auth-server";
-import { zuInfinitivQuestions } from "@/lib/content/german-a1b2/index";
-import { emptyCourseState, parseCourseState, type GrammarCourseState } from "@/lib/content/german-a1b2/types";
+import { grammarModuleSpecs } from "@/lib/content/german-a1b2/curriculum";
+import { createCourseState, parseCourseState, type GrammarCourseState } from "@/lib/content/german-a1b2/types";
 
 const COURSE_ID = "a1-b2";
-const MODULE_ID = "infinitiv-zu";
+const DEFAULT_MODULE_ID = "infinitiv-zu";
 const MAX_STATE_BYTES = 250_000;
-const QUESTION_IDS = zuInfinitivQuestions.map((question) => question.id);
 
 async function ensureTable() {
   await getDb().run(sql`CREATE TABLE IF NOT EXISTS german_course_state (
@@ -29,15 +28,15 @@ export async function GET() {
     const rows = await getDb().all(sql`SELECT state_json AS stateJson, updated_at AS updatedAt
       FROM german_course_state WHERE user_id = ${auth.userId} AND course_id = ${COURSE_ID} LIMIT 1`) as Array<{ stateJson?: unknown; updatedAt?: unknown }>;
     if (!rows.length || typeof rows[0].stateJson !== "string") {
-      return NextResponse.json({ state: emptyCourseState(MODULE_ID), stored: false }, { headers: { "cache-control": "no-store" } });
+      return NextResponse.json({ state: createCourseState(grammarModuleSpecs, DEFAULT_MODULE_ID), stored: false }, { headers: { "cache-control": "no-store" } });
     }
     let parsed: unknown;
     try { parsed = JSON.parse(rows[0].stateJson); } catch { parsed = null; }
-    const state = parseCourseState(parsed, MODULE_ID, QUESTION_IDS);
+    const state = parseCourseState(parsed, grammarModuleSpecs);
     if (!state) {
       // Do not surface a corrupt row as progress; the client can start fresh
       // and the next successful save replaces the unusable value.
-      return NextResponse.json({ state: emptyCourseState(MODULE_ID), stored: false, recovered: true }, { headers: { "cache-control": "no-store" } });
+      return NextResponse.json({ state: createCourseState(grammarModuleSpecs, DEFAULT_MODULE_ID), stored: false, recovered: true }, { headers: { "cache-control": "no-store" } });
     }
     return NextResponse.json({ state, stored: true }, { headers: { "cache-control": "no-store" } });
   } catch {
@@ -53,7 +52,7 @@ export async function PUT(request: Request) {
   const length = Number(request.headers.get("content-length") ?? 0);
   if (Number.isFinite(length) && length > MAX_STATE_BYTES) return NextResponse.json({ error: "State is too large." }, { status: 413 });
   const body = await request.json().catch(() => null) as { state?: unknown } | null;
-  const state = parseCourseState(body?.state, MODULE_ID, QUESTION_IDS);
+  const state = parseCourseState(body?.state, grammarModuleSpecs);
   if (!state) return NextResponse.json({ error: "Invalid grammar progress state." }, { status: 400 });
   const wire: GrammarCourseState = { ...state, updatedAt: Date.now() };
   try {
