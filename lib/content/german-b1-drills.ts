@@ -159,7 +159,7 @@ export const germanB1DrillModules: GermanB1DrillModule[] = [
     "drills": [
       {
         "id": "a1",
-        "prompt": "Das ist ein Geschenk ___ meinen Vater.",
+        "prompt": "Das ist ein Geschenk ___ Vater.",
         "translation": "این هدیه‌ای برای پدر من است.",
         "options": [
           "für mein",
@@ -172,7 +172,7 @@ export const germanB1DrillModules: GermanB1DrillModule[] = [
       },
       {
         "id": "a2",
-        "prompt": "Wir laufen ___ den Wald.",
+        "prompt": "Wir laufen ___ Wald.",
         "translation": "ما از میان جنگل عبور می‌کنیم.",
         "options": [
           "durch dem",
@@ -578,7 +578,7 @@ export const germanB1DrillModules: GermanB1DrillModule[] = [
         "options": [
           "regnete",
           "regnen",
-          "es regnet",
+          "regnet",
           "regnen hat"
         ],
         "correct": 0,
@@ -590,7 +590,7 @@ export const germanB1DrillModules: GermanB1DrillModule[] = [
         "translation": "بعد از اینکه غذا خورده بودم، خوابیدم.",
         "options": [
           "gegessen hatte",
-          "ich gegessen habe",
+          "habe gegessen",
           "esse",
           "gegessen"
         ],
@@ -603,7 +603,7 @@ export const germanB1DrillModules: GermanB1DrillModule[] = [
         "translation": "قبل از اینکه بروی، لطفاً به من زنگ بزن.",
         "options": [
           "gehst",
-          "du gehst",
+          "gehe",
           "gehen du",
           "gehen"
         ],
@@ -1357,7 +1357,7 @@ export const germanB1DrillModules: GermanB1DrillModule[] = [
       },
       {
         "id": "s7",
-        "prompt": "Sehr geehrte ___ Frau Müller,",
+        "prompt": "Sehr ___ Frau Müller,",
         "translation": "خانم مولر محترم،",
         "options": [
           "geehrte",

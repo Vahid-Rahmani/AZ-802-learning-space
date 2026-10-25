@@ -150,7 +150,7 @@ try {
   await click(buttonWith(container, "Zurück"));
   assert.equal(container.querySelector(".gg-question-index").textContent, indexBefore, "previous did not return");
 
-  // Typed gap-fill and sentence-building questions use a real input.
+  // Typed sentence-building questions use a real input.
   let guards = 0;
   while (!container.querySelector("#gg-typed-input") && guards < 120) {
     await click(buttonWith(container, "Weiter"));
@@ -266,7 +266,7 @@ try {
 
   await act(async () => root.unmount());
   container.remove();
-  console.log("Unified German UI passed: 20 modules / 20 ready, B1 short feedback, red-green answers, typed gap-fill, review, results filters, module-scoped reset, module 09 full explanations + writing + dictation, persistence, mobile CSS.");
+  console.log("Unified German UI passed: 20 modules / 20 ready, B1 short feedback, red-green answers, typed sentence building, review, results filters, module-scoped reset, module 09 full explanations + writing + dictation, persistence, mobile CSS.");
 } finally {
   rmSync(scratch, { recursive: true, force: true });
 }

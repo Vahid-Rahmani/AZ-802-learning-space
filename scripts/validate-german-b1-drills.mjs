@@ -3,8 +3,9 @@
  *
  * Offline by design: it reads only committed content, so it runs in CI without
  * a browser. The public contract is 12 topics with exactly 100 questions each,
- * covering multiple-choice, typed gap-fill, error correction and sentence
- * building, ordered from easy to hard.
+ * covering multiple-choice recognition and typed sentence building, ordered
+ * from easy to hard. Each drill appears once as recognition and once as a
+ * scrambled production task; no two questions share a prompt.
  *
  * Run: node --experimental-strip-types scripts/validate-german-b1-drills.mjs
  */
@@ -38,8 +39,8 @@ const expectedTitles = [
   "Schreiben und Prüfung B1",
 ];
 
-const FORMATS = ["choice", "fill", "fix", "order"];
-const EXPECTED_FORMAT_COUNTS = { choice: 50, fill: 17, fix: 17, order: 16 };
+const FORMATS = ["choice", "fill", "order"];
+const EXPECTED_FORMAT_COUNTS = { choice: 50, fill: 0, order: 50 };
 
 assert.equal(germanB1DrillModules.length, 12, "the drill bank must cover all twelve B1 topics");
 assert.deepEqual(germanB1DrillModules.map((topic) => topic.title), expectedTitles, "topic order or titles changed");
@@ -83,7 +84,7 @@ for (const topic of germanB1DrillModules) {
     const slotQuestions = unitQuestions.filter((question) => question.lessonSlot === slot);
     assert.equal(slotQuestions.length, 50, `${unitId}: lesson slot ${slot} must have 50 questions`);
     assert.equal(new Set(slotQuestions.map((question) => question.prompt)).size, 50, `${unitId}: lesson slot ${slot} repeats a sentence`);
-    assert.deepEqual([...new Set(slotQuestions.map((question) => question.format))].sort(), FORMATS.toSorted(), `${unitId}: lesson slot ${slot} must use all four formats`);
+    assert.deepEqual([...new Set(slotQuestions.map((question) => question.format))].sort(), ["choice", "order"], `${unitId}: lesson slot ${slot} must pair recognition with production`);
   }
 
   let previousLevel = 0;
@@ -91,7 +92,7 @@ for (const topic of germanB1DrillModules) {
     assert.ok(!questionIds.has(question.id), `duplicate question id: ${question.id}`);
     questionIds.add(question.id);
     assert.ok(question.lessonSlot === 0 || question.lessonSlot === 1, `${question.id}: invalid lesson slot`);
-    assert.ok(question.format === "choice" || question.format === "fill" || question.format === "fix" || question.format === "order", `${question.id}: unknown format`);
+    assert.ok(question.format === "choice" || question.format === "fill" || question.format === "order", `${question.id}: unknown format`);
     assert.ok(question.level >= previousLevel, `${unitId}: difficulty must not drop at ${question.id}`);
     previousLevel = question.level;
     assert.ok(question.prompt.trim() && question.answer.trim(), `${question.id}: missing prompt or answer`);
@@ -104,7 +105,6 @@ for (const topic of germanB1DrillModules) {
       assert.equal(new Set(question.options).size, 4, `${question.id}: duplicate option text`);
       assert.equal(question.options[question.correctIndex], question.answer, `${question.id}: answer must be the selected option`);
     }
-    if (question.format === "fix") assert.notEqual(question.prompt, question.answer, `${question.id}: the wrong sentence must differ from the correction`);
     if (question.format === "order") assert.notEqual(question.prompt.replaceAll(" · ", " "), question.answer, `${question.id}: the scrambled prompt must not already be in order`);
   }
 
@@ -123,4 +123,4 @@ const lamp = b1GrammarQuestions.find((question) => question.prompt === "Ich stel
 assert.ok(lamp, "missing the lamp exercise");
 assert.equal(lamp.options[lamp.correctIndex], "auf den", "the lamp exercise must grade the Wohin/Akkusativ answer");
 
-console.log(`German B1 drill bank OK: ${germanB1DrillModules.length} topics, 100 questions each (${b1GrammarQuestions.length} total), all formats, keys, levels and unit mappings valid.`);
+console.log(`German B1 drill bank OK: ${germanB1DrillModules.length} topics, 100 questions each (${b1GrammarQuestions.length} total), recognition plus sentence-building production, keys, levels and unit mappings valid.`);

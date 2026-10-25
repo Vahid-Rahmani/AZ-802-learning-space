@@ -51,7 +51,7 @@ export const germanB1ExtraE2: Record<string, GermanB1Drill[]> = {
     { id: "t40", level: 2, prompt: "Ich ___ nach Hause gegangen.", translation: "من به خانه رفته‌ام.", options: ["bin", "habe", "war", "werde"], correct: 0, why: "gehen فعل حرکتی است؛ Perfekt با sein." },
     { id: "t41", level: 2, prompt: "Er ___ die Prüfung bestanden.", translation: "او امتحان را قبول شده است.", options: ["hat", "ist", "hatte", "wird"], correct: 0, why: "bestehen با haben در Perfekt: hat bestanden." },
     { id: "t42", level: 3, prompt: "Wir ___ das Spiel gesehen.", translation: "ما بازی را دیده‌ایم.", options: ["haben", "sind", "hatten", "werden"], correct: 0, why: "sehen با haben در Perfekt." },
-    { id: "t43", level: 3, prompt: "Sie ___ gestern früh aufgestanden.", translation: "او دیروز زود بیدار شده است.", options: ["ist", "hat", "war", "wird"], correct: 0, why: "aufstehen فعل حرکتی است؛ Perfekt با sein." },
+    { id: "t43", level: 3, prompt: "Sie ___ gestern früh losgefahren.", translation: "او دیروز زود حرکت کرد.", options: ["ist", "hat", "war", "wird"], correct: 0, why: "losfahren فعل حرکتی است؛ Perfekt با sein ساخته می‌شود." },
     { id: "t44", level: 3, prompt: "Ich ___ das Auto repariert.", translation: "من ماشین را تعمیر کرده‌ام.", options: ["habe", "bin", "hatte", "werde"], correct: 0, why: "reparieren با haben در Perfekt." },
     { id: "t45", level: 3, prompt: "Er ___ den Brief geschrieben.", translation: "او نامه را نوشته است.", options: ["hat", "ist", "hatte", "wird"], correct: 0, why: "schreiben با haben در Perfekt." },
     { id: "t46", level: 3, prompt: "Wir ___ nach Hamburg gefahren.", translation: "ما به هامبورگ رفته‌ایم.", options: ["sind", "haben", "waren", "werden"], correct: 0, why: "fahren فعل حرکتی است؛ Perfekt با sein." },

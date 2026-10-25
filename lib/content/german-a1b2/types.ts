@@ -36,6 +36,8 @@ export type GrammarQuestion = {
   answer: string;
   /** Defaults to choice. */
   format?: GrammarQuestionFormat;
+  /** Answer text from an earlier version of a typed question, used for migration. */
+  legacyAnswer?: string;
   /** Present on the original 100 authored questions. */
   explanation?: GrammarExplanation;
   /** Present on imported/reviewed questions. */
@@ -89,6 +91,10 @@ export type GrammarCourseState = {
 export type GrammarModuleSpec = {
   id: string;
   questionIds: readonly string[];
+  /** Questions answered by typing; a stored option index is stale after a format migration. */
+  typedQuestionIds?: readonly string[];
+  /** Previous answer text per question; a matching saved answer belongs to the old task. */
+  legacyAnswers?: Readonly<Record<string, string>>;
 };
 
 export function emptyModuleProgress(): GrammarModuleProgress {
@@ -158,7 +164,27 @@ function parseAnswers(value: unknown, ids: Set<string>): Record<string, number |
 function parseModuleProgress(value: unknown, spec: GrammarModuleSpec): GrammarModuleProgress | null {
   if (!isRecord(value)) return null;
   const ids = new Set(spec.questionIds);
+  const typedIds = new Set(spec.typedQuestionIds ?? []);
+  const legacyAnswers = spec.legacyAnswers ?? {};
   const answers = parseAnswers(value.answers, ids);
+  if (answers) {
+    for (const [id, answer] of Object.entries(answers)) {
+      // Older banks stored a chosen option index for questions that now require
+      // a typed sentence. Keep the rest of the module's progress, drop the
+      // incompatible answer and let the learner answer that question again.
+      if (typedIds.has(id) && typeof answer === "number") {
+        delete answers[id];
+        continue;
+      }
+      // A former gap-fill answer (for example „auf den“) cannot be compared
+      // with the full sentence of the sentence-building task. Drop only that
+      // exact legacy value; unrelated answers and other modules stay intact.
+      const legacy = legacyAnswers[id];
+      if (typeof answer === "string" && legacy && normalizeGrammarAnswer(answer) === normalizeGrammarAnswer(legacy)) {
+        delete answers[id];
+      }
+    }
+  }
   const writing = parseDrafts(value.writing);
   const dictation = parseDrafts(value.dictation);
   if (!answers || !writing || !dictation) return null;

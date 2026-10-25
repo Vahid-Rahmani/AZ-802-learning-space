@@ -14,6 +14,7 @@ import {
   zuInfinitivQuestions, zuInfinitivWritingTasks,
 } from "../lib/content/german-a1b2/index.ts";
 import { createCourseState, parseCourseState } from "../lib/content/german-a1b2/types.ts";
+import { auditGermanQuestions } from "./german-question-audit.mjs";
 import { dictationForLesson, practiceForModule, writingTasksForLesson } from "../lib/content/german-a1b2/module-practice.ts";
 
 const LEVELS = ["A1", "A2", "B1", "B2"];
@@ -105,8 +106,8 @@ for (const question of allQuestions) {
   assert.ok(!exactRecords.has(key), `${question.id}: exact duplicate question record`);
   exactRecords.add(key);
 }
-// The B1 bank deliberately pairs one recognition and one production task on
-// the same sentence. Any other repeated prompt would be accidental repetition.
+// No two published questions may display the same prompt. Production tasks use
+// a scrambled version of their sentence, so a repeated prompt is accidental.
 const byPrompt = new Map();
 for (const question of allQuestions) {
   const group = byPrompt.get(question.prompt) ?? [];
@@ -114,12 +115,7 @@ for (const question of allQuestions) {
   byPrompt.set(question.prompt, group);
 }
 for (const [prompt, group] of byPrompt) {
-  if (group.length === 1) continue;
-  assert.equal(new Set(group.map((question) => question.moduleId)).size, 1, `repeated prompt crosses modules: ${prompt}`);
-  assert.equal(new Set(group.map((question) => question.answer)).size, 1, `repeated prompt has different answers: ${prompt}`);
-  const formats = new Set(group.map((question) => question.format ?? "choice"));
-  assert.ok(formats.has("choice") && [...formats].some((format) => format !== "choice"), `repeated prompt is not a recognition/production pair: ${prompt}`);
-  assert.ok(group.every((question) => question.shortExplanation), `B1 prompt pairs must use short question feedback: ${prompt}`);
+  assert.equal(group.length, 1, `repeated prompt: ${prompt}`);
 }
 
 const answerPositions = [0, 0, 0, 0];
@@ -179,14 +175,14 @@ for (const question of allQuestions) {
     assert.equal(new Set(question.options).size, 4, `${question.id}: options must be distinct`);
     assert.ok(question.correctIndex >= 0 && question.correctIndex < 4, `${question.id}: answer index out of range`);
     assert.equal(question.options[question.correctIndex], question.answer, `${question.id}: answer must equal the selected option`);
-    if (format === "order") {
-      const tokens = question.prompt.split(" · ").map((token) => token.replace(/[.,!?;:]/g, "").trim()).sort();
-      const answerTokens = question.answer.replace(/[.,!?;:]/g, "").split(/\s+/).map((token) => token.trim()).sort();
-      assert.deepEqual(tokens, answerTokens, `${question.id}: sentence-building tokens must match the answer`);
-    }
   } else {
     assert.equal(question.options.length, 0, `${question.id}: typed questions must not carry options`);
     assert.equal(question.correctIndex, -1, `${question.id}: typed questions must not carry an option index`);
+    if (format === "order") {
+      const tokens = question.prompt.split(" · ").map((token) => token.trim()).sort();
+      const answerTokens = question.answer.split(/\s+/).map((token) => token.trim()).sort();
+      assert.deepEqual(tokens, answerTokens, `${question.id}: sentence-building tokens must match the answer`);
+    }
   }
   assert.doesNotMatch(JSON.stringify(question), /\b(TODO|TBD|lorem ipsum|placeholder)\b/i, `${question.id}: placeholder content found`);
 }
@@ -244,4 +240,11 @@ assert.match(moduleRoute, /view="module"/, "module pages must render the module 
 const germanForItRoute = readFileSync("app/german/page.tsx", "utf8");
 assert.doesNotMatch(germanForItRoute, /href: "\/german\/b1-grammar"/, "German for IT must not advertise a second B1 course");
 
-console.log(`German A1–B2 unified curriculum OK: 20 modules, ${readyGrammarModules.length} ready, dashboard + per-module routes, five-part workspaces, ${allQuestions.length} unique question records, 1200 migrated B1 questions, all answer keys and explanations valid, old B1 route redirects.`);
+const structural = auditGermanQuestions(grammarCurriculum);
+assert.equal(structural.errors.length, 0, `structural question audit found ${structural.errors.length} errors: ${structural.errors.slice(0, 5).map((error) => `${error.code} ${error.questionId}`).join(", ")}`);
+assert.equal(structural.inspected, allQuestions.length, "the structural audit must inspect every published question");
+assert.equal(structural.modules, 20, "the structural audit must cover all twenty modules");
+assert.equal(structural.duplicatePromptPairs, 0, "no question may repeat another question's prompt");
+assert.equal(structural.formatCounts.fill ?? 0, 0, "the duplicated gap-fill production tasks must not remain");
+
+console.log(`German A1–B2 unified curriculum OK: 20 modules, ${readyGrammarModules.length} ready, dashboard + per-module routes, five-part workspaces, ${allQuestions.length} question records audited (${Object.entries(structural.formatCounts).map(([format, count]) => `${format} ${count}`).join(", ")}), ${structural.duplicatePromptPairs} repeated prompts, 1200 migrated B1 questions, 0 structural errors, all answer keys and explanations valid, old B1 route redirects.`);

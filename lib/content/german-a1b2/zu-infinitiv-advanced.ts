@@ -156,7 +156,7 @@ export const zuInfinitivAdvanced = [
   ),
   q(
     "zu-a-010", "B2", 3,
-    "Sie hat Angst davor, allein ___.",
+    "Sie hat Angst davor, ___.",
     "او می‌ترسد که تنها رها شود.",
     ["allein gelassen zu werden", "allein zu gelassen werden", "allein gelassen werden zu", "zu allein gelassen werden"],
     "allein gelassen zu werden",

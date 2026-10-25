@@ -63,7 +63,6 @@ function shortExplanation(
   let de: string;
   if (sourceFormat === "fill") de = `In die Lücke von „${context}“ gehört „${answer}“. ${rule}`;
   else if (sourceFormat === "order") de = `Die richtige Reihenfolge lautet: „${answer}“. ${rule}`;
-  else if (sourceFormat === "fix") de = `Die korrigierte Fassung lautet: „${answer}“. ${rule}`;
   else de = `„${answer}“ ist in „${context}“ die richtige Lösung. ${rule}`;
   return { de, fa: persian };
 }
@@ -72,7 +71,7 @@ function importedQuestion(
   source: (typeof b1GrammarQuestions)[number],
   moduleId: string,
 ): GrammarQuestion {
-  const isChoice = source.format === "choice" || source.format === "fix";
+  const isChoice = source.format === "choice";
   return {
     id: `b1-${source.id}`,
     level: source.level === 3 ? "B2" : "B1",
@@ -82,7 +81,8 @@ function importedQuestion(
     options: isChoice ? [...source.options] : [],
     correctIndex: isChoice ? source.correctIndex : -1,
     answer: source.answer,
-    format: isChoice ? "choice" : source.format === "fill" ? "fill" : "order",
+    format: source.format,
+    legacyAnswer: source.legacyAnswer,
     shortExplanation: shortExplanation(moduleId, source.format, source.prompt, source.answer, source.explanationFa),
   };
 }
@@ -133,6 +133,12 @@ export const grammarCurriculum: CurriculumModule[] = grammarModules.map((module)
 export const grammarModuleSpecs = grammarCurriculum.map((module) => ({
   id: module.id,
   questionIds: module.questions.map((question) => question.id),
+  typedQuestionIds: module.questions
+    .filter((question) => question.format === "fill" || question.format === "order")
+    .map((question) => question.id),
+  legacyAnswers: Object.fromEntries(module.questions
+    .filter((question) => question.legacyAnswer)
+    .map((question) => [question.id, question.legacyAnswer as string])),
 }));
 
 export const readyGrammarModules = grammarCurriculum.filter((module) => module.status === "ready");

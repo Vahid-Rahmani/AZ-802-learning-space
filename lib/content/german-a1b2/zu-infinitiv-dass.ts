@@ -105,8 +105,8 @@ export const zuInfinitivDass = [
   ),
   q(
     "zu-d-007", "B1", 2,
-    "Er hat vergessen, ___ sie die Tür abgeschlossen hat.",
-    "او فراموش کرد که آن زن در را قفل کرده بود.",
+    "Er hat vergessen, ___ die Tür abgeschlossen hat.",
+    "او فراموش کرد که او در را قفل کرده است.",
     ["zu sie", "dass sie", "sie dass", "dass ihr"],
     "dass sie",
     {

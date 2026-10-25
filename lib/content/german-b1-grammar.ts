@@ -80,7 +80,7 @@ export const b1GrammarLessons: GermanLesson[] = [
   lesson(84, 12, "نظر شخصی و شکایت", "Meiner Meinung nach · deshalb · trotzdem", "Meiner Meinung nach ist tägliches Schreiben wichtig, deshalb wünsche ich mir mehr Schreibübungen.", "به نظر من نوشتن روزانه مهم است، بنابراین تمرین نوشتاری بیشتری می‌خواهم.", "برای نظر از Meiner Meinung nach و برای نتیجه از deshalb استفاده کن؛ مشکل و درخواست را مؤدبانه بنویس.", "یک متن پیوستهٔ کوتاه با نظر، دلیل، مشکل یا پیشنهاد و نتیجه بنویس.", [["Meiner Meinung nach", "به نظر من", "Meiner Meinung nach ist das wichtig."], ["deshalb", "بنابراین", "Deshalb schreibe ich Ihnen."]], ["Trotzdem bin ich mit dem Kurs zufrieden."]),
 ];
 
-export type B1QuestionFormat = "choice" | "fill" | "fix" | "order";
+export type B1QuestionFormat = "choice" | "fill" | "order";
 
 export interface B1GrammarQuestion {
   id: string;
@@ -96,6 +96,8 @@ export interface B1GrammarQuestion {
   lessonSlot: 0 | 1;
   /** The expected answer; for choice/fix/order it is also options[correctIndex]. */
   answer: string;
+  /** The gap phrase of the former fill-in task, used only to migrate progress. */
+  legacyAnswer?: string;
 }
 
 function stableHash(value: string): number {
@@ -144,82 +146,21 @@ function questionKey(topicId: string, drillId: string): string {
   return `${topicId}-${drillId}`;
 }
 
-const articleSwaps: Record<string, string[]> = {
-  der: ["den", "dem", "die"], die: ["der", "den", "das"], das: ["dem", "den", "die"],
-  den: ["der", "dem", "die"], dem: ["den", "der", "das"], des: ["dem", "der", "den"],
-  ein: ["einen", "einem", "einer"], eine: ["einer", "einen", "einem"],
-  einen: ["einem", "einer", "ein"], einem: ["einen", "einer", "ein"], einer: ["eine", "einen", "einem"],
-  dein: ["deinen", "deinem", "deiner"], deine: ["deiner", "deinen", "deinem"],
-  deinen: ["deinem", "deiner", "dein"], deinem: ["deinen", "deiner", "dein"], deiner: ["deine", "deinen", "deinem"],
-  mein: ["meinen", "meinem", "meiner"], meine: ["meiner", "meinen", "meinem"],
-  meinen: ["meinem", "meiner", "mein"], meinem: ["meinen", "meiner", "mein"], meiner: ["meine", "meinen", "meinem"],
-  ihr: ["ihren", "ihrem", "ihrer"], ihre: ["ihrer", "ihren", "ihrem"],
-  ihren: ["ihrem", "ihrer", "ihr"], ihrem: ["ihren", "ihrer", "ihr"], ihrer: ["ihre", "ihren", "ihrem"],
-  unser: ["unseren", "unserem", "unserer"], unsere: ["unserer", "unseren", "unserem"],
-  euer: ["euren", "eurem", "eurer"], eure: ["eurer", "euren", "eurem"],
-};
-
-/**
- * Build a sentence that is unambiguously wrong: change the case of a present
- * article, or duplicate a word when the sentence has no article. The original
- * wrong-option sentences are not reused because an alternative preposition or
- * conjunction can still be grammatical in a different reading.
- */
-function corruptSentence(sentence: string, key: string, variant: number): string {
-  const words = sentence.split(" ");
-  for (let index = 0; index < words.length; index++) {
-    const punctuation = words[index].match(/[.,!?;:]$/)?.[0] ?? "";
-    const clean = words[index].slice(0, words[index].length - punctuation.length);
-    const swaps = articleSwaps[clean.toLocaleLowerCase("de-DE")];
-    if (!swaps) continue;
-    const replacement = swaps[(stableHash(`${key}:${index}`) + variant) % swaps.length];
-    if (replacement === clean) continue;
-    words[index] = `${replacement}${punctuation}`;
-    return words.join(" ");
-  }
-  const candidates = words
-    .map((word, index) => ({ word, index }))
-    .filter(({ word }) => /^[A-Za-zÄÖÜäöüß]{3,}$/.test(word));
-  if (!candidates.length) return sentence;
-  const copies: string[] = [];
-  for (const candidate of candidates) {
-    const duplicated = [...words];
-    duplicated.splice(candidate.index, 0, duplicated[candidate.index]);
-    copies.push(duplicated.join(" "));
-  }
-  // Short sentences may offer only two usable words; duplicate every word as a
-  // third, still unambiguous error.
-  copies.push(words.flatMap(word => [word, word]).join(" "));
-  const pick = copies[(stableHash(key) + variant) % copies.length];
-  return pick;
-}
-
 function buildSecondaryQuestion(topic: typeof germanB1DrillModules[number], drill: typeof topic.drills[number], level: 1 | 2 | 3, index: number, lessonSlot: 0 | 1): B1GrammarQuestion {
   const unitId = `unit${topic.number + 12}`;
   const answer = drill.options[drill.correct];
   const key = questionKey(topic.id, drill.id);
-  const format = (["fill", "fix", "order"] as const)[index % 3];
+  // The production task must not repeat the recognition prompt. Build the full
+  // sentence and scramble it, so the learner produces the structure instead of
+  // retyping a gap phrase from the same sentence. Never corrupt a sentence to
+  // build options: a generated "wrong" sentence cannot be checked reliably.
   const sentence = fillPrompt(drill.prompt, answer);
-
-  if (format === "fill") {
-    return { id: `q-${topic.id}-m-${drill.id}`, unitId, prompt: drill.prompt, translationFa: drill.translation,
-      options: [], correctIndex: -1, explanationFa: drill.why, format, level, lessonSlot, answer };
-  }
-
-  if (format === "fix") {
-    const wrong = new Set<string>();
-    for (let attempt = 0; wrong.size < 3 && attempt < 12; attempt++) {
-      const candidate = corruptSentence(sentence, key, attempt);
-      if (candidate !== sentence) wrong.add(candidate);
-    }
-    const prompt = corruptSentence(sentence, key, 20);
-    const arranged = arrangeOptions([sentence, ...wrong], sentence, `fix-${key}`);
-    return { id: `q-${topic.id}-m-${drill.id}`, unitId, prompt, translationFa: drill.translation,
-      options: arranged.options, correctIndex: arranged.correctIndex, explanationFa: drill.why, format, level, lessonSlot, answer: sentence };
-  }
-
+  // Only the former every-third gap-fill task changed its expected answer from
+  // a phrase to a full sentence; those answers need the migration marker.
+  const wasFill = index % 3 === 0;
   return { id: `q-${topic.id}-m-${drill.id}`, unitId, prompt: scrambleSentence(sentence, key), translationFa: drill.translation,
-    options: [], correctIndex: -1, explanationFa: drill.why, format: "order", level, lessonSlot, answer: sentence };
+    options: [], correctIndex: -1, explanationFa: drill.why, format: "order", level, lessonSlot,
+    answer: sentence, legacyAnswer: wasFill ? answer : undefined };
 }
 
 function buildTopicQuestions(topic: typeof germanB1DrillModules[number]): B1GrammarQuestion[] {
