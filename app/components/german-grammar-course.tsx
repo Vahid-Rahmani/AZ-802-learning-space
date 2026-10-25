@@ -386,7 +386,7 @@ export function GermanGrammarCourse({ userId, initialModuleId, view = "module", 
         <p className="gg-hero-de">Lerne die Regel, übe sie, schreibe eigene Sätze und höre ein Diktat. Jedes der zwanzig Module hat eine eigene Seite mit demselben Ablauf wie Modul 09.</p>
         <p className="gg-hero-fa" lang="fa" dir="rtl">یک دوره، بیست ماژول. هر ماژول صفحهٔ مستقل خودش را دارد: درس، تمرین، نوشتن، دیکته و نتیجه. پیشرفتت در حساب و مرورگر ذخیره می‌شود.</p>
         <div className="gg-hero-actions">
-          <Link className="gg-primary" href={`/german/grammatik/${lastModule.id}`}>Weiterlernen: {lastModule.title}<ArrowRight size={16} /></Link>
+          <Link className="gg-primary" href={`/german/grammatik/${lastModule.id}`} prefetch={false}>Weiterlernen: {lastModule.title}<ArrowRight size={16} /></Link>
           <a className="gg-secondary" href="#module"><LayoutDashboard size={16} />Alle Module</a>
         </div>
       </div>
@@ -433,7 +433,7 @@ export function GermanGrammarCourse({ userId, initialModuleId, view = "module", 
             <div className="gg-dash-card-foot"><span>{cardStatus}</span>{ready ? <span>{cardPercent}% <ArrowRight size={13} /></span> : <LockKeyhole size={14} />}</div>
           </>;
           return ready
-            ? <Link key={module.id} className="gg-dash-card" href={`/german/grammatik/${module.id}`} aria-label={`Modul ${module.number}: ${module.title} öffnen`}>{content}</Link>
+            ? <Link key={module.id} className="gg-dash-card" href={`/german/grammatik/${module.id}`} prefetch={false} aria-label={`Modul ${module.number}: ${module.title} öffnen`}>{content}</Link>
             : <div key={module.id} className="gg-dash-card is-planned" aria-disabled="true">{content}</div>;
         })}
       </div>
@@ -445,7 +445,7 @@ export function GermanGrammarCourse({ userId, initialModuleId, view = "module", 
   return <div className="gg-course">
     <section className="gg-hero" aria-labelledby="gg-course-title">
       <div>
-        <Link className="gg-back" href="/german/grammatik"><ArrowLeft size={14} />Dashboard</Link>
+        <Link className="gg-back" href="/german/grammatik" prefetch={false}><ArrowLeft size={14} />Dashboard</Link>
         <p className="gg-eyebrow">GRAMMATIK A1–B2 · MODUL {String(activeModule.number).padStart(2, "0")} VON 20</p>
         <h2 id="gg-course-title">{activeModule.title}</h2>
         <p className="gg-hero-de" lang="de" dir="ltr">{lesson.introDe}</p>
