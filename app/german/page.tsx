@@ -246,6 +246,7 @@ export default function GermanPage() {
       <aside className="app-sidebar"><AppBrand subtitle="Learn. Practice. Progress." /><SimpleNavigation active="german" items={[
         { key: "german", label: "German for IT", href: "/german", icon: <Languages size={18} /> },
         { key: "german-b1", label: "B1 Grammatik · 12 Themen", href: "/german/b1-grammar", icon: <BookOpen size={18} /> },
+        { key: "german-grammatik", label: "Grammatik A1–B2 · 20 Module", href: "/german/grammatik", icon: <Languages size={18} /> },
         { key: "grammar-cases", label: "SatzTat · پرونده‌های گرامر", href: "/german/grammar-cases", icon: <ChevronRight size={18} /> },
         { key: "satztat", label: "SatzTat · Network missions", href: "/german/satztat", icon: <ChevronRight size={18} /> },
         { key: "home", label: "Windows Server", href: "/", icon: <BookOpen size={18} /> },

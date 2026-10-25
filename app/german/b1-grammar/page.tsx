@@ -34,6 +34,7 @@ export default function GermanB1GrammarPage() {
     <div className="app-shell german-shell">
       <aside className="app-sidebar"><AppBrand subtitle="B1 Grammatik" /><SimpleNavigation active="german-b1" items={[
         { key: "german-b1", label: "B1 Grammatik · 12 Themen", href: "/german/b1-grammar", icon: <BookOpen size={18} /> },
+        { key: "german-grammatik", label: "Grammatik A1–B2 · 20 Module", href: "/german/grammatik", icon: <ChevronRight size={18} /> },
         { key: "grammar-cases", label: "SatzTat · پرونده‌های گرامر", href: "/german/grammar-cases", icon: <ChevronRight size={18} /> },
         { key: "satztat", label: "SatzTat · Network missions", href: "/german/satztat", icon: <ChevronRight size={18} /> },
       ]} /><div className="german-sidebar-note"><strong>۱۲ مبحث کامل B1</strong><p>هر مبحث با مثال، دیکته، یادآوری و نوشتن تمرین می‌شود.</p></div></aside>

@@ -28,6 +28,8 @@
     "verify:ccna-lab-sources": "node --experimental-strip-types scripts/verify-ccna-lab-sources.mjs",
     "validate:ccna-sim": "node --experimental-strip-types scripts/validate-ccna-sim.mjs",
     "validate:german-b1-drills": "node --experimental-strip-types scripts/validate-german-b1-drills.mjs",
+    "validate:german-a1b2": "node --experimental-strip-types scripts/validate-german-a1b2.mjs",
+    "test:german-a1b2-ui": "node scripts/test-german-a1b2-ui.mjs",
     "test:german-b1-ui": "node scripts/test-german-b1-ui.mjs",
     "validate:ccna-simulation": "node --experimental-strip-types scripts/validate-ccna-simulation.mjs",
     "validate:ccna-responsive": "node scripts/validate-ccna-responsive.mjs",
